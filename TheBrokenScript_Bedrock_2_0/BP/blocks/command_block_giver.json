@@ -1,0 +1,15 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:block": {
+    "description": {
+      "identifier": "thebrokenscript:command_block_giver",
+      "menu_category": { "category": "construction" }
+    },
+    "components": {
+      "minecraft:material_instances": { "*": { "texture": "command_block" } },
+      "minecraft:custom_components": [ "thebrokenscript:be_command" ],
+      "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:destructible_by_explosion": { "explosion_resistance": 5 }
+    }
+  }
+}

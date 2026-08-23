@@ -1,4 +1,4 @@
-{
+﻿{
     "resource_pack_name":  "thebrokenscript",
     "texture_name":  "atlas.terrain",
     "padding":  8,
@@ -312,6 +312,45 @@
                                        },
                          "white":  {
                                        "textures":  "textures/block/white"
-                                   }
+                                   },
+                         "block_is_missing_id":  {
+                                                     "textures":  "textures/blocks/errornotexture"
+                                                 },
+                         "r_3":  {
+                                     "textures":  "textures/blocks/block3"
+                                 },
+                         "new_vein":  {
+                                          "textures":  "textures/blocks/vein_center"
+                                      },
+                         "name_missing":  {
+                                              "textures":  "textures/blocks/errornotexture"
+                                          },
+                         "void_blossom":  {
+                                              "textures":  "textures/blocks/tether_bloom_rot"
+                                          },
+                         "void_budding":  {
+                                              "textures":  "textures/blocks/void_growth"
+                                          },
+                         "hello":  {
+                                       "textures":  "textures/blocks/hi"
+                                   },
+                         "void_bud":  {
+                                          "textures":  "textures/blocks/tether_bloom_disintegrate"
+                                      },
+                         "nowhere_block":  {
+                                               "textures":  "textures/blocks/nullvoid"
+                                           },
+                         "int":  {
+                                     "textures":  "textures/blocks/block4"
+                                 },
+                         "void_bloom":  {
+                                            "textures":  "textures/blocks/tether_bloom_idle"
+                                        },
+                         "oldblock":  {
+                                          "textures":  "textures/blocks/old"
+                                      },
+                         "physical_stacktrace":  {
+                                                     "textures":  "textures/blocks/stack_trace"
+                                                 }
                      }
 }

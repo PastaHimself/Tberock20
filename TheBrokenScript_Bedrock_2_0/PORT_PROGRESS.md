@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 07)
+Last updated: 2026-08-23 (Chunk 08)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 07)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 08 — Blocks (123 + 8 BE equivalents)**
+**Chunk 09 — Items (192) + fluids approximation**
 
 ## Chunk state
 | Chunk | State |
@@ -29,7 +29,7 @@ Last updated: 2026-08-23 (Chunk 07)
 | 05F Remaining entities | **completed** (14 misc/niw/players entities: xxram_2die chat seq, ban, eerie_noise, chunk_remover*, corruption void-column, follow, name_tag, maze_shadows, null_cod, nothing_watcher, niw pair w/ kick, phantom_player swap, hetzer; *chunk ops approximated) |
 | 06 Stalking systems completion pass | **completed** (curved unseen-approach/transform, jon chatter NPC, sub_anomaly_1/2 corrupt-block rolls, obliteration pair w/ stare-kick, herobrine statue; CURVED/HEROBRINE/OBLIT/ANOMALY spawn rules; manifest switched to @minecraft/server beta channel) |
 | 07 Bosses (Integrity/Jimmy/Kerfur+fever/chord/tether/tentacle) | **completed** (16 entities: integrity p1-p3/arm/curious/fireball w/ health-threshold phase chain + Arena hooks, fractured+roam+rock, murderfur Kerfur pet, fever+stalk, chord+projectile, tether, void_tentacle; FRACTURED/FEVER_STALK natural rules) |
-| 08 Blocks (123 + 8 BE equivalents) | pending |
+| 08 Blocks (123 + 8 BE equivalents) | **completed** (123/123 blockstates → BP/blocks: ~60 cubes, 19 cross flora w/ geometry.tbs_cross, 16 void_template markers, jim_triggers/initiator/BEs; terrain_texture +13 keys; beta blockComponentRegistry ×12; physical_stacktrace/disruption/corrupt ledgers unblocked; tools/build_blocks.ps1) |
 | 09 Items (192) + fluids approximation | pending |
 | 10 Dimensions (13) & portals | pending |
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | pending |
@@ -43,6 +43,9 @@ Last updated: 2026-08-23 (Chunk 07)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 08)
+BP/blocks/*.json (123) · RP/models/blocks/tbs_cross.geo.json · RP/terrain_texture.json (+13) · src/systems/custom_blocks.js · tools/build_blocks.ps1 · docs/chunks/CHUNK_08_{SPEC,REPORT}.md
 
 ## Files created (Chunk 07)
 BP/entities/{integrity_phase_1,integrity_phase_2,integrity_phase_3,integrity_arm,integrity_curious,integ_fireball,fractured,fractured_roam,rock,murderfur,fever,fever_stalk,chord,chord_projectile,tether,void_tentacle}.json (16) · RP/entity/*.entity.json (16) · src/entities/boss/{boss_controller,boss_spawn_rules}.js · docs/chunks/CHUNK_07_{SPEC,REPORT}.md
@@ -86,13 +89,14 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 07: 39 modules sync, 259 JSONs parsed incl. 32 new boss JSONs — PASS; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 08: 123/123 blocks, 383 JSONs parsed — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
-- null_book_story event unwired until item system exists (Chunk 09) — ledgered in_progress.
-- Custom blocks (physical_stacktrace, disruption, corrupt blocks) pending Chunk 08.
+- null_book_story event unwired until item system exists — Chunk 09 next.
+- Non-cube block shapes (slabs/stairs/walls/fences/trapdoors/doors) rendered as full cubes; flora share one cross geometry — Chunk 14 candidates.
+- Animated block textures static in Bedrock.
 - Arena story triggers land in Chunk 12; boss music/death sequences pending Chunk 14.
 - Dimension teleports (follow → CLAN_VOID/NULL_TORTURE) pending Chunk 10 — beta APIs enabled.
 - Advancements (can_you_see_me, curved death lines) pending Chunk 13/14; FunnySetting easter-egg variants pending config pass.
@@ -105,9 +109,9 @@ See VALIDATION_LOG.md (Chunk 07: 39 modules sync, 259 JSONs parsed incl. 32 new 
 - **Beta APIs now required**: BP manifest depends on `@minecraft/server` version `beta` (project decision, 2026-08-23). Worlds must enable the "Beta APIs" experiment. This supersedes the earlier plan of isolating beta usage to the custom-dimension module; stable floor remains documented at 1.26.30 as fallback.
 
 ## Next chunk
-Chunk 08 — Blocks (123 blockstates → Bedrock blocks + 8 BE equivalents)
+Chunk 09 — Items (192) + fluids approximation
 
 ## Exact source references to inspect next
-- `source_extracted/assets/thebrokenscript/blockstates/*.json` (123) + `models/block/*` + `TBSBlocks.java` (registry w/ block items)
-- Block entities: TBSBlockEntities (command/all_dead/exit/shadow_bug/portal_controller/portal_extender/null_structure/a_flower)
-- Priority unblocks: physical_stacktrace (05D ledger), disruption (05F follow), corrupt spread blocks (06 anomalies)
+- `TBSItems.java` + `TBSEasterEggItems.java` + `TBSPlushies.java` registries; `source_extracted/assets/thebrokenscript/models/item/*` (item_texture.json already has 68 entries from Chunk 03)
+- Fluids: TBSFluids (void_goop still/flow textures present); Bedrock approximation via custom blocks or camera-liquid substitute
+- null_book story event wiring (unblocked by item system)

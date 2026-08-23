@@ -386,10 +386,13 @@ function tickStalk(e) {
           try { e.dimension.runCommandAsync("stopsound @a"); } catch {}
           try { e.addEffect("invisibility", 600, { amplifier: 0, showParticles: false }); } catch {}
         } else {
-          // discard + place physical_stacktrace block below (Block not ported until 08 — skip, just remove)
+          // discard + place physical_stacktrace block below (Chunk 08 block now available)
+          try {
+            const below = e.dimension.getBlock({ x: Math.floor(e.location.x), y: Math.floor(e.location.y) - 1, z: Math.floor(e.location.z) });
+            if (below && below.typeId === "minecraft:air") below.setType("thebrokenscript:physical_stacktrace");
+          } catch {}
           try { e.remove(); } catch {}
           timers.delete(e.id); extraState.delete(e.id);
-          // pending Chunk 08: PHysicalStacktraceBlock placement at e y-1
           return;
         }
       }

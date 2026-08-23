@@ -158,13 +158,13 @@ function tickSubAnomaly(e) {
     const oz = Math.floor(Math.random() * 11 - 5);
     try {
       const b = e.dimension.getBlock({ x: Math.floor(e.location.x) + ox, y: Math.floor(e.location.y) + oy, z: Math.floor(e.location.z) + oz });
-      if (b && b.typeId === "minecraft:air") b.setType("minecraft:mossy_cobblestone"); // corrupt-block surrogate (Chunk 08)
+      if (b && b.typeId === "minecraft:air") b.setType("thebrokenscript:corrupted_moon_stone_bricks");
     } catch {}
     if (Math.random() <= 0.05) {
       // 5% branch — extra spread block
       try {
         const b2 = e.dimension.getBlock({ x: Math.floor(e.location.x) + ox + 1, y: Math.floor(e.location.y) + oy, z: Math.floor(e.location.z) + oz });
-        if (b2 && b2.typeId === "minecraft:air") b2.setType("minecraft:mossy_cobblestone");
+        if (b2 && b2.typeId === "minecraft:air") b2.setType("thebrokenscript:corrupted_moon_stone_bricks");
       } catch {}
     }
   }

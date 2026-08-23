@@ -27,6 +27,7 @@ import * as stalkController from "./entities/stalk/stalk_controller.js";
 import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
 import * as bossController from "./entities/boss/boss_controller.js";
 import * as bossSpawnRules from "./entities/boss/boss_spawn_rules.js";
+import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
@@ -54,6 +55,7 @@ function onWorldLoad() {
     stalkController.begin(scheduler);
     bossSpawnRules.register();
     bossController.begin(scheduler);
+    initCustomBlocks();
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",

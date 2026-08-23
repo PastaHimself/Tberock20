@@ -331,6 +331,16 @@ function tickFollow(e) {
   if (system.currentTick % 30 === 0) {
     try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", { x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch {}
   }
+  // disruption block placement every ~20 ticks (Chunk 08 block now available)
+  if (system.currentTick % 20 === 0) {
+    try {
+      const ox = (Math.random() < 0.5 ? 1 : -1) * Math.floor(Math.random() * 6);
+      const oy = Math.floor(Math.random() * 6);
+      const oz = (Math.random() < 0.5 ? 1 : -1) * Math.floor(Math.random() * 6);
+      const b = e.dimension.getBlock({ x: Math.floor(e.location.x) + ox, y: Math.floor(e.location.y) + oy, z: Math.floor(e.location.z) + oz });
+      if (b && b.typeId === "minecraft:air") b.setType("thebrokenscript:disruption");
+    } catch {}
+  }
   const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 40);
   if (player && distance(e.location, player.location) < 20 && hasLineOfSightApprox(player, e)) {
     try { e.remove(); } catch {} deleteTimers(e);
