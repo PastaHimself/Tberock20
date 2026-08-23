@@ -29,3 +29,13 @@ test("beta pack requires its matching preview engine", async () => {
 
   assert.deepEqual(manifest.header.min_engine_version, [1, 26, 50]);
 });
+
+test("CI identifies the installed Script API definitions as beta", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/bedrock-addon-check.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(workflow, /Install Minecraft Bedrock beta Script API typings/);
+  assert.doesNotMatch(workflow, /Install Minecraft Bedrock stable Script API typings/);
+});
