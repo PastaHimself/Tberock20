@@ -18,7 +18,7 @@ jobs:
   validate-addon:
     name: Validate and package Bedrock add-on
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Check out repository
@@ -34,54 +34,22 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install Minecraft Bedrock beta Script API typings
+        run: npm install --ignore-scripts --no-audit --no-fund
+
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
-      - name: Validate pack JSON and manifests
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import { readFile, readdir } from 'node:fs/promises';
-          import path from 'node:path';
+      - name: Validate complete add-on
+        run: python tools/validate_addon.py --report artifacts/addon-validation.json
 
-          const addonRoot = 'TheBrokenScript_Bedrock_2_0';
-          const packRoots = [path.join(addonRoot, 'BP'), path.join(addonRoot, 'RP')];
+      - name: Validate Bedrock resource identifier links
+        run: python tools/validate_resource_links.py --report artifacts/resource-link-validation.json
 
-          async function walk(dir) {
-            const files = [];
-            for (const entry of await readdir(dir, { withFileTypes: true })) {
-              const full = path.join(dir, entry.name);
-              if (entry.isDirectory()) files.push(...await walk(full));
-              else if (entry.isFile()) files.push(full);
-            }
-            return files;
-          }
+      - name: Validate all Bedrock structures
+        run: python tools/validate_mcstructures.py --report artifacts/mcstructure-validation.json
 
-          let jsonCount = 0;
-          for (const root of packRoots) {
-            for (const file of await walk(root)) {
-              if (path.extname(file).toLowerCase() !== '.json') continue;
-              jsonCount += 1;
-              JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
-            }
-          }
-
-          const bp = JSON.parse(await readFile(path.join(addonRoot, 'BP/manifest.json'), 'utf8'));
-          const rp = JSON.parse(await readFile(path.join(addonRoot, 'RP/manifest.json'), 'utf8'));
-          if (bp.format_version !== 2 || rp.format_version !== 2) throw new Error('Both manifests must use format_version 2.');
-          if (!bp.modules?.some((m) => m?.type === 'data')) throw new Error('Behavior pack is missing a data module.');
-          const script = bp.modules?.find((m) => m?.type === 'script');
-          if (!script?.entry) throw new Error('Behavior pack is missing a script entry.');
-          if (!rp.modules?.some((m) => m?.type === 'resources')) throw new Error('Resource pack is missing a resources module.');
-          const server = bp.dependencies?.find((d) => d?.module_name === '@minecraft/server');
-          if (!server || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(server.version ?? '')) {
-            throw new Error('@minecraft/server must use a concrete semantic version.');
-          }
-          console.log(`Validated ${jsonCount} JSON files and both manifests.`);
-          NODE
-
-      - name: Check runtime JavaScript syntax
+      - name: Check all behavior-pack JavaScript syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -91,8 +59,38 @@ jobs:
             exit 1
           fi
           for script in "${scripts[@]}"; do
+            echo "Checking $script"
             node --check "$script"
           done
+
+      - name: Type-check behavior scripts against Bedrock beta APIs
+        run: npm run typecheck
+
+      - name: Run JavaScript regression tests
+        run: npm test
+
+      - name: Checkout Blockception Bedrock language server
+        uses: actions/checkout@v5
+        with:
+          repository: Blockception/minecraft-bedrock-language-server
+          path: .blockception/minecraft-bedrock-language-server
+          submodules: recursive
+
+      - name: Build Blockception Bedrock language server
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd .blockception/minecraft-bedrock-language-server
+          npm install --ignore-scripts --no-audit --no-fund
+          npm run build
+          echo "BLOCKCEPTION_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Run Blockception project diagnostics
+        run: >-
+          node tools/run_blockception_lsp_check.mjs
+          --server .blockception/minecraft-bedrock-language-server/ide/vscode/lsp/server.js
+          --workspace TheBrokenScript_Bedrock_2_0
+          --report artifacts/blockception-lsp-diagnostics.json
 
       - name: Stage production packs for Mojang Creator Tools
         shell: bash
@@ -135,11 +133,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p artifacts
           set +e
           npm exec --yes --package=@minecraft/creator-tools@0.17.7 -- \
             mct validate main -i .ci/mct --json > .ci/mct-validation.json
           MCT_STATUS=$?
           set -e
+          cp .ci/mct-validation.json artifacts/mct-validation.json
           export MCT_STATUS
 
           node --input-type=module <<'NODE'
@@ -218,6 +218,15 @@ jobs:
           name: The_Broken_Script_2_0-mcaddon
           path: dist/The_Broken_Script_2_0.mcaddon
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: addon-validation-reports
+          path: artifacts/*.json
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Fail on packaging or upload errors
