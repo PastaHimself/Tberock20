@@ -96,6 +96,33 @@ jobs:
           cp -a TheBrokenScript_Bedrock_2_0/BP/. .ci/mct/behavior_packs/bp/
           cp -a TheBrokenScript_Bedrock_2_0/RP/. .ci/mct/resource_packs/rp/
 
+          find .ci/mct -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
+          if [[ -f .ci/mct/resource_packs/rp/sound_definitions.json ]]; then
+            mkdir -p .ci/mct/resource_packs/rp/sounds
+            mv .ci/mct/resource_packs/rp/sound_definitions.json .ci/mct/resource_packs/rp/sounds/sound_definitions.json
+          fi
+
+          node --input-type=module <<'NODE'
+          import { readFile, readdir, writeFile } from 'node:fs/promises';
+          import path from 'node:path';
+
+          async function walk(dir) {
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                await walk(full);
+              } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
+                const bytes = await readFile(full);
+                if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+                  await writeFile(full, bytes.subarray(3));
+                }
+              }
+            }
+          }
+
+          await walk('.ci/mct');
+          NODE
+
       - name: Validate production packs with Mojang Minecraft Creator Tools
         shell: bash
         run: |
