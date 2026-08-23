@@ -28,7 +28,7 @@
     },
     {
       "module_name": "@minecraft/server",
-      "version": "beta"
+      "version": "2.6.0"
     }
   ],
   "metadata": {

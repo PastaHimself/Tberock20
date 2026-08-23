@@ -1,0 +1,124 @@
+name: Bedrock Add-on Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bedrock-addon-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-addon:
+    name: Validate and package Bedrock add-on
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Validate pack JSON and manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFile, readdir } from 'node:fs/promises';
+          import path from 'node:path';
+
+          const addonRoot = 'TheBrokenScript_Bedrock_2_0';
+          const packRoots = [path.join(addonRoot, 'BP'), path.join(addonRoot, 'RP')];
+
+          async function walk(dir) {
+            const files = [];
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) files.push(...await walk(full));
+              else if (entry.isFile()) files.push(full);
+            }
+            return files;
+          }
+
+          let jsonCount = 0;
+          for (const root of packRoots) {
+            for (const file of await walk(root)) {
+              if (path.extname(file).toLowerCase() !== '.json') continue;
+              jsonCount += 1;
+              JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
+            }
+          }
+
+          const bp = JSON.parse(await readFile(path.join(addonRoot, 'BP/manifest.json'), 'utf8'));
+          const rp = JSON.parse(await readFile(path.join(addonRoot, 'RP/manifest.json'), 'utf8'));
+          if (bp.format_version !== 2 || rp.format_version !== 2) throw new Error('Both manifests must use format_version 2.');
+          if (!bp.modules?.some((m) => m?.type === 'data')) throw new Error('Behavior pack is missing a data module.');
+          const script = bp.modules?.find((m) => m?.type === 'script');
+          if (!script?.entry) throw new Error('Behavior pack is missing a script entry.');
+          if (!rp.modules?.some((m) => m?.type === 'resources')) throw new Error('Resource pack is missing a resources module.');
+          const server = bp.dependencies?.find((d) => d?.module_name === '@minecraft/server');
+          if (!server || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(server.version ?? '')) {
+            throw new Error('@minecraft/server must use a concrete semantic version.');
+          }
+          console.log(`Validated ${jsonCount} JSON files and both manifests.`);
+          NODE
+
+      - name: Check runtime JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' scripts < <(find TheBrokenScript_Bedrock_2_0/BP/scripts -type f -name '*.js' -print0)
+          if (( ${#scripts[@]} == 0 )); then
+            echo 'No runtime JavaScript files found.' >&2
+            exit 1
+          fi
+          for script in "${scripts[@]}"; do
+            node --check "$script"
+          done
+
+      - name: Stage production packs for Mojang Creator Tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ci/mct
+          mkdir -p .ci/mct/behavior_packs/bp .ci/mct/resource_packs/rp
+          cp -a TheBrokenScript_Bedrock_2_0/BP/. .ci/mct/behavior_packs/bp/
+          cp -a TheBrokenScript_Bedrock_2_0/RP/. .ci/mct/resource_packs/rp/
+
+      - name: Validate production packs with Mojang Minecraft Creator Tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm exec --yes --package=@minecraft/creator-tools@0.17.7 -- \
+            mct validate main -i .ci/mct
+
+      - name: Package successful build as .mcaddon
+        id: package_addon
+        continue-on-error: true
+        shell: bash
+        run: bash tools/package-addon.sh
+
+      - name: Upload The Broken Script 2.0 .mcaddon
+        id: upload_addon
+        if: steps.package_addon.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: The_Broken_Script_2_0-mcaddon
+          path: dist/The_Broken_Script_2_0.mcaddon
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Fail on packaging or upload errors
+        if: ${{ steps.package_addon.outcome == 'failure' || steps.upload_addon.outcome == 'failure' }}
+        run: exit 1
