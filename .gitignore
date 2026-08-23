@@ -1,0 +1,2 @@
+# Local toolchain; install Java 21 separately when building locally.
+TheBrokenScript_Bedrock_2_0/tools/jdk/
