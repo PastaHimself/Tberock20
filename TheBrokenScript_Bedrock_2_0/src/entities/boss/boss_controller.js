@@ -3,6 +3,26 @@ import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 
+// ── boss death sequence (Chunk 14 presentation) ─────────────────────────────
+let deathHookInstalled = false;
+function installDeathHook() {
+  if (deathHookInstalled) return;
+  deathHookInstalled = true;
+  try {
+    world.afterEvents.entityDie.subscribe((ev) => {
+      const id = ev.deadEntity.typeId;
+      const isBoss =
+        id.startsWith("thebrokenscript:integrity") ||
+        id === "thebrokenscript:fractured" ||
+        id === "thebrokenscript:the_obliteration" ||
+        id === "thebrokenscript:the_obliteration_2";
+      if (!isBoss) return;
+      try { ev.deadEntity.dimension.playSound("thebrokenscript:integrity_dies", ev.deadEntity.location, { volume: 10, pitch: 1 }); } catch {}
+      if (id.startsWith("thebrokenscript:integrity")) bossHooks.setArenaState(false, false);
+    });
+  } catch {}
+}
+
 // ── constants from decompiled sources ──────────────────────────────────────
 // integrity: phase chain p1(910/50) → p2(910/25) → p3(1024/50) at health thresholds,
 //            fireball volleys + ground arms in p3, watching beat, integrity_dies on end
@@ -57,6 +77,7 @@ function approach(e, player, speedBlocksPerTick) {
 }
 
 export function begin(scheduler) {
+  installDeathHook();
   scheduler.every("tbs.boss_tick", 1, onTick);
 }
 

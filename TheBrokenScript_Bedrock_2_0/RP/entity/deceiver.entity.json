@@ -6,7 +6,7 @@
                                                                           "default":  "entity_alphatest"
                                                                       },
                                                         "geometry":  {
-                                                                         "default":  "geometry.notexture"
+                                                                         "default":  "geometry.tbs_humanoid"
                                                                      },
                                                         "render_controllers":  [
                                                                                    "controller.render.single_textured"

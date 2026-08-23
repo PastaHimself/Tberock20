@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 13)
+Last updated: 2026-08-23 (Chunk 14)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 13)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 14 — Presentation completion**
+**Chunk 15 — Integration pass**
 
 ## Chunk state
 | Chunk | State |
@@ -35,7 +35,7 @@ Last updated: 2026-08-23 (Chunk 13)
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 biomes + RP fog palettes; procedural Shaft/Hallway builders wired to null_structure interact; 305-NBT corpus + xcsf arena conversion ledgered as deferred tooling; 32 spawn modifiers confirmed covered by spawn_director rules) |
 | 12 Events & horror choreography (94) | **completed** (horror_events.js: 78-id gated weighted pool @200t, ~60 handlers incl. OS-fake titles A-004, place_* pranks w/ real blocks, fire() export; Arena suppression; manifest external revert re-corrected to beta) |
 | 13 Progression/recipes/loot/tags/commands | **completed** (40/40 recipes incl. 16 stonecutter; 126 self-drop loot tables + component wired into 125 blocks; progression.js 5 advancements wired to siluet spawn/TBE kill/polaroid scan/boss hurt; commands.js /scriptevent tbs:* surface + 14 chat responses; manifest version now user-managed, validator non-failing) |
-| 14 Presentation completion | pending |
+| 14 Presentation completion | **completed** (tbs_slab/stairs/wall geometries wired into 16 blocks w/ collision; tbs_humanoid geo on faraway/deceiver/xxram_2die; boss death hook — integrity_dies + Arena teardown; manifest owner-pinned version respected) |
 | 15 Integration | pending |
 | 16 Multiplayer & performance audit | pending |
 | 17 Full parity audit vs 912-entry inventory | pending |
@@ -43,6 +43,9 @@ Last updated: 2026-08-23 (Chunk 13)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 14)
+RP/models/blocks/{tbs_slab,tbs_stairs,tbs_wall}.geo.json · RP/models/entity/tbs_humanoid.geo.json · 16 block JSONs rewired · 3 entity JSONs rewired · boss_controller death hook · docs/chunks/CHUNK_14_REPORT.md
 
 ## Files created (Chunk 13)
 BP/recipes/*.json (40) · BP/loot_tables/** (126) · BP/blocks/*.json loot components (125) · src/systems/{progression,commands}.js · advancement wiring (horror_events/humanoid_spawn_rules/tbe_controller) · tools/build_recipes.ps1 · docs/chunks/CHUNK_13_REPORT.md

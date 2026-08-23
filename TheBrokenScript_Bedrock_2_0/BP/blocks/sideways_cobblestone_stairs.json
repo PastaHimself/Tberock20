@@ -6,10 +6,12 @@
       "menu_category": { "category": "construction" }
     },
     "components": {
+      "minecraft:geometry": "geometry.tbs_stairs",
       "minecraft:material_instances": { "*": { "texture": "sideways_cobblestone_stairs" } },
       "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
       "minecraft:loot": "loot_tables/blocks/sideways_cobblestone_stairs.json",
       "minecraft:destructible_by_explosion": { "explosion_resistance": 5 },
+      "minecraft:collision_box": true,
       "minecraft:light_dampening": 0
     }
   }
