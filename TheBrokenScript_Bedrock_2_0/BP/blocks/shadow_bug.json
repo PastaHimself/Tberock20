@@ -1,16 +1,28 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:block": {
     "description": {
       "identifier": "thebrokenscript:shadow_bug",
-      "menu_category": { "category": "construction" }
+      "menu_category": {
+        "category": "construction"
+      }
     },
     "components": {
-      "minecraft:material_instances": { "*": { "texture": "dark" } },
-      "minecraft:custom_components": ["thebrokenscript:be_shadow_bug"],
-      "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "dark"
+        }
+      },
+      "minecraft:custom_components": [
+        "thebrokenscript:be_shadow_bug"
+      ],
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
       "minecraft:loot": "loot_tables/blocks/shadow_bug.json",
-      "minecraft:destructible_by_explosion": { "explosion_resistance": 5 }
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 5
+      }
     }
   }
 }

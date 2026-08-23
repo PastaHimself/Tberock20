@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Minecraft Bedrock beta Script API typings
+      - name: Install Minecraft Bedrock stable Script API typings
         run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Run validator unit tests

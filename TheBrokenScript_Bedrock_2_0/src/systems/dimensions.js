@@ -16,10 +16,12 @@ function fullId(id) {
 }
 
 function tryCreate(id) {
-  // beta API: world.createDimension (guarded — static JSON definitions also exist)
+  // Compatibility fallback for preview builds; stable builds use the static JSON
+  // definitions and world.getDimension above.
   try {
-    if (typeof world.createDimension === "function") {
-      const d = world.createDimension(fullId(id));
+    const dynamicWorld = /** @type {any} */ (world);
+    if (typeof dynamicWorld.createDimension === "function") {
+      const d = dynamicWorld.createDimension(fullId(id));
       if (d) { handles.set(id, d); return d; }
     }
   } catch {}

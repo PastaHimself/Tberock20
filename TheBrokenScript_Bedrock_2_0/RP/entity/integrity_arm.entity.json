@@ -1,20 +1,20 @@
-﻿{
-    "format_version":  "1.10.0",
-    "minecraft:client_entity":  {
-                                    "description":  {
-                                                        "materials":  {
-                                                                          "default":  "entity_alphatest"
-                                                                      },
-                                                        "geometry":  {
-                                                                         "default":  "geometry.tbs_ip3_ground_arm"
-                                                                     },
-                                                        "render_controllers":  [
-                                                                                   "controller.render.single_textured"
-                                                                               ],
-                                                        "identifier":  "thebrokenscript:integrity_arm",
-                                                        "textures":  {
-                                                                         "default":  "textures/entities/fractured"
-                                                                     }
-                                                    }
-                                }
+{
+  "format_version": "1.26.40",
+  "minecraft:client_entity": {
+    "description": {
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "geometry": {
+        "default": "geometry.tbs_ip3_ground_arm"
+      },
+      "render_controllers": [
+        "controller.render.single_textured"
+      ],
+      "identifier": "thebrokenscript:integrity_arm",
+      "textures": {
+        "default": "textures/entities/fractured"
+      }
+    }
+  }
 }

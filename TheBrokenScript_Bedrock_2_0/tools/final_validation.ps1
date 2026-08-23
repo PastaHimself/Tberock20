@@ -51,8 +51,8 @@ $itemIds = if (Test-Path (Join-Path $proj "BP\items")) { Get-ChildItem (Join-Pat
 $itemDups = $itemIds | Group-Object | Where-Object Count -gt 1
 foreach ($d in $itemDups) { Fail "duplicate identifier in items: $($d.Name)" }
 Write-Output "5. identifier uniqueness verified (per-scope)"
-# 6. item display_name lang keys exist in BP lang
-$langText = Get-Content (Join-Path $proj "BP\texts\en_US.lang") -Raw
+# 6. Item display names are client-facing and therefore resolve from the RP lang.
+$langText = Get-Content (Join-Path $proj "RP\texts\en_US.lang") -Raw
 $itemFiles = Get-ChildItem (Join-Path $proj "BP\items") -Filter *.json -ErrorAction SilentlyContinue
 foreach ($f in $itemFiles) {
   $raw = Get-Content -LiteralPath $f.FullName -Raw

@@ -1,20 +1,20 @@
 {
-    "format_version":  "1.10.0",
-    "minecraft:client_entity":  {
-                                    "description":  {
-                                                        "materials":  {
-                                                                          "default":  "entity_alphatest"
-                                                                      },
-                                                        "geometry":  {
-                                                                         "default":  "geometry.circuitv4"
-                                                                     },
-                                                        "render_controllers":  [
-                                                                                   "controller.render.single_textured"
-                                                                               ],
-                                                        "identifier":  "thebrokenscript:circuit",
-                                                        "textures":  {
-                                                                         "default":  "textures/entities/circy"
-                                                                     }
-                                                    }
-                                }
+  "format_version": "1.26.40",
+  "minecraft:client_entity": {
+    "description": {
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "geometry": {
+        "default": "geometry.circuitv4"
+      },
+      "render_controllers": [
+        "controller.render.single_textured"
+      ],
+      "identifier": "thebrokenscript:circuit",
+      "textures": {
+        "default": "textures/entities/circy"
+      }
+    }
+  }
 }

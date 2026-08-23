@@ -1,16 +1,26 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:block": {
     "description": {
       "identifier": "thebrokenscript:moon_stone_brick_wall",
-      "menu_category": { "category": "construction" }
+      "menu_category": {
+        "category": "construction"
+      }
     },
     "components": {
       "minecraft:geometry": "geometry.tbs_wall",
-      "minecraft:material_instances": { "*": { "texture": "moon_stone_bricks" } },
-      "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "moon_stone_bricks"
+        }
+      },
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
       "minecraft:loot": "loot_tables/blocks/moon_stone_brick_wall.json",
-      "minecraft:destructible_by_explosion": { "explosion_resistance": 5 },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 5
+      },
       "minecraft:collision_box": true,
       "minecraft:light_dampening": 0
     }

@@ -1,13 +1,17 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:item": {
     "description": {
       "identifier": "thebrokenscript:book",
-      "menu_category": { "category": "items" }
+      "menu_category": {
+        "category": "items"
+      }
     },
     "components": {
       "minecraft:icon": "book",
-      "minecraft:display_name": { "value": "item.thebrokenscript.book" }
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.book"
+      }
     }
   }
 }

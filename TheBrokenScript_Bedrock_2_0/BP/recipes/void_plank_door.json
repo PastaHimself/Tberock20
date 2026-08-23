@@ -1,16 +1,25 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:recipe_shaped": {
-    "description": { "identifier": "thebrokenscript:void_plank_door" },
-    "tags": [ "crafting_table" ],
+    "description": {
+      "identifier": "thebrokenscript:void_plank_door"
+    },
+    "tags": [
+      "crafting_table"
+    ],
     "pattern": [
-    "## ",
-    "## ",
-    "## "
+      "## ",
+      "## ",
+      "## "
     ],
     "key": {
-      "#": { "item": "thebrokenscript:void_planks" }
+      "#": {
+        "item": "thebrokenscript:void_planks"
+      }
     },
-    "result": { "item": "thebrokenscript:void_plank_door", "count": 3 }
+    "result": {
+      "item": "thebrokenscript:void_plank_door",
+      "count": 3
+    }
   }
 }

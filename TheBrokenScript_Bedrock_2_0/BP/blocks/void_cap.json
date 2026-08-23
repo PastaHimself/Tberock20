@@ -1,13 +1,20 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:block": {
     "description": {
       "identifier": "thebrokenscript:void_cap",
-      "menu_category": { "category": "construction" }
+      "menu_category": {
+        "category": "construction"
+      }
     },
     "components": {
       "minecraft:loot": "loot_tables/blocks/void_cap.json",
-      "minecraft:material_instances": { "*": { "texture": "void_cap", "render_method": "alpha_test_single_sided" } },
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "void_cap",
+          "render_method": "alpha_test_single_sided"
+        }
+      },
       "minecraft:geometry": "geometry.tbs_cross",
       "minecraft:collision_box": false,
       "minecraft:selection_box": true,

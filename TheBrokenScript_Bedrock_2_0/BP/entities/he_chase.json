@@ -1,5 +1,5 @@
 {
-  "format_version": "1.21.0",
+  "format_version": "1.26.40",
   "minecraft:entity": {
     "description": {
       "identifier": "thebrokenscript:he_chase",
@@ -9,17 +9,43 @@
     },
     "component_groups": {},
     "components": {
-      "minecraft:type_family": { "family": ["thebrokenscript_humanoid", "monster", "mob"] },
-      "minecraft:health": { "value": 10, "max": 10 },
-      "minecraft:movement": { "value": 0.4 },
-      "minecraft:attack": { "damage": 13 },
-      "minecraft:follow_range": { "value": 316, "max": 316 },
-      "minecraft:collision_box": { "width": 1.0, "height": 2.5 },
+      "minecraft:type_family": {
+        "family": [
+          "thebrokenscript_humanoid",
+          "monster",
+          "mob"
+        ]
+      },
+      "minecraft:health": {
+        "value": 10,
+        "max": 10
+      },
+      "minecraft:movement": {
+        "value": 0.4
+      },
+      "minecraft:attack": {
+        "damage": 13
+      },
+      "minecraft:follow_range": {
+        "value": 316,
+        "max": 316
+      },
+      "minecraft:collision_box": {
+        "width": 1.0,
+        "height": 2.5
+      },
       "minecraft:physics": {},
-      "minecraft:push_through": { "value": 0 },
+      "minecraft:push_through": {
+        "value": 0
+      },
       "minecraft:persistent": {},
-      "minecraft:experience_reward": { "on_death": "query.last_hit_by_player ? 0 : 0" },
-      "minecraft:breathable": { "total_supply": 15, "suffocate_time": 0 }
+      "minecraft:experience_reward": {
+        "on_death": "query.last_hit_by_player ? 0 : 0"
+      },
+      "minecraft:breathable": {
+        "total_supply": 15,
+        "suffocate_time": 0
+      }
     },
     "events": {}
   }

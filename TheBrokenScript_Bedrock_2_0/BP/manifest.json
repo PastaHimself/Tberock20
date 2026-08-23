@@ -4,35 +4,58 @@
     "name": "pack.name",
     "description": "pack.description",
     "uuid": "a7728576-fbb9-44e9-8bf0-a5342d135e18",
-    "version": [2, 0, 0],
-    "min_engine_version": [1, 26, 10]
+    "version": [
+      2,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      10
+    ]
   },
   "modules": [
     {
       "type": "data",
       "uuid": "f9cd1e05-fe74-49f9-92a0-c32fcb6de7b8",
-      "version": [2, 0, 0]
+      "version": [
+        2,
+        0,
+        0
+      ]
     },
     {
       "type": "script",
       "language": "javascript",
       "uuid": "ac50eb52-3224-4d98-8375-2d2f471bfc78",
-      "version": [2, 0, 0],
+      "version": [
+        2,
+        0,
+        0
+      ],
       "entry": "scripts/main.js"
     }
   ],
   "dependencies": [
     {
       "uuid": "82fc6a1e-7feb-42bc-8d01-5a58f76a0f70",
-      "version": [2, 0, 0]
+      "version": [
+        2,
+        0,
+        0
+      ]
     },
     {
       "module_name": "@minecraft/server",
-      "version": "2.7.0-beta.1.26.10-stable"
+      "version": "2.9.0"
     }
   ],
   "metadata": {
-    "authors": ["Writers of the Script (original mod)", "The Broken Script Bedrock port project"],
+    "authors": [
+      "Writers of the Script (original mod)",
+      "The Broken Script Bedrock port project"
+    ],
     "license": "All Rights Reserved"
   }
 }

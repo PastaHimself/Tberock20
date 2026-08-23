@@ -1,11 +1,20 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:recipe_shapeless": {
-    "description": { "identifier": "thebrokenscript:moonstonecut_to_polishwall" },
-    "tags": [ "stonecutter" ],
-    "ingredients": [
-      { "item": "thebrokenscript:moon_stone" }
+    "description": {
+      "identifier": "thebrokenscript:moonstonecut_to_polishwall"
+    },
+    "tags": [
+      "stonecutter"
     ],
-    "result": { "item": "thebrokenscript:polished_moon_stone_wall", "count": 1 }
+    "ingredients": [
+      {
+        "item": "thebrokenscript:moon_stone"
+      }
+    ],
+    "result": {
+      "item": "thebrokenscript:polished_moon_stone_wall",
+      "count": 1
+    }
   }
 }

@@ -1,25 +1,29 @@
 {
-	"format_version": "1.8.0",
-	"animations": {
-		"walk": {
-			"loop": true,
-			"animation_length": 1,
-			"bones": {
-				"wheel": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"1.0": {
-							"vector": [-360, 0, 0]
-						}
-					}
-				}
-			}
-		},
-		"idle": {
-			"loop": true
-		}
-	},
-	"geckolib_format_version": 2
+  "format_version": "1.10.0",
+  "animations": {
+    "animation.thebrokenscript.murderfur.walk": {
+      "loop": true,
+      "animation_length": 1,
+      "bones": {
+        "wheel": {
+          "rotation": {
+            "0.0": [
+              0,
+              0,
+              0
+            ],
+            "1.0": [
+              -360,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.thebrokenscript.murderfur.idle": {
+      "loop": true
+    }
+  },
+  "geckolib_format_version": 2
 }

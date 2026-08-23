@@ -1,15 +1,24 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:recipe_shaped": {
-    "description": { "identifier": "thebrokenscript:polishedmoonstone_to_bricks" },
-    "tags": [ "crafting_table" ],
+    "description": {
+      "identifier": "thebrokenscript:polishedmoonstone_to_bricks"
+    },
+    "tags": [
+      "crafting_table"
+    ],
     "pattern": [
-    "ss",
-    "ss"
+      "ss",
+      "ss"
     ],
     "key": {
-      "s": { "item": "thebrokenscript:polished_moon_stone" }
+      "s": {
+        "item": "thebrokenscript:polished_moon_stone"
+      }
     },
-    "result": { "item": "thebrokenscript:moon_stone_bricks", "count": 4 }
+    "result": {
+      "item": "thebrokenscript:moon_stone_bricks",
+      "count": 4
+    }
   }
 }

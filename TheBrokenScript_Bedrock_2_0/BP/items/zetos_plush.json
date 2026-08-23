@@ -1,13 +1,17 @@
-﻿{
-  "format_version": "1.21.0",
+{
+  "format_version": "1.26.40",
   "minecraft:item": {
     "description": {
       "identifier": "thebrokenscript:zetos_plush",
-      "menu_category": { "category": "items" }
+      "menu_category": {
+        "category": "items"
+      }
     },
     "components": {
       "minecraft:icon": "zetos_plush",
-      "minecraft:display_name": { "value": "item.thebrokenscript.zetos_plush" }
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.zetos_plush"
+      }
     }
   }
 }

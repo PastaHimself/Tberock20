@@ -1,0 +1,517 @@
+#!/usr/bin/env python3
+"""Repair validation findings in The Broken Script 2.0 Bedrock add-on.
+
+The transformations are deliberately deterministic and idempotent so the tool can
+be rerun after regenerating source-derived assets.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import shutil
+from pathlib import Path
+from typing import Any, Iterable
+
+
+ADDON_NAME = "TheBrokenScript_Bedrock_2_0"
+CURRENT_CONTENT_VERSION = "1.26.40"
+CURRENT_ANIMATION_VERSION = "1.10.0"
+UTF8_BOM = b"\xef\xbb\xbf"
+TEXTURE_REPLACEMENTS = (
+    ("textures\\\\block\\\\", "textures/blocks/"),
+    ("textures\\\\item\\\\", "textures/items/"),
+    ("textures\\\\plush\\\\", "textures/items/plush/"),
+    ("textures/block\\\\", "textures/blocks/"),
+    ("textures/item\\\\", "textures/items/"),
+    ("textures/plush\\\\", "textures/items/plush/"),
+    ("textures/block/", "textures/blocks/"),
+    ("textures/item/", "textures/items/"),
+    ("textures/plush/", "textures/items/plush/"),
+)
+
+
+def load_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def write_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def json_files(*roots: Path) -> Iterable[Path]:
+    for root in roots:
+        if root.is_dir():
+            yield from sorted(root.rglob("*.json"))
+
+
+def remove_json_boms(bp: Path, rp: Path) -> int:
+    count = 0
+    for path in json_files(bp, rp):
+        raw = path.read_bytes()
+        if raw.startswith(UTF8_BOM):
+            path.write_bytes(raw[len(UTF8_BOM) :])
+            count += 1
+    return count
+
+
+def move_tree_contents(source: Path, destination: Path) -> int:
+    if not source.is_dir():
+        return 0
+    moved = 0
+    for path in sorted(source.rglob("*")):
+        if not path.is_file():
+            continue
+        target = destination / path.relative_to(source)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists():
+            if target.read_bytes() != path.read_bytes():
+                raise RuntimeError(f"Refusing to overwrite different texture: {target}")
+            path.unlink()
+        else:
+            shutil.move(str(path), str(target))
+        moved += 1
+    for directory in sorted((p for p in source.rglob("*") if p.is_dir()), reverse=True):
+        directory.rmdir()
+    source.rmdir()
+    return moved
+
+
+def normalize_texture_layout(rp: Path) -> tuple[int, int]:
+    textures = rp / "textures"
+    moved = 0
+    moved += move_tree_contents(textures / "block", textures / "blocks")
+    moved += move_tree_contents(textures / "item", textures / "items")
+    moved += move_tree_contents(textures / "plush", textures / "items" / "plush")
+
+    changed = 0
+    for path in json_files(rp):
+        original = path.read_text(encoding="utf-8")
+        updated = original
+        for old, new in TEXTURE_REPLACEMENTS:
+            updated = updated.replace(old, new)
+        if updated != original:
+            path.write_text(updated, encoding="utf-8")
+            changed += 1
+    return moved, changed
+
+
+def update_format_versions(bp: Path, rp: Path) -> int:
+    targets = (
+        (bp / "blocks", CURRENT_CONTENT_VERSION),
+        (bp / "entities", CURRENT_CONTENT_VERSION),
+        (bp / "items", CURRENT_CONTENT_VERSION),
+        (bp / "recipes", CURRENT_CONTENT_VERSION),
+        (rp / "entity", CURRENT_CONTENT_VERSION),
+    )
+    changed = 0
+    for root, version in targets:
+        for path in json_files(root):
+            value = load_json(path)
+            if isinstance(value, dict) and value.get("format_version") != version:
+                value["format_version"] = version
+                write_json(path, value)
+                changed += 1
+    return changed
+
+
+def repair_texture_atlases(rp: Path) -> int:
+    changed = 0
+    for name in ("terrain_texture.json", "item_texture.json"):
+        path = rp / name
+        value = load_json(path)
+        for entry in value.get("texture_data", {}).values():
+            textures = entry.get("textures") if isinstance(entry, dict) else None
+            if isinstance(textures, str):
+                entry["textures"] = [textures]
+                changed += 1
+        write_json(path, value)
+    return changed
+
+
+def repair_flipbook(rp: Path) -> int:
+    path = rp / "flipbook_textures.json"
+    value = load_json(path)
+    if isinstance(value, dict) and isinstance(value.get("flipbook"), list):
+        value = value["flipbook"]
+    if not isinstance(value, list):
+        raise ValueError(f"Unexpected flipbook structure in {path}")
+    for entry in value:
+        texture = entry.get("flipbook_texture") if isinstance(entry, dict) else None
+        if isinstance(texture, str):
+            entry["flipbook_texture"] = texture.replace("\\", "/").replace(
+                "textures/block/", "textures/blocks/"
+            )
+    write_json(path, value)
+    return len(value)
+
+
+def repair_sounds(rp: Path) -> tuple[int, int]:
+    path = rp / "sound_definitions.json"
+    value = load_json(path)
+    definitions = value.get("sound_definitions", {})
+    removed_entries = 0
+    removed_definitions = 0
+    for identifier in list(definitions):
+        definition = definitions[identifier]
+        sounds = definition.get("sounds", []) if isinstance(definition, dict) else []
+        valid = []
+        for sound in sounds:
+            name = sound if isinstance(sound, str) else sound.get("name")
+            if not isinstance(name, str):
+                removed_entries += 1
+                continue
+            relative = name.removeprefix("sounds/")
+            candidates = (rp / f"{name}.ogg", rp / f"{name}.wav", rp / f"sounds/{relative}.fsb")
+            if any(candidate.is_file() for candidate in candidates):
+                valid.append(sound)
+            else:
+                removed_entries += 1
+        if valid:
+            definition["sounds"] = valid
+        else:
+            del definitions[identifier]
+            removed_definitions += 1
+    write_json(path, value)
+    return removed_entries, removed_definitions
+
+
+def prune_unreferenced_audio(rp: Path) -> int:
+    value = load_json(rp / "sound_definitions.json")
+    referenced: set[str] = set()
+    for definition in value.get("sound_definitions", {}).values():
+        if not isinstance(definition, dict):
+            continue
+        for sound in definition.get("sounds", []):
+            name = sound if isinstance(sound, str) else sound.get("name")
+            if isinstance(name, str) and name.startswith("sounds/"):
+                referenced.add(name.removeprefix("sounds/").lower())
+
+    removed = 0
+    sound_root = rp / "sounds"
+    for path in sorted(sound_root.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in {".ogg", ".wav", ".fsb"}:
+            continue
+        relative = path.relative_to(sound_root).with_suffix("").as_posix().lower()
+        if relative not in referenced:
+            path.unlink()
+            removed += 1
+    for directory in sorted((p for p in sound_root.rglob("*") if p.is_dir()), reverse=True):
+        if not any(directory.iterdir()):
+            directory.rmdir()
+    return removed
+
+
+def ensure_render_controller(rp: Path) -> None:
+    write_json(
+        rp / "render_controllers" / "single_textured.render_controllers.json",
+        {
+            "format_version": "1.8.0",
+            "render_controllers": {
+                "controller.render.single_textured": {
+                    "geometry": "Geometry.default",
+                    "materials": [{"*": "Material.default"}],
+                    "textures": ["Texture.default"],
+                }
+            },
+        },
+    )
+
+
+def collapse_vector_wrappers(value: Any) -> Any:
+    if isinstance(value, list):
+        return [collapse_vector_wrappers(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    if set(value) == {"vector"} and isinstance(value["vector"], list):
+        return collapse_vector_wrappers(value["vector"])
+    return {key: collapse_vector_wrappers(item) for key, item in value.items()}
+
+
+def animation_slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9_]+", "_", value.lower()).strip("_")
+    return slug or "unnamed"
+
+
+def numeric_time_keys(value: Any) -> Iterable[float]:
+    if not isinstance(value, dict):
+        return
+    for key in value:
+        try:
+            yield float(key)
+        except (TypeError, ValueError):
+            continue
+
+
+def collect_geometry_bones(rp: Path) -> set[str]:
+    names: set[str] = set()
+    for path in json_files(rp / "models"):
+        value = load_json(path)
+        if not isinstance(value, dict):
+            continue
+        for geometry in value.get("minecraft:geometry", []):
+            if not isinstance(geometry, dict):
+                continue
+            for bone in geometry.get("bones", []):
+                if isinstance(bone, dict) and isinstance(bone.get("name"), str):
+                    names.add(bone["name"])
+    return names
+
+
+def repair_animations(rp: Path) -> tuple[int, int, int, int]:
+    bones_in_project = collect_geometry_bones(rp)
+    files = renamed = removed_bones = extended = 0
+    for path in json_files(rp / "animations"):
+        value = collapse_vector_wrappers(load_json(path))
+        if not isinstance(value, dict) or not isinstance(value.get("animations"), dict):
+            continue
+        value["format_version"] = CURRENT_ANIMATION_VERSION
+        base = animation_slug(path.name.replace(".animation.json", "").replace(".json", ""))
+        fixed_animations: dict[str, Any] = {}
+        for old_name, animation in value["animations"].items():
+            if old_name.startswith("animation."):
+                new_name = old_name
+            else:
+                new_name = f"animation.thebrokenscript.{base}.{animation_slug(old_name)}"
+                renamed += 1
+            suffix = 2
+            candidate = new_name
+            while candidate in fixed_animations:
+                candidate = f"{new_name}_{suffix}"
+                suffix += 1
+            new_name = candidate
+
+            if isinstance(animation, dict) and isinstance(animation.get("bones"), dict):
+                animation_bones = animation["bones"]
+                for bone_name in list(animation_bones):
+                    if bone_name not in bones_in_project:
+                        del animation_bones[bone_name]
+                        removed_bones += 1
+
+                maximum_time = 0.0
+                for bone in animation_bones.values():
+                    if not isinstance(bone, dict):
+                        continue
+                    for channel_name in ("rotation", "position", "scale"):
+                        maximum_time = max(maximum_time, *numeric_time_keys(bone.get(channel_name)), 0.0)
+                length = animation.get("animation_length")
+                if isinstance(length, (int, float)) and maximum_time > float(length):
+                    animation["animation_length"] = maximum_time
+                    extended += 1
+            fixed_animations[new_name] = animation
+        value["animations"] = fixed_animations
+        write_json(path, value)
+        files += 1
+    return files, renamed, removed_bones, extended
+
+
+def cap_attack_damage(bp: Path) -> int:
+    changed = 0
+    for path in json_files(bp / "entities"):
+        value = load_json(path)
+        components = value.get("minecraft:entity", {}).get("components", {})
+        attack = components.get("minecraft:attack") if isinstance(components, dict) else None
+        if not isinstance(attack, dict):
+            continue
+        damage = attack.get("damage")
+        if isinstance(damage, (int, float)) and damage > 50:
+            attack["damage"] = 50
+            write_json(path, value)
+            changed += 1
+    return changed
+
+
+def rgb_hex(value: int) -> str:
+    return f"#{value & 0xFFFFFF:06x}"
+
+
+def migrate_client_biomes(rp: Path) -> int:
+    legacy = rp / "biomes_client.json"
+    if not legacy.is_file():
+        return 0
+    value = load_json(legacy)
+    biomes = value.get("biomes_client", value.get("biomes", {}))
+    if not isinstance(biomes, dict):
+        raise ValueError(f"Unexpected client biome structure in {legacy}")
+    count = 0
+    for identifier, settings in biomes.items():
+        if not isinstance(identifier, str) or not isinstance(settings, dict):
+            continue
+        short_name = identifier.split(":", 1)[-1]
+        fog_identifier = f"thebrokenscript:fog_{short_name}"
+        fog_color = rgb_hex(int(settings.get("fog_color", 0)))
+        water_color = rgb_hex(int(settings.get("water_fog_color", 0)))
+        write_json(
+            rp / "fogs" / f"{short_name}.fog.json",
+            {
+                "format_version": "1.16.100",
+                "minecraft:fog_settings": {
+                    "description": {"identifier": fog_identifier},
+                    "distance": {
+                        "air": {
+                            "fog_start": 0,
+                            "fog_end": 64,
+                            "render_distance_type": "fixed",
+                            "fog_color": fog_color,
+                        },
+                        "water": {
+                            "fog_start": 0,
+                            "fog_end": 32,
+                            "render_distance_type": "fixed",
+                            "fog_color": water_color,
+                        },
+                    },
+                },
+            },
+        )
+        write_json(
+            rp / "biomes_client" / f"{short_name}.biome_client.json",
+            {
+                "format_version": CURRENT_CONTENT_VERSION,
+                "minecraft:client_biome": {
+                    "description": {"identifier": identifier},
+                    "components": {
+                        "minecraft:fog_appearance": {"fog_identifier": fog_identifier},
+                        "minecraft:sky_color": {"sky_color": fog_color},
+                        "minecraft:water_appearance": {"surface_color": water_color},
+                    },
+                },
+            },
+        )
+        count += 1
+    legacy.unlink()
+    return count
+
+
+def repair_language_files(bp: Path, rp: Path) -> None:
+    bp_lang = bp / "texts" / "en_US.lang"
+    rp_lang = rp / "texts" / "en_US.lang"
+    pack_lines = (
+        "pack.name=The Broken Script 2.0\n"
+        "pack.description=A Bedrock adaptation of The Broken Script horror experience.\n"
+    )
+    bp_lang.write_text(pack_lines, encoding="utf-8")
+    rp_text = rp_lang.read_text(encoding="utf-8-sig")
+    rp_text = rp_text.replace(
+        "subtitles.thebrokenscript.glitch_overlay=$#*&!)%(*@?",
+        "subtitles.thebrokenscript.glitch_overlay=§kGLITCH§r",
+    )
+    if "pack.name=" not in rp_text:
+        rp_text = pack_lines + rp_text
+    rp_lang.write_text(rp_text, encoding="utf-8")
+
+
+def rename_nonlowercase_texture(rp: Path) -> int:
+    source = rp / "textures" / "screens" / "very_serious" / "OygyluFufk.png"
+    target = source.with_name(source.name.lower())
+    if not source.exists():
+        return 0
+    if target.exists() and target.read_bytes() != source.read_bytes():
+        raise RuntimeError(f"Refusing to overwrite different texture: {target}")
+    if target.exists():
+        source.unlink()
+    else:
+        source.rename(target)
+    for path in json_files(rp):
+        original = path.read_text(encoding="utf-8")
+        updated = original.replace("OygyluFufk", "oygylufufk")
+        if updated != original:
+            path.write_text(updated, encoding="utf-8")
+    return 1
+
+
+def runtime_texture_references(rp: Path) -> set[str]:
+    references: set[str] = set()
+    pattern = re.compile(r"textures/[A-Za-z0-9_./-]+")
+    for path in sorted(rp.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in {".json", ".js", ".lang", ".material"}:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8-sig")
+        except UnicodeDecodeError:
+            continue
+        for match in pattern.finditer(text):
+            reference = match.group(0).rstrip(".").lower()
+            for suffix in (".png", ".jpg", ".jpeg", ".tga"):
+                if reference.endswith(suffix):
+                    reference = reference[: -len(suffix)]
+                    break
+            references.add(reference)
+    return references
+
+
+def prune_unreferenced_textures(rp: Path) -> int:
+    references = runtime_texture_references(rp)
+    texture_root = rp / "textures"
+    removed = 0
+    for path in sorted(texture_root.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".tga"}:
+            continue
+        reference = path.relative_to(rp).with_suffix("").as_posix().lower()
+        if reference not in references:
+            path.unlink()
+            removed += 1
+    for directory in sorted((p for p in texture_root.rglob("*") if p.is_dir()), reverse=True):
+        if not any(directory.iterdir()):
+            directory.rmdir()
+    return removed
+
+
+def update_manifest(bp: Path) -> None:
+    path = bp / "manifest.json"
+    value = load_json(path)
+    for dependency in value.get("dependencies", []):
+        if dependency.get("module_name") == "@minecraft/server":
+            dependency["version"] = "2.9.0"
+    write_json(path, value)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path.cwd())
+    args = parser.parse_args()
+
+    addon = args.root.resolve() / ADDON_NAME
+    bp, rp = addon / "BP", addon / "RP"
+    if not bp.is_dir() or not rp.is_dir():
+        raise SystemExit(f"Expected add-on packs below {addon}")
+
+    removed_boms = remove_json_boms(bp, rp)
+    moved_textures, reference_files = normalize_texture_layout(rp)
+    format_files = update_format_versions(bp, rp)
+    atlas_entries = repair_texture_atlases(rp)
+    flipbooks = repair_flipbook(rp)
+    sound_entries, sound_definitions = repair_sounds(rp)
+    unused_audio = prune_unreferenced_audio(rp)
+    ensure_render_controller(rp)
+    animation_files, animation_names, animation_bones, animation_lengths = repair_animations(rp)
+    attack_files = cap_attack_damage(bp)
+    client_biomes = migrate_client_biomes(rp)
+    repair_language_files(bp, rp)
+    renamed_paths = rename_nonlowercase_texture(rp)
+    unused_textures = prune_unreferenced_textures(rp)
+    update_manifest(bp)
+
+    print(f"Removed UTF-8 BOMs: {removed_boms}")
+    print(f"Moved textures to canonical folders: {moved_textures}")
+    print(f"Normalized texture references in files: {reference_files}")
+    print(f"Updated content format versions: {format_files}")
+    print(f"Converted atlas paths to arrays: {atlas_entries}")
+    print(f"Repaired flipbook entries: {flipbooks}")
+    print(f"Removed missing sound entries/definitions: {sound_entries}/{sound_definitions}")
+    print(f"Removed unreferenced audio files: {unused_audio}")
+    print(
+        "Repaired animations "
+        f"(files/names/missing bones/lengths): {animation_files}/{animation_names}/{animation_bones}/{animation_lengths}"
+    )
+    print(f"Capped invalid attack components: {attack_files}")
+    print(f"Migrated legacy client biomes: {client_biomes}")
+    print(f"Renamed non-lowercase texture paths: {renamed_paths}")
+    print(f"Removed unreferenced texture files: {unused_textures}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,3 +1,5 @@
+pack.name=The Broken Script 2.0
+pack.description=A Bedrock adaptation of The Broken Script horror experience.
 advancement.thebrokenscript.can_someone_hear_me.desc=This place is not for you.
 advancement.thebrokenscript.can_someone_hear_me.title=Go away
 advancement.thebrokenscript.can_you_see_me.desc=Can you see me?
@@ -911,7 +913,7 @@ subtitles.thebrokenscript.curved.curved_notice3=Who are you?
 subtitles.thebrokenscript.curved.curved_notice4=What did you do?
 subtitles.thebrokenscript.curved.curved_notice5=I hear you.
 subtitles.thebrokenscript.curved.curved_notice6=Is that you?
-subtitles.thebrokenscript.glitch_overlay=$#*&!)%(*@?
+subtitles.thebrokenscript.glitch_overlay=§kGLITCH§r
 subtitles.thebrokenscript.integrity.boss_end=
 subtitles.thebrokenscript.integrity.boss_p1=
 subtitles.thebrokenscript.integrity.boss_p1_bridge=
