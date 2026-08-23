@@ -80,9 +80,19 @@ function formatCode(code) {
   return typeof code === 'object' ? JSON.stringify(code) : String(code);
 }
 
-// Start with no TBS-specific suppressions. Exact, demonstrated vanilla base-pack
-// fallbacks can be added later without weakening unrelated diagnostics.
-function vanillaFallbackReason(_diagnostic) {
+// Keep suppressions exact and evidence-based so unrelated diagnostics still fail CI.
+// Blockception currently resolves this local render-controller reference through its
+// behavior-pack trading lookup. The repository's resource-link validator separately
+// proves that the controller exists in the resource pack.
+function vanillaFallbackReason(diagnostic) {
+  const normalizedFile = diagnostic.file.replaceAll('\\', '/');
+  if (
+    diagnostic.code === 'behaviorpack.trading.missing'
+    && diagnostic.message === 'Cannot find behaviorpack trading definition: "controller.render.single_textured"'
+    && /\/RP\/entity\/[^/]+\.json$/.test(normalizedFile)
+  ) {
+    return 'Known Blockception cross-pack resolver false positive; validate_resource_links.py verifies the local render controller.';
+  }
   return null;
 }
 
