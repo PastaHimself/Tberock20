@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as playerState from "../../systems/player_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
@@ -7,6 +7,7 @@ import * as effects from "../../systems/ai/effects.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 import * as progression from "../../systems/progression.js";
 import { logger } from "../../core/logging.js";
+import * as perf from "../../systems/perf.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // the_broken_end : HP1000 ATK600 0.6×25 size, speed 0.45, follow 64, grace 150, life 1000, chase range 128
@@ -68,11 +69,15 @@ export function begin(scheduler) {
 }
 
 function onTick() {
+  if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   // query all dims for tbe family
-  const dims = [world.getDimension("overworld")];
-  // ambush can spawn in overworld only per conditions, but entities may persist across dims; check overworld+nether+end to be safe (like circuit)
-  try { dims.push(world.getDimension("nether")); } catch {}
-  try { dims.push(world.getDimension("the_end")); } catch {}
+  const dims = [];
+  const overworld = perf.dim("overworld");
+  if (overworld) dims.push(overworld);
+  const nether = perf.dim("nether");
+  if (nether) dims.push(nether);
+  const theEnd = perf.dim("the_end");
+  if (theEnd) dims.push(theEnd);
   for (const dim of dims) {
     let list = [];
     try { list = dim.getEntities({ families: ["thebrokenscript_tbe"] }); } catch { continue; }

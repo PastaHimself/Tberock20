@@ -1,8 +1,9 @@
-import { world, system } from "@minecraft/server";
+﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
+import * as perf from "../../systems/perf.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // curved: approach only when NOT in FOV cone (0.55), ≤10 → transform 100t → hostile,
@@ -44,6 +45,7 @@ export function begin(scheduler) {
 }
 
 function onTick() {
+  if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   let list = [];
   const dims = [];
   try { dims.push(world.getDimension("overworld")); } catch {}

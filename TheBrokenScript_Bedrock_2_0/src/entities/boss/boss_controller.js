@@ -1,7 +1,8 @@
-import { world, system } from "@minecraft/server";
+﻿import { world, system } from "@minecraft/server";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
+import * as perf from "../../systems/perf.js";
 
 // ── boss death sequence (Chunk 14 presentation) ─────────────────────────────
 let deathHookInstalled = false;
@@ -82,10 +83,14 @@ export function begin(scheduler) {
 }
 
 function onTick() {
+  if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   const dims = [];
-  try { dims.push(world.getDimension("overworld")); } catch {}
-  try { dims.push(world.getDimension("nether")); } catch {}
-  try { dims.push(world.getDimension("the_end")); } catch {}
+  const overworld = perf.dim("overworld");
+  if (overworld) dims.push(overworld);
+  const nether = perf.dim("nether");
+  if (nether) dims.push(nether);
+  const theEnd = perf.dim("the_end");
+  if (theEnd) dims.push(theEnd);
   for (const dim of dims) {
     let list = [];
     try { list = dim.getEntities({ families: ["thebrokenscript_boss"] }); } catch { continue; }

@@ -1,9 +1,10 @@
-import { world, system } from "@minecraft/server";
+﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as dimensions from "../../systems/dimensions.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
+import * as perf from "../../systems/perf.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // xxram_2die: chat beats 1/500/1500/2000/2500/3000/3500, blink-teleport ≤25 within 520,
@@ -91,6 +92,7 @@ export function begin(scheduler) {
 }
 
 function onTick() {
+  if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   let list = [];
   try { list = world.getDimension("overworld").getEntities({ families: ["thebrokenscript_misc"] }); } catch { return; }
   for (const e of list) {

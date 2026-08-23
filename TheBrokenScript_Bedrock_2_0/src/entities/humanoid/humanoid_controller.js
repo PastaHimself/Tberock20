@@ -1,10 +1,11 @@
-import { world, system } from "@minecraft/server";
+﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import * as effects from "../../systems/ai/effects.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 import { logger } from "../../core/logging.js";
+import * as perf from "../../systems/perf.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // stare: life 500, LOOKABLE aura ≤512 + slowness 60t amp55
@@ -147,6 +148,7 @@ export function begin(scheduler) {
 }
 
 function onTick() {
+  if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   let list = [];
   try { list = world.getDimension("overworld").getEntities({ families: ["thebrokenscript_humanoid"] }); } catch { return; }
   for (const e of list) {
