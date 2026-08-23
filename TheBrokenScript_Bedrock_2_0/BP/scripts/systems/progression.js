@@ -72,7 +72,8 @@ export function begin(scheduler) {
         if (!src || src.typeId !== "minecraft:player") return;
         const t = ev.hurtEntity.typeId;
         if (
-          t.startsWith("thebrokenscript:integrity") ||
+          t.startsWith("thebrokenscript:integrity_phase") ||
+          t === "thebrokenscript:integrity_curious" ||
           t === "thebrokenscript:fractured" ||
           t === "thebrokenscript:the_obliteration" ||
           t === "thebrokenscript:the_obliteration_2"

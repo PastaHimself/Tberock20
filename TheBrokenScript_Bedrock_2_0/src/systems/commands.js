@@ -40,7 +40,7 @@ export function begin() {
       const sender = ev.sender;
       system.run(() => {
         try { sender.sendMessage("§8" + response); } catch {}
-        try { sender.playSound("thebrokenscript:null_whisper_loop", { volume: 4 }); } catch {}
+        try { sender.playSound("thebrokenscript:null_is_here_loop", { volume: 4 }); } catch {}
       });
     });
   } catch {}

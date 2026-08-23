@@ -12,8 +12,8 @@ import { logger } from "../core/logging.js";
 
 const SOUNDS = {
   heartbeat: "thebrokenscript:heartbeat",
-  whisper: "thebrokenscript:null_whisper_loop",
-  psst: "thebrokenscript:null_whisper_loop",
+  whisper: "thebrokenscript:null_is_here_loop",
+  psst: "thebrokenscript:psst",
   glitch: "thebrokenscript:glitch_sound_1",
   reel: "thebrokenscript:reel",
   circuit_deceive: "thebrokenscript:circuit_deceive",

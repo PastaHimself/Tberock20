@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as playerState from "../../systems/player_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
@@ -65,7 +65,7 @@ function tickStalk(entity) {
   if (!entity.hasComponent?.("minecraft:physics") && !canSee(entity, player)) return;
 
   if (Math.random() < 0.5) {
-    player.onScreenDisplay.setTitle("§k██ §r blick §k██", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
+    player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
     entity.remove(); entityTimers.delete(entity.id); return;
   }
   if (Math.random() < 0.7) {
@@ -86,7 +86,7 @@ function tickStare(entity) {
   try { entity.lookAt?.(player.location); } catch {}
   if (!gaze.isLookingAtLocation(player, entity.location, 14)) return;
   if (Math.random() < 0.5) {
-    player.onScreenDisplay.setTitle("§k██ §r blick §k██", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
+    player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
     entity.remove(); entityTimers.delete(entity.id); return;
   }
   if (Math.random() < 0.7) {
@@ -144,7 +144,7 @@ function tickCircuit(entity) {
     for (const p of world.getAllPlayers()) {
       if (distance(p.location, entity.location) > 128) continue;
       playerState.set(p, "noWayOutFrame", (playerState.get(p, "noWayOutFrame") + 1) % 6);
-      if (Math.random() < 0.23) { p.playSound?.("thebrokenscript:circuit_jumpscare"); }
+      if (Math.random() < 0.23) { p.playSound?.("thebrokenscript:circuit_jumpscare_sound"); }
     }
   }
   if (Math.random() < 0.01) {
