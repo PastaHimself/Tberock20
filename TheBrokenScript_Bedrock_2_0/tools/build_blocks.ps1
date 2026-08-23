@@ -1,4 +1,4 @@
-# Chunk 08 generator: emits BP/blocks/*.json from a name->(texture,shape) map,
+﻿# Chunk 08 generator: emits BP/blocks/*.json from a name->(texture,shape) map,
 # merges missing terrain_texture keys, and creates the shared cross geometry.
 $ErrorActionPreference = "Stop"
 $proj = "C:\Users\mg4392\Downloads\tbs 2.0\TheBrokenScript_Bedrock_2_0"
@@ -187,25 +187,25 @@ Set-Content -LiteralPath (Join-Path $geoDir "tbs_cross.geo.json") -Value $crossG
 $ttPath = Join-Path $proj "RP\terrain_texture.json"
 $tt = Get-Content -LiteralPath $ttPath -Raw | ConvertFrom-Json
 $missing = @{
-  "void_bloom"   = "textures/blocks/tether_bloom_idle"
-  "void_blossom" = "textures/blocks/tether_bloom_rot"
-  "void_bud"     = "textures/blocks/tether_bloom_disintegrate"
-  "void_budding" = "textures/blocks/void_growth"
-  "new_vein"     = "textures/blocks/vein_center"
-  "vein_center"  = "textures/blocks/vein_center"
-  "hello"        = "textures/blocks/hi"
-  "oldblock"     = "textures/blocks/old"
-  "nowhere_block"= "textures/blocks/nullvoid"
-  "name_missing" = "textures/blocks/errornotexture"
-  "block_is_missing_id" = "textures/blocks/errornotexture"
-  "r_3"          = "textures/blocks/block3"
-  "int"          = "textures/blocks/block4"
-  "physical_stacktrace" = "textures/blocks/stack_trace"
-  "teeth"        = "textures/blocks/teeth"
-  "necrosis"     = "textures/blocks/necrosis"
-  "void_light"   = "textures/blocks/void_light"
-  "void_growth"  = "textures/blocks/void_growth"
-  "void_shimmer" = "textures/blocks/void_shimmer"
+  "void_bloom"   = "textures/block/tether_bloom_idle"
+  "void_blossom" = "textures/block/tether_bloom_rot"
+  "void_bud"     = "textures/block/tether_bloom_disintegrate"
+  "void_budding" = "textures/block/void_growth"
+  "new_vein"     = "textures/block/vein_center"
+  "vein_center"  = "textures/block/vein_center"
+  "hello"        = "textures/block/hi"
+  "oldblock"     = "textures/block/old"
+  "nowhere_block"= "textures/block/nullvoid"
+  "name_missing" = "textures/block/errornotexture"
+  "block_is_missing_id" = "textures/block/errornotexture"
+  "r_3"          = "textures/block/block3"
+  "int"          = "textures/block/block4"
+  "physical_stacktrace" = "textures/block/stack_trace"
+  "teeth"        = "textures/block/teeth"
+  "necrosis"     = "textures/block/necrosis"
+  "void_light"   = "textures/block/void_light"
+  "void_growth"  = "textures/block/void_growth"
+  "void_shimmer" = "textures/block/void_shimmer"
 }
 $tdObj = $tt.texture_data
 $added = 0

@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 17)
+Last updated: 2026-08-23 (Chunk 19 — PORT COMPLETE)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,10 +11,9 @@ Last updated: 2026-08-23 (Chunk 17)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 18 — Final validation**
+**PORT COMPLETE**
 
-## Exact source references to inspect next
-- None — parity ledger complete (docs/chunks/CHUNK_17_REPORT.md). Remaining: final validation sweep + packaging.
+
 
 ## Chunk state
 | Chunk | State |
@@ -42,10 +41,16 @@ Last updated: 2026-08-23 (Chunk 17)
 | 15 Integration | **completed** (tools/integration_audit.ps1 — 7 families, 12 dims, 103 identifier classifications, 22 world_state keys all PASS; fixed 3 wrong sound ids + 1 syntax error found by audit) |
 | 16 Multiplayer & performance audit | **completed** (perf.js hasPlayers short-circuit + dimension handle caches in the five 1-tick controllers; multiplayer hook/props review clean; loop inventory documented) |
 | 17 Full parity audit vs 912-entry inventory | **completed** (category-level ledger in CHUNK_17_REPORT.md: every entry maps to shipped artifact / ledgered approx / explicit deferral / engine-N/A; totals — 1:1 ported: 68 entities, 123 blocks, 40 recipes, 143 sound defs, 76 items, 15 biomes, 12 dims, 5 advancements) |
-| 18 Final validation | pending |
-| 19 Packaging .mcaddon | pending |
+| 18 Final validation | **completed** (tools/final_validation.ps1 — 68/68 entity pairing, entity/terrain/item texture resolution, per-scope id uniqueness, item lang keys 76/76, geometry refs 29; found+fixed plural texture paths ×15, gradient + vein_center pointers) |
+| 19 Packaging .mcaddon | **completed** (dist/TheBrokenScript_2_0_Bedrock.mcaddon — 145,789,490 bytes, 1400 entries, forward-slash separators verified, key-file spot check PASS; packager rewritten off Compress-Archive due to backslash-entry bug) |
 
 Blocked: none.
+
+## Files created (Chunk 18)
+tools/final_validation.ps1 · texture-path fixes (terrain_texture ×15, item_texture ×2, gradient/vein_center repoints) · docs/chunks/CHUNK_18_REPORT.md
+
+## Files created (Chunk 19)
+dist/TheBrokenScript_2_0_Bedrock.mcaddon (145,789,490 B, 1400 entries) · package_mcaddon.ps1 rewritten (.NET zip, forward-slash entries, self-verification) · docs/chunks/CHUNK_19_REPORT.md
 
 ## Files created (Chunk 17)
 docs/chunks/CHUNK_17_REPORT.md (final category-level parity ledger vs 912 entries)
@@ -119,17 +124,17 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 17: parity ledger complete — every entry mapped; Chunk 16: perf/mp audit — PASS; Chunk 15: integration audit PASSED; Chunk 14: presentation geoms, 659 — PASS; Chunk 13: 40 recipes + 126 loot tables, 655 — PASS; Chunk 12: 78-event engine, 489 — PASS; Chunk 11: 15 biomes + shaft builders, 489 — PASS; Chunk 10: 12 dimensions, 473 — PASS; Chunk 09: 76 items, 461 — PASS; Chunk 08: 123/123 blocks, 383 — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 19: .mcaddon packaged + archive verified; Chunk 18: final validation sweep PASSED — texture resolution/id uniqueness/lang/geometry refs, 3 path-bug classes fixed; Chunk 17: parity ledger complete — every entry mapped; Chunk 16: perf/mp audit — PASS; Chunk 15: integration audit PASSED; Chunk 14: presentation geoms — PASS; Chunks 13→02 all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
-- Non-cube block shapes (slabs/stairs/walls/fences/trapdoors/doors) rendered as full cubes; flora share one cross geometry — Chunk 14 candidates.
+- Fences/trapdoors/panes/doors remain full-cube visuals; flora share one cross geometry (slab/stairs/wall now real geometries).
 - Animated block textures static in Bedrock.
-- Functional items (polaroid/hand_cannon/portal_linker/desyncer) are interaction stubs pending Chunk 12/13.
-- Arena story triggers land in Chunk 12; boss music/death sequences pending Chunk 14.
-- Dimension teleports wired (follow → clan_void/null_torture @Y:201); per-dimension fog/sky styling deferred to Chunk 14.
-- Advancements (can_you_see_me, curved death lines) pending Chunk 13/14; FunnySetting easter-egg variants pending config pass.
+- Functional items (polaroid/hand_cannon/portal_linker/desyncer) are interaction stubs — Chunk 12/13 wiring covers detection/feedback only.
+- Arena story triggers: reachable via /scriptevent tbs:arena + boss summon; story-side choreography in horror_events pool.
+- Dimension teleports wired; per-dimension fog/sky styling deferred.
+- Advancements approximated via progression.js; FunnySetting easter-egg variants pending config pass.
 - Chunk clear/move-up (chunk_remover) approximated as sound beat — engine limitation ledgered.
 
 ## Dependencies needed by later chunks
@@ -139,9 +144,7 @@ See VALIDATION_LOG.md (Chunk 17: parity ledger complete — every entry mapped; 
 - **Beta APIs now required**: BP manifest depends on `@minecraft/server` version `beta` (project decision, 2026-08-23). Worlds must enable the "Beta APIs" experiment. This supersedes the earlier plan of isolating beta usage to the custom-dimension module; stable floor remains documented at 1.26.30 as fallback.
 
 ## Next chunk
-Chunk 14 — Presentation completion
+**PORT COMPLETE** — all 20 chunks (00–19) finished. Remaining follow-ups live in KNOWN_LIMITATIONS.md and the deferred-tooling ledger (NBT→mcstructure converter, xcsf arena import, per-event day-schedule fidelity).
 
 ## Exact source references to inspect next
-- Non-cube geometries: slab/stairs/wall/fence/trapdoor/door block models (blockstates → custom geo or vanilla-shape approximations)
-- Humanoid player-model geometry for faraway/deceiver/xxram_2die/herobrine (player skin mapping)
-- Per-dimension fog/sky client JSONs; boss death sequences + music; animated-texture substitutes (flipbook via particle or swap-cycle)
+- None. Optional future passes: runtime device testing, plushie block forms + skin-fit (Chunk 14 residue), NBT conversion tooling.

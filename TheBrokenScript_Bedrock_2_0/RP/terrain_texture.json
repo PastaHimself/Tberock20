@@ -65,7 +65,7 @@
                                        "textures":  "textures/block/flesh"
                                    },
                          "gradient":  {
-                                          "textures":  "textures/block/gradient"
+                                          "textures":  "textures/block/nothing"
                                       },
                          "hi":  {
                                     "textures":  "textures/block/hi"
@@ -200,7 +200,7 @@
                                                 "textures":  "textures/block/ugly_wallpaper"
                                             },
                          "vein_center":  {
-                                             "textures":  "textures/block/vein_center"
+                                             "textures":  "textures/block/vein/vein_center"
                                          },
                          "vein_center_2":  {
                                                "textures":  "textures/block/vein/vein_center"
@@ -314,43 +314,43 @@
                                        "textures":  "textures/block/white"
                                    },
                          "block_is_missing_id":  {
-                                                     "textures":  "textures/blocks/errornotexture"
+                                                     "textures":  "textures/block/errornotexture"
                                                  },
                          "r_3":  {
-                                     "textures":  "textures/blocks/block3"
+                                     "textures":  "textures/block/block3"
                                  },
                          "new_vein":  {
-                                          "textures":  "textures/blocks/vein_center"
+                                          "textures":  "textures/block/vein/vein_center"
                                       },
                          "name_missing":  {
-                                              "textures":  "textures/blocks/errornotexture"
+                                              "textures":  "textures/block/errornotexture"
                                           },
                          "void_blossom":  {
-                                              "textures":  "textures/blocks/tether_bloom_rot"
+                                              "textures":  "textures/block/tether_bloom_rot"
                                           },
                          "void_budding":  {
-                                              "textures":  "textures/blocks/void_growth"
+                                              "textures":  "textures/block/void_growth"
                                           },
                          "hello":  {
-                                       "textures":  "textures/blocks/hi"
+                                       "textures":  "textures/block/hi"
                                    },
                          "void_bud":  {
-                                          "textures":  "textures/blocks/tether_bloom_disintegrate"
+                                          "textures":  "textures/block/tether_bloom_disintegrate"
                                       },
                          "nowhere_block":  {
-                                               "textures":  "textures/blocks/nullvoid"
+                                               "textures":  "textures/block/nullvoid"
                                            },
                          "int":  {
-                                     "textures":  "textures/blocks/block4"
+                                     "textures":  "textures/block/block4"
                                  },
                          "void_bloom":  {
-                                            "textures":  "textures/blocks/tether_bloom_idle"
+                                            "textures":  "textures/block/tether_bloom_idle"
                                         },
                          "oldblock":  {
-                                          "textures":  "textures/blocks/old"
+                                          "textures":  "textures/block/old"
                                       },
                          "physical_stacktrace":  {
-                                                     "textures":  "textures/blocks/stack_trace"
+                                                     "textures":  "textures/block/stack_trace"
                                                  }
                      }
 }

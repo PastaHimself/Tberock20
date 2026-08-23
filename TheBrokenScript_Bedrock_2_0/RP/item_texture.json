@@ -288,7 +288,7 @@
                                          "textures":  "textures/item/book"
                                      },
                          "null_item":  {
-                                           "textures":  "textures/blocks/dark"
+                                           "textures":  "textures/block/dark"
                                        },
                          "record_14":  {
                                            "textures":  "textures/item/revuxor_disc"
@@ -303,7 +303,7 @@
                                            "textures":  "textures/item/revuxor_disc"
                                        },
                          "void_liquid_bucket":  {
-                                                    "textures":  "textures/blocks/void_goop_still"
+                                                    "textures":  "textures/block/void_goop_still"
                                                 }
                      }
 }

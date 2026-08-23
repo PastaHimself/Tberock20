@@ -4,6 +4,7 @@ node_modules/
 
 # Build artifacts
 dist/
+**/dist/
 build/
 target/
 TheBrokenScript_Bedrock_2_0/tools/jdk/
