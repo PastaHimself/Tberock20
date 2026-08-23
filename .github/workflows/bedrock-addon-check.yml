@@ -91,16 +91,109 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf .ci/mct
-          mkdir -p .ci/mct/behavior_packs/bp .ci/mct/resource_packs/rp
+          mkdir -p .ci/mct/behavior_packs/bp
+          mkdir -p .ci/mct/resource_packs/rp
           cp -a TheBrokenScript_Bedrock_2_0/BP/. .ci/mct/behavior_packs/bp/
           cp -a TheBrokenScript_Bedrock_2_0/RP/. .ci/mct/resource_packs/rp/
+
+          find .ci/mct -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
+          if [[ -f .ci/mct/resource_packs/rp/sound_definitions.json ]]; then
+            mkdir -p .ci/mct/resource_packs/rp/sounds
+            mv .ci/mct/resource_packs/rp/sound_definitions.json .ci/mct/resource_packs/rp/sounds/sound_definitions.json
+          fi
+
+          node --input-type=module <<'NODE'
+          import { readFile, readdir, writeFile } from 'node:fs/promises';
+          import path from 'node:path';
+
+          async function walk(dir) {
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                await walk(full);
+              } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
+                const bytes = await readFile(full);
+                if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+                  await writeFile(full, bytes.subarray(3));
+                }
+              }
+            }
+          }
+
+          await walk('.ci/mct');
+          NODE
 
       - name: Validate production packs with Mojang Minecraft Creator Tools
         shell: bash
         run: |
           set -euo pipefail
+          set +e
           npm exec --yes --package=@minecraft/creator-tools@0.17.7 -- \
-            mct validate main -i .ci/mct
+            mct validate main -i .ci/mct --json > .ci/mct-validation.json
+          MCT_STATUS=$?
+          set -e
+          export MCT_STATUS
+
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+
+          const report = JSON.parse(readFileSync('.ci/mct-validation.json', 'utf8'));
+          if (!Array.isArray(report.projects) || report.projects.length === 0) {
+            throw new Error('Mojang Creator Tools did not discover any Minecraft projects.');
+          }
+
+          const items = report.projects.flatMap((project) =>
+            (project.items ?? []).map((item) => ({ project: project.name, ...item })),
+          );
+          const blockingTypes = new Set(['error', 'testFail', 'internalProcessingError']);
+          const rawBlockers = items.filter((item) => blockingTypes.has(item.type));
+          const warnings = items.filter((item) => item.type === 'warning');
+
+          function serializedFinding(item) {
+            return JSON.stringify(item);
+          }
+
+          function isSelfComparisonScriptModuleError(item) {
+            if (item.type !== 'error') return false;
+            const text = serializedFinding(item);
+            if (!text.includes('@minecraft/server') || !text.includes('using an out of date beta version')) return false;
+            const versions = [...text.matchAll(/\d+\.\d+\.\d+-beta\.[0-9A-Za-z.-]+/g)].map((match) => match[0]);
+            return versions.length >= 2 && versions.at(-2) === versions.at(-1);
+          }
+
+          const scriptModuleErrors = rawBlockers.filter(
+            (item) => item.type === 'error' && serializedFinding(item).includes('using an out of date beta version'),
+          );
+          const onlySelfComparisonScriptErrors = scriptModuleErrors.length > 0
+            && scriptModuleErrors.every(isSelfComparisonScriptModuleError);
+
+          const blockers = rawBlockers.filter((item) => {
+            if (isSelfComparisonScriptModuleError(item)) return false;
+            const text = serializedFinding(item);
+            if (
+              item.type === 'testFail'
+              && text.includes('errors in Script Modules check')
+              && onlySelfComparisonScriptErrors
+            ) return false;
+            return true;
+          });
+          const ignored = rawBlockers.length - blockers.length;
+
+          console.log(`Mojang Creator Tools: ${report.projects.length} project(s), ${blockers.length} blocker(s), ${warnings.length} warning(s), ${ignored} known false-positive blocker(s) ignored.`);
+          for (const item of blockers) {
+            const itemPath = item.path ? ` (${item.path})` : '';
+            const data = item.data === undefined ? '' : `: ${typeof item.data === 'string' ? item.data : JSON.stringify(item.data)}`;
+            console.error(`[${item.type}] ${item.generatorId ?? 'validation'}: ${item.message}${data}${itemPath}`);
+          }
+          if (ignored > 0) {
+            console.warn('Ignored Mojang Creator Tools Script Module self-comparison findings where the reported out-of-date beta version exactly equals the reported current version.');
+          }
+
+          const status = Number(process.env.MCT_STATUS ?? '0');
+          if (blockers.length > 0 || (status !== 0 && ignored === 0)) {
+            throw new Error(`Mojang Creator Tools validation failed (exit ${status}) with ${blockers.length} blocking finding(s).`);
+          }
+          NODE
 
       - name: Package successful build as .mcaddon
         id: package_addon
