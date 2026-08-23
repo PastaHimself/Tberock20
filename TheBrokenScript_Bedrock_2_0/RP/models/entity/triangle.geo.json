@@ -3,7 +3,7 @@
     "minecraft:geometry":  [
                                {
                                    "description":  {
-                                                       "identifier":  "geometry.Max revive",
+                                                       "identifier":  "geometry.tbs_max_revive",
                                                        "texture_width":  4,
                                                        "texture_height":  4,
                                                        "visible_bounds_width":  12,

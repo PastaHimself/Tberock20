@@ -18,6 +18,9 @@
     "result": {
       "item": "thebrokenscript:polished_moon_stone_slab",
       "count": 6
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

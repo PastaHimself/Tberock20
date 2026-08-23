@@ -28,3 +28,5 @@ export function all() {
     }
     return out;
 }
+
+export const config = { registerDefaults, get, all };

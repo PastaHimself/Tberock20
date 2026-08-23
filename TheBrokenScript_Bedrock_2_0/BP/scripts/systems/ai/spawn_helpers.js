@@ -24,5 +24,5 @@ export function applyRandomRotation(entity) {
 
 // Source: TimeOfDay.MIDNIGHT.setFake() — forces world time to midnight as a scare beat.
 export function setFakeMidnight(dimension) {
-    dimension.runCommandAsync("time set midnight").catch(() => {});
+    try { dimension.runCommand("time set midnight"); } catch {}
 }

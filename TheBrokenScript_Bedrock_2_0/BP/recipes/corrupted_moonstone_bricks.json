@@ -23,6 +23,9 @@
     "result": {
       "item": "thebrokenscript:corrupted_moon_stone_bricks",
       "count": 8
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

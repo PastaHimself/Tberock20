@@ -62,8 +62,8 @@ const H = {
   jframe_5(p) { title(p, "§7[behind you]", 40); },
   wrong_overlay(p) { title(p, "§k▓▓▓", 15); },
   bsod(p) { title(p, "§f:(", 80, "§7A problem has been detected."); },
-  sky_blue(p) { try { p.dimension.runCommandAsync("weather clear 100"); } catch {} },
-  gamma(p) { try { p.runCommandAsync("effect @s night_vision 100 255 true"); } catch {} },
+  sky_blue(p) { try { p.dimension.runCommand("weather clear 100"); } catch {} },
+  gamma(p) { try { p.runCommand("effect @s night_vision 100 255 true"); } catch {} },
 
   // null-flavored
   null_title(p) { title(p, "§knull§r", 30); },
@@ -83,10 +83,15 @@ const H = {
   // damage-ish
   damage(p) { try { p.applyDamage(2); } catch {} },
   look_and_damage(p) { try { p.applyDamage(1); } catch {} actionBar(p, "§cdon't look"); },
-  set_on_fire(p) { try { p.runCommandAsync("execute as @s run particle minecraft:flame_particle ^ ^1 ^"); } catch {} try { p.setOnFire(3, true); } catch {} },
+  set_on_fire(p) { try { p.runCommand("execute as @s run particle minecraft:flame_particle ^ ^1 ^"); } catch {} try { p.setOnFire(3, true); } catch {} },
+  /** @param {import("@minecraft/server").Player} p */
   push(p) {
     const v = p.getVelocity();
-    try { p.applyKnockback(v.x, v.z, 2, 0.4); } catch {}
+    const horizontalSpeed = Math.hypot(v.x, v.z);
+    const horizontalForce = horizontalSpeed > 0
+      ? { x: (v.x / horizontalSpeed) * 2, z: (v.z / horizontalSpeed) * 2 }
+      : { x: 0, z: 0 };
+    try { p.applyKnockback(horizontalForce, 0.4); } catch {}
   },
   stick(p) { try { p.applyDamage(1); } catch {} actionBar(p, "§7you feel stuck."); },
   explode_base(p) {
@@ -101,14 +106,14 @@ const H = {
   eyes(p) { title(p, "§4◉ ‸ ◉", 20); },
 
   // time/sky
-  set_time(p) { try { p.dimension.runCommandAsync("time set midnight"); } catch {} },
+  set_time(p) { try { p.dimension.runCommand("time set midnight"); } catch {} },
   set_random_time_of_day(p) {
     const times = ["day", "noon", "midnight", "night"];
-    try { p.dimension.runCommandAsync(`time set ${times[Math.floor(Math.random() * times.length)]}`); } catch {}
+    try { p.dimension.runCommand(`time set ${times[Math.floor(Math.random() * times.length)]}`); } catch {}
   },
   set_do_daylight_cycle(p) {
     const v = Math.random() < 0.5 ? "true" : "false";
-    try { p.dimension.runCommandAsync(`gamerule dodaylightcycle ${v}`); } catch {}
+    try { p.dimension.runCommand(`gamerule dodaylightcycle ${v}`); } catch {}
   },
   moon_phase(p) { worldState.update("moonShouldChange", () => true); },
   moon_glitch(p) { setFakeMoonTexture(); title(p, "§kthe moon flickers", 30); },

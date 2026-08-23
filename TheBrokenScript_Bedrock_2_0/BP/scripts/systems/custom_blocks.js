@@ -1,4 +1,4 @@
-﻿import { world, system, blockComponentRegistry } from "@minecraft/server";
+import { world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import * as worldgenStructures from "./worldgen_structures.js";
 import { logger } from "../core/logging.js";
@@ -10,18 +10,22 @@ import { logger } from "../core/logging.js";
 
 const registered = [];
 
-function register(name, handlers) {
-  try {
+/**
+ * Register all custom block components during the Script API startup event.
+ * @param {import("@minecraft/server").BlockComponentRegistry} blockComponentRegistry
+ */
+export function init(blockComponentRegistry) {
+  /**
+   * @param {string} name
+   * @param {import("@minecraft/server").BlockCustomComponent} handlers
+   */
+  function register(name, handlers) {
     blockComponentRegistry.registerCustomComponent(name, handlers);
     registered.push(name);
-  } catch (err) {
-    logger.error(`block component '${name}' registration failed`, err);
   }
-}
 
-export function init() {
   // physical_stacktrace â€” placed by TBE stalk; shows a glitch beat when placed/stepped near
-  register("physical_stacktrace", {
+  register("thebrokenscript:physical_stacktrace", {
     onPlace(ev) {
       const { block } = ev;
       for (const p of world.getAllPlayers()) {
@@ -40,7 +44,7 @@ export function init() {
   });
 
   // disruption â€” random glitch pulses while placed
-  register("disruption", {
+  register("thebrokenscript:disruption", {
     onRandomTick(ev) {
       const { block } = ev;
       try {
@@ -57,18 +61,18 @@ export function init() {
   });
 
   // command / command_block_giver â€” interact prints corrupted command feedback
-  register("be_command", {
+  register("thebrokenscript:be_command", {
     onPlayerInteract(ev) {
       const lines = ["/give @s minecraft:knowledge", "/tp @s into_the_void", "/ban @a[distance=..64]"];
       const line = lines[Math.floor(Math.random() * lines.length)];
-      try { ev.player.onScreenDisplay.setTitle(`Â§7${line}`, { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle(`Â§7${line}`, { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
       tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:glitch_sound_1", 2, 0.8);
     }
   });
 
-  register("be_portal_controller", {
+  register("thebrokenscript:be_portal_controller", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§5PORTAL CONTROLLER", { stayDuration: 25 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§5PORTAL CONTROLLER", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 0 }); } catch {}
       // portal activation: send player to clan_void at the null_book coords height
       const loc = { x: ev.player.location.x, y: 201, z: ev.player.location.z };
       dimensions.teleportTo(ev.player, "clan_void", loc);
@@ -76,15 +80,15 @@ export function init() {
     }
   });
 
-  register("be_portal_extender", {
+  register("thebrokenscript:be_portal_extender", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§5EXTENDER LINKED", { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§5EXTENDER LINKED", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
     }
   });
 
-  register("be_null_structure", {
+  register("thebrokenscript:be_null_structure", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§8NULL_STRUCTURE", { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§8NULL_STRUCTURE", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
       // Chunk 11: interact builds the bedrock Shaft nearby (structure/shaft/*.nbt approx)
       const built = worldgenStructures.buildShaft(ev.block.dimension, {
         x: ev.block.location.x + 24,
@@ -97,7 +101,7 @@ export function init() {
     }
   });
 
-  register("be_shadow_bug", {
+  register("thebrokenscript:be_shadow_bug", {
     onRandomTick(ev) {
       if (Math.random() > 0.05) return;
       const { block } = ev;
@@ -109,36 +113,39 @@ export function init() {
     }
   });
 
-  register("be_exit", {
+  register("thebrokenscript:be_exit", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§aEXIT?", { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§aEXIT?", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
     }
   });
 
-  register("be_a_flower", {
+  register("thebrokenscript:be_a_flower", {
     onPlayerInteract(ev) {
       try { ev.player.playSound("chime.amethyst_block"); } catch {}
-      try { ev.player.onScreenDisplay.setTitle("Â§d...", { stayDuration: 15 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§d...", { fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 0 }); } catch {}
     }
   });
 
-  for (let i = 1; i <= 4; i++) {
-    register(`be_jim_trigger`, makeJimTrigger(i));
-  }
+  register("thebrokenscript:be_jim_trigger", makeJimTrigger());
 
   logger.info(`custom_blocks: ${registered.length} component(s) registered`);
 }
 
-function makeJimTrigger(stage) {
+/** @returns {import("@minecraft/server").BlockCustomComponent} */
+function makeJimTrigger() {
   return {
-    onPlace(ev) {
-      // Jimmy arena trigger stages â€” full choreography in Chunk 12; stage marker only
-      try { ev.block.setDynamicProperty("tbs:jim_stage", stage); } catch {}
-    },
-    onEntityStepOn(ev) {
+    onStepOn(ev) {
+      const stage = jimStage(ev.block);
+      if (stage === 0) return;
       try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", stage); } catch {}
     }
   };
+}
+
+/** @param {import("@minecraft/server").Block} block */
+function jimStage(block) {
+  const match = /^thebrokenscript:jim_trigger_([1-4])$/.exec(block.typeId);
+  return match ? Number(match[1]) : 0;
 }
 
 function distance(a, b) {

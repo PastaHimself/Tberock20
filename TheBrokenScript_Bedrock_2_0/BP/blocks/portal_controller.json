@@ -13,16 +13,15 @@
           "texture": "portal_controller"
         }
       },
-      "minecraft:custom_components": [
-        "thebrokenscript:be_portal_controller"
-      ],
       "minecraft:destructible_by_mining": {
         "seconds_to_destroy": 1.5
       },
       "minecraft:loot": "loot_tables/blocks/portal_controller.json",
       "minecraft:destructible_by_explosion": {
         "explosion_resistance": 5
-      }
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "thebrokenscript:be_portal_controller": {}
     }
   }
 }

@@ -19,7 +19,8 @@
       "minecraft:loot": "loot_tables/blocks/initiator.json",
       "minecraft:destructible_by_explosion": {
         "explosion_resistance": 5
-      }
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block"
     }
   }
 }

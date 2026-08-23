@@ -20,6 +20,9 @@
     "result": {
       "item": "thebrokenscript:void_plank_door",
       "count": 3
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

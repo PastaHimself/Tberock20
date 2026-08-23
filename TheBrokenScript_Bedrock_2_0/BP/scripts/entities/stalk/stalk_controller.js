@@ -1,4 +1,5 @@
 ﻿import { world, system } from "@minecraft/server";
+import { EntityDamageCause, GameMode } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
@@ -80,7 +81,7 @@ function tickCurved(e) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     const gm = typeof p.getGameMode === "function" ? p.getGameMode() : undefined;
-    const survival = gm !== "creative" && gm !== "spectator" && gm !== 1 && gm !== 3;
+    const survival = gm !== GameMode.Creative && gm !== GameMode.Spectator;
     if (survival && distance(p.location, e.location) < 10 && getNum(e, "transformed", 0) === 0 && getNum(e, "aggressive", 0) === 0) {
       setNum(e, "aggressive", 1);
       setNum(e, "transformTimer", 100);
@@ -95,10 +96,10 @@ function tickCurved(e) {
       setNum(e, "transformed", 1);
       // melee pulses while transformed
       system.runInterval(() => {
-        if (!e.isValid()) return;
+        if (!e.isValid) return;
         const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 4);
         if (target) {
-          try { target.applyDamage(7, { cause: "entityAttack", damagingEntity: e }); } catch { try { target.applyDamage(7); } catch {} }
+          try { target.applyDamage(7, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(7); } catch {} }
         }
       }, 20);
     }
@@ -107,7 +108,7 @@ function tickCurved(e) {
     const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 192);
     if (player) {
       const gm = typeof player.getGameMode === "function" ? player.getGameMode() : undefined;
-      const survival = gm !== "creative" && gm !== "spectator" && gm !== 1 && gm !== 3;
+      const survival = gm !== GameMode.Creative && gm !== GameMode.Spectator;
       const seen = inFovCone(player, e);
       if (survival && !seen && system.currentTick % 10 === 0) {
         const dx = player.location.x - e.location.x;
@@ -131,13 +132,13 @@ function tickCurved(e) {
 function tickJon(e) {
   if (!timers.has(e.id)) {
     timers.set(e.id, { saidHello: 0, timesChatted: 0, lastChat: system.currentTick });
-    try { e.dimension.runCommandAsync(`tellraw @a {"rawtext":[{"text":"§ejon joined the game"}]}`); } catch {}
+    try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"§ejon joined the game"}]}`); } catch {}
   }
   const lastChat = getNum(e, "lastChat", 0);
   if (system.currentTick - lastChat >= 40 && Math.floor(Math.random() * 5) === 3) {
     const saidHello = getNum(e, "saidHello", 0);
     const msg = saidHello ? "<jon> let's play minecraft!" : "<jon> hello!";
-    try { e.dimension.runCommandAsync(`tellraw @a {"rawtext":[{"text":"${msg}"}]}`); } catch {}
+    try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"${msg}"}]}`); } catch {}
     try { e.playSound(saidHello ? "thebrokenscript:jon.play" : "thebrokenscript:jon.hello"); } catch {}
     if (!saidHello) {
       const tc = getNum(e, "timesChatted", 0) + 1;
@@ -198,7 +199,7 @@ function tickObliteration(e) {
         system.runTimeout(() => {
           try {
             const safeName = player.name.replace(/"/g, '\\"');
-            player.dimension.runCommandAsync(`kick "${safeName}" §cThe triangle has judged you.`).catch(() => {});
+            player.dimension.runCommand(`kick "${safeName}" §cThe triangle has judged you.`);
           } catch {}
         }, 10);
         return;

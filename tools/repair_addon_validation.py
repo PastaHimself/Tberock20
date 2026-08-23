@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import shutil
 from pathlib import Path
@@ -30,6 +31,10 @@ TEXTURE_REPLACEMENTS = (
     ("textures/item/", "textures/items/"),
     ("textures/plush/", "textures/items/plush/"),
 )
+GEOMETRY_IDENTIFIER_REPLACEMENTS = {
+    "geometry.BOULDER - Converted": "geometry.tbs_boulder_converted",
+    "geometry.Max revive": "geometry.tbs_max_revive",
+}
 
 
 def load_json(path: Path) -> Any:
@@ -100,6 +105,7 @@ def normalize_texture_layout(rp: Path) -> tuple[int, int]:
 
 def update_format_versions(bp: Path, rp: Path) -> int:
     targets = (
+        (bp / "biomes", CURRENT_CONTENT_VERSION),
         (bp / "blocks", CURRENT_CONTENT_VERSION),
         (bp / "entities", CURRENT_CONTENT_VERSION),
         (bp / "items", CURRENT_CONTENT_VERSION),
@@ -115,6 +121,107 @@ def update_format_versions(bp: Path, rp: Path) -> int:
                 write_json(path, value)
                 changed += 1
     return changed
+
+
+def repair_biome_components(bp: Path) -> int:
+    changed = 0
+    for path in json_files(bp / "biomes"):
+        value = load_json(path)
+        components = value.get("minecraft:biome", {}).get("components", {})
+        if not isinstance(components, dict):
+            continue
+        climate = components.get("minecraft:climate")
+        if not isinstance(climate, dict):
+            climate = {}
+            components["minecraft:climate"] = climate
+        repaired = False
+        for legacy_name, climate_name in (
+            ("minecraft:temperature", "temperature"),
+            ("minecraft:downfall", "downfall"),
+        ):
+            legacy = components.pop(legacy_name, None)
+            if legacy is None:
+                continue
+            if climate_name not in climate and isinstance(legacy, dict):
+                legacy_value = legacy.get("value")
+                if isinstance(legacy_value, (int, float)) and not isinstance(legacy_value, bool):
+                    climate[climate_name] = legacy_value
+            repaired = True
+        if repaired:
+            write_json(path, value)
+            changed += 1
+    return changed
+
+
+def block_component_sets(block: dict[str, Any]) -> Iterable[dict[str, Any]]:
+    components = block.get("components")
+    if isinstance(components, dict):
+        yield components
+    for permutation in block.get("permutations", []):
+        if not isinstance(permutation, dict):
+            continue
+        components = permutation.get("components")
+        if isinstance(components, dict):
+            yield components
+
+
+def repair_block_components(bp: Path) -> tuple[int, int]:
+    geometry_added = custom_components_flattened = 0
+    for path in json_files(bp / "blocks"):
+        value = load_json(path)
+        block = value.get("minecraft:block") if isinstance(value, dict) else None
+        if not isinstance(block, dict):
+            continue
+        changed = False
+        for components in block_component_sets(block):
+            if "minecraft:material_instances" in components and "minecraft:geometry" not in components:
+                components["minecraft:geometry"] = "minecraft:geometry.full_block"
+                geometry_added += 1
+                changed = True
+
+            custom_ids = components.pop("minecraft:custom_components", None)
+            if custom_ids is None:
+                continue
+            if not isinstance(custom_ids, list) or not all(isinstance(item, str) for item in custom_ids):
+                raise ValueError(f"Unexpected custom component list in {path}")
+            for custom_id in custom_ids:
+                components.setdefault(custom_id, {})
+                custom_components_flattened += 1
+            changed = True
+        if changed:
+            write_json(path, value)
+    return geometry_added, custom_components_flattened
+
+
+def repair_recipe_unlocks(bp: Path) -> int:
+    changed = 0
+    for path in json_files(bp / "recipes"):
+        value = load_json(path)
+        if not isinstance(value, dict):
+            continue
+        recipe = next(
+            (item for key, item in value.items() if key.startswith("minecraft:recipe_") and isinstance(item, dict)),
+            None,
+        )
+        if recipe is None or "unlock" in recipe:
+            continue
+        recipe["unlock"] = {"context": "AlwaysUnlocked"}
+        write_json(path, value)
+        changed += 1
+    return changed
+
+
+def repair_null_item_icon(bp: Path) -> int:
+    path = bp / "items" / "null.json"
+    if not path.is_file():
+        return 0
+    value = load_json(path)
+    components = value.get("minecraft:item", {}).get("components", {})
+    if not isinstance(components, dict) or components.get("minecraft:icon") != "null":
+        return 0
+    components["minecraft:icon"] = "null_item"
+    write_json(path, value)
+    return 1
 
 
 def repair_texture_atlases(rp: Path) -> int:
@@ -220,14 +327,167 @@ def ensure_render_controller(rp: Path) -> None:
     )
 
 
-def collapse_vector_wrappers(value: Any) -> Any:
+def collapse_vector_wrappers(value: Any, *, include_easing: bool = False) -> Any:
     if isinstance(value, list):
-        return [collapse_vector_wrappers(item) for item in value]
+        return [collapse_vector_wrappers(item, include_easing=include_easing) for item in value]
     if not isinstance(value, dict):
         return value
-    if set(value) == {"vector"} and isinstance(value["vector"], list):
-        return collapse_vector_wrappers(value["vector"])
-    return {key: collapse_vector_wrappers(item) for key, item in value.items()}
+    allowed_keys = {"vector", "easing"} if include_easing else {"vector"}
+    if (
+        "vector" in value
+        and set(value).issubset(allowed_keys)
+        and isinstance(value["vector"], list)
+    ):
+        return collapse_vector_wrappers(value["vector"], include_easing=include_easing)
+    return {
+        key: collapse_vector_wrappers(item, include_easing=include_easing)
+        for key, item in value.items()
+    }
+
+
+def _timestamp(value: float) -> str:
+    rendered = f"{value:.10f}".rstrip("0").rstrip(".")
+    return rendered if "." in rendered else f"{rendered}.0"
+
+
+def _numeric_vector(value: Any) -> bool:
+    return (
+        isinstance(value, list)
+        and bool(value)
+        and all(
+            isinstance(item, (int, float)) and not isinstance(item, bool)
+            for item in value
+        )
+    )
+
+
+def _lerp_vector(start: list[Any], end: list[Any], progress: float) -> list[Any]:
+    if len(start) != len(end) or not _numeric_vector(start) or not _numeric_vector(end):
+        raise ValueError("GeckoLib easing conversion requires equally sized numeric vectors")
+    interpolated: list[Any] = []
+    for old, new in zip(start, end):
+        value = old + (new - old) * progress
+        nearest_integer = round(value)
+        interpolated.append(
+            nearest_integer
+            if math.isclose(value, nearest_integer, abs_tol=1e-12)
+            else round(value, 12)
+        )
+    return interpolated
+
+
+def _keyframe_output(value: Any) -> Any:
+    if isinstance(value, dict):
+        if "post" in value:
+            return value["post"]
+        if "vector" in value:
+            return value["vector"]
+    return value
+
+
+def _is_geckolib_wrapper(value: Any) -> bool:
+    return (
+        isinstance(value, dict)
+        and isinstance(value.get("vector"), list)
+        and isinstance(value.get("easing"), str)
+        and set(value).issubset({"vector", "easing"})
+    )
+
+
+def _convert_eased_channel(channel: dict[str, Any]) -> dict[str, Any]:
+    entries = sorted(channel.items(), key=lambda item: float(item[0]))
+    converted: dict[str, Any] = {}
+    previous_time: float | None = None
+    previous_value: Any = None
+
+    for original_time, raw_keyframe in entries:
+        current_time = float(original_time)
+        if not _is_geckolib_wrapper(raw_keyframe):
+            keyframe = convert_geckolib_easing_keyframes(raw_keyframe)
+            converted[original_time] = keyframe
+            previous_time = current_time
+            previous_value = _keyframe_output(keyframe)
+            continue
+
+        target = convert_geckolib_easing_keyframes(raw_keyframe["vector"])
+        easing = raw_keyframe["easing"]
+        if previous_time is None or current_time <= previous_time:
+            converted[original_time] = target
+        elif easing == "step":
+            # GeckoLib's default step easing has two steps: the prior pose, a
+            # half-way pose at 50%, then the target at the destination frame.
+            midpoint_time = previous_time + (current_time - previous_time) / 2
+            midpoint_value = _lerp_vector(previous_value, target, 0.5)
+            converted[_timestamp(midpoint_time)] = {
+                "pre": previous_value,
+                "post": midpoint_value,
+            }
+            converted[original_time] = {
+                "pre": midpoint_value,
+                "post": target,
+            }
+        elif easing == "easeInOutSine":
+            # Bedrock supports linear interpolation. Eight segments closely
+            # approximate GeckoLib's incoming sine easing while retaining the
+            # original endpoints and animation length.
+            for sample in range(1, 8):
+                progress = sample / 8
+                eased = (1 - math.cos(math.pi * progress)) / 2
+                sample_time = previous_time + (current_time - previous_time) * progress
+                converted[_timestamp(sample_time)] = _lerp_vector(
+                    previous_value,
+                    target,
+                    eased,
+                )
+            converted[original_time] = target
+        else:
+            raise ValueError(f"Unsupported GeckoLib easing: {easing}")
+
+        previous_time = current_time
+        previous_value = target
+
+    return converted
+
+
+def convert_geckolib_easing_keyframes(value: Any) -> Any:
+    """Convert GeckoLib keyframes to equivalent Bedrock-supported keyframes."""
+    if isinstance(value, list):
+        return [convert_geckolib_easing_keyframes(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    if _is_geckolib_wrapper(value):
+        # A wrapper without a timestamp is a constant transform, so its easing
+        # has no interval over which it could affect interpolation.
+        return convert_geckolib_easing_keyframes(value["vector"])
+
+    numeric_keys = bool(value)
+    for key in value:
+        try:
+            float(key)
+        except (TypeError, ValueError):
+            numeric_keys = False
+            break
+    if numeric_keys and any(_is_geckolib_wrapper(item) for item in value.values()):
+        return _convert_eased_channel(value)
+
+    return {
+        key: convert_geckolib_easing_keyframes(item)
+        for key, item in value.items()
+    }
+
+
+def repair_geometry_identifiers(rp: Path) -> int:
+    changed = 0
+    for path in json_files(rp / "entity", rp / "models"):
+        original = path.read_text(encoding="utf-8-sig")
+        updated = original
+        for old, new in GEOMETRY_IDENTIFIER_REPLACEMENTS.items():
+            updated = updated.replace(f'"{old}"', f'"{new}"')
+        replacements = sum(original.count(f'"{old}"') for old in GEOMETRY_IDENTIFIER_REPLACEMENTS)
+        if updated != original:
+            path.write_text(updated, encoding="utf-8")
+            changed += replacements
+    return changed
 
 
 def animation_slug(value: str) -> str:
@@ -264,7 +524,11 @@ def repair_animations(rp: Path) -> tuple[int, int, int, int]:
     bones_in_project = collect_geometry_bones(rp)
     files = renamed = removed_bones = extended = 0
     for path in json_files(rp / "animations"):
-        value = collapse_vector_wrappers(load_json(path))
+        value = load_json(path)
+        if path.name == "revuxor.animation.json":
+            value = convert_geckolib_easing_keyframes(value)
+        else:
+            value = collapse_vector_wrappers(value)
         if not isinstance(value, dict) or not isinstance(value.get("animations"), dict):
             continue
         value["format_version"] = CURRENT_ANIMATION_VERSION
@@ -481,11 +745,16 @@ def main() -> int:
     removed_boms = remove_json_boms(bp, rp)
     moved_textures, reference_files = normalize_texture_layout(rp)
     format_files = update_format_versions(bp, rp)
+    biome_components = repair_biome_components(bp)
+    block_geometries, custom_components = repair_block_components(bp)
+    recipe_unlocks = repair_recipe_unlocks(bp)
+    item_icons = repair_null_item_icon(bp)
     atlas_entries = repair_texture_atlases(rp)
     flipbooks = repair_flipbook(rp)
     sound_entries, sound_definitions = repair_sounds(rp)
     unused_audio = prune_unreferenced_audio(rp)
     ensure_render_controller(rp)
+    geometry_identifiers = repair_geometry_identifiers(rp)
     animation_files, animation_names, animation_bones, animation_lengths = repair_animations(rp)
     attack_files = cap_attack_damage(bp)
     client_biomes = migrate_client_biomes(rp)
@@ -498,10 +767,16 @@ def main() -> int:
     print(f"Moved textures to canonical folders: {moved_textures}")
     print(f"Normalized texture references in files: {reference_files}")
     print(f"Updated content format versions: {format_files}")
+    print(f"Migrated legacy biome climate components: {biome_components}")
+    print(f"Added required full-block geometry components: {block_geometries}")
+    print(f"Flattened deprecated custom components: {custom_components}")
+    print(f"Added recipe unlock conditions: {recipe_unlocks}")
+    print(f"Repaired item icon references: {item_icons}")
     print(f"Converted atlas paths to arrays: {atlas_entries}")
     print(f"Repaired flipbook entries: {flipbooks}")
     print(f"Removed missing sound entries/definitions: {sound_entries}/{sound_definitions}")
     print(f"Removed unreferenced audio files: {unused_audio}")
+    print(f"Repaired geometry identifiers and references: {geometry_identifiers}")
     print(
         "Repaired animations "
         f"(files/names/missing bones/lengths): {animation_files}/{animation_names}/{animation_bones}/{animation_lengths}"

@@ -1,4 +1,6 @@
 ﻿import { world, system } from "@minecraft/server";
+import { config } from "../../core/config.js";
+import { GameMode } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as playerState from "../../systems/player_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
@@ -105,7 +107,23 @@ function tryPlaySoundAt(dim, loc, sound, vol = 1, pitch = 1) {
 
 function setFakeTime(dim, timeStr) {
   // source: TimeOfDay.MIDNIGHT/DAY/NOON setFake — approximation via /time set
-  try { dim.runCommandAsync(`time set ${timeStr}`); } catch {}
+  try { dim.runCommand(`time set ${timeStr}`); } catch {}
+}
+
+/**
+ * @param {import("@minecraft/server").Player} player
+ * @param {string} subtitle
+ * @param {number} [stayDuration]
+ */
+function showSubtitle(player, subtitle, stayDuration = 10) {
+  try {
+    player.onScreenDisplay.setTitle(" ", {
+      subtitle,
+      fadeInDuration: 0,
+      stayDuration,
+      fadeOutDuration: 0,
+    });
+  } catch {}
 }
 
 function hasLineOfSightApprox(player, entity) {
@@ -168,7 +186,7 @@ function tickBrokenEnd(e) {
       const r = Math.random();
       if (r < 0.7) {
         setFakeTime(e.dimension, "midnight");
-        try { player.onScreenDisplay.setTitle(" ", { subtitle: " " }); } catch {}
+        showSubtitle(player, " ");
         // frame1.png overlay approx via title image path — use title text for portability
         try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch {}
         tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:the_end_is_near", 4, 0.4);
@@ -186,14 +204,14 @@ function tickBrokenEnd(e) {
     // source increments every tick when targeting player and shows frames at 3/6/9/12 then reset
     // approximate: at 3/6/9/12 show titles
     if (state.interferences === 3) {
-      try { player.onScreenDisplay.setTitle(" ", { subtitle: "tbescreenframe_1" }); } catch {}
+      showSubtitle(player, "tbescreenframe_1");
       try { e.dimension.spawnParticle("minecraft:campfire_cosy_smoke", { x: e.location.x, y: e.location.y + 1.5, z: e.location.z }); } catch {}
     } else if (state.interferences === 6) {
-      try { player.onScreenDisplay.setTitle(" ", { subtitle: "tbescreenframe_2" }); } catch {}
+      showSubtitle(player, "tbescreenframe_2");
     } else if (state.interferences === 9) {
-      try { player.onScreenDisplay.setTitle(" ", { subtitle: "tbescreenframe_3" }); } catch {}
+      showSubtitle(player, "tbescreenframe_3");
     } else if (state.interferences >= 12) {
-      try { player.onScreenDisplay.setTitle(" ", { subtitle: "tbescreenframe_4" }); } catch {}
+      showSubtitle(player, "tbescreenframe_4");
       state.interferences = 0;
     }
 
@@ -228,7 +246,7 @@ function tickBrokenEnd(e) {
     if (system.currentTick % 20 === 0) {
       // guard by config if exists (danger.disableBlockBreaking not yet registered — default to allowed)
       let blocked = false;
-      try { const { config } = awaitImportConfig(); blocked = config.get("danger.disableBlockBreaking") === true; } catch {}
+      try { blocked = config.get("danger.disableBlockBreaking") === true; } catch {}
       if (!blocked) scanAndBreakInFront(e);
     }
 
@@ -237,7 +255,7 @@ function tickBrokenEnd(e) {
       try {
         // Bedrock gameMode query: player.getGameMode() stable @2.6 — guard
         const gm = typeof player.getGameMode === "function" ? player.getGameMode() : undefined;
-        if (gm === "creative" || gm === 1) {
+        if (gm === GameMode.Creative) {
           try { player.kill(); } catch { try { player.applyDamage(1000); } catch {} }
         }
       } catch {}
@@ -246,16 +264,6 @@ function tickBrokenEnd(e) {
     // no target: still tick stuck logic reset
     state.stuckTicks = 0;
   }
-}
-
-function awaitImportConfig() {
-  // lazy to avoid circular deps — worldState already imported; config singleton lives in core/config
-  // we cannot use top-level await import; use dynamic require via worldState? fallback to worldState.get sentinel
-  try {
-    // try synchronous access if config already loaded elsewhere: check worldState daylight etc.
-    // simplest: read config via world.getDynamicProperty if present — not ported, so return blocked=false
-    return { config: { get: () => false } };
-  } catch { return { config: { get: () => false } }; }
 }
 
 function scanAndBreakInFront(e) {
@@ -312,9 +320,11 @@ function onTbeKillPlayer(player, tbeEntity) {
   system.runTimeout(() => {
     try {
       const safeName = player.name.replace(/"/g, '\\"');
-      player.dimension.runCommandAsync(`kick "${safeName}" §cThe Broken End has consumed you.`).catch(() => {
+      try {
+        player.dimension.runCommand(`kick "${safeName}" §cThe Broken End has consumed you.`);
+      } catch {
         try { player.onScreenDisplay.setTitle("§4THE END IS NEAR", { subtitle: "You were removed", fadeInDuration: 10, stayDuration: 60, fadeOutDuration: 20 }); } catch {}
-      });
+      }
     } catch {}
     // 50% summon BAN (entity not yet ported until 05F/07 — ledgered skip)
     // try summon ban at tbe pos if available
@@ -338,8 +348,8 @@ function tickStalk(e) {
       const nearby = world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id && distance(p.location, e.location) < 256);
       for (const p of nearby) { try { p.playSound("thebrokenscript:tbe_intro", { volume: 1, pitch: 1 }); } catch {} }
     } catch {}
-    try { e.dimension.runCommandAsync("gamerule dodaylightcycle false"); } catch {}
-    try { e.dimension.runCommandAsync("weather rain 6000"); } catch {}
+    try { e.dimension.runCommand("gamerule dodaylightcycle false"); } catch {}
+    try { e.dimension.runCommand("weather rain 6000"); } catch {}
     try { e.addEffect("invisibility", 200, { amplifier: 0, showParticles: false }); } catch {}
     // track invisible flag via periodic effect; actual invis var stays 0 until trigger
   }
@@ -391,7 +401,7 @@ function tickStalk(e) {
         if (Math.random() < 0.7) {
           setNum(e, "invisible", 1);
           setNum(e, "enabled", 1);
-          try { e.dimension.runCommandAsync("stopsound @a"); } catch {}
+          try { e.dimension.runCommand("stopsound @a"); } catch {}
           try { e.addEffect("invisibility", 600, { amplifier: 0, showParticles: false }); } catch {}
         } else {
           // discard + place physical_stacktrace block below (Chunk 08 block now available)
@@ -412,7 +422,7 @@ function tickStalk(e) {
   if (despawn <= 0) {
     try { e.remove(); } catch {}
     timers.delete(e.id); extraState.delete(e.id);
-    try { e.dimension.runCommandAsync("gamerule dodaylightcycle true"); } catch {}
+    try { e.dimension.runCommand("gamerule dodaylightcycle true"); } catch {}
   }
 }
 

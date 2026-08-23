@@ -18,6 +18,9 @@
     "result": {
       "item": "thebrokenscript:moon_stone_brick_slab",
       "count": 6
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

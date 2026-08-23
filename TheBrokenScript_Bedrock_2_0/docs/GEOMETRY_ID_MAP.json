@@ -141,7 +141,7 @@
                                                       "file":  "revuxor_uwu.geo.json",
                                                       "original":  "geometry.unknown"
                                                   },
-                     "geometry.BOULDER - Converted":  {
+                     "geometry.tbs_boulder_converted":  {
                                                           "file":  "rock.geo.json",
                                                           "original":  "geometry.BOULDER - Converted"
                                                       },
@@ -173,7 +173,7 @@
                                                            "file":  "thebrokenend_uwu.geo.json",
                                                            "original":  "geometry.unknown"
                                                        },
-                     "geometry.Max revive":  {
+                     "geometry.tbs_max_revive":  {
                                                  "file":  "triangle.geo.json",
                                                  "original":  "geometry.Max revive"
                                              },

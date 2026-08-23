@@ -18,6 +18,9 @@
     "result": {
       "item": "thebrokenscript:void_plank_slab",
       "count": 6
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

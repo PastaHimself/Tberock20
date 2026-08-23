@@ -1,4 +1,5 @@
 ﻿import { world, system } from "@minecraft/server";
+import { EntityDamageCause } from "@minecraft/server";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
@@ -61,7 +62,7 @@ function meleePulse(e, dmg, reach = 5, interval = 20) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) > reach) continue;
-    try { p.applyDamage(dmg, { cause: "entityAttack", damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
+    try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
   }
 }
 function approach(e, player, speedBlocksPerTick) {
@@ -241,7 +242,7 @@ function tickFireball(e) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) < 2.5) {
-      try { p.applyDamage(12, { cause: "entityAttack", damagingEntity: e }); } catch { try { p.applyDamage(12); } catch {} }
+      try { p.applyDamage(12, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(12); } catch {} }
       try { e.remove(); } catch {} deleteTimers(e);
       return;
     }
@@ -266,7 +267,7 @@ function tickFractured(e) {
   if (toss <= 0) {
     setNum(e, "toss", 200);
     if (distance(e.location, target.location) < 40) {
-      try { target.applyDamage(6, { cause: "entityAttack", damagingEntity: e }); } catch { try { target.applyDamage(6); } catch {} }
+      try { target.applyDamage(6, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(6); } catch {} }
       const rock = spawnAt(e.dimension, "thebrokenscript:rock", { x: target.location.x, y: target.location.y + 1, z: target.location.z });
       if (rock) setNum(rock, "life", 60);
     }
@@ -370,7 +371,7 @@ function tickChordProjectile(e) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) < 2) {
-      try { p.applyDamage(6, { cause: "entityAttack", damagingEntity: e }); } catch { try { p.applyDamage(6); } catch {} }
+      try { p.applyDamage(6, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(6); } catch {} }
       try { e.remove(); } catch {} deleteTimers(e);
       return;
     }

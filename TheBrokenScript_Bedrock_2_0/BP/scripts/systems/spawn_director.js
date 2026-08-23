@@ -47,7 +47,7 @@ function evaluateAroundPlayers() {
         try {
             const ctx = {
                 players,
-                gameTime: world.getTime?.() ?? 0,
+                gameTime: world.getTimeOfDay(),
                 frequency: eventFrequency(0),
                 isNullHere: () => worldState.get("isNullHere")
             };

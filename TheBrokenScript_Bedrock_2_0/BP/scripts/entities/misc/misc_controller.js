@@ -1,4 +1,5 @@
 ﻿import { world, system } from "@minecraft/server";
+import { EntityDamageCause, GameMode } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as dimensions from "../../systems/dimensions.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
@@ -45,19 +46,19 @@ function tryPlaySoundAt(dim, loc, sound, vol = 1, pitch = 1) {
 }
 
 function setFakeTime(dim, t) {
-  try { dim.runCommandAsync(`time set ${t}`); } catch {}
+  try { dim.runCommand(`time set ${t}`); } catch {}
 }
 function title(player, text, stay = 10) {
   try { player.onScreenDisplay.setTitle(text, { fadeInDuration: 0, stayDuration: stay, fadeOutDuration: 0 }); } catch {}
 }
 function chatAll(dim, text) {
-  try { dim.runCommandAsync(`tellraw @a {"rawtext":[{"text":"${text.replace(/"/g, '\\"')}"}]}`); } catch {}
+  try { dim.runCommand(`tellraw @a {"rawtext":[{"text":"${text.replace(/"/g, '\\"')}"}]}`); } catch {}
 }
 function kickPlayer(player, reason) {
   system.runTimeout(() => {
     try {
       const safeName = player.name.replace(/"/g, '\\"');
-      player.dimension.runCommandAsync(`kick "${safeName}" ${reason}`).catch(() => {});
+      player.dimension.runCommand(`kick "${safeName}" ${reason}`);
     } catch {}
   }, 10);
 }
@@ -271,7 +272,7 @@ function tickNiwChase(e) {
     } catch {}
   }
   if (system.currentTick % 20 === 0 && distance(e.location, target.location) < 12) {
-    try { target.applyDamage(3, { cause: "entityAttack", damagingEntity: e }); } catch { try { target.applyDamage(3); } catch {} }
+    try { target.applyDamage(3, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(3); } catch {} }
   }
 }
 
@@ -362,7 +363,7 @@ function tickFollow(e) {
     return;
   }
   try {
-    const time = world.getTime?.() ?? 0;
+    const time = world.getTimeOfDay();
     if (time >= 23000 || time < 1000) { try { e.remove(); } catch {} deleteTimers(e); }
   } catch {}
 }
@@ -385,7 +386,7 @@ function tickWanderDespawn(e) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     const gm = typeof p.getGameMode === "function" ? p.getGameMode() : undefined;
-    if (gm === "creative" || gm === "spectator" || gm === 1 || gm === 3) continue;
+    if (gm === GameMode.Creative || gm === GameMode.Spectator) continue;
     if (distance(p.location, e.location) < (e.typeId === "thebrokenscript:maze_shadows" ? 15 : 15) || hasLineOfSightApprox(p, e)) {
       try { e.remove(); } catch {} deleteTimers(e);
       return;

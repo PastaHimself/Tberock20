@@ -20,6 +20,9 @@
     "result": {
       "item": "thebrokenscript:moon_stone_brick_stairs",
       "count": 4
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

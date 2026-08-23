@@ -19,6 +19,9 @@
     "result": {
       "item": "thebrokenscript:chiseled_moon_stone_bricks",
       "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

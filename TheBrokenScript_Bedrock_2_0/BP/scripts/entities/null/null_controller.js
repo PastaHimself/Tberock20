@@ -1,4 +1,5 @@
 import { world } from "@minecraft/server";
+import { EntityDamageCause } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
@@ -86,7 +87,7 @@ function tickIsHere(e) {
     try { e.teleport(dest); } catch {}
   }
   if (Math.hypot(player.location.x - e.location.x, player.location.y - e.location.y, player.location.z - e.location.z) < 2.4) {
-    try { player.applyDamage(313, { cause: "entityAttack", damagingEntity: e }); } catch { try { player.applyDamage(313); } catch {} }
+    try { player.applyDamage(313, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { player.applyDamage(313); } catch {} }
   }
   if (Math.random() < 0.25) {
     try { player.onScreenDisplay.setTitle("§k null §r", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 10 }); } catch {}
