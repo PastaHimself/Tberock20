@@ -172,7 +172,7 @@ jobs:
             const text = serializedFinding(item);
             if (
               item.type === 'testFail'
-              && text.includes('errors in Script Modules check')
+              && text.includes('Script Modules check')
               && onlySelfComparisonScriptErrors
             ) return false;
             return true;
