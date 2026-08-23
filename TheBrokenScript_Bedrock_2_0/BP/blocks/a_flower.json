@@ -9,6 +9,7 @@
       "minecraft:material_instances": { "*": { "texture": "a_flower" } },
       "minecraft:custom_components": ["thebrokenscript:be_a_flower"],
       "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:loot": "loot_tables/blocks/a_flower.json",
       "minecraft:destructible_by_explosion": { "explosion_resistance": 5 }
     }
   }

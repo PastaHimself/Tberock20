@@ -5,6 +5,7 @@ import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import * as effects from "../../systems/ai/effects.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
+import * as progression from "../../systems/progression.js";
 import { logger } from "../../core/logging.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
@@ -299,6 +300,8 @@ function scanAndBreakInFront(e) {
 
 function onTbeKillPlayer(player, tbeEntity) {
   try { tryPlaySoundAt(tbeEntity.dimension, player.location, "thebrokenscript:the_end_is_near", 2, 0.2); } catch {}
+  // source RepTier GAIN_MEDIUM analogue → advancement approximation
+  try { progression.award(player.id, "you_ve_brought_it_upon_yourself"); } catch {}
   try { tbeEntity.remove(); timers.delete(tbeEntity.id); extraState.delete(tbeEntity.id); } catch {}
   // queue 15 ticks then kick — Bedrock kick command needs operator
   system.runTimeout(() => {

@@ -29,6 +29,8 @@ import * as bossController from "./entities/boss/boss_controller.js";
 import * as bossSpawnRules from "./entities/boss/boss_spawn_rules.js";
 import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 import * as horrorEvents from "./systems/horror_events.js";
+import * as progression from "./systems/progression.js";
+import * as commands from "./systems/commands.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
@@ -58,6 +60,8 @@ function onWorldLoad() {
     bossController.begin(scheduler);
     initCustomBlocks();
     horrorEvents.begin(scheduler);
+    progression.begin(scheduler);
+    commands.begin();
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",

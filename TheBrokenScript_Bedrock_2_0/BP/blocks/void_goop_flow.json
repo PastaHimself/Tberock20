@@ -6,6 +6,7 @@
       "menu_category": { "category": "construction", "is_hidden_in_commands": false }
     },
     "components": {
+      "minecraft:loot": "loot_tables/blocks/void_goop_flow.json",
       "minecraft:material_instances": { "*": { "texture": "void_goop_flow", "render_method": "blend" } },
       "minecraft:collision_box": true,
       "minecraft:light_dampening": 1

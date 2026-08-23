@@ -1,0 +1,10 @@
+﻿{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:polished_moon_stone_wall", "weight": 1 }
+      ]
+    }
+  ]
+}

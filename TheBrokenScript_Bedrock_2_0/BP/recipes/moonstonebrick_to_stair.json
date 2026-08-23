@@ -1,0 +1,16 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:recipe_shaped": {
+    "description": { "identifier": "thebrokenscript:moonstonebrick_to_stair" },
+    "tags": [ "crafting_table" ],
+    "pattern": [
+    "s  ",
+    "ss ",
+    "sss"
+    ],
+    "key": {
+      "s": { "item": "thebrokenscript:moon_stone_bricks" }
+    },
+    "result": { "item": "thebrokenscript:moon_stone_brick_stairs", "count": 4 }
+  }
+}

@@ -9,6 +9,7 @@
       "minecraft:material_instances": { "*": { "texture": "null_structure" } },
       "minecraft:custom_components": ["thebrokenscript:be_null_structure"],
       "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:loot": "loot_tables/blocks/null_structure.json",
       "minecraft:destructible_by_explosion": { "explosion_resistance": 5 }
     }
   }

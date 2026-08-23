@@ -1,6 +1,7 @@
 import { world, system, ItemStack } from "@minecraft/server";
 import * as worldState from "./world_state.js";
 import * as dimensions from "./dimensions.js";
+import * as progression from "./progression.js";
 import { logger } from "../core/logging.js";
 
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
@@ -146,9 +147,9 @@ const H = {
   giift(p) { giveItem(p, "thebrokenscript:torn_paper", 1); title(p, "§7a gift?", 25); },
   experience(p) { try { p.addExperience(Math.floor(Math.random() * 30) + 5); } catch {} },
   inventory_corruption(p) { worldState.update("inventoryCorruption", (n) => Math.min(5, n + 1)); actionBar(p, "§8inventory corrupts..."); },
-  nullnullnull_advancement(p) { title(p, "§8advancement made: §knullnullnull", 40); },
-  null_getting_achievement(p) { title(p, "§7achievement get! §k???", 30); },
-  can_someone_hear_me(p) { title(p, "§7can someone hear me?", 40); },
+  nullnullnull_advancement(p) { progression.award(p.id, "nullnullnull"); title(p, "§8advancement made: §knullnullnull", 40); },
+  null_getting_achievement(p) { progression.award(p.id, "can_someone_hear_me"); title(p, "§7achievement get! §k???", 30); },
+  can_someone_hear_me(p) { progression.award(p.id, "can_someone_hear_me"); title(p, "§7can someone hear me?", 40); },
   coord(p) { actionBar(p, `§7X:${Math.floor(p.location.x)} Y:${Math.floor(p.location.y)} Z:${Math.floor(p.location.z)}`); },
   txt(p) { actionBar(p, "err.file"); }
 };

@@ -6,6 +6,7 @@
       "menu_category": { "category": "construction" }
     },
     "components": {
+      "minecraft:loot": "loot_tables/blocks/potted_lily_of_the_abyss.json",
       "minecraft:material_instances": { "*": { "texture": "lily_of_the_abyss", "render_method": "alpha_test_single_sided" } },
       "minecraft:geometry": "geometry.tbs_cross",
       "minecraft:collision_box": false,

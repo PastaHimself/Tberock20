@@ -6,6 +6,7 @@
       "menu_category": { "category": "construction" }
     },
     "components": {
+      "minecraft:loot": "loot_tables/blocks/void_cap.json",
       "minecraft:material_instances": { "*": { "texture": "void_cap", "render_method": "alpha_test_single_sided" } },
       "minecraft:geometry": "geometry.tbs_cross",
       "minecraft:collision_box": false,

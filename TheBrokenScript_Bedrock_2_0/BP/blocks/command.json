@@ -9,6 +9,7 @@
       "minecraft:material_instances": { "*": { "texture": "command_block" } },
       "minecraft:custom_components": ["thebrokenscript:be_command"],
       "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:loot": "loot_tables/blocks/command.json",
       "minecraft:destructible_by_explosion": { "explosion_resistance": 5 }
     }
   }

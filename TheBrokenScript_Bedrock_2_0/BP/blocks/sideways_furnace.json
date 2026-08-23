@@ -8,6 +8,7 @@
     "components": {
       "minecraft:material_instances": { "*": { "texture": "sideways_furnace" } },
       "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:loot": "loot_tables/blocks/sideways_furnace.json",
       "minecraft:destructible_by_explosion": { "explosion_resistance": 5 },
       "minecraft:light_dampening": 0
     }

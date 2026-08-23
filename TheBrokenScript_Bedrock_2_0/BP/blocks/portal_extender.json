@@ -9,6 +9,7 @@
       "minecraft:material_instances": { "*": { "texture": "portal_extender" } },
       "minecraft:custom_components": ["thebrokenscript:be_portal_extender"],
       "minecraft:destructible_by_mining": { "seconds_to_destroy": 1.5 },
+      "minecraft:loot": "loot_tables/blocks/portal_extender.json",
       "minecraft:destructible_by_explosion": { "explosion_resistance": 5 }
     }
   }

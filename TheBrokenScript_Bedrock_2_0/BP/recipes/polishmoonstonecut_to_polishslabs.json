@@ -1,0 +1,11 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:recipe_shapeless": {
+    "description": { "identifier": "thebrokenscript:polishmoonstonecut_to_polishslabs" },
+    "tags": [ "stonecutter" ],
+    "ingredients": [
+      { "item": "thebrokenscript:polished_moon_stone" }
+    ],
+    "result": { "item": "thebrokenscript:polished_moon_stone_slab", "count": 2 }
+  }
+}

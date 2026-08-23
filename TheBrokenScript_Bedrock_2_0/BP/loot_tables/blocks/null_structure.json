@@ -1,0 +1,10 @@
+﻿{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:null_structure", "weight": 1 }
+      ]
+    }
+  ]
+}

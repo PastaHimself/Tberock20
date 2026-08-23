@@ -5,6 +5,7 @@ import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
+import * as progression from "../../systems/progression.js";
 
 // ── SiluetConditions matrix[moonStage 0..2][moonPhase 0..7] ──────────────────
 const SILUET_MATRIX = [
@@ -82,10 +83,13 @@ function canSpawnSiluet(ctx) {
   const spawned = spawnHelpers.trySummon(dim, typeId, loc);
   if (!spawned) return false;
   worldState.set("entitySpawnDelay", 6400);
-  // siluet/he on-spawn ambience
+  // siluet on-spawn ambience + advancement (source: 90% to closest ≤1000)
   if (typeId === "thebrokenscript:siluet") {
     try { dim.playSound("ambient.cave", loc, { volume: 10, pitch: 1 }); } catch {}
-    // advancement can_you_see_me 90% to closest ≤1000 — ledgered (advancement system Chunk 13)
+    if (Math.random() < 0.9) {
+      const near = entityFinder.closestPlayerInRange(world.getAllPlayers(), loc, 1000);
+      if (near) progression.award(near.id, "can_you_see_me");
+    }
   } else if (typeId === "thebrokenscript:he") {
     try { dim.playSound("thebrokenscript:rare_thing_spawn", loc, { volume: 10, pitch: 0 }); } catch {}
     try { dim.spawnEntity("minecraft:lightning_bolt", loc); } catch {}

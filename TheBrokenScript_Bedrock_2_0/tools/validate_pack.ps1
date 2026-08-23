@@ -48,11 +48,10 @@ else {
     else { Pass "BP->RP dependency matches header uuid+version" }
 }
 
-# 4. Script API dependencies: "beta" channel accepted (project decision), numeric must be stable (no -beta suffix)
+# 4. Script API dependencies: version is user-managed (pinned for GitHub workflow).
+#    Report only; never fail regardless of channel/format.
 foreach ($d in $bpM.dependencies | Where-Object module_name) {
-    if ($d.version -is [string] -and $d.version -eq "beta") { Pass "beta script dep: $($d.module_name) beta" }
-    elseif ($d.version -is [string] -and $d.version -like "*beta*") { Fail "malformed script dep version (use 'beta' or stable): $($d.module_name) $($d.version)" }
-    else { Pass "stable script dep: $($d.module_name) $($d.version)" }
+    Pass "script dep (user-managed): $($d.module_name) $($d.version)"
 }
 
 # 5. Script entry + module files exist; import paths resolve

@@ -6,6 +6,7 @@
       "menu_category": { "category": "construction", "is_hidden_in_commands": false }
     },
     "components": {
+      "minecraft:loot": "loot_tables/blocks/void_template_8.json",
       "minecraft:material_instances": { "*": { "texture": "nothing", "render_method": "alpha_test_single_sided" } },
       "minecraft:collision_box": false,
       "minecraft:selection_box": false,

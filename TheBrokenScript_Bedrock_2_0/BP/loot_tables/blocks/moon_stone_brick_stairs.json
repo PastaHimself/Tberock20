@@ -1,0 +1,10 @@
+﻿{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:moon_stone_brick_stairs", "weight": 1 }
+      ]
+    }
+  ]
+}

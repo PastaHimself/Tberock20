@@ -6,6 +6,7 @@
       "menu_category": { "category": "construction" }
     },
     "components": {
+      "minecraft:loot": "loot_tables/blocks/potted_void_bell.json",
       "minecraft:material_instances": { "*": { "texture": "void_bell", "render_method": "alpha_test_single_sided" } },
       "minecraft:geometry": "geometry.tbs_cross",
       "minecraft:collision_box": false,
