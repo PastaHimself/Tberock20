@@ -1,0 +1,317 @@
+{
+    "resource_pack_name":  "thebrokenscript",
+    "texture_name":  "atlas.terrain",
+    "padding":  8,
+    "num_mip_levels":  4,
+    "texture_data":  {
+                         "a_flower":  {
+                                          "textures":  "textures/block/a_flower"
+                                      },
+                         "bacon":  {
+                                       "textures":  "textures/block/bacon"
+                                   },
+                         "barrier":  {
+                                         "textures":  "textures/block/barrier"
+                                     },
+                         "bedrock":  {
+                                         "textures":  "textures/block/bedrock"
+                                     },
+                         "block3":  {
+                                        "textures":  "textures/block/block3"
+                                    },
+                         "block4":  {
+                                        "textures":  "textures/block/block4"
+                                    },
+                         "ceiling_light":  {
+                                               "textures":  "textures/block/ceiling_light"
+                                           },
+                         "ceiling_tile":  {
+                                              "textures":  "textures/block/ceiling_tile"
+                                          },
+                         "chiseled_moon_stone_bricks":  {
+                                                            "textures":  "textures/block/chiseled_moon_stone_bricks"
+                                                        },
+                         "command_block":  {
+                                               "textures":  "textures/block/command_block"
+                                           },
+                         "command_block_inactive":  {
+                                                        "textures":  "textures/block/command_block_inactive"
+                                                    },
+                         "concrete":  {
+                                          "textures":  "textures/block/concrete"
+                                      },
+                         "corrupted_moon_stone_bricks":  {
+                                                             "textures":  "textures/block/corrupted_moon_stone_bricks"
+                                                         },
+                         "dark":  {
+                                      "textures":  "textures/block/dark"
+                                  },
+                         "decomposed_semiotics":  {
+                                                      "textures":  "textures/block/decomposed_semiotics"
+                                                  },
+                         "deviation":  {
+                                           "textures":  "textures/block/deviation"
+                                       },
+                         "empty":  {
+                                       "textures":  "textures/block/empty"
+                                   },
+                         "errornotexture":  {
+                                                "textures":  "textures/block/errornotexture"
+                                            },
+                         "exit":  {
+                                      "textures":  "textures/block/exit"
+                                  },
+                         "flesh":  {
+                                       "textures":  "textures/block/flesh"
+                                   },
+                         "gradient":  {
+                                          "textures":  "textures/block/gradient"
+                                      },
+                         "hi":  {
+                                    "textures":  "textures/block/hi"
+                                },
+                         "intense_projection":  {
+                                                    "textures":  "textures/block/intense_projection"
+                                                },
+                         "it":  {
+                                    "textures":  "textures/block/it"
+                                },
+                         "jim_trigger_1":  {
+                                               "textures":  "textures/block/jim_trigger_1"
+                                           },
+                         "jim_trigger_2":  {
+                                               "textures":  "textures/block/jim_trigger_2"
+                                           },
+                         "jim_trigger_3":  {
+                                               "textures":  "textures/block/jim_trigger_3"
+                                           },
+                         "jim_trigger_4":  {
+                                               "textures":  "textures/block/jim_trigger_4"
+                                           },
+                         "lily_of_the_abyss":  {
+                                                   "textures":  "textures/block/lily_of_the_abyss"
+                                               },
+                         "limbo":  {
+                                       "textures":  "textures/block/limbo"
+                                   },
+                         "moist_carpet":  {
+                                              "textures":  "textures/block/moist_carpet"
+                                          },
+                         "mono_library":  {
+                                              "textures":  "textures/block/mono_library"
+                                          },
+                         "mono_planks":  {
+                                             "textures":  "textures/block/mono_planks"
+                                         },
+                         "moon_stone":  {
+                                            "textures":  "textures/block/moon_stone"
+                                        },
+                         "moon_stone_bricks":  {
+                                                   "textures":  "textures/block/moon_stone_bricks"
+                                               },
+                         "mossy_oak":  {
+                                           "textures":  "textures/block/mossy_oak"
+                                       },
+                         "necrosis":  {
+                                          "textures":  "textures/block/necrosis"
+                                      },
+                         "noise":  {
+                                       "textures":  "textures/block/noise"
+                                   },
+                         "noisestable":  {
+                                             "textures":  "textures/block/noisestable"
+                                         },
+                         "nothing":  {
+                                         "textures":  "textures/block/nothing"
+                                     },
+                         "null_structure":  {
+                                                "textures":  "textures/block/null_structure"
+                                            },
+                         "nullvoid":  {
+                                          "textures":  "textures/block/nullvoid"
+                                      },
+                         "old":  {
+                                     "textures":  "textures/block/old"
+                                 },
+                         "polished_moon_stone":  {
+                                                     "textures":  "textures/block/polished_moon_stone"
+                                                 },
+                         "portal_controller":  {
+                                                   "textures":  "textures/block/portal_controller"
+                                               },
+                         "portal_extender":  {
+                                                 "textures":  "textures/block/portal_extender"
+                                             },
+                         "protected_void":  {
+                                                "textures":  "textures/block/protected_void"
+                                            },
+                         "red_ceiling_light":  {
+                                                   "textures":  "textures/block/red_ceiling_light"
+                                               },
+                         "red_ceiling_tile":  {
+                                                  "textures":  "textures/block/red_ceiling_tile"
+                                              },
+                         "red_moist_carpet":  {
+                                                  "textures":  "textures/block/red_moist_carpet"
+                                              },
+                         "red_ugly_wallpaper":  {
+                                                    "textures":  "textures/block/red_ugly_wallpaper"
+                                                },
+                         "redobsidian":  {
+                                             "textures":  "textures/block/redobsidian"
+                                         },
+                         "sideways_cobblestone_stairs":  {
+                                                             "textures":  "textures/block/sideways_cobblestone_stairs"
+                                                         },
+                         "sideways_furnace":  {
+                                                  "textures":  "textures/block/sideways_furnace"
+                                              },
+                         "sideways_pane":  {
+                                               "textures":  "textures/block/sideways_pane"
+                                           },
+                         "sideways_pane_side":  {
+                                                    "textures":  "textures/block/sideways_pane_side"
+                                                },
+                         "stack_trace":  {
+                                             "textures":  "textures/block/stack_trace"
+                                         },
+                         "teeth":  {
+                                       "textures":  "textures/block/teeth"
+                                   },
+                         "teeth_end":  {
+                                           "textures":  "textures/block/teeth_end"
+                                       },
+                         "tether_bloom_disintegrate":  {
+                                                           "textures":  "textures/block/tether_bloom_disintegrate"
+                                                       },
+                         "tether_bloom_idle":  {
+                                                   "textures":  "textures/block/tether_bloom_idle"
+                                               },
+                         "tether_bloom_rot":  {
+                                                  "textures":  "textures/block/tether_bloom_rot"
+                                              },
+                         "ud_oak_door":  {
+                                             "textures":  "textures/block/ud_oak_door"
+                                         },
+                         "ud_oak_door_bottom":  {
+                                                    "textures":  "textures/block/ud_oak_door_bottom"
+                                                },
+                         "ugly_wallpaper":  {
+                                                "textures":  "textures/block/ugly_wallpaper"
+                                            },
+                         "vein_center":  {
+                                             "textures":  "textures/block/vein_center"
+                                         },
+                         "vein_center_2":  {
+                                               "textures":  "textures/block/vein/vein_center"
+                                           },
+                         "vein_down":  {
+                                           "textures":  "textures/block/vein/vein_down"
+                                       },
+                         "vein_limb":  {
+                                           "textures":  "textures/block/vein/vein_limb"
+                                       },
+                         "vein_up":  {
+                                         "textures":  "textures/block/vein/vein_up"
+                                     },
+                         "vein_up_down":  {
+                                              "textures":  "textures/block/vein/vein_up_down"
+                                          },
+                         "void_bell":  {
+                                           "textures":  "textures/block/void_bell"
+                                       },
+                         "void_bush":  {
+                                           "textures":  "textures/block/void_bush"
+                                       },
+                         "void_cap":  {
+                                          "textures":  "textures/block/void_cap"
+                                      },
+                         "void_door_bottom":  {
+                                                  "textures":  "textures/block/void_door_bottom"
+                                              },
+                         "void_door_top":  {
+                                               "textures":  "textures/block/void_door_top"
+                                           },
+                         "void_goop_flow":  {
+                                                "textures":  "textures/block/void_goop_flow"
+                                            },
+                         "void_goop_still":  {
+                                                 "textures":  "textures/block/void_goop_still"
+                                             },
+                         "void_grass":  {
+                                            "textures":  "textures/block/void_grass"
+                                        },
+                         "void_growth":  {
+                                             "textures":  "textures/block/void_growth"
+                                         },
+                         "void_light":  {
+                                            "textures":  "textures/block/void_light"
+                                        },
+                         "void_log_door":  {
+                                               "textures":  "textures/block/void_log_door"
+                                           },
+                         "void_log_door_bottom":  {
+                                                      "textures":  "textures/block/void_log_door_bottom"
+                                                  },
+                         "void_log_door_top":  {
+                                                   "textures":  "textures/block/void_log_door_top"
+                                               },
+                         "void_log_side":  {
+                                               "textures":  "textures/block/void_log_side"
+                                           },
+                         "void_log_top":  {
+                                              "textures":  "textures/block/void_log_top"
+                                          },
+                         "void_plank_door":  {
+                                                 "textures":  "textures/block/void_plank_door"
+                                             },
+                         "void_plank_door_bottom":  {
+                                                        "textures":  "textures/block/void_plank_door_bottom"
+                                                    },
+                         "void_plank_door_top":  {
+                                                     "textures":  "textures/block/void_plank_door_top"
+                                                 },
+                         "void_planks":  {
+                                             "textures":  "textures/block/void_planks"
+                                         },
+                         "void_root":  {
+                                           "textures":  "textures/block/void_root"
+                                       },
+                         "void_roots":  {
+                                            "textures":  "textures/block/void_roots"
+                                        },
+                         "void_shimmer":  {
+                                              "textures":  "textures/block/void_shimmer"
+                                          },
+                         "void_shroom":  {
+                                             "textures":  "textures/block/void_shroom"
+                                         },
+                         "void_sprout":  {
+                                             "textures":  "textures/block/void_sprout"
+                                         },
+                         "void_vine":  {
+                                           "textures":  "textures/block/void_vine"
+                                       },
+                         "void_wood_trapdoor":  {
+                                                    "textures":  "textures/block/void_wood_trapdoor"
+                                                },
+                         "voiddoordown":  {
+                                              "textures":  "textures/block/voiddoordown"
+                                          },
+                         "voiddoorup":  {
+                                            "textures":  "textures/block/voiddoorup"
+                                        },
+                         "voiderr":  {
+                                         "textures":  "textures/block/voiderr"
+                                     },
+                         "voidexpblock":  {
+                                              "textures":  "textures/block/voidexpblock"
+                                          },
+                         "voidlight":  {
+                                           "textures":  "textures/block/voidlight"
+                                       },
+                         "white":  {
+                                       "textures":  "textures/block/white"
+                                   }
+                     }
+}
