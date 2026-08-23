@@ -65,14 +65,14 @@ export function init(blockComponentRegistry) {
     onPlayerInteract(ev) {
       const lines = ["/give @s minecraft:knowledge", "/tp @s into_the_void", "/ban @a[distance=..64]"];
       const line = lines[Math.floor(Math.random() * lines.length)];
-      try { ev.player.onScreenDisplay.setTitle(`Â§7${line}`, { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle(`Â§7${line}`, { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
       tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:glitch_sound_1", 2, 0.8);
     }
   });
 
   register("thebrokenscript:be_portal_controller", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§5PORTAL CONTROLLER", { stayDuration: 25 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§5PORTAL CONTROLLER", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 0 }); } catch {}
       // portal activation: send player to clan_void at the null_book coords height
       const loc = { x: ev.player.location.x, y: 201, z: ev.player.location.z };
       dimensions.teleportTo(ev.player, "clan_void", loc);
@@ -82,13 +82,13 @@ export function init(blockComponentRegistry) {
 
   register("thebrokenscript:be_portal_extender", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§5EXTENDER LINKED", { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§5EXTENDER LINKED", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
     }
   });
 
   register("thebrokenscript:be_null_structure", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§8NULL_STRUCTURE", { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§8NULL_STRUCTURE", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
       // Chunk 11: interact builds the bedrock Shaft nearby (structure/shaft/*.nbt approx)
       const built = worldgenStructures.buildShaft(ev.block.dimension, {
         x: ev.block.location.x + 24,
@@ -115,14 +115,14 @@ export function init(blockComponentRegistry) {
 
   register("thebrokenscript:be_exit", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§aEXIT?", { stayDuration: 20 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§aEXIT?", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
     }
   });
 
   register("thebrokenscript:be_a_flower", {
     onPlayerInteract(ev) {
       try { ev.player.playSound("chime.amethyst_block"); } catch {}
-      try { ev.player.onScreenDisplay.setTitle("Â§d...", { stayDuration: 15 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("Â§d...", { fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 0 }); } catch {}
     }
   });
 

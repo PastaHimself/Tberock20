@@ -17,7 +17,7 @@ function getMoonPhase() {
     if (typeof mp === "number") return ((mp % 8) + 8) % 8;
   } catch {}
   try {
-    const day = world.getDay?.() ?? Math.floor((world.getTime?.() ?? 0) / 24000);
+    const day = world.getDay?.() ?? Math.floor(world.getTimeOfDay() / 24000);
     return ((day % 8) + 8) % 8;
   } catch {}
   return 0;

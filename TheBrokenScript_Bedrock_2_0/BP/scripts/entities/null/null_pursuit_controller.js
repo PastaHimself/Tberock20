@@ -1,4 +1,5 @@
 import { world } from "@minecraft/server";
+import { EntityDamageCause } from "@minecraft/server";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
@@ -50,7 +51,7 @@ function tickEntity(e) {
 function tickChase(e) {
   const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 520);
   if (!player) { e.remove(); timers.delete(e.id); return; }
-  if (Math.random() < 0.01) { try { e.dimension.runCommandAsync("time set midnight"); } catch {} }
+  if (Math.random() < 0.01) { try { e.dimension.runCommand("time set midnight"); } catch {} }
   if (Math.random() < 0.25) { try { e.dimension.spawnParticle("thebrokenscript:null_particle", e.location); } catch {} }
   try { player.addEffect("blindness", 60, { amplifier: 0, showParticles: false }); } catch {}
 }
@@ -68,7 +69,7 @@ function tickEndgame(e) {
   const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 50);
   if (!player) return;
   try { player.onScreenDisplay.setTitle("HERE I AM", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 10 }); } catch {}
-  if (getTimer(e) % 60 === 0) { try { player.applyDamage(999, { cause: "entityAttack", damagingEntity: e }); } catch { try { player.applyDamage(999); } catch {} } }
+  if (getTimer(e) % 60 === 0) { try { player.applyDamage(999, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { player.applyDamage(999); } catch {} } }
 }
 
 function tickUnbeatable(e) {

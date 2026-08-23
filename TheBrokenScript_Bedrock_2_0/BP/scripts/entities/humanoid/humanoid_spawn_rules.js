@@ -1,3 +1,4 @@
+import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
 import { config } from "../../core/config.js";
@@ -26,7 +27,7 @@ function getMoonPhase() {
     if (typeof mp === "number") return ((mp % 8) + 8) % 8;
   } catch {}
   try {
-    const day = world.getDay?.() ?? Math.floor((world.getTime?.() ?? 0) / 24000);
+    const day = world.getDay?.() ?? Math.floor(world.getTimeOfDay() / 24000);
     return ((day % 8) + 8) % 8;
   } catch {}
   return 0;
@@ -93,7 +94,7 @@ function canSpawnSiluet(ctx) {
   } else if (typeId === "thebrokenscript:he") {
     try { dim.playSound("thebrokenscript:rare_thing_spawn", loc, { volume: 10, pitch: 0 }); } catch {}
     try { dim.spawnEntity("minecraft:lightning_bolt", loc); } catch {}
-    try { dim.runCommandAsync("weather rain 6000"); } catch {}
+    try { dim.runCommand("weather rain 6000"); } catch {}
   }
   return true;
 }

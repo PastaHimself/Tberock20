@@ -1,4 +1,5 @@
 ﻿import { world, system } from "@minecraft/server";
+import { EntityDamageCause, EquipmentSlot } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
@@ -46,7 +47,7 @@ function tryPlaySoundAt(dim, loc, sound, vol = 1, pitch = 1) {
 }
 
 function setFakeTime(dim, t) {
-  try { dim.runCommandAsync(`time set ${t}`); } catch {}
+  try { dim.runCommand(`time set ${t}`); } catch {}
 }
 
 function title(player, text, stayTicks = 10) {
@@ -128,6 +129,7 @@ export function begin(scheduler) {
     world.afterEvents.entityDie.subscribe((ev) => {
       try {
         if (ev.deadEntity.typeId !== "minecraft:player") return;
+        const deadPlayer = /** @type {import("@minecraft/server").Player} */ (ev.deadEntity);
         const killer = ev.damageSource?.damagingEntity;
         if (!killer) return;
         if (killer.typeId === "thebrokenscript:siluet_chase" || killer.typeId === "thebrokenscript:he_chase") {
@@ -136,8 +138,8 @@ export function begin(scheduler) {
           if (Math.random() < 0.3) {
             system.runTimeout(() => {
               try {
-                const safeName = ev.deadEntity.name.replace(/"/g, '\\"');
-                ev.deadEntity.dimension.runCommandAsync(`kick "${safeName}" §cYou were caught.`).catch(() => {});
+                const safeName = deadPlayer.name.replace(/"/g, '\\"');
+                deadPlayer.dimension.runCommand(`kick "${safeName}" §cYou were caught.`);
               } catch {}
             }, 10);
           }
@@ -223,7 +225,7 @@ function tickSiluet(e) {
   }
   // isDay → discard + null particle burst
   try {
-    const time = world.getTime?.() ?? 0;
+    const time = world.getTimeOfDay();
     if (time >= 23000 || time < 1000) {
       try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", e.location); } catch {}
       try { e.remove(); } catch {} deleteTimers(e); return;
@@ -243,7 +245,7 @@ function tickSiluet(e) {
 function tickSiluetStare(e) {
   // base siluet layer first (mirrors super.baseTick())
   tickSiluet(e);
-  if (!e.isValid()) return;
+  if (!e.isValid) return;
   const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 620);
   if (!player) return;
   try { e.lookAt?.(player.location); } catch {}
@@ -277,7 +279,7 @@ function tickChase(e) {
 
   // melee every 20 ticks when within reach (native attack goal absent in stat-block BP)
   if (dist < 3 && system.currentTick % 20 === 0) {
-    try { player.applyDamage(13, { cause: "entityAttack", damagingEntity: e }); } catch { try { player.applyDamage(13); } catch {} }
+    try { player.applyDamage(13, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { player.applyDamage(13); } catch {} }
   }
 
   // block-break front 3×h+1 when stuck/near & yDiff ≤ 3 (rate-limited every 10 ticks)
@@ -335,7 +337,7 @@ function tickHallucination(e) {
   const ownerId = getNum(e, "owner", undefined);
   let ownerEnt = null;
   if (ownerId !== undefined) {
-    try { ownerEnt = world.getEntity(ownerId) ?? null; } catch {}
+    try { ownerEnt = world.getAllPlayers().find((player) => player.id === ownerId) ?? null; } catch {}
   }
 
   if (!looked && ownerEnt) {
@@ -345,7 +347,7 @@ function tickHallucination(e) {
 
   if (looked) {
     // still armed? owner disconnected check approximated by validity
-    if (ownerEnt && ownerEnt.isValid()) {
+    if (ownerEnt && ownerEnt.isValid) {
       // chase at ~1.4 speed → 0.07 blocks/tick teleport-step
       const dx = ownerEnt.location.x - e.location.x;
       const dy = ownerEnt.location.y - e.location.y;
@@ -377,7 +379,7 @@ function tickHe(e) {
     // onFinalizeSpawn: rare_thing_spawn sound + lightning at self + rain
     tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:rare_thing_spawn", 10, 0);
     try { e.dimension.spawnEntity("minecraft:lightning_bolt", e.location); } catch {}
-    try { e.dimension.runCommandAsync("weather rain 6000"); } catch {}
+    try { e.dimension.runCommand("weather rain 6000"); } catch {}
   }
   const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 1000);
   if (player) {
@@ -392,7 +394,7 @@ function tickHe(e) {
     }
   }
   try {
-    const time = world.getTime?.() ?? 0;
+    const time = world.getTimeOfDay();
     if (time >= 23000 || time < 1000) {
       try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", e.location); } catch {}
       try { e.remove(); } catch {} deleteTimers(e); return;
@@ -417,12 +419,12 @@ function tickDeceiver(e) {
     if (players.length > 0) {
       const p = players[Math.floor(Math.random() * players.length)];
       try { e.nameTag = p.name; } catch {}
-      try { e.dimension.runCommandAsync(`tellraw @a {"rawtext":[{"text":"§e${p.name} joined the game"}]}`); } catch {}
+      try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"§e${p.name} joined the game"}]}`); } catch {}
       try {
         const equippable = p.getComponent("minecraft:equippable");
         const myEquip = e.getComponent("minecraft:equippable");
         if (equippable && myEquip) {
-          const slots = ["Head", "Chest", "Legs", "Feet"];
+          const slots = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet];
           for (const s of slots) {
             try {
               const item = equippable.getEquipment(s);
@@ -453,7 +455,7 @@ function tickDeceiver(e) {
     }
   }
   try {
-    const time = world.getTime?.() ?? 0;
+    const time = world.getTimeOfDay();
     if (time >= 23000 || time < 1000) { try { e.remove(); } catch {} deleteTimers(e); }
   } catch {}
 }
