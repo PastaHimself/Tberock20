@@ -18,62 +18,41 @@ jobs:
   validate-addon:
     name: Validate and package Bedrock add-on
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 22
 
-      - name: Validate pack JSON and manifests
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import { readFile, readdir } from 'node:fs/promises';
-          import path from 'node:path';
+      - name: Install Minecraft Bedrock beta Script API typings
+        run: npm install --ignore-scripts --no-audit --no-fund
 
-          const addonRoot = 'TheBrokenScript_Bedrock_2_0';
-          const packRoots = [path.join(addonRoot, 'BP'), path.join(addonRoot, 'RP')];
+      - name: Run validator unit tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
 
-          async function walk(dir) {
-            const files = [];
-            for (const entry of await readdir(dir, { withFileTypes: true })) {
-              const full = path.join(dir, entry.name);
-              if (entry.isDirectory()) files.push(...await walk(full));
-              else if (entry.isFile()) files.push(full);
-            }
-            return files;
-          }
+      - name: Validate complete add-on
+        run: python tools/validate_addon.py --report artifacts/addon-validation.json
 
-          let jsonCount = 0;
-          for (const root of packRoots) {
-            for (const file of await walk(root)) {
-              if (path.extname(file).toLowerCase() !== '.json') continue;
-              jsonCount += 1;
-              JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
-            }
-          }
+      - name: Validate Bedrock resource identifier links
+        if: always()
+        run: python tools/validate_resource_links.py --report artifacts/resource-link-validation.json
 
-          const bp = JSON.parse(await readFile(path.join(addonRoot, 'BP/manifest.json'), 'utf8'));
-          const rp = JSON.parse(await readFile(path.join(addonRoot, 'RP/manifest.json'), 'utf8'));
-          if (bp.format_version !== 2 || rp.format_version !== 2) throw new Error('Both manifests must use format_version 2.');
-          if (!bp.modules?.some((m) => m?.type === 'data')) throw new Error('Behavior pack is missing a data module.');
-          const script = bp.modules?.find((m) => m?.type === 'script');
-          if (!script?.entry) throw new Error('Behavior pack is missing a script entry.');
-          if (!rp.modules?.some((m) => m?.type === 'resources')) throw new Error('Resource pack is missing a resources module.');
-          const server = bp.dependencies?.find((d) => d?.module_name === '@minecraft/server');
-          if (!server || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(server.version ?? '')) {
-            throw new Error('@minecraft/server must use a concrete semantic version.');
-          }
-          console.log(`Validated ${jsonCount} JSON files and both manifests.`);
-          NODE
+      - name: Validate all Bedrock structures
+        if: always()
+        run: python tools/validate_mcstructures.py --report artifacts/mcstructure-validation.json
 
-      - name: Check runtime JavaScript syntax
+      - name: Check all behavior-pack JavaScript syntax
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -83,10 +62,46 @@ jobs:
             exit 1
           fi
           for script in "${scripts[@]}"; do
+            echo "Checking $script"
             node --check "$script"
           done
 
+      - name: Type-check behavior scripts against Bedrock beta APIs
+        if: always()
+        run: npm run typecheck
+
+      - name: Run JavaScript regression tests
+        if: always()
+        run: npm test
+
+      - name: Checkout Blockception Bedrock language server
+        if: always()
+        uses: actions/checkout@v5
+        with:
+          repository: Blockception/minecraft-bedrock-language-server
+          path: .blockception/minecraft-bedrock-language-server
+          submodules: recursive
+
+      - name: Build Blockception Bedrock language server
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd .blockception/minecraft-bedrock-language-server
+          npm install --ignore-scripts --no-audit --no-fund
+          npm run build
+          echo "BLOCKCEPTION_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Run Blockception project diagnostics
+        if: always()
+        run: >-
+          node tools/run_blockception_lsp_check.mjs
+          --server .blockception/minecraft-bedrock-language-server/ide/vscode/lsp/server.js
+          --workspace TheBrokenScript_Bedrock_2_0
+          --report artifacts/blockception-lsp-diagnostics.json
+
       - name: Stage production packs for Mojang Creator Tools
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -124,14 +139,17 @@ jobs:
           NODE
 
       - name: Validate production packs with Mojang Minecraft Creator Tools
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p artifacts
           set +e
           npm exec --yes --package=@minecraft/creator-tools@0.17.7 -- \
             mct validate main -i .ci/mct --json > .ci/mct-validation.json
           MCT_STATUS=$?
           set -e
+          cp .ci/mct-validation.json artifacts/mct-validation.json
           export MCT_STATUS
 
           node --input-type=module <<'NODE'
@@ -197,14 +215,12 @@ jobs:
 
       - name: Package successful build as .mcaddon
         id: package_addon
-        continue-on-error: true
         shell: bash
         run: bash tools/package-addon.sh
 
       - name: Upload The Broken Script 2.0 .mcaddon
         id: upload_addon
-        if: steps.package_addon.outcome == 'success'
-        continue-on-error: true
+        if: success()
         uses: actions/upload-artifact@v6
         with:
           name: The_Broken_Script_2_0-mcaddon
@@ -212,6 +228,11 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Fail on packaging or upload errors
-        if: ${{ steps.package_addon.outcome == 'failure' || steps.upload_addon.outcome == 'failure' }}
-        run: exit 1
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: addon-validation-reports
+          path: artifacts/*.json
+          if-no-files-found: ignore
+          retention-days: 30
