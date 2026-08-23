@@ -1,6 +1,6 @@
 # PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 05E)
+Last updated: 2026-08-23 (Chunk 05F)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 05E)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 05F — Remaining entities**
+**Chunk 06 — Stalking systems completion pass (+ deferred medium entities)**
 
 ## Chunk state
 | Chunk | State |
@@ -26,9 +26,9 @@ Last updated: 2026-08-23 (Chunk 05E)
 | 05C Null pursuit/endgame (7 entities) | **completed** (chase/nulll/maze/endgame/unbeatable/flying/invade, timers 450/3200/420/500, chase/maze/endgame logic) |
 | 05D The Broken End family | **completed** (4 entities stalk/curious/ambush/TBE, timers 1000/7200+320/2400/18000-24000+26, TBE/Ambush spawn rules delays 32000/8200) |
 | 05E Humanoid apparitions | **completed** (10 entities stare/siluet×4/he×3/deceiver/faraway, SILUET/FARAWAY/ENTITY spawn matrices, r2 model family) |
-| 05F Remaining entities | pending |
-| 06 Stalking systems completion pass | pending (may fold into 04/05x if redundant) |
-| 07 Bosses (Integrity/Jimmy/Kerfur) | pending |
+| 05F Remaining entities | **completed** (14 misc/niw/players entities: xxram_2die chat seq, ban, eerie_noise, chunk_remover*, corruption void-column, follow, name_tag, maze_shadows, null_cod, nothing_watcher, niw pair w/ kick, phantom_player swap, hetzer; *chunk ops approximated) |
+| 06 Stalking systems completion pass | pending (now includes curved/jon/sub_anomaly_1-2/herobrine/obliteration pair moved from 05F) |
+| 07 Bosses (Integrity/Jimmy/Kerfur+fever/chord/tether/tentacle) | pending |
 | 08 Blocks (123 + 8 BE equivalents) | pending |
 | 09 Items (192) + fluids approximation | pending |
 | 10 Dimensions (13) & portals | pending |
@@ -43,6 +43,9 @@ Last updated: 2026-08-23 (Chunk 05E)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 05F)
+BP/entities/{xxram_2die,ban,eerie_noise,chunk_remover,corruption,follow,name_tag,maze_shadows,null_cod,nothing_watcher,niw,nothingiswatchingchase,phantom_player,hetzer}.json (14) · RP/entity/*.entity.json (14) · src/entities/misc/{misc_controller,misc_spawn_rules}.js · docs/chunks/CHUNK_05F_{SPEC,REPORT}.md
 
 ## Files created (Chunk 05E)
 BP/entities/{stare,siluet,siluet_stare,siluet_chase,siluet_hallucination,he,he_chase,he_hallucination,deceiver,faraway}.json (10) · RP/entity/*.entity.json (10) · src/entities/humanoid/{humanoid_controller,humanoid_spawn_rules}.js · docs/chunks/CHUNK_05E_{SPEC,REPORT}.md
@@ -77,14 +80,16 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 05E: 33 modules sync, 185 JSONs parsed incl. 20 new humanoid JSONs — PASS; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 05F: 35 modules sync, 213 JSONs parsed incl. 28 new misc JSONs — PASS; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
 - null_book_story event unwired until item system exists (Chunk 09) — ledgered in_progress.
-- PhysicalStacktraceBlock placement (TBE stalk 70% gaze branch) pending Chunk 08 — ledgered.
+- PhysicalStacktraceBlock placement (TBE stalk) + disruption block placement (follow) pending Chunk 08.
+- Dimension teleports (follow → CLAN_VOID/NULL_TORTURE) pending Chunk 10.
 - Advancements (can_you_see_me) pending Chunk 13; FunnySetting easter-egg variants pending config pass.
+- Chunk clear/move-up (chunk_remover) approximated as sound beat — engine limitation ledgered.
 - Decompiler toolchain now installed (JDK21+CFR under tools/) — resolved.
 
 ## Dependencies needed by later chunks
@@ -94,9 +99,9 @@ See VALIDATION_LOG.md (Chunk 05E: 33 modules sync, 185 JSONs parsed incl. 20 new
 - Potential "Beta APIs" world experiment isolated to custom-dimension module IF min-engine stays 1.26.10 (decision Chunk 10). Alternative documented: floor 1.26.30 for stable DimensionRegistry.
 
 ## Next chunk
-Chunk 05F — Remaining entities
+Chunk 06 — Stalking systems completion pass (+ deferred medium entities)
 
 ## Exact source references to inspect next
-- `entity/misc/{BanEntity,CorruptionEntity,CaveSoundEntity,ChunkRemoverEntity,MurderfurEntity,JonEntity,NothingWatcherEntity}`, `entity/NullCodEntity`, `entity/MotherEntity`, `entity/NameTagEntity`
-- `entity/niw/{NothingIsWatching*,NothingIsWatchingChase*}`, `entity/nullent/Xxram2dieEntity`, `players/CurvedEntity`
-- Spawn: NIWConditions, CurvedConditions, EerieConditions, ChunkRemoverConditions, CorruptionConditions, MazeShadowConditions
+- `players/CurvedEntity.java` (1149 ln), `misc/JonEntity.java` (453 ln), `anomaly/sa1|sa2/SubAnomaly*Entity.java`
+- `HerobrineEntity.java` + `conditions/HerobrineConditions.java`; `oblit/{Obliteration,Obliteration2}Entity.java` + ObliterationConditions
+- Stalking-pass cross-checks: event_frequency usage, encounter-delay ledger, remaining story-event hooks

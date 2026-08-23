@@ -21,6 +21,8 @@ import * as tbeController from "./entities/tbe/tbe_controller.js";
 import * as tbeSpawnRules from "./entities/tbe/tbe_spawn_rules.js";
 import * as humanoidController from "./entities/humanoid/humanoid_controller.js";
 import * as humanoidSpawnRules from "./entities/humanoid/humanoid_spawn_rules.js";
+import * as miscController from "./entities/misc/misc_controller.js";
+import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
@@ -42,6 +44,8 @@ function onWorldLoad() {
     tbeController.begin(scheduler);
     humanoidSpawnRules.register();
     humanoidController.begin(scheduler);
+    miscSpawnRules.register();
+    miscController.begin(scheduler);
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",
