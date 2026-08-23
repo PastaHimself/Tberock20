@@ -1,63 +1,216 @@
-name: Validate Minecraft Bedrock Addon
+name: Bedrock Add-on Check
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
   pull_request:
-    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bedrock-addon-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ADDON_ROOT: TheBrokenScript_Bedrock_2_0
 
 jobs:
-  validate:
+  validate-addon:
+    name: Validate and package Bedrock add-on
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: 22
 
-      - name: Clone Minecraft Bedrock Language Server
+      - name: Validate pack JSON and manifests
+        shell: bash
         run: |
-          git clone https://github.com/Blockception/minecraft-bedrock-language-server.git ./mcbls
-          cd ./mcbls
-          npm install
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { access, readFile, readdir } from 'node:fs/promises';
+          import path from 'node:path';
 
-      - name: Install Bedrock Modules
-        run: |
-          mkdir -p ./node_modules/@minecraft
-          npm install @minecraft/server @minecraft/server-ui @minecraft/server-gametest @minecraft/server-admin @minecraft/server-net @minecraft/server-editor @minecraft/server-editor-bindings
+          const addonRoot = process.env.ADDON_ROOT;
+          const bpRoot = path.join(addonRoot, 'BP');
+          const rpRoot = path.join(addonRoot, 'RP');
 
-      - name: Copy modules to addon directory
-        run: |
-          cp -r ./node_modules/@minecraft ./BP/
+          async function exists(filePath) {
+            try {
+              await access(filePath);
+              return true;
+            } catch {
+              return false;
+            }
+          }
 
-      - name: Run Minecraft Bedrock Script Debugger
-        run: |
-          cd ./mcbls
-          npx mcbls validate --projectPath ../BP --outputFormat json
+          async function walk(dir) {
+            const files = [];
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) files.push(...await walk(full));
+              else if (entry.isFile()) files.push(full);
+            }
+            return files;
+          }
 
-      - name: Validate manifest.json
-        run: |
-          cd ./BP
-          node -e "const fs = require('fs'); const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8')); console.log('Manifest validation passed'); console.log('Pack Name:', manifest.header.name); console.log('Version:', manifest.header.version.join('.'));"
+          for (const dir of [bpRoot, rpRoot]) {
+            if (!await exists(dir)) throw new Error(`Missing pack directory: ${dir}`);
+          }
 
-      - name: Check script files syntax
+          let jsonCount = 0;
+          for (const file of [...await walk(bpRoot), ...await walk(rpRoot)]) {
+            if (path.extname(file).toLowerCase() !== '.json') continue;
+            jsonCount += 1;
+            try {
+              JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
+            } catch (error) {
+              throw new Error(`Invalid JSON in ${file}: ${error.message}`);
+            }
+          }
+
+          const bpManifest = JSON.parse(await readFile(path.join(bpRoot, 'manifest.json'), 'utf8'));
+          const rpManifest = JSON.parse(await readFile(path.join(rpRoot, 'manifest.json'), 'utf8'));
+          if (bpManifest.format_version !== 2 || rpManifest.format_version !== 2) {
+            throw new Error('Both pack manifests must use format_version 2.');
+          }
+          if (!Array.isArray(bpManifest.modules) || !bpManifest.modules.some((module) => module?.type === 'data')) {
+            throw new Error('Behavior pack manifest is missing a data module.');
+          }
+          const scriptModule = bpManifest.modules.find((module) => module?.type === 'script');
+          if (!scriptModule?.entry) throw new Error('Behavior pack manifest is missing its script entry.');
+          if (!await exists(path.join(bpRoot, scriptModule.entry))) {
+            throw new Error(`Behavior pack script entry does not exist: ${scriptModule.entry}`);
+          }
+          if (!Array.isArray(rpManifest.modules) || !rpManifest.modules.some((module) => module?.type === 'resources')) {
+            throw new Error('Resource pack manifest is missing a resources module.');
+          }
+          const rpDependency = (bpManifest.dependencies ?? []).find(
+            (dependency) => dependency?.uuid?.toLowerCase() === rpManifest.header?.uuid?.toLowerCase(),
+          );
+          if (!rpDependency) throw new Error('Behavior pack manifest does not depend on the resource pack UUID.');
+
+          console.log(`Validated ${jsonCount} JSON files and both pack manifests.`);
+          NODE
+
+      - name: Check runtime JavaScript syntax
+        shell: bash
         run: |
-          cd ./BP/scripts
-          find . -name "*.js" -type f | while read file; do
-            echo "Checking $file..."
-            node --check "$file" || exit 1
+          set -euo pipefail
+          mapfile -d '' scripts < <(find "$ADDON_ROOT/BP/scripts" -type f -name '*.js' -print0)
+          if (( ${#scripts[@]} == 0 )); then
+            echo "No runtime JavaScript files found in $ADDON_ROOT/BP/scripts." >&2
+            exit 1
+          fi
+          for script in "${scripts[@]}"; do
+            node --check "$script"
           done
-          echo "All JavaScript files passed syntax check"
 
-      - name: Upload validation results
-        uses: actions/upload-artifact@v4
-        if: always()
+      - name: Stage production packs for Mojang Creator Tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ci/mct
+          mkdir -p .ci/mct/behavior_packs/bp
+          mkdir -p .ci/mct/resource_packs/rp
+          cp -a "$ADDON_ROOT/BP/." .ci/mct/behavior_packs/bp/
+          cp -a "$ADDON_ROOT/RP/." .ci/mct/resource_packs/rp/
+
+      - name: Validate production packs with Mojang Minecraft Creator Tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npm exec --yes --package=@minecraft/creator-tools@0.17.7 -- \
+            mct validate main -i .ci/mct --json > .ci/mct-validation.json
+          MCT_STATUS=$?
+          set -e
+          export MCT_STATUS
+
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+
+          const report = JSON.parse(readFileSync('.ci/mct-validation.json', 'utf8'));
+          if (!Array.isArray(report.projects) || report.projects.length === 0) {
+            throw new Error('Mojang Creator Tools did not discover any Minecraft projects.');
+          }
+
+          const items = report.projects.flatMap((project) =>
+            (project.items ?? []).map((item) => ({ project: project.name, ...item })),
+          );
+          const blockingTypes = new Set(['error', 'testFail', 'internalProcessingError']);
+          const rawBlockers = items.filter((item) => blockingTypes.has(item.type));
+          const warnings = items.filter((item) => item.type === 'warning');
+
+          function serializedFinding(item) {
+            return JSON.stringify(item);
+          }
+
+          function isSelfComparisonScriptModuleError(item) {
+            if (item.type !== 'error') return false;
+            const text = serializedFinding(item);
+            if (!text.includes('@minecraft/server') || !text.includes('using an out of date beta version')) return false;
+            const versions = [...text.matchAll(/\d+\.\d+\.\d+-beta\.[0-9A-Za-z.-]+/g)].map((match) => match[0]);
+            return versions.length >= 2 && versions.at(-2) === versions.at(-1);
+          }
+
+          const scriptModuleErrors = rawBlockers.filter(
+            (item) => item.type === 'error' && serializedFinding(item).includes('using an out of date beta version'),
+          );
+          const onlySelfComparisonScriptErrors = scriptModuleErrors.length > 0
+            && scriptModuleErrors.every(isSelfComparisonScriptModuleError);
+
+          const blockers = rawBlockers.filter((item) => {
+            if (isSelfComparisonScriptModuleError(item)) return false;
+            const text = serializedFinding(item);
+            if (
+              item.type === 'testFail'
+              && text.includes('errors in Script Modules check')
+              && onlySelfComparisonScriptErrors
+            ) return false;
+            return true;
+          });
+          const ignored = rawBlockers.length - blockers.length;
+
+          console.log(`Mojang Creator Tools: ${report.projects.length} project(s), ${blockers.length} blocker(s), ${warnings.length} warning(s), ${ignored} known false-positive blocker(s) ignored.`);
+          for (const item of blockers) {
+            const itemPath = item.path ? ` (${item.path})` : '';
+            const data = item.data === undefined ? '' : `: ${typeof item.data === 'string' ? item.data : JSON.stringify(item.data)}`;
+            console.error(`[${item.type}] ${item.generatorId ?? 'validation'}: ${item.message}${data}${itemPath}`);
+          }
+
+          const status = Number(process.env.MCT_STATUS ?? '0');
+          if (blockers.length > 0 || (status !== 0 && ignored === 0)) {
+            throw new Error(`Mojang Creator Tools validation failed (exit ${status}) with ${blockers.length} blocking finding(s).`);
+          }
+          NODE
+
+      - name: Package successful build as .mcaddon
+        id: package_addon
+        continue-on-error: true
+        shell: bash
+        run: bash tools/package-addon.sh
+
+      - name: Upload The Broken Script 2.0 .mcaddon
+        id: upload_addon
+        if: steps.package_addon.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
         with:
-          name: validation-results
-          path: |
-            BP/manifest.json
-          retention-days: 5
+          name: The_Broken_Script_2_0-mcaddon
+          path: dist/The_Broken_Script_2_0.mcaddon
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Fail on packaging or upload errors
+        if: ${{ steps.package_addon.outcome == 'failure' || steps.upload_addon.outcome == 'failure' }}
+        run: exit 1
