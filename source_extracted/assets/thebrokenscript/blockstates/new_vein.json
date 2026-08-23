@@ -1,0 +1,301 @@
+{
+    "multipart": [
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_center"
+            },
+            "when": {
+                "down": "true"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_center",
+                "x": 180
+            },
+            "when": {
+                "up": "true"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb"
+            },
+            "when": {
+                "OR": [
+                    {"north": "true","down": "true"},
+                    {"north_wall": "true","down": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "y": 180
+            },
+            "when": {
+                "OR": [
+                    {"south": "true","down": "true"},
+                    {"south_wall": "true","down": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "y": 90
+            },
+            "when": {
+                "OR": [
+                    {"east": "true","down": "true"},
+                    {"east_wall": "true","down": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "y": 270
+            },
+            "when": {
+                "OR": [
+                    {"west": "true","down": "true"},
+                    {"west_wall": "true","down": "true"}
+                ]
+
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "x": 180,
+                "y": 180
+            },
+            "when": {
+                "OR": [
+                    {"north": "true", "up": "true"},
+                    {"north_wall": "true", "up": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "x": 180
+            },
+            "when": {
+                "OR": [
+                    {"south": "true", "up": "true"},
+                    {"south_wall": "true", "up": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "y": 270,
+                "x": 180
+            },
+            "when": {
+                "OR": [
+                    {"east": "true", "up": "true"},
+                    {"east_wall": "true", "up": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_limb",
+                "y": 90,
+                "x": 180
+            },
+            "when": {
+                "OR": [
+                    {"west": "true", "up": "true"},
+                    {"west_wall": "true", "up": "true"}
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_down"
+            },
+            "when": {
+                "down": "true",
+                "up": "false",
+                "north_wall": "true",
+                "north": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_down",
+                "y": 180
+            },
+            "when": {
+                "down": "true",
+                "up": "false",
+                "south_wall": "true",
+                "south": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_down",
+                "y": 90
+            },
+            "when": {
+                "down": "true",
+                "up": "false",
+                "east_wall": "true",
+                "east": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_down",
+                "y": 270
+            },
+            "when": {
+                "down": "true",
+                "up": "false",
+                "west_wall": "true",
+                "west": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up"
+            },
+            "when": {
+                "down": "false",
+                "up": "true",
+                "north_wall": "true",
+                "north": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up",
+                "y": 180
+            },
+            "when": {
+                "down": "false",
+                "up": "true",
+                "south_wall": "true",
+                "south": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up",
+                "y": 90
+            },
+            "when": {
+                "down": "false",
+                "up": "true",
+                "east_wall": "true",
+                "east": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up",
+                "y": 270
+            },
+            "when": {
+                "down": "false",
+                "up": "true",
+                "west_wall": "true",
+                "west": "false"
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up_down"
+            },
+            "when": {
+                "OR": [
+                    {
+                        "down": "false",
+                        "up": "false",
+                        "north_wall": "true",
+                        "north": "false"
+                    },
+                    {
+                        "down": "true",
+                        "up": "true",
+                        "north_wall": "true",
+                        "north": "false"
+                    }
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up_down",
+                "y": 180
+            },
+            "when": {
+                "OR": [
+                    {
+                        "down": "false",
+                        "up": "false",
+                        "south_wall": "true",
+                        "south": "false"
+                    },
+                    {
+                        "down": "true",
+                        "up": "true",
+                        "south_wall": "true",
+                        "south": "false"
+                    }
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up_down",
+                "y": 90
+            },
+            "when": {
+                "OR": [
+                    {
+                        "down": "false",
+                        "up": "false",
+                        "east_wall": "true",
+                        "east": "false"
+                    },
+                    {
+                        "down": "true",
+                        "up": "true",
+                        "east_wall": "true",
+                        "east": "false"
+                    }
+                ]
+            }
+        },
+        {
+            "apply": {
+                "model": "thebrokenscript:block/vein/vein_up_down",
+                "y": 270
+            },
+            "when": {
+                "OR": [
+                    {
+                        "down": "false",
+                        "up": "false",
+                        "west_wall": "true",
+                        "west": "false"
+                    },
+                    {
+                        "down": "true",
+                        "up": "true",
+                        "west_wall": "true",
+                        "west": "false"
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "targets": ["final"],
+    "passes": [
+        {
+            "name": "thebrokenscript:fever/static",
+            "intarget": "minecraft:main",
+            "outtarget": "final"
+        },
+        { "name": "blit", "intarget": "final", "outtarget": "minecraft:main" }
+    ]
+}

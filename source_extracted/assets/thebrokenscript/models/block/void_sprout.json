@@ -1,0 +1,114 @@
+{
+    "render_type": "minecraft:translucent",
+    "format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "thebrokenscript:block/void_sprout",
+		"all": "thebrokenscript:block/void_sprout"
+	},
+	"elements": [
+		{
+			"name": "stem",
+			"from": [6.42605, 0, 8.17744],
+			"to": [10.42605, 7, 8.17744],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7.42605, -5, 8.17744]},
+			"faces": {
+				"north": {"uv": [1.5, 0, 5.5, 7], "texture": "#all"},
+				"south": {"uv": [1.5, 0, 5.5, 7], "texture": "#all"}
+			}
+		},
+		{
+			"name": "stem",
+			"from": [8.42605, 0, 6.17744],
+			"to": [8.42605, 7, 10.17744],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8.42605, 1, 8.17744]},
+			"faces": {
+				"east": {"uv": [1.5, 0, 5.5, 7], "texture": "#all"},
+				"west": {"uv": [1.5, 0, 5.5, 7], "texture": "#all"}
+			}
+		},
+		{
+			"name": "petal 1",
+			"from": [8.54442, 4.32522, 7.97277],
+			"to": [8.54442, 13.32522, 13.97277],
+			"rotation": {"angle": 22.5, "axis": "y", "origin": [8.54442, 4.81845, 8.45304]},
+			"faces": {
+				"east": {"uv": [8, 0, 11, 4.5], "texture": "#all"},
+				"west": {"uv": [11, 0, 8, 4.5], "texture": "#all"}
+			}
+		},
+		{
+			"name": "petal 2",
+			"from": [8.06415, 3.32522, 8.45304],
+			"to": [14.06415, 12.32522, 8.45304],
+			"rotation": {"angle": -22.5, "axis": "z", "origin": [8.54442, 3.81845, 8.45304]},
+			"faces": {
+				"north": {"uv": [8, 0, 11, 4.5], "texture": "#all"},
+				"south": {"uv": [11, 0, 8, 4.5], "texture": "#all"}
+			}
+		},
+		{
+			"name": "petal 3",
+			"from": [8.54442, 3.32522, 2.93331],
+			"to": [8.54442, 12.32522, 8.93331],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8.54442, 3.81845, 8.45304]},
+			"faces": {
+				"east": {"uv": [11, 0, 8, 4.5], "texture": "#all"},
+				"west": {"uv": [8, 0, 11, 4.5], "texture": "#all"}
+			}
+		},
+		{
+			"name": "petal 4",
+			"from": [3.02469, 3.32522, 7.45304],
+			"to": [9.02469, 12.32522, 7.45304],
+			"rotation": {"angle": -22.5, "axis": "z", "origin": [8.54442, 3.81845, 7.45304]},
+			"faces": {
+				"north": {"uv": [11, 0, 8, 4.5], "texture": "#all"},
+				"south": {"uv": [8, 0, 11, 4.5], "texture": "#all"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [-1, 3, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"thirdperson_lefthand": {
+			"translation": [-0.25, 3, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_righthand": {
+			"rotation": [-22.5, 0, 0],
+			"translation": [-1, 4.25, 2.5],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-22.5, 0, 0],
+			"translation": [-1, 4.25, 2.5],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"ground": {
+			"translation": [0, 2.5, 0],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"translation": [-2, 0, 0]
+		},
+		"head": {
+			"translation": [0, 14.5, 0]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0, -6.25]
+		}
+	},
+	"groups": [
+		{
+			"name": "void_bud_bloom",
+			"origin": [7.42605, 6, 7.17744],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2, 3, 4, 5]
+		}
+	]
+}

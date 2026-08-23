@@ -1,0 +1,266 @@
+{
+    "$schema": "./schema/credits.schema.json",
+    "credits": [
+        {
+            "@type": "title",
+            "content": "Th\u00a7ke\u00a7r B\u00a7kr\u00a7roken S\u00a7kc\u00a7rr\u00a7ki\u00a7rpt"
+        },
+        {
+            "@type": "subtitle",
+            "content": "Credits"
+        },
+        {
+            "@type": "divider"
+        },
+        {
+            "@type": "section",
+            "content": "Writers of the Script"
+        },
+        {
+            "@type": "header",
+            "content": "Directors"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "RedstoneWizard08",
+                "DominikLOL",
+                "Garreth",
+                "Zetos404",
+                "wendigodrip"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Programming"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "DominikLOL \u25cf Eyae \u25cf MC3699 \u25cf rdh",
+                "RedstoneWizard08 \u25cf shadowmaster435 \u25cf tekkitdooood \u25cf wendigodrip"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Art, Models, and Animation"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "Bennie \u25cf ChoosingBerry29 \u25cf Ebridger \u25cf EldritchUnknown",
+                "JDG \u25cf Kaomoji5314 \u25cf L0V3M1ST \u25cf mpyritor",
+                "pencilhtml \u25cf shadowmaster435 \u25cf skie \u25cf Stevelocks",
+                "wendigodrip"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Music & Sounds"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "DominikLOL \u25cf L0V3M1ST \u25cf Raevant \u25cf RedstoneWizard08",
+                "shadowmaster435 \u25cf TornadicPolarity"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Lore"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "EldritchUnknown \u25cf Garreth \u25cf lostneedmap \u25cf pencilhtml",
+                "RedstoneWizard08 \u25cf tekkitdooood \u25cf wendigodrip \u25cf Yharim",
+                "Zetos404"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Voice Acting"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "pencilhtml",
+                "Zetos404"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Technical Assistance"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "MC3699",
+                "rdh",
+                "shadowmaster435"
+            ]
+        },
+        {
+            "@type": "section",
+            "content": "Contributors"
+        },
+        {
+            "@type": "header",
+            "content": "Programming"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "Went_Nuts"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Main Menu Backgrounds"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "Ebridger \u25cf Echo \u25cf err.type.guilherme \u25cf Eyae",
+                "Jacko \u25cf Kaomoji5314 \u25cf Lavaimp \u25cf lostneedmap",
+                "Mafia_circuit \u25cf Mavender \u25cf Muribbeiro \u25cf NovaShards",
+                "psyychopomp \u25cf Rabeon \u25cf Rach \u25cf RealHeroBeing",
+                "skie \u25cf TeeBeeTeeBee \u25cf ThatAncient2",
+                "Magazine"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Additional Art & Easter Eggs"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "Echo \u25cf EnderPlays \u25cf heaven \u25cf Lavaimp",
+                "MrDrNose \u25cf NahBro \u25cf Naica \u25cf SoulShards_",
+                "TeeBeeTeeBee \u25cf Thy Bloodreaper \u25cf vitos21"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Various Patches"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "DominikLOL",
+                "rus0293"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Additional Voices"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "Auromancy \u25cf BaronOfSomething \u25cf benzeel \u25cf BlueCarCharorannus",
+                "Coridium \u25cf crazy dragon \u25cf distortion \u25cf Echo",
+                "EditorBailey \u25cf EldritchUnknown \u25cf EnderPlays \u25cf Eyae",
+                "FluffyGingerBoi \u25cf Garreth \u25cf heaven \u25cf JDG",
+                "KalnaZatos1 \u25cf kyu \u25cf L0V3M1ST \u25cf Lavaimp",
+                "Lunar_Cygnus_X-1 \u25cf madladdonut \u25cf mafia_circuit \u25cf Meggum_M",
+                "Mister Royalty \u25cf Novanict \u25cf NovaShards \u25cf Pinky",
+                "Raevant \u25cf rdh \u25cf RedstoneWizard08 \u25cf shadowmaster435",
+                "tekkitdooood \u25cf TheSpiffRat \u25cf TornadicPolarity \u25cf TotallyNotJay",
+                "Went_Nuts \u25cf Yharim \u25cf Zetos404"
+            ]
+        },
+        {
+            "@type": "section",
+            "content": "Special Thanks"
+        },
+        {
+            "@type": "header",
+            "content": "Discord Staff"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "BlueCarCharorannus \u25cf Coridium \u25cf fae \u25cf Garreth",
+                "heaven \u25cf Idkk \u25cf Jacko \u25cf katz_\u041a\u044d\u0442 animation",
+                "kel \u25cf Miaushi \u25cf novashards \u25cf pencilhtml",
+                "Pinky \u25cf TeeBeeTeeBee"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Question Helpers"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "chunkston \u25cf max_maxbet \u25cf mebaconcraft \u25cf nightheartv",
+                "xammlers \u25cf xendernorph"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Playtesters"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "BennyBnuy \u25cf BlueCarCharorannus \u25cf Colin \u25cf Coridium",
+                "crazy dragon \u25cf Echo \u25cf err.type.guilherme \u25cf fae",
+                "FluffyGingerBoi \u25cf hadron \u25cf heaven \u25cf Idkk",
+                "Jacko \u25cf kel \u25cf Kernel \u25cf kyu",
+                "Lavaimp \u25cf Lumi \u25cf Mafia_circuit \u25cf Magazine",
+                "Mavender \u25cf Meralin_ \u25cf Miguel0740 \u25cf Muribbeiro",
+                "NahBro \u25cf naica \u25cf Neo \u25cf Nightheart",
+                "Novanict \u25cf NovaShards \u25cf Pinky \u25cf psyychopomp",
+                "Rabeon \u25cf rach \u25cf Ruby \u25cf Satoru",
+                "sceltiqs \u25cf soulshards_ \u25cf StephieTheCatboy \u25cf TeeBeeTeeBee",
+                "TheGreenBean \u25cf TheSpiffRat \u25cf Thy Bloodreaper \u25cf Zorgoliath"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Patreons"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "._asmodeus \u25cf _sequ3nce \u25cf angrychuck37 \u25cf aviatorartemis_",
+                "beyondvr \u25cf broken_rach \u25cf clownypierce \u25cf cynyx",
+                "deinemeine \u25cf dommygutman \u25cf Helios \u25cf hello_world777",
+                "hiddenimp \u25cf highheaals \u25cf hussein2k \u25cf iamdeletingthis",
+                "jackal_. \u25cf kindagrape \u25cf littlefoxy21 \u25cf m0thematicz",
+                "madladdonut \u25cf meshpart_ \u25cf ngc1435 \u25cf reactor645",
+                "ritesies \u25cf spicy_talaxian \u25cf spidertwine \u25cf synthdoc",
+                "teebeeteebee. \u25cf theflameninja \u25cf vivid0099 \u25cf xendernorph",
+                "xoup2 \u25cf yeowsalot \u25cf yolo_vh"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Partners"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "lagless.gg"
+            ]
+        },
+        {
+            "@type": "header",
+            "content": "Inspiration"
+        },
+        {
+            "@type": "lines",
+            "content": [
+                "Mark101",
+                "Voices of the Void",
+                "KinitoPET",
+                "ULTRAKILL",
+                "Murder Drones",
+                "The Amazing Digital Circus"
+            ]
+        }
+    ]
+}

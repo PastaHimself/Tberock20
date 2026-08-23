@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "code=false": { "model": "thebrokenscript:block/command" },
+        "code=true": { "model": "thebrokenscript:block/command_inactive" }
+    }
+}

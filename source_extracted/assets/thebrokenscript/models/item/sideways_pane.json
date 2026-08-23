@@ -1,0 +1,9 @@
+{
+  "parent": "thebrokenscript:block/sideways_pane",
+  "overrides": [
+    {
+      "model": "minecraft:item/birch_log",
+      "predicate": {}
+    }
+  ]
+}

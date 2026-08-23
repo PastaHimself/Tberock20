@@ -1,0 +1,9 @@
+{
+  "parent": "thebrokenscript:block/sideways_furnace",
+  "overrides": [
+    {
+      "model": "minecraft:item/ender_eye",
+      "predicate": {}
+    }
+  ]
+}
