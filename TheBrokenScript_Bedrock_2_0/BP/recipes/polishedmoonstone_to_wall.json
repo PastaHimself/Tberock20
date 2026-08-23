@@ -19,6 +19,9 @@
     "result": {
       "item": "thebrokenscript:polished_moon_stone_wall",
       "count": 6
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

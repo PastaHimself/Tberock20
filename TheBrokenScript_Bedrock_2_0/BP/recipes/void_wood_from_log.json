@@ -19,6 +19,9 @@
     "result": {
       "item": "thebrokenscript:void_wood",
       "count": 3
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

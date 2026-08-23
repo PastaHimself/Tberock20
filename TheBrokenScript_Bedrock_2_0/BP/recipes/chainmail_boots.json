@@ -19,6 +19,9 @@
     "result": {
       "item": "minecraft:chainmail_boots",
       "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

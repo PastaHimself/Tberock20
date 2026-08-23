@@ -24,6 +24,9 @@
     "result": {
       "item": "thebrokenscript:instabilityv2",
       "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

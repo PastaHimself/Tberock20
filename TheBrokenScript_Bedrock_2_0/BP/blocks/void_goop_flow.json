@@ -17,7 +17,8 @@
         }
       },
       "minecraft:collision_box": true,
-      "minecraft:light_dampening": 1
+      "minecraft:light_dampening": 1,
+      "minecraft:geometry": "minecraft:geometry.full_block"
     }
   }
 }

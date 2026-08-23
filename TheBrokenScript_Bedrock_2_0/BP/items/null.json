@@ -8,7 +8,7 @@
       }
     },
     "components": {
-      "minecraft:icon": "null",
+      "minecraft:icon": "null_item",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.null"
       }

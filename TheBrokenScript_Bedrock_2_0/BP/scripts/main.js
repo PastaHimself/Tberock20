@@ -32,7 +32,9 @@ import * as horrorEvents from "./systems/horror_events.js";
 import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
 
-function onStartup() {
+/** @param {import("@minecraft/server").StartupEvent} event */
+function onStartup(event) {
+    initCustomBlocks(event.blockComponentRegistry);
     logger.info("startup: early-execution hook registered (script modules active)");
 }
 
@@ -58,7 +60,6 @@ function onWorldLoad() {
     stalkController.begin(scheduler);
     bossSpawnRules.register();
     bossController.begin(scheduler);
-    initCustomBlocks();
     horrorEvents.begin(scheduler);
     progression.begin(scheduler);
     commands.begin();
@@ -107,5 +108,5 @@ function onWorldLoad() {
     );
 }
 
-system.beforeEvents.startup.subscribe(guard("startup", onStartup));
+system.beforeEvents.startup.subscribe(onStartup);
 world.afterEvents.worldLoad.subscribe(guard("worldLoad", onWorldLoad));

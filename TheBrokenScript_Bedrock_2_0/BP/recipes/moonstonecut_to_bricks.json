@@ -15,6 +15,9 @@
     "result": {
       "item": "thebrokenscript:moon_stone_bricks",
       "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

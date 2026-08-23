@@ -13,16 +13,15 @@
           "texture": "jim_trigger_1"
         }
       },
-      "minecraft:custom_components": [
-        "thebrokenscript:be_jim_trigger"
-      ],
       "minecraft:destructible_by_mining": {
         "seconds_to_destroy": 1.5
       },
       "minecraft:loot": "loot_tables/blocks/jim_trigger_1.json",
       "minecraft:destructible_by_explosion": {
         "explosion_resistance": 5
-      }
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "thebrokenscript:be_jim_trigger": {}
     }
   }
 }

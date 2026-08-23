@@ -23,6 +23,9 @@
     "result": {
       "item": "minecraft:enchanted_golden_apple",
       "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
     }
   }
 }

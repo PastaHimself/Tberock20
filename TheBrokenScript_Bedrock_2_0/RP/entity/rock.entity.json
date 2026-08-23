@@ -6,7 +6,7 @@
         "default": "entity_alphatest"
       },
       "geometry": {
-        "default": "geometry.BOULDER - Converted"
+        "default": "geometry.tbs_boulder_converted"
       },
       "render_controllers": [
         "controller.render.single_textured"

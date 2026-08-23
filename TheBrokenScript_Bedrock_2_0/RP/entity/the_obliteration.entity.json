@@ -6,7 +6,7 @@
         "default": "entity_alphatest"
       },
       "geometry": {
-        "default": "geometry.Max revive"
+        "default": "geometry.tbs_max_revive"
       },
       "render_controllers": [
         "controller.render.single_textured"
