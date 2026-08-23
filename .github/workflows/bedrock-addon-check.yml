@@ -1,3 +1,4 @@
+# Diagnostic trigger for fresh regression
 name: Bedrock Add-on Check
 
 on:
