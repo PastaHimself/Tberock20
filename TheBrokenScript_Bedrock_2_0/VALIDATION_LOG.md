@@ -1,0 +1,35 @@
+# VALIDATION_LOG.md
+
+| Date (UTC) | Chunk | Check | Result |
+|---|---|---|---|
+| 2026-08-22 | 00 | Archive integrity: 9/9 chunk zips extracted, 6765 files, reassembly README followed (file.bin rebuilt from 3 parts, 85,495,584 B) | PASS |
+| 2026-08-22 | 00 | Mod metadata read: neoforge.mods.toml parses; modId/version/loader/deps recorded | PASS |
+| 2026-08-22 | 00 | Lang roster parse (en_us.json): 69 entity ids / 94 event ids / 192 item ids extracted by regex | PASS |
+| 2026-08-22 | 00 | Blockstate enumeration: 123 JSON files → block entries | PASS |
+| 2026-08-22 | 00 | Data enumeration: dimensions(13), biomes(15), damage types(15+5 vanilla-tag refs), jukebox songs(12→13 music entries incl registry), advancements(5), recipes(40), structures families(4), spawn modifiers(35), worldgen(8) | PASS |
+| 2026-08-22 | 00 | SOURCE_INVENTORY.json generated: 912 entries; JSON validity check via ConvertFrom-Json | PASS |
+| 2026-08-22 | 00 | SOURCE_MAP.json derived: 912 rows, 1:1 with inventory | PASS |
+| 2026-08-22 | 00 | Asset family audit: geo(77, Bedrock-native format 1.12.0), animations(36, format 1.8.0), sounds(191 ogg + sounds.json), textures(502), models(388 java), shaders(89 java-only) | PASS |
+| 2026-08-22 | 00 | Mixin surface audit: 124 mixins catalogued into subsystem notes (common 57 + client 67) | PASS |
+| 2026-08-22 | 00 | Registry class audit: TBSEntities/TBSBlocks/TBSItems/TBSEasterEggItems/TBSPlushies/TBSBlockEntities/TBSMenus/TBSSpawnConditions/TBSDataAttachments/TBSChatResponses/TBSEvents/TBSStoryEvents/TBSFluids/TBSEffects enumerated from .class filenames | PASS |
+| 2026-08-22 | 00 | Microsoft Learn verification of manifest/script-versioning/camera/dimensions facts (MCP) | PASS |
+| 2026-08-22 | 01 | Manifest verification against MS Learn (format 2, module types, script language, dependency schema) + v2 lifecycle confirmation (`startup` early-execution, `worldLoad`, entityHurt/entityHeal/itemPickup/itemDrop stable @2.6.0; TickingAreaManager confirmed stable @2.6.0 → compatibility doc corrected) | PASS |
+| 2026-08-22 | 01 | tools/validate_pack.ps1: 12 checks — JSON parse ×2, format_version=2 ×2, 5 unique UUIDs, BP→RP dep exact match, stable script dep only, entry exists, 9 modules braces-balanced + imports resolved + synced, meta files present | PASS |
+| 2026-08-22 | 02 | Toolchain: portable Temurin JDK 21 + CFR 0.152 installed under tools/; main mod decompiled (1029 .java) + brokencore library (815 .java) | PASS |
+| 2026-08-22 | 02 | Decompiled-semantics extraction: PlayerVariables(50+ fields/defaults), MapVariables(56 fields incl 10 INT_MAX encounter delays), StoryEvents clock driver, 4 story-event thresholds, config defaults (15 values) | PASS |
+| 2026-08-22 | 03 | Asset pipeline run: 191 ogg copied; sounds.json→sound_definitions.json (143 events, category-mapped, stream preserved, 0 vanilla-ns refs); 502 textures copied; terrain_texture(103)/item_texture(68) atlases generated from Java models+pngs; geo×77 copied with **26 geometry.unknown ids rewritten uniquely** (docs/GEOMETRY_ID_MAP.json); animations×36; flipbook_textures.json ×5 (mcmeta conversion); lang 997 lines → BP+RP texts | PASS |
+| 2026-08-23 | 05D | The Broken End implementation: 4 BP/RP entities (TBE HP1000 ATK600 25h grace150 life1000, stalk 7200+320, curious 2400 noticed45→60, ambush 18000-24000 despawn26), controller (strobe/interferences/block-break/stalk invis/curious freeze/ambush behind-spawn) + spawn rules (TBE 32000 moonStage2, ambush 8200 matrix 0.0002-0.006, ring 45-90, 512 exclusion); sync 31 modules; validate_pack 165 JSONs PASS | PASS |
+| 2026-08-22 | 05C | Null pursuit implementation: 7 BP/RP entities (chase/nulll alias, maze, endgame 999dmg, unbeatable invuln, flying, invade), pursuit controller timers 450/3200/420/500, chase/maze/endgame behaviors; sync 29 modules; validate_pack PASS | PASS |
+| 2026-08-22 | 05B | Null watcher/scare implementation: 4 BP/RP entities (watching/scare/mining/is_here, HP910/510/80/910, timers 8000/40/1200/500, 10-case anger), controller + spawn rule (NullConditions port, 7200 delay, 0.85%+freq); sync 28 modules; validate_pack PASS | PASS |
+| 2026-08-22 | 05A | Circuit family implementation: 6 BP entities + 6 RP client entities (geometry.circuitv4, circy.png) + controller (grace/timers, stare transform, flee, chase noWayOut) + spawn rule (BIOME_BLACKLIST, 420 exclusion, 5200 delay); sync 26 modules; validate_pack PASS | PASS |
+| 2026-08-22 | 04 | AI-primitive extraction: SpawnConditions interface + CircuitStalkConditions full predicate order/constants (420/512/5200/0.015+freq), stare behavior branches (50%/70%/fallback, Darkness 5s), ChaseState enum; light/biome APIs verified stable at v2.6.0 (added 2.3.0) | PASS |
+| 2026-08-22 | 04 | Entity framework implemented (8 modules): finder/gaze/effects/spawn_helpers/entity_refs/spawn_director/boss_hooks/event_frequency; sync 24 modules; validate_pack.ps1 PASS | PASS |
+| 2026-08-22 | 03 | validate_pack.ps1: 123 JSON files parsed (all generated files included) — full PASS | PASS |
+| 2026-08-22 | 02 | Chunk 02 implementation: sync_scripts 16 modules; validate_pack.ps1 full PASS | PASS |
+| 2026-08-22 | 01 | tools/package_mcaddon.ps1: .mcaddon built, reopened and inspected (15 entries, correct BP/RP roots) | PASS |
+| 2026-08-22 | 00 | Chunk schedule revised against discovered content (19-chunk plan) | PASS |
+
+## Pending validations (later chunks)
+
+- JVM decompiler availability for bytecode-level behavior extraction (required from Chunk 01 onward for AI/timing constants). Candidate: install JDK 21 + CFR/Vineflower into tools/ — needs user approval to install tooling.
+- Minecraft runtime import tests once Chunk 01 exists.
