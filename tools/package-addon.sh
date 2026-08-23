@@ -14,6 +14,34 @@ mkdir -p "$STAGE_DIR/bp" "$STAGE_DIR/rp" "$MCADDON_DIR"
 cp -a "$ADDON_ROOT/BP/." "$STAGE_DIR/bp/"
 cp -a "$ADDON_ROOT/RP/." "$STAGE_DIR/rp/"
 
+# Normalize generated/legacy source artifacts in the package copy only.
+find "$STAGE_DIR" -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
+if [[ -f "$STAGE_DIR/rp/sound_definitions.json" ]]; then
+  mkdir -p "$STAGE_DIR/rp/sounds"
+  mv "$STAGE_DIR/rp/sound_definitions.json" "$STAGE_DIR/rp/sounds/sound_definitions.json"
+fi
+
+STAGE_DIR="$STAGE_DIR" node --input-type=module <<'NODE'
+import { readFile, readdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+async function walk(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      await walk(full);
+    } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
+      const bytes = await readFile(full);
+      if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+        await writeFile(full, bytes.subarray(3));
+      }
+    }
+  }
+}
+
+await walk(process.env.STAGE_DIR);
+NODE
+
 if [[ ! -f "$STAGE_DIR/bp/manifest.json" ]]; then
   echo "Behavior pack manifest is missing from package staging." >&2
   exit 1
