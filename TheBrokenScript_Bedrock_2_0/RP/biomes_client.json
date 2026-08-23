@@ -1,0 +1,64 @@
+﻿{
+    "biomes_client":  {
+                          "thebrokenscript:stage3":  {
+                                                         "fog_color":  787984,
+                                                         "water_fog_color":  16
+                                                     },
+                          "thebrokenscript:day_a":  {
+                                                        "fog_color":  9418456,
+                                                        "water_fog_color":  16
+                                                    },
+                          "thebrokenscript:protected_void":  {
+                                                                 "fog_color":  1314846,
+                                                                 "water_fog_color":  16
+                                                             },
+                          "thebrokenscript:dysaphytic_wen":  {
+                                                                 "fog_color":  1582108,
+                                                                 "water_fog_color":  16
+                                                             },
+                          "thebrokenscript:concrete":  {
+                                                           "fog_color":  3158062,
+                                                           "water_fog_color":  16
+                                                       },
+                          "thebrokenscript:limbo":  {
+                                                        "fog_color":  1052688,
+                                                        "water_fog_color":  16
+                                                    },
+                          "thebrokenscript:null_biome":  {
+                                                             "fog_color":  0,
+                                                             "water_fog_color":  16
+                                                         },
+                          "thebrokenscript:stage2":  {
+                                                         "fog_color":  1182228,
+                                                         "water_fog_color":  16
+                                                     },
+                          "thebrokenscript:library":  {
+                                                          "fog_color":  2366480,
+                                                          "water_fog_color":  16
+                                                      },
+                          "thebrokenscript:moon":  {
+                                                       "fog_color":  526348,
+                                                       "water_fog_color":  16
+                                                   },
+                          "thebrokenscript:nowhere":  {
+                                                          "fog_color":  657938,
+                                                          "water_fog_color":  16
+                                                      },
+                          "thebrokenscript:lucid":  {
+                                                        "fog_color":  1709104,
+                                                        "water_fog_color":  16
+                                                    },
+                          "thebrokenscript:stereogenic_growth":  {
+                                                                     "fog_color":  2103334,
+                                                                     "water_fog_color":  16
+                                                                 },
+                          "thebrokenscript:nothing":  {
+                                                          "fog_color":  0,
+                                                          "water_fog_color":  16
+                                                      },
+                          "thebrokenscript:void":  {
+                                                       "fog_color":  394762,
+                                                       "water_fog_color":  16
+                                                   }
+                      }
+}

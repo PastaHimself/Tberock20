@@ -1,5 +1,6 @@
 import { world, system, blockComponentRegistry } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
+import * as worldgenStructures from "./worldgen_structures.js";
 import { logger } from "../core/logging.js";
 
 // ── Chunk 08: custom block components (beta blockComponentRegistry) ──────────
@@ -84,6 +85,15 @@ export function init() {
   register("be_null_structure", {
     onPlayerInteract(ev) {
       try { ev.player.onScreenDisplay.setTitle("§8NULL_STRUCTURE", { stayDuration: 20 }); } catch {}
+      // Chunk 11: interact builds the bedrock Shaft nearby (structure/shaft/*.nbt approx)
+      const built = worldgenStructures.buildShaft(ev.block.dimension, {
+        x: ev.block.location.x + 24,
+        y: ev.block.location.y,
+        z: ev.block.location.z + 24
+      });
+      if (built) {
+        try { ev.player.sendMessage("§8the ground splits open..."); } catch {}
+      }
     }
   });
 

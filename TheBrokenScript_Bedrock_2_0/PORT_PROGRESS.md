@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 10)
+Last updated: 2026-08-23 (Chunk 11)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 10)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 11 — Worldgen (15 biomes, structures, mineshaft, mcstructure conversions)**
+**Chunk 12 — Events & horror choreography (94)**
 
 ## Chunk state
 | Chunk | State |
@@ -32,7 +32,7 @@ Last updated: 2026-08-23 (Chunk 10)
 | 08 Blocks (123 + 8 BE equivalents) | **completed** (123/123 blockstates → BP/blocks: ~60 cubes, 19 cross flora w/ geometry.tbs_cross, 16 void_template markers, jim_triggers/initiator/BEs; terrain_texture +13 keys; beta blockComponentRegistry ×12; physical_stacktrace/disruption/corrupt ledgers unblocked; tools/build_blocks.ps1) |
 | 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book story event wired at day 12+1000) |
 | 10 Dimensions (13) & portals | **completed** (12 dimension JSONs per TBSDimensions + NIGHTMARES set; dimensions.js runtime w/ beta createDimension fallback; follow → clan_void/null_torture teleport unblocked; portal_controller interact → clan_void Y:201) |
-| 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | pending |
+| 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 biomes + RP fog palettes; procedural Shaft/Hallway builders wired to null_structure interact; 305-NBT corpus + xcsf arena conversion ledgered as deferred tooling; 32 spawn modifiers confirmed covered by spawn_director rules) |
 | 12 Events & horror choreography (94) | pending |
 | 13 Progression/recipes/loot/tags/commands | pending |
 | 14 Presentation completion | pending |
@@ -43,6 +43,9 @@ Last updated: 2026-08-23 (Chunk 10)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 11)
+BP/biomes/*.json (15) · RP/biomes_client.json · src/systems/worldgen_structures.js · custom_blocks.js null_structure shaft wiring · docs/chunks/CHUNK_11_REPORT.md
 
 ## Files created (Chunk 10)
 BP/dimensions/*.json (12) · src/systems/dimensions.js · custom_blocks.js portal wiring · misc_controller follow dimension teleport · docs/chunks/CHUNK_10_REPORT.md
@@ -95,7 +98,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 09: 76 items + goop fluids + null_book wired, 461 JSONs — PASS; Chunk 08: 123/123 blocks, 383 JSONs — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 11: 15 biomes + fog palettes + shaft builders, 489 JSONs — PASS; Chunk 10: 12 dimensions, 473 — PASS; Chunk 09: 76 items, 461 — PASS; Chunk 08: 123/123 blocks, 383 — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
