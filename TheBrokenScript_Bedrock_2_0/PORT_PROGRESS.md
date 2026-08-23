@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 09)
+Last updated: 2026-08-23 (Chunk 10)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 09)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 10 — Dimensions (13) & portals**
+**Chunk 11 — Worldgen (15 biomes, structures, mineshaft, mcstructure conversions)**
 
 ## Chunk state
 | Chunk | State |
@@ -31,8 +31,7 @@ Last updated: 2026-08-23 (Chunk 09)
 | 07 Bosses (Integrity/Jimmy/Kerfur+fever/chord/tether/tentacle) | **completed** (16 entities: integrity p1-p3/arm/curious/fireball w/ health-threshold phase chain + Arena hooks, fractured+roam+rock, murderfur Kerfur pet, fever+stalk, chord+projectile, tether, void_tentacle; FRACTURED/FEVER_STALK natural rules) |
 | 08 Blocks (123 + 8 BE equivalents) | **completed** (123/123 blockstates → BP/blocks: ~60 cubes, 19 cross flora w/ geometry.tbs_cross, 16 void_template markers, jim_triggers/initiator/BEs; terrain_texture +13 keys; beta blockComponentRegistry ×12; physical_stacktrace/disruption/corrupt ledgers unblocked; tools/build_blocks.ps1) |
 | 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book story event wired at day 12+1000) |
-| 09 Items (192) + fluids approximation | pending |
-| 10 Dimensions (13) & portals | pending |
+| 10 Dimensions (13) & portals | **completed** (12 dimension JSONs per TBSDimensions + NIGHTMARES set; dimensions.js runtime w/ beta createDimension fallback; follow → clan_void/null_torture teleport unblocked; portal_controller interact → clan_void Y:201) |
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | pending |
 | 12 Events & horror choreography (94) | pending |
 | 13 Progression/recipes/loot/tags/commands | pending |
@@ -44,6 +43,9 @@ Last updated: 2026-08-23 (Chunk 09)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 10)
+BP/dimensions/*.json (12) · src/systems/dimensions.js · custom_blocks.js portal wiring · misc_controller follow dimension teleport · docs/chunks/CHUNK_10_REPORT.md
 
 ## Files created (Chunk 09)
 BP/items/*.json (76) · RP/textures/plush/* (39) · RP/item_texture.json (+33) · BP/blocks/{void_goop_still,void_goop_flow}.json · story_events.js null_book wiring + world_state.nullBookGiven · docs/chunks/CHUNK_09_{SPEC,REPORT}.md
@@ -102,7 +104,7 @@ See VALIDATION_LOG.md (Chunk 09: 76 items + goop fluids + null_book wired, 461 J
 - Animated block textures static in Bedrock.
 - Functional items (polaroid/hand_cannon/portal_linker/desyncer) are interaction stubs pending Chunk 12/13.
 - Arena story triggers land in Chunk 12; boss music/death sequences pending Chunk 14.
-- Dimension teleports (follow → CLAN_VOID/NULL_TORTURE) pending Chunk 10 — beta APIs enabled.
+- Dimension teleports wired (follow → clan_void/null_torture @Y:201); per-dimension fog/sky styling deferred to Chunk 14.
 - Advancements (can_you_see_me, curved death lines) pending Chunk 13/14; FunnySetting easter-egg variants pending config pass.
 - Chunk clear/move-up (chunk_remover) approximated as sound beat — engine limitation ledgered.
 

@@ -1,4 +1,5 @@
 import { world, system, blockComponentRegistry } from "@minecraft/server";
+import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 
 // ── Chunk 08: custom block components (beta blockComponentRegistry) ──────────
@@ -66,8 +67,11 @@ export function init() {
 
   register("be_portal_controller", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("§5PORTAL CONTROLLER OFFLINE", { stayDuration: 25 }); } catch {}
-      // portal activation flow lands in Chunk 10 dimensions/portals
+      try { ev.player.onScreenDisplay.setTitle("§5PORTAL CONTROLLER", { stayDuration: 25 }); } catch {}
+      // portal activation: send player to clan_void at the null_book coords height
+      const loc = { x: ev.player.location.x, y: 201, z: ev.player.location.z };
+      dimensions.teleportTo(ev.player, "clan_void", loc);
+      tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:portal_linker", 3, 1);
     }
   });
 

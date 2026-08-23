@@ -1,5 +1,6 @@
 import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
+import * as dimensions from "../../systems/dimensions.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
@@ -347,8 +348,11 @@ function tickFollow(e) {
     if (Math.random() < 0.5) {
       tryPlaySoundAt(e.dimension, player.location, "thebrokenscript:text_madness_1", 10, 0);
       try { player.addEffect("darkness", 60, { amplifier: 1, showParticles: false }); } catch {}
-      try { player.applyDamage(Math.max(1, Math.floor(player.getComponent("minecraft:health")?.currentValue ?? 20) - (Math.floor(Math.random() * 9) + 1))); } catch {}
-      // dimension teleport CLAN_VOID/NULL_TORTURE pending Chunk 10 — ledgered no-op
+      // source: random CLAN_VOID / NULL_TORTURE destination + fixPos/skipFallDamage flags
+      const dest = Math.random() < 0.5 ? "clan_void" : "null_torture";
+      dimensions.teleportTo(player, dest, { x: player.location.x, y: 201, z: player.location.z });
+      try { player.setDynamicProperty("tbs:fixPos", true); } catch {}
+      try { player.setDynamicProperty("tbs:skipFallDamage", true); } catch {}
     } else {
       try { player.teleport(e.location); } catch {}
       // give SERIAL_DESIGNATION_N item pending Chunk 09 — ledgered skip
