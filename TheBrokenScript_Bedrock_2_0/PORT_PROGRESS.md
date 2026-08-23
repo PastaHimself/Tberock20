@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 11)
+Last updated: 2026-08-23 (Chunk 12)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 11)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 12 — Events & horror choreography (94)**
+**Chunk 13 — Progression/recipes/loot/tags/commands**
 
 ## Chunk state
 | Chunk | State |
@@ -33,7 +33,7 @@ Last updated: 2026-08-23 (Chunk 11)
 | 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book story event wired at day 12+1000) |
 | 10 Dimensions (13) & portals | **completed** (12 dimension JSONs per TBSDimensions + NIGHTMARES set; dimensions.js runtime w/ beta createDimension fallback; follow → clan_void/null_torture teleport unblocked; portal_controller interact → clan_void Y:201) |
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 biomes + RP fog palettes; procedural Shaft/Hallway builders wired to null_structure interact; 305-NBT corpus + xcsf arena conversion ledgered as deferred tooling; 32 spawn modifiers confirmed covered by spawn_director rules) |
-| 12 Events & horror choreography (94) | pending |
+| 12 Events & horror choreography (94) | **completed** (horror_events.js: 78-id gated weighted pool @200t, ~60 handlers incl. OS-fake titles A-004, place_* pranks w/ real blocks, fire() export; Arena suppression; manifest external revert re-corrected to beta) |
 | 13 Progression/recipes/loot/tags/commands | pending |
 | 14 Presentation completion | pending |
 | 15 Integration | pending |
@@ -43,6 +43,9 @@ Last updated: 2026-08-23 (Chunk 11)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 12)
+src/systems/horror_events.js · main.js wiring · docs/chunks/CHUNK_12_REPORT.md
 
 ## Files created (Chunk 11)
 BP/biomes/*.json (15) · RP/biomes_client.json · src/systems/worldgen_structures.js · custom_blocks.js null_structure shaft wiring · docs/chunks/CHUNK_11_REPORT.md
@@ -98,7 +101,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 11: 15 biomes + fog palettes + shaft builders, 489 JSONs — PASS; Chunk 10: 12 dimensions, 473 — PASS; Chunk 09: 76 items, 461 — PASS; Chunk 08: 123/123 blocks, 383 — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 12: 78-event choreography engine, 489 JSONs — PASS; Chunk 11: 15 biomes + shaft builders, 489 — PASS; Chunk 10: 12 dimensions, 473 — PASS; Chunk 09: 76 items, 461 — PASS; Chunk 08: 123/123 blocks, 383 — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
@@ -118,9 +121,9 @@ See VALIDATION_LOG.md (Chunk 11: 15 biomes + fog palettes + shaft builders, 489 
 - **Beta APIs now required**: BP manifest depends on `@minecraft/server` version `beta` (project decision, 2026-08-23). Worlds must enable the "Beta APIs" experiment. This supersedes the earlier plan of isolating beta usage to the custom-dimension module; stable floor remains documented at 1.26.30 as fallback.
 
 ## Next chunk
-Chunk 10 — Dimensions (13) & portals
+Chunk 13 — Progression/recipes/loot/tags/commands
 
 ## Exact source references to inspect next
-- `TBSDimensions.java` (13 dimension keys incl. clan_void/null_torture/moon/limbo/nothing/nowhere/concrete/day_a/lucid/stage2/stage3/protected_void/null_biome-linked)
-- Portal flow: portal_controller/extender blocks (Chunk 08 components ready), NullBookEvent coords page target
-- Beta custom-dimension path vs stable 1.26.30 floor decision
+- `TBSAdvancements.java` (5: can_someone_hear_me, can_you_see_me, nullnullnull, you_ve_brought_it_upon_yourself, polaroid_craft)
+- `data/thebrokenscript/recipe/*` (40) + `loot_table/{blocks,entities}` + tags
+- Command surface: chat responses (TBSChatResponses), `/tbs`-style debug commands incl. horrorEvents.fire
