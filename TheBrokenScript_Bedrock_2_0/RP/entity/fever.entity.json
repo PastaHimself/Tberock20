@@ -1,0 +1,20 @@
+﻿{
+    "format_version":  "1.10.0",
+    "minecraft:client_entity":  {
+                                    "description":  {
+                                                        "materials":  {
+                                                                          "default":  "entity_alphatest"
+                                                                      },
+                                                        "geometry":  {
+                                                                         "default":  "geometry.tbs_fever"
+                                                                     },
+                                                        "render_controllers":  [
+                                                                                   "controller.render.single_textured"
+                                                                               ],
+                                                        "identifier":  "thebrokenscript:fever",
+                                                        "textures":  {
+                                                                         "default":  "textures/entities/fever"
+                                                                     }
+                                                    }
+                                }
+}

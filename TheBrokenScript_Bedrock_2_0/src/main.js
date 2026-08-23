@@ -25,6 +25,8 @@ import * as miscController from "./entities/misc/misc_controller.js";
 import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
 import * as stalkController from "./entities/stalk/stalk_controller.js";
 import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
+import * as bossController from "./entities/boss/boss_controller.js";
+import * as bossSpawnRules from "./entities/boss/boss_spawn_rules.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
@@ -50,6 +52,8 @@ function onWorldLoad() {
     miscController.begin(scheduler);
     stalkSpawnRules.register();
     stalkController.begin(scheduler);
+    bossSpawnRules.register();
+    bossController.begin(scheduler);
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",

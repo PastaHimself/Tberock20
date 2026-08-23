@@ -1,0 +1,20 @@
+﻿{
+    "format_version":  "1.10.0",
+    "minecraft:client_entity":  {
+                                    "description":  {
+                                                        "materials":  {
+                                                                          "default":  "entity_alphatest"
+                                                                      },
+                                                        "geometry":  {
+                                                                         "default":  "geometry.BOULDER - Converted"
+                                                                     },
+                                                        "render_controllers":  [
+                                                                                   "controller.render.single_textured"
+                                                                               ],
+                                                        "identifier":  "thebrokenscript:rock",
+                                                        "textures":  {
+                                                                         "default":  "textures/entities/fractured"
+                                                                     }
+                                                    }
+                                }
+}
