@@ -1,0 +1,210 @@
+{
+    "resource_pack_name":  "thebrokenscript",
+    "texture_name":  "atlas.items",
+    "texture_data":  {
+                         "a_flower":  {
+                                          "textures":  "textures/item/a_flower"
+                                      },
+                         "attribute_mutilation":  {
+                                                      "textures":  "textures/item/attribute_mutilation"
+                                                  },
+                         "bennie_cod":  {
+                                            "textures":  "textures/item/bennie_cod"
+                                        },
+                         "book":  {
+                                      "textures":  "textures/item/book"
+                                  },
+                         "circuit_bread":  {
+                                               "textures":  "textures/item/circuit_bread"
+                                           },
+                         "corrupt_ebridger_cod":  {
+                                                      "textures":  "textures/item/corrupt_ebridger_cod"
+                                                  },
+                         "designation_cod":  {
+                                                 "textures":  "textures/item/designation_cod"
+                                             },
+                         "desyncer":  {
+                                          "textures":  "textures/item/desyncer"
+                                      },
+                         "disruptor_egg":  {
+                                               "textures":  "textures/item/disruptor_egg"
+                                           },
+                         "dominik_cod":  {
+                                             "textures":  "textures/item/dominik_cod"
+                                         },
+                         "ebridger_cod":  {
+                                              "textures":  "textures/item/ebridger_cod"
+                                          },
+                         "eldritch_cod":  {
+                                              "textures":  "textures/item/eldritch_cod"
+                                          },
+                         "evil_codstone_cod":  {
+                                                   "textures":  "textures/item/evil_codstone_cod"
+                                               },
+                         "eyae_cod":  {
+                                          "textures":  "textures/item/eyae_cod"
+                                      },
+                         "faraway_salmon":  {
+                                                "textures":  "textures/item/faraway_salmon"
+                                            },
+                         "garreth_cod":  {
+                                             "textures":  "textures/item/garreth_cod"
+                                         },
+                         "glaggle":  {
+                                         "textures":  "textures/item/glaggle"
+                                     },
+                         "gore":  {
+                                      "textures":  "textures/item/gore"
+                                  },
+                         "hand_cannon":  {
+                                             "textures":  "textures/item/hand_cannon"
+                                         },
+                         "instability":  {
+                                             "textures":  "textures/item/instability"
+                                         },
+                         "instability_music_box":  {
+                                                       "textures":  "textures/item/instability_music_box"
+                                                   },
+                         "instabilityv2":  {
+                                               "textures":  "textures/item/instabilityv2"
+                                           },
+                         "instabilityv3":  {
+                                               "textures":  "textures/item/instabilityv3"
+                                           },
+                         "integrity_fireball":  {
+                                                    "textures":  "textures/item/integrity_fireball"
+                                                },
+                         "jd_cod":  {
+                                        "textures":  "textures/item/jd_cod"
+                                    },
+                         "lilly":  {
+                                       "textures":  "textures/item/lilly"
+                                   },
+                         "lilly_v2":  {
+                                          "textures":  "textures/item/lilly_v2"
+                                      },
+                         "lily_of_the_abyss":  {
+                                                   "textures":  "textures/block/lily_of_the_abyss"
+                                               },
+                         "lost_need_cod":  {
+                                               "textures":  "textures/item/lost_need_cod"
+                                           },
+                         "missingno_spawn_egg":  {
+                                                     "textures":  "textures/item/missingno_spawn_egg"
+                                                 },
+                         "moon_stone_bricks":  {
+                                                   "textures":  "textures/block/moon_stone_bricks"
+                                               },
+                         "n":  {
+                                   "textures":  "textures/item/n"
+                               },
+                         "new_vein":  {
+                                          "textures":  "textures/item/new_vein"
+                                      },
+                         "null_bread":  {
+                                            "textures":  "textures/item/null_bread"
+                                        },
+                         "null_cod":  {
+                                          "textures":  "textures/item/null_cod"
+                                      },
+                         "null_structure":  {
+                                                "textures":  "textures/item/null_structure"
+                                            },
+                         "old_book":  {
+                                          "textures":  "textures/item/old_book"
+                                      },
+                         "pencil_cod":  {
+                                            "textures":  "textures/item/pencil_cod"
+                                        },
+                         "piece_1":  {
+                                         "textures":  "textures/item/piece_1"
+                                     },
+                         "piece_2":  {
+                                         "textures":  "textures/item/piece_2"
+                                     },
+                         "piece_3":  {
+                                         "textures":  "textures/item/piece_3"
+                                     },
+                         "piece_4":  {
+                                         "textures":  "textures/item/piece_4"
+                                     },
+                         "piece_5":  {
+                                         "textures":  "textures/item/piece_5"
+                                     },
+                         "polaroid":  {
+                                          "textures":  "textures/item/polaroid"
+                                      },
+                         "polished_moon_stone":  {
+                                                     "textures":  "textures/block/polished_moon_stone"
+                                                 },
+                         "portal_linker":  {
+                                               "textures":  "textures/item/portal_linker"
+                                           },
+                         "redstone_cod":  {
+                                              "textures":  "textures/item/redstone_cod"
+                                          },
+                         "revuxor_disc":  {
+                                              "textures":  "textures/item/revuxor_disc"
+                                          },
+                         "revuxorfish":  {
+                                             "textures":  "textures/item/revuxorfish"
+                                         },
+                         "shadowmaster_cod":  {
+                                                  "textures":  "textures/item/shadowmaster_cod"
+                                              },
+                         "tbs_barrier_block":  {
+                                                   "textures":  "textures/item/tbs_barrier_block"
+                                               },
+                         "tekkit_cod":  {
+                                            "textures":  "textures/item/tekkit_cod"
+                                        },
+                         "torn_paper":  {
+                                            "textures":  "textures/item/torn_paper"
+                                        },
+                         "totem_of_undying":  {
+                                                  "textures":  "textures/item/totem_of_undying"
+                                              },
+                         "ud_oak_door":  {
+                                             "textures":  "textures/item/ud_oak_door"
+                                         },
+                         "v1_cod":  {
+                                        "textures":  "textures/item/v1_cod"
+                                    },
+                         "v2_cod":  {
+                                        "textures":  "textures/item/v2_cod"
+                                    },
+                         "void_bell":  {
+                                           "textures":  "textures/block/void_bell"
+                                       },
+                         "void_bush":  {
+                                           "textures":  "textures/block/void_bush"
+                                       },
+                         "void_cap":  {
+                                          "textures":  "textures/block/void_cap"
+                                      },
+                         "void_door":  {
+                                           "textures":  "textures/item/void_door"
+                                       },
+                         "void_grass":  {
+                                            "textures":  "textures/block/void_grass"
+                                        },
+                         "void_log_door":  {
+                                               "textures":  "textures/block/void_log_door"
+                                           },
+                         "void_plank_door":  {
+                                                 "textures":  "textures/block/void_plank_door"
+                                             },
+                         "void_shroom":  {
+                                             "textures":  "textures/block/void_shroom"
+                                         },
+                         "void_vine":  {
+                                           "textures":  "textures/block/void_vine"
+                                       },
+                         "zecod":  {
+                                       "textures":  "textures/item/zecod"
+                                   },
+                         "zetos_cod":  {
+                                           "textures":  "textures/item/zetos_cod"
+                                       }
+                     }
+}

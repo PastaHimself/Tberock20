@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "thebrokenscript:the_broken_end",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {},
+    "components": {
+      "minecraft:type_family": { "family": ["thebrokenscript_tbe", "monster", "mob"] },
+      "minecraft:health": { "value": 1000, "max": 1000 },
+      "minecraft:movement": { "value": 0.45 },
+      "minecraft:attack": { "damage": 600 },
+      "minecraft:follow_range": { "value": 64, "max": 64 },
+      "minecraft:collision_box": { "width": 0.6, "height": 25 },
+      "minecraft:physics": {},
+      "minecraft:push_through": { "value": 0 },
+      "minecraft:persistent": {},
+      "minecraft:experience_reward": { "on_death": "query.last_hit_by_player ? 5440 : 0" },
+      "minecraft:breathable": { "total_supply": 15, "suffocate_time": 0 }
+    },
+    "events": {}
+  }
+}
