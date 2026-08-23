@@ -1,0 +1,63 @@
+name: Validate Minecraft Bedrock Addon
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Clone Minecraft Bedrock Language Server
+        run: |
+          git clone https://github.com/Blockception/minecraft-bedrock-language-server.git ./mcbls
+          cd ./mcbls
+          npm install
+
+      - name: Install Bedrock Modules
+        run: |
+          mkdir -p ./node_modules/@minecraft
+          npm install @minecraft/server @minecraft/server-ui @minecraft/server-gametest @minecraft/server-admin @minecraft/server-net @minecraft/server-editor @minecraft/server-editor-bindings
+
+      - name: Copy modules to addon directory
+        run: |
+          cp -r ./node_modules/@minecraft ./TheBrokenScript_Bedrock_2_0/BP/
+
+      - name: Run Minecraft Bedrock Script Debugger
+        run: |
+          cd ./mcbls
+          npx mcbls validate --projectPath ../TheBrokenScript_Bedrock_2_0/BP --outputFormat json
+
+      - name: Validate manifest.json
+        run: |
+          cd ./TheBrokenScript_Bedrock_2_0/BP
+          node -e "const fs = require('fs'); const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8')); console.log('Manifest validation passed'); console.log('Pack Name:', manifest.header.name); console.log('Version:', manifest.header.version.join('.'));"
+
+      - name: Check script files syntax
+        run: |
+          cd ./TheBrokenScript_Bedrock_2_0/BP/scripts
+          find . -name "*.js" -type f | while read file; do
+            echo "Checking $file..."
+            node --check "$file" || exit 1
+          done
+          echo "All JavaScript files passed syntax check"
+
+      - name: Upload validation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-results
+          path: |
+            TheBrokenScript_Bedrock_2_0/BP/manifest.json
+          retention-days: 5
