@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 16)
+Last updated: 2026-08-23 (Chunk 17)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,10 @@ Last updated: 2026-08-23 (Chunk 16)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 17 — Full parity audit vs SOURCE_INVENTORY (912 entries)**
+**Chunk 18 — Final validation**
+
+## Exact source references to inspect next
+- None — parity ledger complete (docs/chunks/CHUNK_17_REPORT.md). Remaining: final validation sweep + packaging.
 
 ## Chunk state
 | Chunk | State |
@@ -38,11 +41,14 @@ Last updated: 2026-08-23 (Chunk 16)
 | 14 Presentation completion | **completed** (tbs_slab/stairs/wall geometries wired into 16 blocks w/ collision; tbs_humanoid geo on faraway/deceiver/xxram_2die; boss death hook — integrity_dies + Arena teardown; manifest owner-pinned version respected) |
 | 15 Integration | **completed** (tools/integration_audit.ps1 — 7 families, 12 dims, 103 identifier classifications, 22 world_state keys all PASS; fixed 3 wrong sound ids + 1 syntax error found by audit) |
 | 16 Multiplayer & performance audit | **completed** (perf.js hasPlayers short-circuit + dimension handle caches in the five 1-tick controllers; multiplayer hook/props review clean; loop inventory documented) |
-| 17 Full parity audit vs 912-entry inventory | pending |
+| 17 Full parity audit vs 912-entry inventory | **completed** (category-level ledger in CHUNK_17_REPORT.md: every entry maps to shipped artifact / ledgered approx / explicit deferral / engine-N/A; totals — 1:1 ported: 68 entities, 123 blocks, 40 recipes, 143 sound defs, 76 items, 15 biomes, 12 dims, 5 advancements) |
 | 18 Final validation | pending |
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 17)
+docs/chunks/CHUNK_17_REPORT.md (final category-level parity ledger vs 912 entries)
 
 ## Files created (Chunk 16)
 src/systems/perf.js · idle short-circuits + dim caches in 5 controllers · docs/chunks/CHUNK_16_REPORT.md
@@ -113,7 +119,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 16: perf/mp audit, audits PASS — 659 JSONs; Chunk 15: integration audit PASSED — 7 families/12 dims/103 ids/22 ws-keys; Chunk 14: presentation geoms, 659 — PASS; Chunk 13: 40 recipes + 126 loot tables, 655 — PASS; Chunk 12: 78-event engine, 489 — PASS; Chunk 11: 15 biomes + shaft builders, 489 — PASS; Chunk 10: 12 dimensions, 473 — PASS; Chunk 09: 76 items, 461 — PASS; Chunk 08: 123/123 blocks, 383 — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 17: parity ledger complete — every entry mapped; Chunk 16: perf/mp audit — PASS; Chunk 15: integration audit PASSED; Chunk 14: presentation geoms, 659 — PASS; Chunk 13: 40 recipes + 126 loot tables, 655 — PASS; Chunk 12: 78-event engine, 489 — PASS; Chunk 11: 15 biomes + shaft builders, 489 — PASS; Chunk 10: 12 dimensions, 473 — PASS; Chunk 09: 76 items, 461 — PASS; Chunk 08: 123/123 blocks, 383 — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
