@@ -48,9 +48,10 @@ else {
     else { Pass "BP->RP dependency matches header uuid+version" }
 }
 
-# 4. Script API dependencies: stable only, no beta suffix outside allowlist
+# 4. Script API dependencies: "beta" channel accepted (project decision), numeric must be stable (no -beta suffix)
 foreach ($d in $bpM.dependencies | Where-Object module_name) {
-    if ($d.version -is [string] -and $d.version -like "*beta*") { Fail "beta script dependency present: $($d.module_name) $($d.version)" }
+    if ($d.version -is [string] -and $d.version -eq "beta") { Pass "beta script dep: $($d.module_name) beta" }
+    elseif ($d.version -is [string] -and $d.version -like "*beta*") { Fail "malformed script dep version (use 'beta' or stable): $($d.module_name) $($d.version)" }
     else { Pass "stable script dep: $($d.module_name) $($d.version)" }
 }
 

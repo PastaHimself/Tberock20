@@ -23,6 +23,8 @@ import * as humanoidController from "./entities/humanoid/humanoid_controller.js"
 import * as humanoidSpawnRules from "./entities/humanoid/humanoid_spawn_rules.js";
 import * as miscController from "./entities/misc/misc_controller.js";
 import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
+import * as stalkController from "./entities/stalk/stalk_controller.js";
+import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
@@ -46,6 +48,8 @@ function onWorldLoad() {
     humanoidController.begin(scheduler);
     miscSpawnRules.register();
     miscController.begin(scheduler);
+    stalkSpawnRules.register();
+    stalkController.begin(scheduler);
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",
