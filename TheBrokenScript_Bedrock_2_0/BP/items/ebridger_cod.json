@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:ebridger_cod",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "ebridger_cod",
+      "minecraft:display_name": { "value": "item.thebrokenscript.ebridger_cod" }
+    }
+  }
+}

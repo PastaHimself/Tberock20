@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:attribute_mutilation",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "attribute_mutilation",
+      "minecraft:display_name": { "value": "item.thebrokenscript.attribute_mutilation" }
+    }
+  }
+}

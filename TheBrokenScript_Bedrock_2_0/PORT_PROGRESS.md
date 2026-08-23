@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 08)
+Last updated: 2026-08-23 (Chunk 09)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-23 (Chunk 08)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 09 — Items (192) + fluids approximation**
+**Chunk 10 — Dimensions (13) & portals**
 
 ## Chunk state
 | Chunk | State |
@@ -30,6 +30,7 @@ Last updated: 2026-08-23 (Chunk 08)
 | 06 Stalking systems completion pass | **completed** (curved unseen-approach/transform, jon chatter NPC, sub_anomaly_1/2 corrupt-block rolls, obliteration pair w/ stare-kick, herobrine statue; CURVED/HEROBRINE/OBLIT/ANOMALY spawn rules; manifest switched to @minecraft/server beta channel) |
 | 07 Bosses (Integrity/Jimmy/Kerfur+fever/chord/tether/tentacle) | **completed** (16 entities: integrity p1-p3/arm/curious/fireball w/ health-threshold phase chain + Arena hooks, fractured+roam+rock, murderfur Kerfur pet, fever+stalk, chord+projectile, tether, void_tentacle; FRACTURED/FEVER_STALK natural rules) |
 | 08 Blocks (123 + 8 BE equivalents) | **completed** (123/123 blockstates → BP/blocks: ~60 cubes, 19 cross flora w/ geometry.tbs_cross, 16 void_template markers, jim_triggers/initiator/BEs; terrain_texture +13 keys; beta blockComponentRegistry ×12; physical_stacktrace/disruption/corrupt ledgers unblocked; tools/build_blocks.ps1) |
+| 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book story event wired at day 12+1000) |
 | 09 Items (192) + fluids approximation | pending |
 | 10 Dimensions (13) & portals | pending |
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | pending |
@@ -43,6 +44,9 @@ Last updated: 2026-08-23 (Chunk 08)
 | 19 Packaging .mcaddon | pending |
 
 Blocked: none.
+
+## Files created (Chunk 09)
+BP/items/*.json (76) · RP/textures/plush/* (39) · RP/item_texture.json (+33) · BP/blocks/{void_goop_still,void_goop_flow}.json · story_events.js null_book wiring + world_state.nullBookGiven · docs/chunks/CHUNK_09_{SPEC,REPORT}.md
 
 ## Files created (Chunk 08)
 BP/blocks/*.json (123) · RP/models/blocks/tbs_cross.geo.json · RP/terrain_texture.json (+13) · src/systems/custom_blocks.js · tools/build_blocks.ps1 · docs/chunks/CHUNK_08_{SPEC,REPORT}.md
@@ -89,14 +93,14 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 08: 123/123 blocks, 383 JSONs parsed — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
+See VALIDATION_LOG.md (Chunk 09: 76 items + goop fluids + null_book wired, 461 JSONs — PASS; Chunk 08: 123/123 blocks, 383 JSONs — PASS; 07: 39/259; 06: 37/227; 05F: 35/213; 05E: 33/185; 05D: 31/165; 05C: 29; 05B: 28; 05A: 26; 04: 24; 03: 123; 02: 16 — all PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
-- null_book_story event unwired until item system exists — Chunk 09 next.
 - Non-cube block shapes (slabs/stairs/walls/fences/trapdoors/doors) rendered as full cubes; flora share one cross geometry — Chunk 14 candidates.
 - Animated block textures static in Bedrock.
+- Functional items (polaroid/hand_cannon/portal_linker/desyncer) are interaction stubs pending Chunk 12/13.
 - Arena story triggers land in Chunk 12; boss music/death sequences pending Chunk 14.
 - Dimension teleports (follow → CLAN_VOID/NULL_TORTURE) pending Chunk 10 — beta APIs enabled.
 - Advancements (can_you_see_me, curved death lines) pending Chunk 13/14; FunnySetting easter-egg variants pending config pass.
@@ -109,9 +113,9 @@ See VALIDATION_LOG.md (Chunk 08: 123/123 blocks, 383 JSONs parsed — PASS; 07: 
 - **Beta APIs now required**: BP manifest depends on `@minecraft/server` version `beta` (project decision, 2026-08-23). Worlds must enable the "Beta APIs" experiment. This supersedes the earlier plan of isolating beta usage to the custom-dimension module; stable floor remains documented at 1.26.30 as fallback.
 
 ## Next chunk
-Chunk 09 — Items (192) + fluids approximation
+Chunk 10 — Dimensions (13) & portals
 
 ## Exact source references to inspect next
-- `TBSItems.java` + `TBSEasterEggItems.java` + `TBSPlushies.java` registries; `source_extracted/assets/thebrokenscript/models/item/*` (item_texture.json already has 68 entries from Chunk 03)
-- Fluids: TBSFluids (void_goop still/flow textures present); Bedrock approximation via custom blocks or camera-liquid substitute
-- null_book story event wiring (unblocked by item system)
+- `TBSDimensions.java` (13 dimension keys incl. clan_void/null_torture/moon/limbo/nothing/nowhere/concrete/day_a/lucid/stage2/stage3/protected_void/null_biome-linked)
+- Portal flow: portal_controller/extender blocks (Chunk 08 components ready), NullBookEvent coords page target
+- Beta custom-dimension path vs stable 1.26.30 floor decision

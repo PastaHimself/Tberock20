@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:yharim_plush",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "yharim_plush",
+      "minecraft:display_name": { "value": "item.thebrokenscript.yharim_plush" }
+    }
+  }
+}

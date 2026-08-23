@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:instability",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "instability",
+      "minecraft:display_name": { "value": "item.thebrokenscript.instability" }
+    }
+  }
+}

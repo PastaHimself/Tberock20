@@ -1,4 +1,4 @@
-import * as state from "../core/state.js";
+﻿import * as state from "../core/state.js";
 
 export const INT_MAX = 2147483647;
 
@@ -61,7 +61,8 @@ const DEFAULTS = {
     circuitInhabitedDelay: INT_MAX,
     commandBlockX: 0,
     commandBlockY: 0,
-    commandBlockZ: 0
+    commandBlockZ: 0,
+    nullBookGiven: false
 };
 
 export function init() {

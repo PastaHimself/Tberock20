@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:wendigo_plush",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "wendigo_plush",
+      "minecraft:display_name": { "value": "item.thebrokenscript.wendigo_plush" }
+    }
+  }
+}

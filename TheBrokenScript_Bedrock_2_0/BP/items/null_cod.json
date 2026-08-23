@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:null_cod",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "null_cod",
+      "minecraft:display_name": { "value": "item.thebrokenscript.null_cod" }
+    }
+  }
+}

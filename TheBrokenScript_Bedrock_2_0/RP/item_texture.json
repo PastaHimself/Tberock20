@@ -1,4 +1,4 @@
-{
+﻿{
     "resource_pack_name":  "thebrokenscript",
     "texture_name":  "atlas.items",
     "texture_data":  {
@@ -205,6 +205,105 @@
                                    },
                          "zetos_cod":  {
                                            "textures":  "textures/item/zetos_cod"
-                                       }
+                                       },
+                         "bennie_plush":  {
+                                              "textures":  "textures/plush/bennie"
+                                          },
+                         "berry_plush":  {
+                                             "textures":  "textures/plush/berry"
+                                         },
+                         "dominik_plush":  {
+                                               "textures":  "textures/plush/dominik"
+                                           },
+                         "ebridger_plush":  {
+                                                "textures":  "textures/plush/ebridger"
+                                            },
+                         "elderly_plush":  {
+                                               "textures":  "textures/plush/elderly"
+                                           },
+                         "eldritch_plush":  {
+                                                "textures":  "textures/plush/eldritch"
+                                            },
+                         "eyae_plush":  {
+                                            "textures":  "textures/plush/eyae"
+                                        },
+                         "garreth_plush":  {
+                                               "textures":  "textures/plush/garreth"
+                                           },
+                         "hermit_plush":  {
+                                              "textures":  "textures/plush/hermit"
+                                          },
+                         "jd_plush":  {
+                                          "textures":  "textures/plush/jd"
+                                      },
+                         "lost_plush":  {
+                                            "textures":  "textures/plush/lost"
+                                        },
+                         "lovemist_plush":  {
+                                                "textures":  "textures/plush/lovemist"
+                                            },
+                         "mc_plush":  {
+                                          "textures":  "textures/plush/mc"
+                                      },
+                         "moji_plush":  {
+                                            "textures":  "textures/plush/moji"
+                                        },
+                         "nahbro_plush":  {
+                                              "textures":  "textures/plush/nahbro"
+                                          },
+                         "pyrit_plush":  {
+                                             "textures":  "textures/plush/pyrit"
+                                         },
+                         "raevant_plush":  {
+                                               "textures":  "textures/plush/raevant"
+                                           },
+                         "rdh_plush":  {
+                                           "textures":  "textures/plush/rdh"
+                                       },
+                         "redstone_plush":  {
+                                                "textures":  "textures/plush/redstone"
+                                            },
+                         "shadow_plush":  {
+                                              "textures":  "textures/plush/shadow"
+                                          },
+                         "skie_plush":  {
+                                            "textures":  "textures/plush/skie"
+                                        },
+                         "stevelocks_plush":  {
+                                                  "textures":  "textures/plush/stevelocks"
+                                              },
+                         "tekkit_plush":  {
+                                              "textures":  "textures/plush/tekkit"
+                                          },
+                         "wendigo_plush":  {
+                                               "textures":  "textures/plush/wendigo"
+                                           },
+                         "yharim_plush":  {
+                                              "textures":  "textures/plush/yharim"
+                                          },
+                         "zetos_plush":  {
+                                             "textures":  "textures/plush/zetos"
+                                         },
+                         "credits":  {
+                                         "textures":  "textures/item/book"
+                                     },
+                         "null_item":  {
+                                           "textures":  "textures/blocks/dark"
+                                       },
+                         "record_14":  {
+                                           "textures":  "textures/item/revuxor_disc"
+                                       },
+                         "record_15":  {
+                                           "textures":  "textures/item/revuxor_disc"
+                                       },
+                         "record_16":  {
+                                           "textures":  "textures/item/revuxor_disc"
+                                       },
+                         "record_17":  {
+                                           "textures":  "textures/item/revuxor_disc"
+                                       },
+                         "void_liquid_bucket":  {
+                                                    "textures":  "textures/blocks/void_goop_still"
+                                                }
                      }
 }

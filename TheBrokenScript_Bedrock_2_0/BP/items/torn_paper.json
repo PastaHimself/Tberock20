@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:torn_paper",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "torn_paper",
+      "minecraft:display_name": { "value": "item.thebrokenscript.torn_paper" }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:block": {
+    "description": {
+      "identifier": "thebrokenscript:void_goop_still",
+      "menu_category": { "category": "construction", "is_hidden_in_commands": false }
+    },
+    "components": {
+      "minecraft:material_instances": { "*": { "texture": "void_goop_still", "render_method": "blend" } },
+      "minecraft:collision_box": true,
+      "minecraft:light_dampening": 1
+    }
+  }
+}
+

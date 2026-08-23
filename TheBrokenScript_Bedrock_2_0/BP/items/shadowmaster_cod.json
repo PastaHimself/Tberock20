@@ -1,0 +1,13 @@
+﻿{
+  "format_version": "1.21.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:shadowmaster_cod",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:icon": "shadowmaster_cod",
+      "minecraft:display_name": { "value": "item.thebrokenscript.shadowmaster_cod" }
+    }
+  }
+}
