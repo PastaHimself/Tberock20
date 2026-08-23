@@ -44,12 +44,15 @@ jobs:
         run: python tools/validate_addon.py --report artifacts/addon-validation.json
 
       - name: Validate Bedrock resource identifier links
+        if: always()
         run: python tools/validate_resource_links.py --report artifacts/resource-link-validation.json
 
       - name: Validate all Bedrock structures
+        if: always()
         run: python tools/validate_mcstructures.py --report artifacts/mcstructure-validation.json
 
       - name: Check all behavior-pack JavaScript syntax
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -64,12 +67,15 @@ jobs:
           done
 
       - name: Type-check behavior scripts against Bedrock beta APIs
+        if: always()
         run: npm run typecheck
 
       - name: Run JavaScript regression tests
+        if: always()
         run: npm test
 
       - name: Checkout Blockception Bedrock language server
+        if: always()
         uses: actions/checkout@v5
         with:
           repository: Blockception/minecraft-bedrock-language-server
@@ -77,6 +83,7 @@ jobs:
           submodules: recursive
 
       - name: Build Blockception Bedrock language server
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -86,6 +93,7 @@ jobs:
           echo "BLOCKCEPTION_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Run Blockception project diagnostics
+        if: always()
         run: >-
           node tools/run_blockception_lsp_check.mjs
           --server .blockception/minecraft-bedrock-language-server/ide/vscode/lsp/server.js
@@ -93,6 +101,7 @@ jobs:
           --report artifacts/blockception-lsp-diagnostics.json
 
       - name: Stage production packs for Mojang Creator Tools
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -130,6 +139,7 @@ jobs:
           NODE
 
       - name: Validate production packs with Mojang Minecraft Creator Tools
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -205,14 +215,12 @@ jobs:
 
       - name: Package successful build as .mcaddon
         id: package_addon
-        continue-on-error: true
         shell: bash
         run: bash tools/package-addon.sh
 
       - name: Upload The Broken Script 2.0 .mcaddon
         id: upload_addon
-        if: steps.package_addon.outcome == 'success'
-        continue-on-error: true
+        if: success()
         uses: actions/upload-artifact@v6
         with:
           name: The_Broken_Script_2_0-mcaddon
@@ -228,7 +236,3 @@ jobs:
           path: artifacts/*.json
           if-no-files-found: ignore
           retention-days: 30
-
-      - name: Fail on packaging or upload errors
-        if: ${{ steps.package_addon.outcome == 'failure' || steps.upload_addon.outcome == 'failure' }}
-        run: exit 1
