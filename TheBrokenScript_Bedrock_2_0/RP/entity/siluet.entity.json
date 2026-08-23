@@ -1,0 +1,20 @@
+﻿{
+    "format_version":  "1.10.0",
+    "minecraft:client_entity":  {
+                                    "description":  {
+                                                        "materials":  {
+                                                                          "default":  "entity_alphatest"
+                                                                      },
+                                                        "geometry":  {
+                                                                         "default":  "geometry.r2"
+                                                                     },
+                                                        "render_controllers":  [
+                                                                                   "controller.render.single_textured"
+                                                                               ],
+                                                        "identifier":  "thebrokenscript:siluet",
+                                                        "textures":  {
+                                                                         "default":  "textures/entities/siluetoverhaul"
+                                                                     }
+                                                    }
+                                }
+}
