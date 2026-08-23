@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "thebrokenscript:record_16"
+    },
+    "B": {
+      "item": "thebrokenscript:gore"
+    },
+    "C": {
+      "item": "thebrokenscript:n"
+    }
+  },
+  "pattern": [
+    "ABC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "thebrokenscript:instabilityv2"
+  },
+  "show_notification": false
+}

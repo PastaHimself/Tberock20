@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "$": {
+      "item": "thebrokenscript:void_log"
+    }
+  },
+  "pattern": [
+    "$$ ",
+    "$$ "
+  ],
+  "result": {
+    "count": 3,
+    "id": "thebrokenscript:void_wood"
+  }
+}

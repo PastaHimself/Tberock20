@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:protected_void_stairs",
+    "thebrokenscript:moon_stone_brick_stairs",
+    "thebrokenscript:polished_moon_stone_stairs"
+  ]
+}

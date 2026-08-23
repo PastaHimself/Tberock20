@@ -1,0 +1,13 @@
+{
+  "type": "thebrokenscript:the_moon",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "thebrokenscript:moon",
+    "biome_source": {
+        "type": "thebrokenscript:moon_biomes",
+        "moon": "thebrokenscript:moon",
+        "stereogenic_growth": "thebrokenscript:stereogenic_growth",
+        "dysaphytic_wen": "thebrokenscript:dysaphytic_wen"
+    }
+  }
+}

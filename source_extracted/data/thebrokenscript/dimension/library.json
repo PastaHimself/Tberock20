@@ -1,0 +1,10 @@
+{
+    "type": "thebrokenscript:library",
+    "generator": {
+        "type": "thebrokenscript:library",
+        "biome_source": {
+            "type": "minecraft:fixed",
+            "biome": "thebrokenscript:library"
+        }
+    }
+}
