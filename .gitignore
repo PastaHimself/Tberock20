@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 target/
+TheBrokenScript_Bedrock_2_0/tools/jdk/
 
 # Virtual environments
 venv/
