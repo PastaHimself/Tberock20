@@ -2171,7 +2171,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "leftarmspike 1",
+                                                     "name":  "leftarmspike-1",
                                                      "parent":  "leftarm",
                                                      "pivot":  [
                                                                    1,
@@ -2237,7 +2237,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "leftarmspike 2",
+                                                     "name":  "leftarmspike-2",
                                                      "parent":  "leftarm",
                                                      "pivot":  [
                                                                    13,
@@ -2303,7 +2303,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "leftarmspike 3",
+                                                     "name":  "leftarmspike-3",
                                                      "parent":  "leftarm",
                                                      "pivot":  [
                                                                    23,
@@ -2369,7 +2369,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "leftarmspike 4",
+                                                     "name":  "leftarmspike-4",
                                                      "parent":  "leftarm",
                                                      "pivot":  [
                                                                    23,
@@ -3361,7 +3361,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "rightarmspike 1",
+                                                     "name":  "rightarmspike-1",
                                                      "parent":  "rightarm",
                                                      "pivot":  [
                                                                    -14,
@@ -3427,7 +3427,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "rightarmspike 2",
+                                                     "name":  "rightarmspike-2",
                                                      "parent":  "rightarm",
                                                      "pivot":  [
                                                                    -19,
@@ -8428,7 +8428,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "middle tendrils",
+                                                     "name":  "middle-tendrils",
                                                      "parent":  "torso",
                                                      "pivot":  [
                                                                    -4,
@@ -8437,8 +8437,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "spine eyes",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-eyes",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -0.5,
                                                                    374.5,
@@ -8483,7 +8483,7 @@
                                                  },
                                                  {
                                                      "name":  "spine_eyes2",
-                                                     "parent":  "middle tendrils",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -4,
                                                                    381.5,
@@ -8537,8 +8537,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "spine tendrils 3",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-tendrils-3",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -2.5,
                                                                    347,
@@ -8592,8 +8592,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "spine tendrils 4",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-tendrils-4",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -2.5,
                                                                    347,
@@ -8647,8 +8647,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "spine tendrils 2",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-tendrils-2",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    4,
                                                                    360.5,
@@ -8693,7 +8693,7 @@
                                                  },
                                                  {
                                                      "name":  "spine_tendrils_2",
-                                                     "parent":  "middle tendrils",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -4,
                                                                    367.5,
@@ -8747,8 +8747,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "cross tendril",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "cross-tendril",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -17,
                                                                    357,

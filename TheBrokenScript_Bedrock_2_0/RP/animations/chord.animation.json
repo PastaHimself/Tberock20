@@ -7242,9 +7242,6 @@
             ]
           }
         }
-      },
-      "timeline": {
-        "1.16": "yeet;"
       }
     },
     "animation.thebrokenscript.chord.attack_laser": {
@@ -8353,10 +8350,6 @@
         "jelly": {
           "scale": 0
         }
-      },
-      "timeline": {
-        "0.17": "start;",
-        "0.84": "hit;"
       }
     },
     "animation.thebrokenscript.chord.death": {

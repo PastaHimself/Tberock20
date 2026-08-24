@@ -1,4 +1,5 @@
 import json
+import math
 import tempfile
 import unittest
 from pathlib import Path
@@ -6,7 +7,9 @@ from pathlib import Path
 from tools.repair_addon_validation import (
     collapse_vector_wrappers,
     convert_geckolib_easing_keyframes,
+    repair_animations,
     repair_biome_components,
+    repair_bone_identifiers,
     repair_block_components,
     repair_geometry_identifiers,
     repair_null_item_icon,
@@ -40,6 +43,32 @@ class RepairAddonValidationTests(unittest.TestCase):
             },
         )
 
+    def test_step_easing_on_pre_post_keyframe_is_preserved(self):
+        channel = {
+            "0.0": [1, 1, 1],
+            "0.125": {
+                "pre": [1, 0, 1],
+                "post": [1, 0, 1],
+                "easing": "step",
+                "easingArgs": [2],
+            },
+        }
+
+        self.assertEqual(
+            convert_geckolib_easing_keyframes(channel),
+            {
+                "0.0": [1, 1, 1],
+                "0.0625": {
+                    "pre": [1, 1, 1],
+                    "post": [1, 0.5, 1],
+                },
+                "0.125": {
+                    "pre": [1, 0.5, 1],
+                    "post": [1, 0, 1],
+                },
+            },
+        )
+
     def test_sine_easing_is_approximated_with_bedrock_linear_keyframes(self):
         channel = {
             "0.0": [0, 0, 0],
@@ -53,6 +82,192 @@ class RepairAddonValidationTests(unittest.TestCase):
         self.assertEqual(converted["0.5"], [0, 0, 1])
         self.assertEqual(converted["1.0"], [0, 0, 2])
         self.assertAlmostEqual(converted["0.125"][2], 0.0761204675)
+
+    def test_bounce_easings_are_baked_into_bedrock_keyframes(self):
+        ease_in = convert_geckolib_easing_keyframes({
+            "0.0": [0, 0, 0],
+            "1.0": {"vector": [0, 0, 10], "easing": "easeInBounce"},
+        })
+        ease_in_out = convert_geckolib_easing_keyframes({
+            "0.0": [0, 0, 0],
+            "1.0": {
+                "vector": [0, 0, 10],
+                "easing": "easeInOutBounce",
+                "easingArgs": [0.5],
+            },
+        })
+
+        self.assertEqual(ease_in["0.0"], [0, 0, 0])
+        self.assertEqual(ease_in["1.0"], [0, 0, 10])
+        self.assertAlmostEqual(ease_in["0.5"][2], 5.3125)
+        self.assertAlmostEqual(ease_in_out["0.25"][2], 2.65625)
+        self.assertAlmostEqual(ease_in_out["0.75"][2], 7.34375)
+        serialized = json.dumps({"in": ease_in, "in_out": ease_in_out})
+        self.assertNotIn('"vector"', serialized)
+        self.assertNotIn('"easing"', serialized)
+        self.assertNotIn('"easingArgs"', serialized)
+
+    def test_additional_geckolib_easings_are_baked(self):
+        cases = {
+            "easeOutQuad": ("0.5", 7.5),
+            "easeInSine": ("0.5", 10 * (1 - math.cos(math.pi / 4))),
+            "easeInCubic": ("0.5", 1.25),
+            "easeOutBounce": ("0.5", 4.6875),
+            "easeInElastic": (
+                "0.25",
+                10 * (1 - math.cos(math.pi / 8) ** 3 * math.cos(math.pi / 4)),
+            ),
+        }
+
+        for easing, (timestamp, expected) in cases.items():
+            with self.subTest(easing=easing):
+                converted = convert_geckolib_easing_keyframes({
+                    "0.0": [0, 0, 0],
+                    "1.0": {"vector": [0, 0, 10], "easing": easing},
+                })
+                self.assertAlmostEqual(converted[timestamp][2], expected)
+                self.assertEqual(converted["1.0"], [0, 0, 10])
+                serialized = json.dumps(converted)
+                self.assertNotIn('"vector"', serialized)
+                self.assertNotIn('"easing"', serialized)
+
+    def test_linear_easing_uses_bedrocks_native_interpolation(self):
+        self.assertEqual(
+            convert_geckolib_easing_keyframes({
+                "0.0": [0, 0, 0],
+                "1.0": {"vector": [0, 0, 10], "easing": "linear"},
+            }),
+            {
+                "0.0": [0, 0, 0],
+                "1.0": [0, 0, 10],
+            },
+        )
+
+    def test_animation_repairs_cover_bones_callbacks_metadata_and_empty_sections(self):
+        with tempfile.TemporaryDirectory() as temp:
+            rp = Path(temp) / "RP"
+            geometry_path = rp / "models" / "entity" / "integrity_phase3.geo.json"
+            animation_path = rp / "animations" / "integrity_phase3.animation.json"
+            easing_path = rp / "animations" / "integrity_phase2.animation.json"
+            empty_path = rp / "animations" / "chord_projectile.animation.json"
+
+            write_json(geometry_path, {
+                "format_version": "1.12.0",
+                "minecraft:geometry": [{
+                    "description": {"identifier": "geometry.Integrityphase3"},
+                    "bones": [
+                        {"name": "torso"},
+                        {"name": "middle tendrils", "parent": "torso"},
+                        {"name": "spine tendrils 2", "parent": "middle tendrils"},
+                        {"name": "spine_tendrils_2", "parent": "middle tendrils"},
+                    ],
+                }],
+            })
+            write_json(animation_path, {
+                "format_version": "1.10.0",
+                "animations": {
+                    "animation.thebrokenscript.integrity_phase3.attack": {
+                        "bones": {
+                            "middle tendrils": {"rotation": [0, 0, 0]},
+                            "spine tendrils 2": {"rotation": [1, 2, 3]},
+                            "spine_tendrils_2": {"rotation": [4, 5, 6]},
+                        },
+                        "timeline": {
+                            "0.5": "ballin;",
+                            "0.75": ["variable.flash = 1.0;", "aoesmall;"],
+                        },
+                    },
+                    "animation.thebrokenscript.integrity_phase3.empty": {
+                        "loop": True,
+                        "bones": {},
+                    },
+                },
+            })
+            write_json(easing_path, {
+                "format_version": "1.10.0",
+                "geckolib_format_version": 2,
+                "animations": {
+                    "animation.thebrokenscript.integrity_phase2.crawl_idle": {
+                        "bones": {
+                            "torso": {
+                                "rotation": {
+                                    "0.0": [0, 0, 0],
+                                    "1.0": {
+                                        "vector": [0, 10, 0],
+                                        "easing": "easeInBounce",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            })
+            write_json(empty_path, {"format_version": "1.10.0", "animations": {}})
+            original_geometry_text = geometry_path.read_text(encoding="utf-8")
+
+            self.assertEqual(repair_bone_identifiers(rp), 6)
+            self.assertEqual(repair_animations(rp), (3, 0, 0, 0))
+            self.assertEqual(
+                geometry_path.read_text(encoding="utf-8"),
+                original_geometry_text
+                .replace('"middle tendrils"', '"middle-tendrils"')
+                .replace('"spine tendrils 2"', '"spine-tendrils-2"'),
+            )
+
+            geometry = read_json(geometry_path)["minecraft:geometry"][0]["bones"]
+            self.assertEqual(
+                [(bone["name"], bone.get("parent")) for bone in geometry],
+                [
+                    ("torso", None),
+                    ("middle-tendrils", "torso"),
+                    ("spine-tendrils-2", "middle-tendrils"),
+                    ("spine_tendrils_2", "middle-tendrils"),
+                ],
+            )
+            repaired = read_json(animation_path)["animations"]
+            bones = repaired["animation.thebrokenscript.integrity_phase3.attack"]["bones"]
+            self.assertEqual(set(bones), {
+                "middle-tendrils", "spine-tendrils-2", "spine_tendrils_2",
+            })
+            self.assertEqual(
+                repaired["animation.thebrokenscript.integrity_phase3.attack"]["timeline"],
+                {"0.75": ["variable.flash = 1.0;"]},
+            )
+            self.assertNotIn(
+                "bones",
+                repaired["animation.thebrokenscript.integrity_phase3.empty"],
+            )
+            easing = read_json(easing_path)
+            self.assertNotIn("geckolib_format_version", easing)
+            easing_text = json.dumps(easing)
+            self.assertNotIn('"vector"', easing_text)
+            self.assertNotIn('"easing"', easing_text)
+            self.assertFalse(empty_path.exists())
+
+            first_pass_bytes = {
+                path: path.read_bytes()
+                for path in (geometry_path, animation_path, easing_path)
+            }
+            self.assertEqual(repair_bone_identifiers(rp), 0)
+            self.assertEqual(repair_animations(rp), (2, 0, 0, 0))
+            self.assertEqual(
+                {path: path.read_bytes() for path in first_pass_bytes},
+                first_pass_bytes,
+            )
+
+    def test_valid_animation_serialization_is_left_untouched(self):
+        with tempfile.TemporaryDirectory() as temp:
+            rp = Path(temp) / "RP"
+            path = rp / "animations" / "already_valid.animation.json"
+            path.parent.mkdir(parents=True)
+            original = (
+                '{"format_version":  "1.10.0", "animations":  '
+                '{"animation.test.id":  {"loop":  true}}}'
+            )
+            path.write_text(original, encoding="utf-8")
+
+            self.assertEqual(repair_animations(rp), (1, 0, 0, 0))
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
 
     def test_constant_easing_wrapper_has_no_interpolation_to_preserve(self):
         self.assertEqual(

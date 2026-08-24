@@ -46474,12 +46474,6 @@
             0
           ]
         }
-      },
-      "timeline": {
-        "1.01": "Step;",
-        "1.29": "Step;",
-        "1.6": "Step;",
-        "2.93": "Step;"
       }
     },
     "animation.thebrokenscript.fractured.pursuit": {
@@ -49640,11 +49634,6 @@
             0
           ]
         }
-      },
-      "timeline": {
-        "0.46": "Step;",
-        "0.6": "Step;",
-        "1.36": "Step;"
       }
     },
     "animation.thebrokenscript.fractured.loss": {
@@ -99071,18 +99060,6 @@
             0
           ]
         }
-      },
-      "timeline": {
-        "0.79": "Stomp;",
-        "1.08": "Stomp;",
-        "1.38": "Stomp;",
-        "1.91": "Stomp;",
-        "2.24": "Stomp;",
-        "2.51": "Stomp;",
-        "2.87": "Stomp;",
-        "3.13": "Stomp;",
-        "3.52": "Stomp;",
-        "3.96": "Stomp;"
       }
     },
     "animation.thebrokenscript.fractured.offensestompshockwave": {
@@ -101448,9 +101425,6 @@
             0
           ]
         }
-      },
-      "timeline": {
-        "0.68": "SingleStomp;"
       }
     },
     "animation.thebrokenscript.fractured.offenseslam": {
@@ -106962,9 +106936,6 @@
             0
           ]
         }
-      },
-      "timeline": {
-        "1.23": "Slam;"
       }
     },
     "animation.thebrokenscript.fractured.moonrocktoss": {
@@ -112959,10 +112930,6 @@
             ]
           }
         }
-      },
-      "timeline": {
-        "1.41": "OffenseRockGrab;",
-        "5.24": "OffenseRockThrow;"
       }
     },
     "animation.thebrokenscript.fractured.defenseairlift": {
@@ -116403,15 +116370,12 @@
             ]
           }
         }
-      },
-      "timeline": {
-        "2.27": "DefensiveRockRelease;"
       }
     },
     "animation.thebrokenscript.fractured.hidecommandblock": {
       "loop": true,
       "bones": {
-        "command block": {
+        "command-block": {
           "scale": [
             0,
             0,

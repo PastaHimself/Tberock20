@@ -108,7 +108,7 @@
             }
           }
         },
-        "Right Arm": {
+        "Right-Arm": {
           "rotation": {
             "0.0": {
               "post": [
@@ -160,7 +160,7 @@
             }
           }
         },
-        "Left Arm": {
+        "Left-Arm": {
           "rotation": {
             "0.0": {
               "post": [
@@ -212,7 +212,7 @@
             }
           }
         },
-        "Right Leg": {
+        "Right-Leg": {
           "rotation": {
             "0.0": {
               "post": [
@@ -264,7 +264,7 @@
             }
           }
         },
-        "Left Leg": {
+        "Left-Leg": {
           "rotation": {
             "0.0": {
               "post": [
@@ -435,7 +435,7 @@
             }
           }
         },
-        "tendril 1": {
+        "tendril-1": {
           "rotation": {
             "0.0": {
               "post": [
@@ -945,7 +945,7 @@
             }
           }
         },
-        "Right Arm": {
+        "Right-Arm": {
           "rotation": {
             "0.0": {
               "post": [
@@ -1013,7 +1013,7 @@
             }
           }
         },
-        "Left Arm": {
+        "Left-Arm": {
           "rotation": {
             "0.0": {
               "post": [
@@ -1089,7 +1089,7 @@
             }
           }
         },
-        "Right Leg": {
+        "Right-Leg": {
           "rotation": {
             "0.0": {
               "post": [
@@ -1157,7 +1157,7 @@
             }
           }
         },
-        "Left Leg": {
+        "Left-Leg": {
           "rotation": {
             "0.0": {
               "post": [
@@ -1367,7 +1367,7 @@
             }
           }
         },
-        "tendril 1": {
+        "tendril-1": {
           "rotation": {
             "0.0": {
               "post": [
@@ -2000,7 +2000,7 @@
             }
           }
         },
-        "Right Arm": {
+        "Right-Arm": {
           "rotation": {
             "0.0": {
               "post": [
@@ -2044,7 +2044,7 @@
             }
           }
         },
-        "Left Arm": {
+        "Left-Arm": {
           "rotation": {
             "0.0": {
               "post": [
@@ -2088,7 +2088,7 @@
             }
           }
         },
-        "Right Leg": {
+        "Right-Leg": {
           "rotation": {
             "0.3": {
               "pre": [
@@ -2129,7 +2129,7 @@
             }
           }
         },
-        "Left Leg": {
+        "Left-Leg": {
           "rotation": {
             "0.3": {
               "pre": [
@@ -2297,7 +2297,7 @@
             }
           }
         },
-        "tendril 1": {
+        "tendril-1": {
           "rotation": {
             "0.0": {
               "post": [

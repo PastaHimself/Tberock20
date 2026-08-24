@@ -786,9 +786,6 @@
             }
           }
         }
-      },
-      "timeline": {
-        "1.0533": "spread;"
       }
     },
     "animation.thebrokenscript.integrity_phase1.spread_point": {
@@ -1270,9 +1267,6 @@
             }
           }
         }
-      },
-      "timeline": {
-        "1.5067": "spread;"
       }
     },
     "animation.thebrokenscript.integrity_phase1.rise": {

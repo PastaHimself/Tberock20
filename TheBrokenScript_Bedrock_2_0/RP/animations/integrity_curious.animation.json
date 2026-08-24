@@ -3,8 +3,7 @@
   "animations": {
     "animation.Integrity_hallucination.idle": {
       "loop": true,
-      "animation_length": 1,
-      "bones": {}
+      "animation_length": 1
     }
   }
 }

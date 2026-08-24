@@ -6342,7 +6342,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "command block",
+                                                     "name":  "command-block",
                                                      "parent":  "torso",
                                                      "pivot":  [
                                                                    15.10833,

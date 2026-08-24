@@ -49,14 +49,11 @@
               ],
               "lerp_mode": "catmullrom"
             },
-            "0.5": {
-              "vector": [
-                1,
-                1,
-                1
-              ],
-              "easing": "linear"
-            }
+            "0.5": [
+              1,
+              1,
+              1
+            ]
           }
         }
       }

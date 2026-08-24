@@ -16,7 +16,7 @@
                                                    },
                                    "bones":  [
                                                  {
-                                                     "name":  "Max revive",
+                                                     "name":  "Max-revive",
                                                      "pivot":  [
                                                                    0,
                                                                    138.71044,
@@ -29,8 +29,8 @@
                                                                   ]
                                                  },
                                                  {
-                                                     "name":  "Pyramid 1",
-                                                     "parent":  "Max revive",
+                                                     "name":  "Pyramid-1",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    0,
                                                                    100.785,
@@ -38,8 +38,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)1",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-1-1",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    0,
                                                                    76.57689,
@@ -128,8 +128,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)1",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-2-1",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    0,
                                                                    76.57689,
@@ -218,8 +218,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)1",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-3-1",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    0,
                                                                    76.57689,
@@ -308,8 +308,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)10",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-1-10",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    32.78499,
                                                                    76.57689,
@@ -398,8 +398,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)10",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-2-10",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    32.78499,
                                                                    76.57689,
@@ -488,8 +488,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)10",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-3-10",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    32.78499,
                                                                    76.57689,
@@ -578,8 +578,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)12",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-1-12",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    0,
                                                                    76.57689,
@@ -668,8 +668,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)12",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-2-12",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    0,
                                                                    76.57689,
@@ -758,8 +758,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)12",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-3-12",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    0,
                                                                    76.57689,
@@ -848,8 +848,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)13",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-1-13",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    -32.78499,
                                                                    76.57689,
@@ -938,8 +938,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)13",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-2-13",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    -32.78499,
                                                                    76.57689,
@@ -1028,8 +1028,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)13",
-                                                     "parent":  "Pyramid 1",
+                                                     "name":  "Shape_-3-13",
+                                                     "parent":  "Pyramid-1",
                                                      "pivot":  [
                                                                    -32.78499,
                                                                    76.57689,
@@ -1119,7 +1119,7 @@
                                                  },
                                                  {
                                                      "name":  "Pyramid_2",
-                                                     "parent":  "Max revive",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    0,
                                                                    186.62936,
@@ -1127,7 +1127,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)42",
+                                                     "name":  "Shape_-1-42",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    0,
@@ -1217,7 +1217,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)42",
+                                                     "name":  "Shape_-2-42",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    0,
@@ -1307,7 +1307,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)42",
+                                                     "name":  "Shape_-3-42",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    0,
@@ -1397,7 +1397,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)43",
+                                                     "name":  "Shape_-1-43",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    32.78499,
@@ -1487,7 +1487,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)43",
+                                                     "name":  "Shape_-2-43",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    32.78499,
@@ -1577,7 +1577,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)43",
+                                                     "name":  "Shape_-3-43",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    32.78499,
@@ -1667,7 +1667,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)44",
+                                                     "name":  "Shape_-1-44",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    0,
@@ -1757,7 +1757,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)44",
+                                                     "name":  "Shape_-2-44",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    0,
@@ -1847,7 +1847,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)44",
+                                                     "name":  "Shape_-3-44",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    0,
@@ -1937,7 +1937,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)45",
+                                                     "name":  "Shape_-1-45",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -2027,7 +2027,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)45",
+                                                     "name":  "Shape_-2-45",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -2117,7 +2117,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)45",
+                                                     "name":  "Shape_-3-45",
                                                      "parent":  "Pyramid_2",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -2208,7 +2208,7 @@
                                                  },
                                                  {
                                                      "name":  "Pyramid_3",
-                                                     "parent":  "Max revive",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    0,
                                                                    146.4201,
@@ -2221,7 +2221,7 @@
                                                                   ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)46",
+                                                     "name":  "Shape_-1-46",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    0,
@@ -2311,7 +2311,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)46",
+                                                     "name":  "Shape_-2-46",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    0,
@@ -2401,7 +2401,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)46",
+                                                     "name":  "Shape_-3-46",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    0,
@@ -2491,7 +2491,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)47",
+                                                     "name":  "Shape_-1-47",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    32.78499,
@@ -2581,7 +2581,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)47",
+                                                     "name":  "Shape_-2-47",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    32.78499,
@@ -2671,7 +2671,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)47",
+                                                     "name":  "Shape_-3-47",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    32.78499,
@@ -2761,7 +2761,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)48",
+                                                     "name":  "Shape_-1-48",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    0,
@@ -2851,7 +2851,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)48",
+                                                     "name":  "Shape_-2-48",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    0,
@@ -2941,7 +2941,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)48",
+                                                     "name":  "Shape_-3-48",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    0,
@@ -3031,7 +3031,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)49",
+                                                     "name":  "Shape_-1-49",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -3121,7 +3121,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)49",
+                                                     "name":  "Shape_-2-49",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -3211,7 +3211,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)49",
+                                                     "name":  "Shape_-3-49",
                                                      "parent":  "Pyramid_3",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -3302,7 +3302,7 @@
                                                  },
                                                  {
                                                      "name":  "Pyramid_4",
-                                                     "parent":  "Max revive",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    0,
                                                                    146.4201,
@@ -3315,7 +3315,7 @@
                                                                   ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)50",
+                                                     "name":  "Shape_-1-50",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    0,
@@ -3405,7 +3405,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)50",
+                                                     "name":  "Shape_-2-50",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    0,
@@ -3495,7 +3495,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)50",
+                                                     "name":  "Shape_-3-50",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    0,
@@ -3585,7 +3585,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)51",
+                                                     "name":  "Shape_-1-51",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    32.78499,
@@ -3675,7 +3675,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)51",
+                                                     "name":  "Shape_-2-51",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    32.78499,
@@ -3765,7 +3765,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)51",
+                                                     "name":  "Shape_-3-51",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    32.78499,
@@ -3855,7 +3855,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)52",
+                                                     "name":  "Shape_-1-52",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    0,
@@ -3945,7 +3945,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)52",
+                                                     "name":  "Shape_-2-52",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    0,
@@ -4035,7 +4035,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)52",
+                                                     "name":  "Shape_-3-52",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    0,
@@ -4125,7 +4125,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)53",
+                                                     "name":  "Shape_-1-53",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -4215,7 +4215,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)53",
+                                                     "name":  "Shape_-2-53",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -4305,7 +4305,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)53",
+                                                     "name":  "Shape_-3-53",
                                                      "parent":  "Pyramid_4",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -4396,7 +4396,7 @@
                                                  },
                                                  {
                                                      "name":  "Pyramid_5",
-                                                     "parent":  "Max revive",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    46.5071,
                                                                    146.4201,
@@ -4409,7 +4409,7 @@
                                                                   ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)54",
+                                                     "name":  "Shape_-1-54",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    46.5071,
@@ -4499,7 +4499,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)54",
+                                                     "name":  "Shape_-2-54",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    46.5071,
@@ -4589,7 +4589,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)54",
+                                                     "name":  "Shape_-3-54",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    46.5071,
@@ -4679,7 +4679,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)55",
+                                                     "name":  "Shape_-1-55",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    79.29209,
@@ -4769,7 +4769,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)55",
+                                                     "name":  "Shape_-2-55",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    79.29209,
@@ -4859,7 +4859,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)55",
+                                                     "name":  "Shape_-3-55",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    79.29209,
@@ -4949,7 +4949,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)56",
+                                                     "name":  "Shape_-1-56",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    46.5071,
@@ -5039,7 +5039,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)56",
+                                                     "name":  "Shape_-2-56",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    46.5071,
@@ -5129,7 +5129,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)56",
+                                                     "name":  "Shape_-3-56",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    46.5071,
@@ -5219,7 +5219,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)57",
+                                                     "name":  "Shape_-1-57",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    13.72211,
@@ -5309,7 +5309,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)57",
+                                                     "name":  "Shape_-2-57",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    13.72211,
@@ -5399,7 +5399,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)57",
+                                                     "name":  "Shape_-3-57",
                                                      "parent":  "Pyramid_5",
                                                      "pivot":  [
                                                                    13.72211,
@@ -5490,7 +5490,7 @@
                                                  },
                                                  {
                                                      "name":  "Pyramid_6",
-                                                     "parent":  "Max revive",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    -46.5071,
                                                                    146.4201,
@@ -5503,7 +5503,7 @@
                                                                   ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)58",
+                                                     "name":  "Shape_-1-58",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -46.5071,
@@ -5593,7 +5593,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)58",
+                                                     "name":  "Shape_-2-58",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -46.5071,
@@ -5683,7 +5683,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)58",
+                                                     "name":  "Shape_-3-58",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -46.5071,
@@ -5773,7 +5773,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)59",
+                                                     "name":  "Shape_-1-59",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -79.29209,
@@ -5863,7 +5863,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)59",
+                                                     "name":  "Shape_-2-59",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -79.29209,
@@ -5953,7 +5953,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)59",
+                                                     "name":  "Shape_-3-59",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -79.29209,
@@ -6043,7 +6043,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)60",
+                                                     "name":  "Shape_-1-60",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -46.5071,
@@ -6133,7 +6133,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)60",
+                                                     "name":  "Shape_-2-60",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -46.5071,
@@ -6223,7 +6223,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)60",
+                                                     "name":  "Shape_-3-60",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -46.5071,
@@ -6313,7 +6313,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)61",
+                                                     "name":  "Shape_-1-61",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -13.72211,
@@ -6403,7 +6403,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)61",
+                                                     "name":  "Shape_-2-61",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -13.72211,
@@ -6493,7 +6493,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)61",
+                                                     "name":  "Shape_-3-61",
                                                      "parent":  "Pyramid_6",
                                                      "pivot":  [
                                                                    -13.72211,
@@ -6584,7 +6584,7 @@
                                                  },
                                                  {
                                                      "name":  "cube",
-                                                     "parent":  "Max revive",
+                                                     "parent":  "Max-revive",
                                                      "pivot":  [
                                                                    0,
                                                                    97.87831,

@@ -398,7 +398,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Right Arm",
+                                                     "name":  "Right-Arm",
                                                      "parent":  "Waist",
                                                      "pivot":  [
                                                                    -5,
@@ -652,7 +652,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Left Arm",
+                                                     "name":  "Left-Arm",
                                                      "parent":  "left_voidtendon",
                                                      "pivot":  [
                                                                    7,
@@ -882,7 +882,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "tendril 1",
+                                                     "name":  "tendril-1",
                                                      "parent":  "Waist",
                                                      "pivot":  [
                                                                    0,
@@ -972,7 +972,7 @@
                                                  },
                                                  {
                                                      "name":  "tendril_2",
-                                                     "parent":  "tendril 1",
+                                                     "parent":  "tendril-1",
                                                      "pivot":  [
                                                                    0,
                                                                    22.75,
@@ -1416,7 +1416,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Right Leg",
+                                                     "name":  "Right-Leg",
                                                      "parent":  "lure",
                                                      "pivot":  [
                                                                    -1.9,
@@ -1576,7 +1576,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Left Leg",
+                                                     "name":  "Left-Leg",
                                                      "parent":  "lure",
                                                      "pivot":  [
                                                                    1.9,

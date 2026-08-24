@@ -10,6 +10,9 @@ ADDON = ROOT / "TheBrokenScript_Bedrock_2_0"
 BP = ADDON / "BP"
 RP = ADDON / "RP"
 GEOMETRY_REFERENCE_RE = re.compile(r"^geometry\.[A-Za-z_][A-Za-z0-9_.]*$")
+ANIMATION_IDENTIFIER_RE = re.compile(r"^animation\.[A-Za-z0-9_.-]+$")
+BONE_IDENTIFIER_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]*$")
+JAVA_CUSTOM_INSTRUCTION_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*;$")
 
 
 def read_json(path: Path) -> Any:
@@ -48,6 +51,98 @@ def walk(value: Any) -> Iterable[Any]:
 
 
 class BedrockSchemaRegressionTests(unittest.TestCase):
+    def test_all_animation_documents_and_bones_are_bedrock_schema_safe(self):
+        geometry_bones = set()
+        geometry_issues = []
+        for path in sorted((RP / "models").rglob("*.json")):
+            for geometry_index, geometry in enumerate(
+                read_json(path).get("minecraft:geometry", []),
+            ):
+                if not isinstance(geometry, dict):
+                    continue
+                bones = [
+                    bone for bone in geometry.get("bones", [])
+                    if isinstance(bone, dict)
+                ]
+                names = [bone.get("name") for bone in bones]
+                if len(names) != len(set(names)):
+                    geometry_issues.append(
+                        f"{path.name}:geometry[{geometry_index}] has duplicate bones",
+                    )
+                local_names = set(names)
+                for bone in bones:
+                    name = bone.get("name")
+                    if not isinstance(name, str) or not BONE_IDENTIFIER_RE.fullmatch(name):
+                        geometry_issues.append(f"{path.name}: invalid bone {name!r}")
+                        continue
+                    geometry_bones.add(name)
+                    parent = bone.get("parent")
+                    if parent is not None and (
+                        not isinstance(parent, str)
+                        or not BONE_IDENTIFIER_RE.fullmatch(parent)
+                        or parent not in local_names
+                    ):
+                        geometry_issues.append(
+                            f"{path.name}: {name!r} has invalid parent {parent!r}",
+                        )
+
+        animation_issues = []
+        for path in sorted((RP / "animations").glob("*.json")):
+            document = read_json(path)
+            unexpected = set(document) - {"format_version", "animations"}
+            if unexpected:
+                animation_issues.append(
+                    f"{path.name}: unexpected top-level keys {sorted(unexpected)}",
+                )
+            animations = document.get("animations")
+            if not isinstance(animations, dict) or not animations:
+                animation_issues.append(f"{path.name}: empty or missing animations")
+                continue
+            for animation_name, animation in animations.items():
+                if not ANIMATION_IDENTIFIER_RE.fullmatch(animation_name):
+                    animation_issues.append(
+                        f"{path.name}: invalid animation ID {animation_name!r}",
+                    )
+                if not isinstance(animation, dict):
+                    continue
+                bones = animation.get("bones")
+                if bones == {}:
+                    animation_issues.append(f"{path.name}:{animation_name}: empty bones")
+                if isinstance(bones, dict):
+                    for bone_name in bones:
+                        if not BONE_IDENTIFIER_RE.fullmatch(bone_name):
+                            animation_issues.append(
+                                f"{path.name}:{animation_name}: invalid bone {bone_name!r}",
+                            )
+                        elif bone_name not in geometry_bones:
+                            animation_issues.append(
+                                f"{path.name}:{animation_name}: unresolved bone {bone_name!r}",
+                            )
+                timeline = animation.get("timeline")
+                if isinstance(timeline, dict):
+                    for payload in timeline.values():
+                        entries = payload if isinstance(payload, list) else [payload]
+                        for entry in entries:
+                            if (
+                                isinstance(entry, str)
+                                and JAVA_CUSTOM_INSTRUCTION_RE.fullmatch(entry.strip())
+                            ):
+                                animation_issues.append(
+                                    f"{path.name}:{animation_name}: Java callback {entry!r}",
+                                )
+
+            for value in walk(document):
+                if isinstance(value, dict):
+                    invalid_fields = {"vector", "easing", "easingArgs"} & set(value)
+                    if invalid_fields:
+                        animation_issues.append(
+                            f"{path.name}: GeckoLib fields {sorted(invalid_fields)}",
+                        )
+                        break
+
+        self.assertEqual(geometry_issues, [])
+        self.assertEqual(animation_issues, [])
+
     def test_server_biomes_use_1_21_110_or_newer(self):
         outdated = []
         for path in sorted((BP / "biomes").glob("*.json")):

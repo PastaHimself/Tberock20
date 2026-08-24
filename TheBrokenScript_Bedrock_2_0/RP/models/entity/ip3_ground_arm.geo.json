@@ -214,7 +214,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "middle tendrils",
+                                                     "name":  "middle-tendrils",
                                                      "parent":  "righthand",
                                                      "pivot":  [
                                                                    -4,
@@ -228,8 +228,8 @@
                                                                   ]
                                                  },
                                                  {
-                                                     "name":  "spine tendrils 3",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-tendrils-3",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -2.5,
                                                                    97.97481,
@@ -283,8 +283,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "spine tendrils 4",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-tendrils-4",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -2.5,
                                                                    97.97481,
@@ -338,8 +338,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "spine tendrils 2",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "spine-tendrils-2",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    4,
                                                                    111.47481,
@@ -384,7 +384,7 @@
                                                  },
                                                  {
                                                      "name":  "spine_tendrils_2",
-                                                     "parent":  "middle tendrils",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -4,
                                                                    118.47481,
@@ -438,8 +438,8 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "cross tendril",
-                                                     "parent":  "middle tendrils",
+                                                     "name":  "cross-tendril",
+                                                     "parent":  "middle-tendrils",
                                                      "pivot":  [
                                                                    -17,
                                                                    74.97481,

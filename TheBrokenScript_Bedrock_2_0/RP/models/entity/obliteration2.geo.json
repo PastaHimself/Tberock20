@@ -1361,7 +1361,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)1",
+                                                     "name":  "Shape_-1-1",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    0,
@@ -1451,7 +1451,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)1",
+                                                     "name":  "Shape_-2-1",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    0,
@@ -1541,7 +1541,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)1",
+                                                     "name":  "Shape_-3-1",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    0,
@@ -1631,7 +1631,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)10",
+                                                     "name":  "Shape_-1-10",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    32.78499,
@@ -1721,7 +1721,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)10",
+                                                     "name":  "Shape_-2-10",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    32.78499,
@@ -1811,7 +1811,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)10",
+                                                     "name":  "Shape_-3-10",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    32.78499,
@@ -1901,7 +1901,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)12",
+                                                     "name":  "Shape_-1-12",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    0,
@@ -1991,7 +1991,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)12",
+                                                     "name":  "Shape_-2-12",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    0,
@@ -2081,7 +2081,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)12",
+                                                     "name":  "Shape_-3-12",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    0,
@@ -2171,7 +2171,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(1)13",
+                                                     "name":  "Shape_-1-13",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -2261,7 +2261,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(2)13",
+                                                     "name":  "Shape_-2-13",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    -32.78499,
@@ -2351,7 +2351,7 @@
                                                                ]
                                                  },
                                                  {
-                                                     "name":  "Shape_(3)13",
+                                                     "name":  "Shape_-3-13",
                                                      "parent":  "Pyramid",
                                                      "pivot":  [
                                                                    -32.78499,

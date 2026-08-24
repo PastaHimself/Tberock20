@@ -19,6 +19,23 @@ from typing import Any, Iterable
 ADDON_NAME = "TheBrokenScript_Bedrock_2_0"
 CURRENT_CONTENT_VERSION = "1.26.40"
 CURRENT_ANIMATION_VERSION = "1.10.0"
+GECKOLIB_EASING_ANIMATIONS = {
+    "brokenendoverhaul.animation.json",
+    "desintegration.animation.json",
+    "hetzer.animation.json",
+    "integrity.animation.json",
+    "integrity_phase2.animation.json",
+    "integritywip.animation.json",
+    "nothing_watcher.animation.json",
+    "plush.animation.json",
+    "revuxor.animation.json",
+    "sub_anom_2.animation.json",
+    "tbe_overhaulv4.animation.json",
+    "tether.animation.json",
+    "void_tentacle.animation.json",
+}
+GECKOLIB_BAKE_FPS = 60
+GECKOLIB_MIN_EASING_SEGMENTS = 8
 UTF8_BOM = b"\xef\xbb\xbf"
 TEXTURE_REPLACEMENTS = (
     ("textures\\\\block\\\\", "textures/blocks/"),
@@ -35,6 +52,8 @@ GEOMETRY_IDENTIFIER_REPLACEMENTS = {
     "geometry.BOULDER - Converted": "geometry.tbs_boulder_converted",
     "geometry.Max revive": "geometry.tbs_max_revive",
 }
+BONE_IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]*$")
+JAVA_CUSTOM_INSTRUCTION_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*;$")
 
 
 def load_json(path: Path) -> Any:
@@ -386,12 +405,139 @@ def _keyframe_output(value: Any) -> Any:
 
 
 def _is_geckolib_wrapper(value: Any) -> bool:
-    return (
-        isinstance(value, dict)
-        and isinstance(value.get("vector"), list)
-        and isinstance(value.get("easing"), str)
-        and set(value).issubset({"vector", "easing"})
+    if not isinstance(value, dict) or not isinstance(value.get("easing"), str):
+        return False
+    if "easingArgs" in value and not isinstance(value["easingArgs"], list):
+        return False
+    if isinstance(value.get("vector"), list):
+        return set(value).issubset({"vector", "easing", "easingArgs"})
+    if isinstance(value.get("pre"), list) or isinstance(value.get("post"), list):
+        return set(value).issubset(
+            {"pre", "post", "lerp_mode", "easing", "easingArgs"},
+        )
+    return False
+
+
+def _geckolib_target(value: dict[str, Any]) -> list[Any]:
+    for field in ("vector", "pre", "post"):
+        target = value.get(field)
+        if isinstance(target, list):
+            return target
+    raise ValueError("GeckoLib easing keyframe has no vector, pre, or post value")
+
+
+def _bedrock_keyframe(value: dict[str, Any]) -> Any:
+    if "vector" in value:
+        return convert_geckolib_easing_keyframes(value["vector"])
+    return {
+        key: convert_geckolib_easing_keyframes(item)
+        for key, item in value.items()
+        if key not in {"easing", "easingArgs"}
+    }
+
+
+def _first_easing_arg(keyframe: dict[str, Any]) -> float | None:
+    args = keyframe.get("easingArgs", [])
+    if not isinstance(args, list):
+        raise ValueError("GeckoLib easingArgs must be an array")
+    if not args:
+        return None
+    value = args[0]
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError("GeckoLib easing conversion requires a numeric first easing argument")
+    return float(value)
+
+
+def _bounce(progress: float, bounciness: float | None) -> float:
+    value = 0.5 if bounciness is None else bounciness
+    curves = (
+        121 / 16 * progress * progress,
+        121 / 4 * value * (progress - 6 / 11) ** 2 + 1 - value,
+        121 * value * value * (progress - 9 / 11) ** 2 + 1 - value * value,
+        484 * value * value * value * (progress - 10.5 / 11) ** 2
+        + 1
+        - value * value * value,
     )
+    return min(curves)
+
+
+def _baked_sample_count(start_time: float, end_time: float) -> int:
+    return max(
+        GECKOLIB_MIN_EASING_SEGMENTS,
+        math.ceil((end_time - start_time) * GECKOLIB_BAKE_FPS),
+    )
+
+
+def _eased_progress(easing: str, progress: float, easing_arg: float | None) -> float:
+    if easing in {"linear", "none"}:
+        return progress
+    if easing == "easeinsine":
+        return 1 - math.cos(progress * math.pi / 2)
+    if easing == "easeinoutsine":
+        return (1 - math.cos(math.pi * progress)) / 2
+    if easing == "easeoutquad":
+        return 1 - (1 - progress) ** 2
+    if easing == "easeincubic":
+        return progress**3
+    if easing == "easeinelastic":
+        elasticity = 1 if easing_arg is None else easing_arg
+        return 1 - math.cos(progress * math.pi / 2) ** 3 * math.cos(
+            progress * elasticity * math.pi,
+        )
+    if easing == "easeinbounce":
+        return _bounce(progress, easing_arg)
+    if easing == "easeoutbounce":
+        return 1 - _bounce(1 - progress, easing_arg)
+    if easing == "easeinoutbounce":
+        return (
+            _bounce(progress * 2, easing_arg) / 2
+            if progress < 0.5
+            else 1 - _bounce((1 - progress) * 2, easing_arg) / 2
+        )
+    raise ValueError(f"Unsupported GeckoLib easing: {easing}")
+
+
+def _add_sampled_easing(
+    converted: dict[str, Any],
+    start_time: float,
+    end_time: float,
+    start: list[Any],
+    target: list[Any],
+    easing: str,
+    easing_arg: float | None,
+) -> None:
+    samples = (
+        GECKOLIB_MIN_EASING_SEGMENTS
+        if easing == "easeinoutsine"
+        else _baked_sample_count(start_time, end_time)
+    )
+    for sample in range(1, samples):
+        progress = sample / samples
+        eased = _eased_progress(easing, progress, easing_arg)
+        sample_time = start_time + (end_time - start_time) * progress
+        converted[_timestamp(sample_time)] = _lerp_vector(start, target, eased)
+
+
+def _add_step_easing(
+    converted: dict[str, Any],
+    start_time: float,
+    end_time: float,
+    start: list[Any],
+    target: list[Any],
+    easing_arg: float | None,
+) -> list[Any]:
+    raw_steps = 2 if easing_arg is None else easing_arg
+    if raw_steps < 2:
+        raise ValueError(f"GeckoLib step easing requires at least two steps, got {raw_steps}")
+    steps = int(raw_steps)
+    previous = start
+    for step in range(1, steps):
+        progress = step / steps
+        current = _lerp_vector(start, target, progress)
+        step_time = start_time + (end_time - start_time) * progress
+        converted[_timestamp(step_time)] = {"pre": previous, "post": current}
+        previous = current
+    return previous
 
 
 def _convert_eased_channel(channel: dict[str, Any]) -> dict[str, Any]:
@@ -409,37 +555,53 @@ def _convert_eased_channel(channel: dict[str, Any]) -> dict[str, Any]:
             previous_value = _keyframe_output(keyframe)
             continue
 
-        target = convert_geckolib_easing_keyframes(raw_keyframe["vector"])
-        easing = raw_keyframe["easing"]
+        target = convert_geckolib_easing_keyframes(_geckolib_target(raw_keyframe))
+        bedrock_keyframe = _bedrock_keyframe(raw_keyframe)
+        easing = raw_keyframe["easing"].lower()
+        easing_arg = _first_easing_arg(raw_keyframe)
         if previous_time is None or current_time <= previous_time:
-            converted[original_time] = target
+            converted[original_time] = bedrock_keyframe
         elif easing == "step":
-            # GeckoLib's default step easing has two steps: the prior pose, a
-            # half-way pose at 50%, then the target at the destination frame.
-            midpoint_time = previous_time + (current_time - previous_time) / 2
-            midpoint_value = _lerp_vector(previous_value, target, 0.5)
-            converted[_timestamp(midpoint_time)] = {
-                "pre": previous_value,
-                "post": midpoint_value,
-            }
-            converted[original_time] = {
-                "pre": midpoint_value,
-                "post": target,
-            }
-        elif easing == "easeInOutSine":
-            # Bedrock supports linear interpolation. Eight segments closely
-            # approximate GeckoLib's incoming sine easing while retaining the
-            # original endpoints and animation length.
-            for sample in range(1, 8):
-                progress = sample / 8
-                eased = (1 - math.cos(math.pi * progress)) / 2
-                sample_time = previous_time + (current_time - previous_time) * progress
-                converted[_timestamp(sample_time)] = _lerp_vector(
-                    previous_value,
-                    target,
-                    eased,
-                )
-            converted[original_time] = target
+            final_step = _add_step_easing(
+                converted,
+                previous_time,
+                current_time,
+                previous_value,
+                target,
+                easing_arg,
+            )
+            if isinstance(bedrock_keyframe, dict):
+                converted[original_time] = {
+                    **bedrock_keyframe,
+                    "pre": final_step,
+                }
+            else:
+                converted[original_time] = {
+                    "pre": final_step,
+                    "post": target,
+                }
+        elif easing in {"linear", "none"}:
+            converted[original_time] = bedrock_keyframe
+        elif easing in {
+            "easeinbounce",
+            "easeincubic",
+            "easeinelastic",
+            "easeinoutbounce",
+            "easeinoutsine",
+            "easeinsine",
+            "easeoutbounce",
+            "easeoutquad",
+        }:
+            _add_sampled_easing(
+                converted,
+                previous_time,
+                current_time,
+                previous_value,
+                target,
+                easing,
+                easing_arg,
+            )
+            converted[original_time] = bedrock_keyframe
         else:
             raise ValueError(f"Unsupported GeckoLib easing: {easing}")
 
@@ -458,7 +620,7 @@ def convert_geckolib_easing_keyframes(value: Any) -> Any:
     if _is_geckolib_wrapper(value):
         # A wrapper without a timestamp is a constant transform, so its easing
         # has no interval over which it could affect interpolation.
-        return convert_geckolib_easing_keyframes(value["vector"])
+        return _bedrock_keyframe(value)
 
     numeric_keys = bool(value)
     for key in value:
@@ -487,6 +649,109 @@ def repair_geometry_identifiers(rp: Path) -> int:
         if updated != original:
             path.write_text(updated, encoding="utf-8")
             changed += replacements
+    return changed
+
+
+def _sanitize_bone_identifier(value: str) -> str:
+    sanitized = re.sub(r"[^A-Za-z0-9_.-]+", "-", value).strip("-")
+    if not sanitized:
+        sanitized = "bone"
+    if not sanitized[0].isalpha():
+        sanitized = f"bone-{sanitized}"
+    return sanitized
+
+
+def repair_bone_identifiers(rp: Path) -> int:
+    """Rename schema-invalid bones and all local geometry/animation references."""
+    model_paths = list(json_files(rp / "models"))
+    animation_paths = list(json_files(rp / "animations"))
+    used_names: set[str] = set()
+    invalid_names: set[str] = set()
+
+    for path in model_paths:
+        value = load_json(path)
+        if not isinstance(value, dict):
+            continue
+        for geometry in value.get("minecraft:geometry", []):
+            if not isinstance(geometry, dict):
+                continue
+            for bone in geometry.get("bones", []):
+                if not isinstance(bone, dict):
+                    continue
+                name = bone.get("name")
+                if isinstance(name, str):
+                    used_names.add(name)
+                    if not BONE_IDENTIFIER_PATTERN.fullmatch(name):
+                        invalid_names.add(name)
+
+    for path in animation_paths:
+        value = load_json(path)
+        animations = value.get("animations") if isinstance(value, dict) else None
+        if not isinstance(animations, dict):
+            continue
+        for animation in animations.values():
+            bones = animation.get("bones") if isinstance(animation, dict) else None
+            if not isinstance(bones, dict):
+                continue
+            for name in bones:
+                if not isinstance(name, str):
+                    continue
+                used_names.add(name)
+                if not BONE_IDENTIFIER_PATTERN.fullmatch(name):
+                    invalid_names.add(name)
+
+    replacements: dict[str, str] = {}
+    for old_name in sorted(invalid_names):
+        base = _sanitize_bone_identifier(old_name)
+        candidate = base
+        suffix = 2
+        while candidate in used_names:
+            candidate = f"{base}-converted" if suffix == 2 else f"{base}-converted-{suffix}"
+            suffix += 1
+        replacements[old_name] = candidate
+        used_names.add(candidate)
+
+    changed = 0
+    for path in model_paths:
+        original = path.read_text(encoding="utf-8-sig")
+        updated = original
+        replacements_in_file = 0
+        for old_name, new_name in replacements.items():
+            quoted_old = re.escape(json.dumps(old_name, ensure_ascii=False))
+            quoted_new = json.dumps(new_name, ensure_ascii=False)
+            pattern = re.compile(rf'("(?:name|parent)"\s*:\s*){quoted_old}')
+            updated, count = pattern.subn(
+                lambda match: f"{match.group(1)}{quoted_new}",
+                updated,
+            )
+            replacements_in_file += count
+        if updated != original:
+            path.write_text(updated, encoding="utf-8")
+            changed += replacements_in_file
+
+    for path in animation_paths:
+        value = load_json(path)
+        animations = value.get("animations") if isinstance(value, dict) else None
+        repaired = False
+        if not isinstance(animations, dict):
+            continue
+        for animation in animations.values():
+            bones = animation.get("bones") if isinstance(animation, dict) else None
+            if not isinstance(bones, dict):
+                continue
+            renamed: dict[str, Any] = {}
+            for old_name, channels in bones.items():
+                new_name = replacements.get(old_name, old_name)
+                if new_name in renamed:
+                    raise ValueError(f"Bone rename collision in {path}: {old_name} -> {new_name}")
+                renamed[new_name] = channels
+                if new_name != old_name:
+                    changed += 1
+                    repaired = True
+            if repaired:
+                animation["bones"] = renamed
+        if repaired:
+            write_json(path, value)
     return changed
 
 
@@ -520,17 +785,58 @@ def collect_geometry_bones(rp: Path) -> set[str]:
     return names
 
 
+def remove_java_custom_instruction_timeline(animation: dict[str, Any]) -> int:
+    timeline = animation.get("timeline")
+    if not isinstance(timeline, dict):
+        return 0
+    repaired: dict[str, Any] = {}
+    removed = 0
+    for timestamp, payload in timeline.items():
+        if isinstance(payload, str):
+            if JAVA_CUSTOM_INSTRUCTION_PATTERN.fullmatch(payload.strip()):
+                removed += 1
+            else:
+                repaired[timestamp] = payload
+            continue
+        if isinstance(payload, list):
+            filtered = [
+                entry for entry in payload
+                if not (
+                    isinstance(entry, str)
+                    and JAVA_CUSTOM_INSTRUCTION_PATTERN.fullmatch(entry.strip())
+                )
+            ]
+            removed += len(payload) - len(filtered)
+            if filtered:
+                repaired[timestamp] = filtered
+            continue
+        repaired[timestamp] = payload
+    if repaired:
+        animation["timeline"] = repaired
+    else:
+        animation.pop("timeline", None)
+    return removed
+
+
 def repair_animations(rp: Path) -> tuple[int, int, int, int]:
     bones_in_project = collect_geometry_bones(rp)
     files = renamed = removed_bones = extended = 0
     for path in json_files(rp / "animations"):
-        value = load_json(path)
-        if path.name == "revuxor.animation.json":
-            value = convert_geckolib_easing_keyframes(value)
+        original_value = load_json(path)
+        value = original_value
+        if path.name in GECKOLIB_EASING_ANIMATIONS:
+            value = collapse_vector_wrappers(
+                convert_geckolib_easing_keyframes(value),
+            )
         else:
             value = collapse_vector_wrappers(value)
         if not isinstance(value, dict) or not isinstance(value.get("animations"), dict):
             continue
+        if not value["animations"]:
+            path.unlink()
+            files += 1
+            continue
+        value.pop("geckolib_format_version", None)
         value["format_version"] = CURRENT_ANIMATION_VERSION
         base = animation_slug(path.name.replace(".animation.json", "").replace(".json", ""))
         fixed_animations: dict[str, Any] = {}
@@ -546,6 +852,11 @@ def repair_animations(rp: Path) -> tuple[int, int, int, int]:
                 candidate = f"{new_name}_{suffix}"
                 suffix += 1
             new_name = candidate
+
+            if isinstance(animation, dict):
+                remove_java_custom_instruction_timeline(animation)
+                if animation.get("bones") == {}:
+                    animation.pop("bones")
 
             if isinstance(animation, dict) and isinstance(animation.get("bones"), dict):
                 animation_bones = animation["bones"]
@@ -564,9 +875,12 @@ def repair_animations(rp: Path) -> tuple[int, int, int, int]:
                 if isinstance(length, (int, float)) and maximum_time > float(length):
                     animation["animation_length"] = maximum_time
                     extended += 1
+                if not animation_bones:
+                    animation.pop("bones")
             fixed_animations[new_name] = animation
         value["animations"] = fixed_animations
-        write_json(path, value)
+        if value != original_value:
+            write_json(path, value)
         files += 1
     return files, renamed, removed_bones, extended
 
@@ -755,6 +1069,7 @@ def main() -> int:
     unused_audio = prune_unreferenced_audio(rp)
     ensure_render_controller(rp)
     geometry_identifiers = repair_geometry_identifiers(rp)
+    bone_identifiers = repair_bone_identifiers(rp)
     animation_files, animation_names, animation_bones, animation_lengths = repair_animations(rp)
     attack_files = cap_attack_damage(bp)
     client_biomes = migrate_client_biomes(rp)
@@ -777,6 +1092,7 @@ def main() -> int:
     print(f"Removed missing sound entries/definitions: {sound_entries}/{sound_definitions}")
     print(f"Removed unreferenced audio files: {unused_audio}")
     print(f"Repaired geometry identifiers and references: {geometry_identifiers}")
+    print(f"Repaired bone identifiers and references: {bone_identifiers}")
     print(
         "Repaired animations "
         f"(files/names/missing bones/lengths): {animation_files}/{animation_names}/{animation_bones}/{animation_lengths}"

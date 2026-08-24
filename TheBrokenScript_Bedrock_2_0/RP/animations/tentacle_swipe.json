@@ -4324,7 +4324,7 @@
             }
           }
         },
-        "middle tendrils": {
+        "middle-tendrils": {
           "rotation": {
             "0.0": {
               "post": [
@@ -4644,7 +4644,7 @@
             }
           }
         },
-        "spine tendrils 3": {
+        "spine-tendrils-3": {
           "rotation": {
             "0.0": {
               "post": [
@@ -4684,7 +4684,7 @@
             }
           }
         },
-        "cross tendril": {
+        "cross-tendril": {
           "rotation": {
             "0.0": {
               "post": [
@@ -5548,7 +5548,7 @@
             }
           }
         },
-        "spine eyes": {
+        "spine-eyes": {
           "rotation": {
             "0.0": {
               "post": [
@@ -5612,7 +5612,7 @@
             }
           }
         },
-        "spine tendrils 4": {
+        "spine-tendrils-4": {
           "rotation": {
             "0.0": {
               "post": [
@@ -5644,7 +5644,7 @@
             }
           }
         },
-        "spine tendrils 2": {
+        "spine-tendrils-2": {
           "rotation": {
             "0.0": {
               "post": [
