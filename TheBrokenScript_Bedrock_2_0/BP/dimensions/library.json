@@ -5,11 +5,13 @@
       "identifier": "thebrokenscript:library"
     },
     "components": {
-      "minecraft:dimension": {
-        "height_range": { "min": 0, "max": 384 }
+      "minecraft:dimension_bounds": {
+        "min": 0,
+        "max": 384
       },
-      "minecraft:void_fluid": {},
-      "minecraft:ambient_light": 0.25
+      "minecraft:generation": {
+        "generator_type": "void"
+      }
     }
   }
 }
