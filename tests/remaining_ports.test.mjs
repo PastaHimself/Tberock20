@@ -65,9 +65,16 @@ test("resource manifest enables Vibrant Visuals and all four VHS severity subpac
 
 test("behavior manifest declares the stable server UI module used by the Polaroid", async () => {
   const manifest = await readJsonOrNull(path.join(bpRoot, "manifest.json"));
+  const packageMetadata = await readJsonOrNull(path.join(repoRoot, "package.json"));
   assert.ok(manifest, "behavior manifest must exist");
+  assert.ok(packageMetadata, "package metadata must exist");
   const dependency = manifest.dependencies?.find((entry) => entry.module_name === "@minecraft/server-ui");
   assert.equal(dependency?.version, "2.1.0");
+  assert.equal(
+    packageMetadata.devDependencies?.["@minecraft/server-ui"],
+    "2.3.0-beta.1.26.50-preview.26",
+    "CI typings must accept the pinned @minecraft/server 2.11 preview",
+  );
 });
 
 test("functional Java-source item ports are connected to Script API v2 components", async () => {

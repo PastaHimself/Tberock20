@@ -19,7 +19,7 @@ Version-sensitive claims were re-verified against official Microsoft Learn / Min
 | Custom items | Item cooldowns render correctly from 1.26.10; `minecraft:block_placer.aligned_placement` supported (format ≥1.26.0); empty `liquid_detection` arrays fail load. | 1.26.10 update notes |
 | Script item components | Custom Component V2 attaches a namespaced component directly beside native item components. `ItemCustomComponent.onUse` and `onUseOn` are registered through the startup item-component registry; `ItemComponentUseOnEvent` exposes `source`, inherited `block`, and inherited `blockFace`. | ItemCustomComponent; ItemComponentUseOnEvent; Introducing Custom Components |
 | Raycast/damage | `Entity.getEntitiesFromViewDirection` accepts `EntityRaycastOptions.maxDistance` and `ignoreBlockCollision`; returned entities can receive `applyDamage`. | Entity; EntityRaycastOptions |
-| Forms | `@minecraft/server-ui` stable `2.1.0` provides `ActionFormData` and is declared as a separate manifest module dependency. | `@minecraft/server-ui` module; ActionFormData |
+| Forms | `@minecraft/server-ui` stable `2.1.0` provides `ActionFormData` and is declared as a separate manifest module dependency. CI uses the matching `2.3.0-beta.1.26.50-preview.26` declaration package because its peer range accepts the pinned `@minecraft/server` preview. | `@minecraft/server-ui` module; ActionFormData |
 | Game mode/inventory | Script API 2.x `GameMode` constants are title-cased (`GameMode.Creative`, `GameMode.Spectator`). `Player.selectedSlotIndex`, inventory `Container.getItem/setItem`, and mutable `ItemStack.amount` support a consumable placement item outside Creative mode. | GameMode; Player; Container; ItemStack |
 | Particles | Custom particles are resource-pack `particle_effect` documents. Instant emitters, finite particle lifetime, billboard appearance, and namespaced spawning are supported. | Particle Effects; particle document/component references |
 | Blocks experimental | Voxel shapes (culling) behind experimental toggle; block entity events via `onEntity` handler (beta lineage) — not required for Chunk 03; re-check when blocks chunk starts. | 1.26.10 update notes (Experimental) |
@@ -29,7 +29,7 @@ Version-sensitive claims were re-verified against official Microsoft Learn / Min
 
 1. **Manifest**: format 2, BP (`data` + JavaScript) and RP (`resources`). Effective minimum engine `[1, 26, 50]`.
 2. **Scripts**: shipping BP dependency is `@minecraft/server` `2.11.0-beta`; local/CI type checking pins `2.11.0-beta.1.26.50-preview.26`. Worlds must enable Beta APIs.
-3. **Forms**: `@minecraft/server-ui` is pinned to stable `2.1.0` in both the BP manifest and package metadata.
+3. **Forms**: the BP manifest stays on stable `@minecraft/server-ui` `2.1.0`. Development typings are pinned to `2.3.0-beta.1.26.50-preview.26`; stable npm typings reject the preview `@minecraft/server` peer even though the in-game UI API used here is stable.
 4. **Custom dimensions**: retained on the chosen beta path. Do not remove them merely to eliminate the experiment.
 5. **Camera horror effects**: the previously verified camera APIs remain available; Chunk 20 adds no new camera dependency.
 6. **No community-doc reliance**: Script API, item, form, GameMode, and particle decisions were cross-checked against Microsoft Learn. JSON UI structure was additionally audited against vanilla UI definitions and the repository's strict UI checker.
