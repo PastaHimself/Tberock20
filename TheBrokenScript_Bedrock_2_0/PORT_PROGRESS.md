@@ -1,17 +1,17 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-23 (Chunk 19 — PORT COMPLETE)
+Last updated: 2026-08-25 (Chunk 20 — remaining parity ports)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
 - Source form: **bytecode-only** (.class ×1982) + complete original resources — **NOW FULLY DECOMPILED** (1029 main + 815 brokencore .java under workspace `decompiled*/`)
 - Extracted at: `C:\Users\mg4392\Downloads\tbs 2.0\source_extracted` (6765 files; `sites/rblog/file.bin` reassembled)
 - Mod metadata: modId `thebrokenscript` v2.0.0; MC `[1.21.1,)`; NeoForge `[21.1.227,)`; deps: brokencore 0.1.0, extensibleenums; license All Rights Reserved
-- Target: Minecraft Bedrock **1.26.10+**, manifest format 2, `@minecraft/server` **2.6.0**
+- Target: Minecraft Bedrock **1.26.50+**, manifest format 2, `@minecraft/server` **2.11.0-beta**, `@minecraft/server-ui` **2.1.0**
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**PORT COMPLETE**
+**Chunk 20 complete — remaining safe Java-source ports and VHS UI integrated**
 
 
 
@@ -43,8 +43,12 @@ Last updated: 2026-08-23 (Chunk 19 — PORT COMPLETE)
 | 17 Full parity audit vs 912-entry inventory | **completed** (category-level ledger in CHUNK_17_REPORT.md: every entry maps to shipped artifact / ledgered approx / explicit deferral / engine-N/A; totals — 1:1 ported: 68 entities, 123 blocks, 40 recipes, 143 sound defs, 76 items, 15 biomes, 12 dims, 5 advancements) |
 | 18 Final validation | **completed** (tools/final_validation.ps1 — 68/68 entity pairing, entity/terrain/item texture resolution, per-scope id uniqueness, item lang keys 76/76, geometry refs 29; found+fixed plural texture paths ×15, gradient + vein_center pointers) |
 | 19 Packaging .mcaddon | **completed** (dist/TheBrokenScript_2_0_Bedrock.mcaddon — 145,789,490 bytes, 1400 entries, forward-slash separators verified, key-file spot check PASS; packager rewritten off Compress-Archive due to backslash-entry bug) |
+| 20 Remaining parity ports | **completed** (functional hand cannon/polaroid/portal linker/desyncer; 4×2 circuit-cave painting surrogate; heart-corruption + why-cant-you-leave effects with source eyes particle; supplied VHS JSON UI + four subpacks + Vibrant Visuals; regression tests and strict UI audit) |
 
 Blocked: none.
+
+## Files created (Chunk 20)
+`BP/scripts/systems/ported_features.js` · `BP/scripts/systems/ported_feature_logic.js` · functional item definitions for desyncer and circuit-cave painting · `BP/entities/circuit_cave_painting.json` · complete RP painting entity/geometry/render/texture chain · `RP/particles/eyes.particle.json` + source eyes texture · VHS `ui/`, `textures/ui/vhs/`, four subpacks, and Vibrant Visuals settings · `tests/remaining_ports.test.mjs` · `docs/chunks/CHUNK_20_REPORT.md`
 
 ## Files created (Chunk 18)
 tools/final_validation.ps1 · texture-path fixes (terrain_texture ×15, item_texture ×2, gradient/vein_center repoints) · docs/chunks/CHUNK_18_REPORT.md
@@ -124,14 +128,18 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 19: .mcaddon packaged + archive verified; Chunk 18: final validation sweep PASSED — texture resolution/id uniqueness/lang/geometry refs, 3 path-bug classes fixed; Chunk 17: parity ledger complete — every entry mapped; Chunk 16: perf/mp audit — PASS; Chunk 15: integration audit PASSED; Chunk 14: presentation geoms — PASS; Chunks 13→02 all PASS).
+See VALIDATION_LOG.md (Chunk 20: 10 JavaScript regressions PASS, all touched JSON parses, all touched scripts pass `node --check`, strict JSON UI audit 0/0, source image dimensions verified; prior Chunks 19→02 remain PASS).
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
 - Fences/trapdoors/panes/doors remain full-cube visuals; flora share one cross geometry (slab/stairs/wall now real geometries).
 - Animated block textures static in Bedrock.
-- Functional items (polaroid/hand_cannon/portal_linker/desyncer) are interaction stubs — Chunk 12/13 wiring covers detection/feedback only.
+- Hand cannon ownership/administrative-override enforcement is intentionally not copied: the Java implementation hard-codes one UUID and deletes the item from everyone else. Bedrock has no equivalent Java data component or portable owner UUID.
+- Hand cannon's Java `invulnerableTime = 0` write is not exposed by Bedrock; 100-block targeting, spectator exclusion, sound, and 25 damage are preserved.
+- Polaroid uses a Bedrock action form with the source image and world code; Java's arbitrary 15° framebuffer rotation is not available to server forms.
+- Desyncer's deferred network-packet replay is engine-unsupported; a stateful audiovisual/resync surrogate ships instead (A-010).
+- Circuit Cave is a decorative entity surrogate rather than a registered vanilla painting variant (A-005).
 - Arena story triggers: reachable via /scriptevent tbs:arena + boss summon; story-side choreography in horror_events pool.
 - Dimension teleports wired; per-dimension fog/sky styling deferred.
 - Advancements approximated via progression.js; FunnySetting easter-egg variants pending config pass.
@@ -141,10 +149,10 @@ See VALIDATION_LOG.md (Chunk 19: .mcaddon packaged + archive verified; Chunk 18:
 - Minecraft (Bedrock) install for runtime tests, if available.
 
 ## Experimental requirements so far
-- **Beta APIs now required**: BP manifest depends on `@minecraft/server` version `beta` (project decision, 2026-08-23). Worlds must enable the "Beta APIs" experiment. This supersedes the earlier plan of isolating beta usage to the custom-dimension module; stable floor remains documented at 1.26.30 as fallback.
+- **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**PORT COMPLETE** — all 20 chunks (00–19) finished. Remaining follow-ups live in KNOWN_LIMITATIONS.md and the deferred-tooling ledger (NBT→mcstructure converter, xcsf arena import, per-event day-schedule fidelity).
+**PORT COMPLETE THROUGH CHUNK 20.** Remaining work is limited to real-device runtime testing and the explicit engine/deferred items in KNOWN_LIMITATIONS.md (exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity).
 
 ## Exact source references to inspect next
-- None. Optional future passes: runtime device testing, plushie block forms + skin-fit (Chunk 14 residue), NBT conversion tooling.
+- Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.

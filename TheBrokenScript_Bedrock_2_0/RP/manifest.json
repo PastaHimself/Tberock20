@@ -14,6 +14,31 @@
       "version": [2, 0, 0]
     }
   ],
+  "capabilities": [
+    "pbr"
+  ],
+  "subpacks": [
+    {
+      "folder_name": "clean_tape",
+      "name": "Clean Tape",
+      "memory_tier": 1
+    },
+    {
+      "folder_name": "damaged_lp",
+      "name": "Damaged LP",
+      "memory_tier": 1
+    },
+    {
+      "folder_name": "severe_tracking",
+      "name": "Severe Tracking",
+      "memory_tier": 1
+    },
+    {
+      "folder_name": "worn_sp",
+      "name": "Worn SP",
+      "memory_tier": 1
+    }
+  ],
   "metadata": {
     "authors": ["Writers of the Script (original mod)", "The Broken Script Bedrock port project"],
     "license": "All Rights Reserved"

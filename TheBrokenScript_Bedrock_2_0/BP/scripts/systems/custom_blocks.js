@@ -2,6 +2,7 @@ import { world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import * as worldgenStructures from "./worldgen_structures.js";
 import { logger } from "../core/logging.js";
+import { teleportLinkedPortal } from "./ported_features.js";
 
 // â”€â”€ Chunk 08: custom block components (beta blockComponentRegistry) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -72,8 +73,10 @@ export function init(blockComponentRegistry) {
 
   register("thebrokenscript:be_portal_controller", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§5PORTAL CONTROLLER", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 0 }); } catch {}
-      // portal activation: send player to clan_void at the null_book coords height
+      if (!ev.player) return;
+      if (heldItemTypeId(ev.player) === "thebrokenscript:portal_linker") return;
+      if (teleportLinkedPortal(ev.player, ev.block)) return;
+      try { ev.player.onScreenDisplay.setTitle("§5PORTAL CONTROLLER", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 0 }); } catch {}
       const loc = { x: ev.player.location.x, y: 201, z: ev.player.location.z };
       dimensions.teleportTo(ev.player, "clan_void", loc);
       tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:portal_linker", 3, 1);
@@ -150,6 +153,14 @@ function jimStage(block) {
 
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+function heldItemTypeId(player) {
+  try {
+    const inventory = player.getComponent("minecraft:inventory")?.container;
+    return inventory?.getItem(player.selectedSlotIndex)?.typeId;
+  } catch {
+    return undefined;
+  }
 }
 function tryPlayNear(dim, loc, sound, vol, pitch) {
   try { dim.playSound(sound, loc, { volume: vol, pitch }); } catch {}

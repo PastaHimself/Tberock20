@@ -1,7 +1,7 @@
 # BEDROCK_COMPATIBILITY.md
 
-Target: **Minecraft Bedrock 1.26.10+** (minimum engine `1.26.10`).
-All version-sensitive claims below were verified against official Microsoft Learn / Minecraft Creator documentation via the Microsoft Learn MCP on 2026-08-22 during Chunk 00. Re-verify before each chunk that consumes them.
+Effective target: **Minecraft Bedrock 1.26.50+**. The BP minimum engine is `[1, 26, 50]`; the paired RP retains `[1, 26, 10]`, so the behavior pack sets the effective add-on floor.
+Version-sensitive claims were re-verified against official Microsoft Learn / Minecraft Creator documentation on 2026-08-25 for Chunk 20.
 
 ## Verified platform facts (with sources)
 
@@ -17,20 +17,38 @@ All version-sensitive claims below were verified against official Microsoft Lear
 | Entity JSON validation | Stricter entity/AI JSON validation at 1.26.10 — invalid AI goal data must be treated as build/load failure. | prompt baseline + 1.26.10 notes |
 | Removed components | Legacy `minecraft:pushable` removed for new content; split pushability components are current. Exact replacement component names to be confirmed against the current entity-components reference in Chunk 04 before first entity file is written. | prompt baseline; entity components reference |
 | Custom items | Item cooldowns render correctly from 1.26.10; `minecraft:block_placer.aligned_placement` supported (format ≥1.26.0); empty `liquid_detection` arrays fail load. | 1.26.10 update notes |
+| Script item components | Custom Component V2 attaches a namespaced component directly beside native item components. `ItemCustomComponent.onUse` and `onUseOn` are registered through the startup item-component registry; `ItemComponentUseOnEvent` exposes `source`, inherited `block`, and inherited `blockFace`. | ItemCustomComponent; ItemComponentUseOnEvent; Introducing Custom Components |
+| Raycast/damage | `Entity.getEntitiesFromViewDirection` accepts `EntityRaycastOptions.maxDistance` and `ignoreBlockCollision`; returned entities can receive `applyDamage`. | Entity; EntityRaycastOptions |
+| Forms | `@minecraft/server-ui` stable `2.1.0` provides `ActionFormData` and is declared as a separate manifest module dependency. | `@minecraft/server-ui` module; ActionFormData |
+| Game mode/inventory | Script API 2.x `GameMode` constants are title-cased (`GameMode.Creative`, `GameMode.Spectator`). `Player.selectedSlotIndex`, inventory `Container.getItem/setItem`, and mutable `ItemStack.amount` support a consumable placement item outside Creative mode. | GameMode; Player; Container; ItemStack |
+| Particles | Custom particles are resource-pack `particle_effect` documents. Instant emitters, finite particle lifetime, billboard appearance, and namespaced spawning are supported. | Particle Effects; particle document/component references |
 | Blocks experimental | Voxel shapes (culling) behind experimental toggle; block entity events via `onEntity` handler (beta lineage) — not required for Chunk 03; re-check when blocks chunk starts. | 1.26.10 update notes (Experimental) |
 | N-1 rule | Prefer depending on the highest stable minor available within the chosen major; do not chase preview versions. | Latest Platform Version Guidance |
 
 ## Decisions locked by verification
 
-1. **Manifest**: format 2, BP(`data`)+script module, RP(`resources`). Min engine `[1, 26, 10]`.
-2. **Scripts**: `@minecraft/server` `2.6.0` dependency exactly (stable floor of target engine). No `-beta` deps except the isolated custom-dimension module if Chunk 10 selects the beta path.
-3. **Custom dimensions**: two candidate paths recorded above; final selection + required world experiments documented here and in ADAPTATION_NOTES when Chunk 10 runs. Dimensions must NOT be dropped to avoid the experiment.
-4. **Camera horror effects**: use stable v2.6.0 camera splines/attach APIs (confirmed out of experimental at 1.26.10).
-5. **No community-doc reliance**: all schemas cross-checked against learn.microsoft.com Creator references.
+1. **Manifest**: format 2, BP (`data` + JavaScript) and RP (`resources`). Effective minimum engine `[1, 26, 50]`.
+2. **Scripts**: shipping BP dependency is `@minecraft/server` `2.11.0-beta`; local/CI type checking pins `2.11.0-beta.1.26.50-preview.26`. Worlds must enable Beta APIs.
+3. **Forms**: `@minecraft/server-ui` is pinned to stable `2.1.0` in both the BP manifest and package metadata.
+4. **Custom dimensions**: retained on the chosen beta path. Do not remove them merely to eliminate the experiment.
+5. **Camera horror effects**: the previously verified camera APIs remain available; Chunk 20 adds no new camera dependency.
+6. **No community-doc reliance**: Script API, item, form, GameMode, and particle decisions were cross-checked against Microsoft Learn. JSON UI structure was additionally audited against vanilla UI definitions and the repository's strict UI checker.
 
 ## Documentation changes since the porting prompt was written
 
 | Prompt claim | Current documented state | Impact |
 |---|---|---|
 | Custom dimensions are experimental requiring Beta APIs | Still true at 1.26.10, but **stable since 1.26.30** (`@minecraft/server` 2.8.0) | Chunk 10 may raise effective min-engine to 1.26.30 OR isolate beta dep; record player-facing consequence |
-| `@minecraft/server` v2.6.0 is newest relevant stable | Newer stables exist: 2.7.0, 2.8.0, 2.9.0 (later game drops) | We still pin 2.6.0 for the declared 1.26.10 minimum unless a subsystem (dimensions) forces a higher floor |
+| `@minecraft/server` v2.6.0 is newest relevant stable | Newer stable and beta lines exist; this repository now targets the 1.26.50 beta surface | The BP uses `2.11.0-beta` and CI pins the matching preview typings; Beta APIs are a shipping requirement |
+
+## Chunk 20 official references
+
+- [ItemCustomComponent](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/itemcustomcomponent?view=minecraft-bedrock-stable)
+- [ItemComponentUseOnEvent](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/itemcomponentuseonevent?view=minecraft-bedrock-stable)
+- [Entity](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable)
+- [EntityRaycastOptions](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entityraycastoptions?view=minecraft-bedrock-stable)
+- [ActionFormData](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-ui/actionformdata?view=minecraft-bedrock-stable)
+- [`@minecraft/server-ui`](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-ui/minecraft-server-ui?view=minecraft-bedrock-stable)
+- [GameMode](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/gamemode?view=minecraft-bedrock-stable)
+- [ItemStack](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/itemstack?view=minecraft-bedrock-stable)
+- [Particle Effects](https://learn.microsoft.com/en-us/minecraft/creator/documents/particleeffects?view=minecraft-bedrock-stable)

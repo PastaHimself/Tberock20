@@ -51,15 +51,15 @@
       "asset_family": "particle_definitions_java",
       "source_paths": ["assets/thebrokenscript/particles/*.json"],
       "count": 9,
-      "disposition": "TRANSLATE schema differences into Bedrock particle JSON during Chunk 03",
-      "status": "conversion_planned_chunk03"
+      "disposition": "TRANSLATE schema differences into Bedrock particle JSON. Chunk 20 ports eyes with its original texture; the other definitions remain individually deferred until a gameplay caller needs them.",
+      "status": "partial_port_chunk20"
     },
     {
       "asset_family": "gui_and_screen_textures",
       "source_paths": ["assets/thebrokenscript/textures/gui/**","assets/thebrokenscript/textures/screens/**"],
       "count": 183,
       "subfolders": ["bossbar(8)","menu(64)","menu/backgrounds(63 by entity theme)","playercorruption(15)","very_serious(7)"],
-      "disposition": "Reuse where Bedrock UI equivalent exists (bossbars, forms via images are limited -> document)",
+      "disposition": "Reuse where a Bedrock UI equivalent exists. Chunk 20 uses the source Polaroid screen in an ActionFormData flow; arbitrary Java screen transforms remain limited.",
       "status": "partial_support"
     },
     {
@@ -88,8 +88,16 @@
       "asset_family": "embedded_nostalgia_packs",
       "source_paths": ["nostalgia/**","nostalgia_gen/**"],
       "count": 2,
-      "disposition": "Ship as separate optional RP inside mcaddon or document; contains vanilla sound/model overrides",
-      "status": "decision_chunk03"
+      "disposition": "Keep optional/deferred; broad vanilla sound/model overrides can conflict with the main RP and the later multipart upload does not expose a complete outer archive.",
+      "status": "deferred_incomplete_source"
+    },
+    {
+      "asset_family": "supplied_vhs_bedrock_pack",
+      "source_paths": ["VHS_filter_2.1(1).mcpack"],
+      "count": 1,
+      "includes": "JSON UI HUD overlay, 11 base UI textures, four eight-texture severity subpacks, atmosphere/color-grading/lighting/shadow settings",
+      "disposition": "MERGED into the main RP in Chunk 20 after replacing the invalid cross-namespace HUD modification with $additional_screen_content and lowering UI layers to the audited range.",
+      "status": "ported_chunk20"
     },
     {
       "asset_family": "misc_binary",

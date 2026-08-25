@@ -3,6 +3,7 @@ import * as worldState from "./world_state.js";
 import * as dimensions from "./dimensions.js";
 import * as progression from "./progression.js";
 import { logger } from "../core/logging.js";
+import { applyWhyCantYouLeave } from "./ported_features.js";
 
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
 // 95 event classes in source (81 TBSEvents + 14 others). OS-level events
@@ -51,7 +52,7 @@ const H = {
   fake_disconnect(p) { title(p, "§cDisconnected", 50, "§7End of stream"); },
   close_menu(p) { title(p, " ", 5); },
   keep_playing(p) { title(p, "§fkeep playing.", 40); },
-  why_cant_you_leave(p) { title(p, "§fwhy can't you leave?", 50); },
+  why_cant_you_leave(p) { applyWhyCantYouLeave(p, 1000); },
   rejoin(p) { title(p, "§frejoined the game", 30); },
   isolation(p) { title(p, "§8you are alone.", 60); },
   collinlock(p) { title(p, "§7collinlock_ joined", 30); },

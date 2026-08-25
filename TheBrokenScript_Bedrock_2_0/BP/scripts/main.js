@@ -31,10 +31,12 @@ import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 import * as horrorEvents from "./systems/horror_events.js";
 import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
+import * as portedFeatures from "./systems/ported_features.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
 function onStartup(event) {
     initCustomBlocks(event.blockComponentRegistry);
+    portedFeatures.init(event.itemComponentRegistry);
     logger.info("startup: early-execution hook registered (script modules active)");
 }
 
@@ -63,6 +65,7 @@ function onWorldLoad() {
     horrorEvents.begin(scheduler);
     progression.begin(scheduler);
     commands.begin();
+    portedFeatures.begin(scheduler);
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",

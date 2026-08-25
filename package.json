@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@minecraft/server": "2.11.0-beta.1.26.50-preview.26",
+    "@minecraft/server-ui": "2.1.0",
     "typescript": "^5.9.3"
   }
 }

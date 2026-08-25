@@ -4,11 +4,13 @@ import * as dimensions from "./dimensions.js";
 import * as worldgenStructures from "./worldgen_structures.js";
 import * as progression from "./progression.js";
 import { logger } from "../core/logging.js";
+import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js";
 
 // ── Chunk 13: command surface (scriptevent) + chat responses ────────────────
 // Usage: /scriptevent tbs:help   |   /scriptevent tbs:fire <event_id>
 //        /scriptevent tbs:arena start|stop   |   /scriptevent tbs:shaft
 //        /scriptevent tbs:dim <dimId>   |   /scriptevent tbs:adv <advId>
+//        /scriptevent tbs:effect heart_corruption|why_cant_you_leave [seconds]
 
 const CHAT_RESPONSES = {
   null: "<null> i see you.",
@@ -65,7 +67,8 @@ function handleCommand(ev) {
         "§7/scriptevent tbs:arena <start|stop>",
         "§7/scriptevent tbs:shaft",
         "§7/scriptevent tbs:dim <dimension>",
-        "§7/scriptevent tbs:adv <advancement>"
+        "§7/scriptevent tbs:adv <advancement>",
+        "§7/scriptevent tbs:effect <effect> [seconds]"
       ].join("\n"));
       break;
     case "fire": {
@@ -98,6 +101,19 @@ function handleCommand(ev) {
     case "adv": {
       const ok = progression.award(player.id, parts[0]);
       reply(ev, ok ? "§8awarded" : "§calready awarded / unknown");
+      break;
+    }
+    case "effect": {
+      const ticks = Math.max(1, Math.floor(Number(parts[1] ?? 10) * 20));
+      if (parts[0] === "heart_corruption") {
+        applyHeartCorruption(player, ticks);
+        reply(ev, "§dERR.HEALTH");
+      } else if (parts[0] === "why_cant_you_leave") {
+        applyWhyCantYouLeave(player, ticks);
+        reply(ev, "§8eyes in the dark");
+      } else {
+        reply(ev, "§ceffects: heart_corruption, why_cant_you_leave");
+      }
       break;
     }
     default:

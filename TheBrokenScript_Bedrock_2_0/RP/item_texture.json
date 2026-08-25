@@ -27,6 +27,11 @@
         "textures/items/circuit_bread"
       ]
     },
+    "circuit_cave_painting": {
+      "textures": [
+        "textures/entity/circuit_cave"
+      ]
+    },
     "corrupt_ebridger_cod": {
       "textures": [
         "textures/items/corrupt_ebridger_cod"

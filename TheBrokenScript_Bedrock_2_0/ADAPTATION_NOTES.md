@@ -13,19 +13,19 @@ Every entry documents an engine-driven adaptation (prompt §35). Seed set from C
 8. **Parity class**: `VALIDATED_APPROXIMATION` target.
 
 ## A-002 — Custom mob effects (`heart_corruption`, `why_cant_you_leave`)
-1–3. **Feature/behavior/evidence**: TBSEffects registry; ERR.HEALTH HUD corruption effect; leave-prevention effect.
+1–3. **Feature/behavior/evidence**: `HeartCorruptionMobEffect` is harmful/magenta and applies a `MAX_HEALTH -1` attribute modifier. `WhyCantYouLeaveMobEffect` is neutral/black and substitutes the custom `eyes` particle; its event duration is 1000 ticks.
 4. **Limitation**: No custom status-effect registry.
-5. **Docs checked**: `@minecraft/server` Effect APIs (vanilla effects only).
-6. **Design**: Script-driven emulation: timers on player state + HUD via titles/actionbar + health manipulation for heart_corruption.
-7. **Difference**: Icon-only potion HUD absent.
+5. **Docs checked**: `@minecraft/server` entity effect, dynamic-property, damage, title, and particle APIs.
+6. **Design**: Chunk 20 added persisted finite tick deadlines, `ERR.HEALTH` title/action-bar pressure, one point of magic damage on application, the source eyes texture as `thebrokenscript:eyes`, and direct wiring from the 1000-tick horror event. `/scriptevent tbs:effect` exposes both effects for testing.
+7. **Difference**: No custom potion icon or per-player max-health attribute modifier. The health effect uses damage/HUD pressure; the eyes particle preserves the source's seven-tick, stationary, full-bright visual intent.
 8. **Parity**: `VALIDATED_APPROXIMATION`.
 
 ## A-003 — Post-processing shader suite (VHS, aberration, invert, dream, fever, glitch, sky)
 1–3. **Feature/behavior/evidence**: 89 GLSL files under `shaders/**`; client mixins hooking GameRenderer/LevelRenderer/FogRenderer; `/fx` toggles.
 4. **Limitation**: Bedrock has no Java core/post GLSL pipeline for add-ons.
 5. **Docs checked**: Creator VFX/fog/camera references; 1.26.10 camera API notes (stable splines).
-6. **Design**: Approximation layer: fog color/density control, camera shake/splines, particle fields, title/actionbar overlays, texture-swap flicker via render controllers where visible-equivalent exists. Per-effect mapping decided in Chunk 14.
-7. **Difference**: Exact pixel post-processing unreproducible; mood-level equivalents only.
+6. **Design**: Chunk 20 merges the supplied VHS resource pack into the main RP: vanilla-safe `$additional_screen_content` HUD injection, animated grain/chroma/tracking/dropout/head-switch layers, scanlines/vignette/OSD, four selectable tape-severity subpacks, plus supplied Vibrant Visuals atmosphere/color-grading/lighting/shadow settings. Existing camera, fog, particle, title, and render-controller approximations remain for the other Java shaders.
+7. **Difference**: The VHS layer is UI/Vibrant-Visuals driven, not a framebuffer shader; exact chromatic sampling and the other Java post chains remain unreproducible.
 8. **Parity**: `ENGINE_UNSUPPORTED` for exact pipeline; `VALIDATED_APPROXIMATION` for visible results where achievable.
 
 ## A-004 — OS/desktop integration
@@ -37,7 +37,11 @@ Every entry documents an engine-driven adaptation (prompt §35). Seed set from C
 8. **Parity**: exact = `ENGINE_UNSUPPORTED`; surrogate = `VALIDATED_APPROXIMATION`.
 
 ## A-005 — Painting variant `circuit_cave`
-**Limitation**: no custom painting variants → surrogate (item-frame entity with custom texture or decorative block). Parity: approximation.
+1–3. **Feature/evidence**: source painting data declares a 4×2 `thebrokenscript:circuit_cave` variant backed by `textures/painting/circuit_cave.png` (128×64).
+4. **Limitation**: Bedrock add-ons cannot register a Java painting variant.
+5–6. **Design**: Chunk 20 adds a 4×2, wall-oriented decorative entity, client geometry/render controller, original texture, and placement item. Placement supports all four horizontal faces and consumes one item outside Creative mode.
+7. **Difference**: It is a custom entity rather than a vanilla painting, so vanilla painting cycling and native painting drop behavior do not apply.
+8. **Parity**: `VALIDATED_APPROXIMATION`.
 
 ## A-006 — Advancements (5)
 **Limitation**: no custom advancement definitions → tracked progression flags + toast-style title/sound presentation. Trigger logic preserved in scripts. Parity: approximation.
@@ -47,6 +51,12 @@ Every entry documents an engine-driven adaptation (prompt §35). Seed set from C
 
 ## A-008 — Story-clock daylight gate
 Source `StoryEvents.tick()` advances the persisted story counter only when `playerCount>0` **and** gamerule `doDaylight` is enabled. Bedrock stable API (v2.6.0) exposes no gamerule query without commands workarounds; port gates on players-online only. Difference: story time also advances while daylight cycling is disabled (rare server setups). Parity: `VALIDATED_HIGH_PARITY`.
+
+## A-009 — Java custom font
+The Java font provider and glyph image do not map directly to Bedrock's glyph-page resources. Until every codepoint and page offset is verified, the pack uses standard Bedrock glyphs with obfuscation/color formatting. Shipping an unverified glyph page could replace unrelated vanilla characters globally. Parity: exact = `DEFERRED_UNSAFE`; styled text = `VALIDATED_APPROXIMATION`.
+
+## A-010 — Packet desynchronization
+`PlayerDesyncManager` toggles a Java player flag and resends deferred packets through a server-connection mixin on resync. Bedrock Script API exposes neither packet interception nor deferred packet replay. Chunk 20 makes the item functional with per-player state, nausea/darkness, glitch presentation, and a same-position/rotation teleport on resync. Parity: packet behavior = `ENGINE_UNSUPPORTED`; gameplay beat = `VALIDATED_APPROXIMATION`.
 
 ## Pending-analysis adaptations (bytecode required)
 - Spawn-condition predicates (24 classes) → spawn director fidelity depends on decompiled constants/timings.
