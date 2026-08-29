@@ -13,9 +13,12 @@ const MCT_EXIT_CODES = new Map([
   ['testFail', 4],
   ['internalProcessingError', 5],
 ]);
-// MCT 0.17.7 does not yet recognize the official per-biome resource-pack layout:
-// https://learn.microsoft.com/minecraft/creator/reference/content/clientbiomesreference/examples/clientbiomesoverview
+// MCT 0.17.7 does not yet recognize some current Bedrock content locations/formats
+// documented by Mojang. Keep these patterns intentionally narrow and back them with
+// our own dedicated validators so unrelated findings remain blocking.
 const CLIENT_BIOME_PATH = /^\/resource_packs\/rp\/biomes_client\/[a-z0-9._-]+\.biome_client\.json$/;
+const JIGSAW_STRUCTURE_JSON_PATH = /^\/behavior_packs\/bp\/worldgen\/structures\/[a-z0-9._/-]+\.json$/;
+const JAVA_STRUCTURE_NBT_PATH = /\/behavior_packs\/bp\/structures\/[a-z0-9._/-]+\.nbt$/;
 
 
 function serializedFinding(item) {
@@ -44,10 +47,35 @@ function isOfficialClientBiomeUnknownJsonError(item) {
 }
 
 
+function isOfficialJigsawStructureUnknownJsonError(item) {
+  return item.type === 'error'
+    && item.generatorId === 'UNKJSON'
+    && item.message === 'Unknown JSON file found'
+    && typeof item.path === 'string'
+    && JIGSAW_STRUCTURE_JSON_PATH.test(item.path);
+}
+
+
+function isOfficialJavaStructureNbtIntegrityError(item) {
+  return item.type === 'error'
+    && item.generatorId === 'PRJINT'
+    && item.message === 'Project contains extraneous file or folder'
+    && typeof item.data === 'string'
+    && JAVA_STRUCTURE_NBT_PATH.test(item.data);
+}
+
+
 function isMatchingUnknownJsonAggregateFailure(item, errorCount) {
   return item.type === 'testFail'
     && item.generatorId === 'UNKJSON'
     && item.message === `Found ${errorCount} errors in Unknown JSON check`;
+}
+
+
+function isMatchingProjectIntegrityAggregateFailure(item, errorCount) {
+  return item.type === 'testFail'
+    && item.generatorId === 'PRJINT'
+    && item.message === `Found ${errorCount} errors in Project Integrity check`;
 }
 
 
@@ -70,8 +98,17 @@ export function classifyMctFindings(report) {
   const unknownJsonErrors = rawBlockers.filter(
     (item) => item.type === 'error' && item.generatorId === 'UNKJSON',
   );
-  const onlyOfficialClientBiomeUnknownJsonErrors = unknownJsonErrors.length > 0
-    && unknownJsonErrors.every(isOfficialClientBiomeUnknownJsonError);
+  const onlyRecognizedOfficialUnknownJsonErrors = unknownJsonErrors.length > 0
+    && unknownJsonErrors.every(
+      (item) => isOfficialClientBiomeUnknownJsonError(item)
+        || isOfficialJigsawStructureUnknownJsonError(item),
+    );
+
+  const projectIntegrityErrors = rawBlockers.filter(
+    (item) => item.type === 'error' && item.generatorId === 'PRJINT',
+  );
+  const onlyOfficialJavaStructureNbtIntegrityErrors = projectIntegrityErrors.length > 0
+    && projectIntegrityErrors.every(isOfficialJavaStructureNbtIntegrityError);
 
   const blockers = [];
   const ignored = [];
@@ -79,6 +116,8 @@ export function classifyMctFindings(report) {
     const text = serializedFinding(item);
     const ignore = isSelfComparisonScriptModuleError(item)
       || isOfficialClientBiomeUnknownJsonError(item)
+      || isOfficialJigsawStructureUnknownJsonError(item)
+      || isOfficialJavaStructureNbtIntegrityError(item)
       || (
         item.type === 'testFail'
         && text.includes('Script Modules check')
@@ -86,7 +125,11 @@ export function classifyMctFindings(report) {
       )
       || (
         isMatchingUnknownJsonAggregateFailure(item, unknownJsonErrors.length)
-        && onlyOfficialClientBiomeUnknownJsonErrors
+        && onlyRecognizedOfficialUnknownJsonErrors
+      )
+      || (
+        isMatchingProjectIntegrityAggregateFailure(item, projectIntegrityErrors.length)
+        && onlyOfficialJavaStructureNbtIntegrityErrors
       );
     (ignore ? ignored : blockers).push(item);
   }
@@ -119,8 +162,9 @@ export function validateMctReport(report, status = 0) {
   result.blockers.forEach(printFinding);
   if (result.ignored.length > 0) {
     console.warn(
-      'Ignored only exact Mojang Creator Tools false positives for Script Module self-comparisons '
-        + 'and official resource-pack biomes_client files.',
+      'Ignored only exact Mojang Creator Tools false positives for Script Module self-comparisons, '
+        + 'official resource-pack biomes_client files, current Jigsaw structure JSON files, '
+        + 'and Java NBT structure templates under behavior-pack structures/.',
     );
   }
   if (result.blockers.length > 0) {

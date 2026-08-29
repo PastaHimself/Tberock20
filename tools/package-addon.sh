@@ -14,6 +14,10 @@ mkdir -p "$STAGE_DIR/bp" "$STAGE_DIR/rp" "$MCADDON_DIR"
 cp -a "$ADDON_ROOT/BP/." "$STAGE_DIR/bp/"
 cp -a "$ADDON_ROOT/RP/." "$STAGE_DIR/rp/"
 
+# Current Bedrock Jigsaw accepts Structure Templates stored as .nbt or .mcstructure.
+# Keep the source-identical Shaft Java NBT templates and their Jigsaw definitions in
+# the packaged behavior pack instead of rewriting or stripping authoritative source.
+
 # Normalize generated/legacy source artifacts in the package copy only.
 find "$STAGE_DIR" -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
 if [[ -f "$STAGE_DIR/rp/sound_definitions.json" ]]; then

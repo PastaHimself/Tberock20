@@ -1,10 +1,9 @@
 import { world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
-import * as worldgenStructures from "./worldgen_structures.js";
 import { logger } from "../core/logging.js";
 import { teleportLinkedPortal } from "./ported_features.js";
 
-// â”€â”€ Chunk 08: custom block components (beta blockComponentRegistry) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
 // shadow_bug, exit, all_dead (flesh), a_flower, jim_trigger_1-4
 // plus physical_stacktrace / disruption behaviors from prior ledgers.
@@ -25,7 +24,7 @@ export function init(blockComponentRegistry) {
     registered.push(name);
   }
 
-  // physical_stacktrace â€” placed by TBE stalk; shows a glitch beat when placed/stepped near
+  // physical_stacktrace — placed by TBE stalk; shows a glitch beat when placed/stepped near
   register("thebrokenscript:physical_stacktrace", {
     onPlace(ev) {
       const { block } = ev;
@@ -33,7 +32,7 @@ export function init(blockComponentRegistry) {
         if (p.dimension.id !== block.dimension.id) continue;
         if (distance(p.location, block.location) > 24) continue;
         try {
-          p.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆÂ§r at java.lang.Thread.getStackTrace", {
+          p.onScreenDisplay.setTitle("§k██§r at java.lang.Thread.getStackTrace", {
             fadeInDuration: 0, stayDuration: 30, fadeOutDuration: 10
           });
         } catch {}
@@ -44,7 +43,7 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  // disruption â€” random glitch pulses while placed
+  // disruption — random glitch pulses while placed
   register("thebrokenscript:disruption", {
     onRandomTick(ev) {
       const { block } = ev;
@@ -61,12 +60,12 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  // command / command_block_giver â€” interact prints corrupted command feedback
+  // command / command_block_giver — interact prints corrupted command feedback
   register("thebrokenscript:be_command", {
     onPlayerInteract(ev) {
       const lines = ["/give @s minecraft:knowledge", "/tp @s into_the_void", "/ban @a[distance=..64]"];
       const line = lines[Math.floor(Math.random() * lines.length)];
-      try { ev.player.onScreenDisplay.setTitle(`Â§7${line}`, { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle(`§7${line}`, { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
       tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:glitch_sound_1", 2, 0.8);
     }
   });
@@ -85,24 +84,16 @@ export function init(blockComponentRegistry) {
 
   register("thebrokenscript:be_portal_extender", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§5EXTENDER LINKED", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("§5EXTENDER LINKED", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
     }
   });
 
-  register("thebrokenscript:be_null_structure", {
-    onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§8NULL_STRUCTURE", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
-      // Chunk 11: interact builds the bedrock Shaft nearby (structure/shaft/*.nbt approx)
-      const built = worldgenStructures.buildShaft(ev.block.dimension, {
-        x: ev.block.location.x + 24,
-        y: ev.block.location.y,
-        z: ev.block.location.z + 24
-      });
-      if (built) {
-        try { ev.player.sendMessage("Â§8the ground splits open..."); } catch {}
-      }
-    }
-  });
+  // Java parity: NullStructureBlock is a passive, invisible marker. Its block entity
+  // stores a structureId plus once-per-player/world trigger state; event handlers query
+  // nearby markers and perform the requested action. It has no use/interact behavior.
+  // Keep the custom component registered because block JSONs reference it, but do not
+  // synthesize a click-to-place structure action here.
+  register("thebrokenscript:be_null_structure", {});
 
   register("thebrokenscript:be_shadow_bug", {
     onRandomTick(ev) {
@@ -118,14 +109,14 @@ export function init(blockComponentRegistry) {
 
   register("thebrokenscript:be_exit", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("Â§aEXIT?", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("§aEXIT?", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
     }
   });
 
   register("thebrokenscript:be_a_flower", {
     onPlayerInteract(ev) {
       try { ev.player.playSound("chime.amethyst_block"); } catch {}
-      try { ev.player.onScreenDisplay.setTitle("Â§d...", { fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("§d...", { fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 0 }); } catch {}
     }
   });
 
@@ -154,6 +145,7 @@ function jimStage(block) {
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 }
+
 function heldItemTypeId(player) {
   try {
     const inventory = player.getComponent("minecraft:inventory")?.container;
@@ -162,6 +154,7 @@ function heldItemTypeId(player) {
     return undefined;
   }
 }
+
 function tryPlayNear(dim, loc, sound, vol, pitch) {
   try { dim.playSound(sound, loc, { volume: vol, pitch }); } catch {}
 }
