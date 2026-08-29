@@ -4,6 +4,7 @@
     "description": {
       "identifier": "thebrokenscript:hallway"
     },
+    "fallback": "minecraft:empty",
     "elements": [
       {
         "element": {
@@ -33,14 +34,6 @@
         "element": {
           "element_type": "minecraft:single_pool_element",
           "location": "thebrokenscript:shaft/shaft_room_hall",
-          "projection": "rigid"
-        },
-        "weight": 1
-      },
-      {
-        "element": {
-          "element_type": "minecraft:single_pool_element",
-          "location": "thebrokenscript:shaft/shaft_room",
           "projection": "rigid"
         },
         "weight": 1
