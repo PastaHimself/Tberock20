@@ -1,0 +1,25 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:template_pool": {
+    "description": {
+      "identifier": "thebrokenscript:shaft_room"
+    },
+    "fallback": "minecraft:empty",
+    "elements": [
+      {
+        "element": {
+          "element_type": "minecraft:single_pool_element",
+          "location": "thebrokenscript:shaft/shaft_room",
+          "projection": "rigid"
+        },
+        "weight": 1
+      },
+      {
+        "element": {
+          "element_type": "minecraft:empty_pool_element"
+        },
+        "weight": 1
+      }
+    ]
+  }
+}
