@@ -11,6 +11,7 @@ import {
   PHASE2_SOURCE,
   PHASE3_SOURCE,
   STAGE2_GENERATOR_SOURCE,
+  STAGE2_UTIL_SOURCE,
   STAGE2_FLOORS,
   arenaCheckLivingPlayers,
   nextIntegrityPhase,
@@ -29,6 +30,12 @@ import {
   stage2GeneratorFloor3Structure,
   stage2GeneratorFloor4Structure,
   stage2GeneratorRegion,
+  stage2CenterOfExistingGeneration,
+  stage2FindSafeSpawnY,
+  stage2IsSpecialSpawnBand,
+  stage2IsValidFloor,
+  stage2SpawnAttemptCoordinates,
+  stage2SpawnCellChunksFromPlayerBlock,
   stage2SpawnFloorFromY,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
 
@@ -243,6 +250,149 @@ test("Stage 2 generator audit records every source template and its NBT shape", 
     && template.hasLoot === false
     && template.hasDataMarker === false
   )));
+});
+
+test("Stage2Util uses 10x10 chunk cells and the exact generation center", () => {
+  assert.deepEqual(STAGE2_UTIL_SOURCE, {
+    cellSizeChunks: 10,
+    cellSizeBlocks: 160,
+    centerOffsetBlocks: 88,
+    centerY: 253,
+    centerChunkOffset: 5,
+    defaultMaxAttempts: 40,
+    defaultScanDepth: 4,
+    candidateAboveOffset: 1,
+    specialSpawnYMinInclusive: 160,
+    specialSpawnYMaxExclusive: 201,
+    specialBlockXOffset: 5,
+    integrityTetherExclusionRadius: 50,
+  });
+  assert.deepEqual(stage2CenterOfExistingGeneration({ x: 0, z: 0 }), { x: 88, y: 253, z: 88 });
+  assert.deepEqual(stage2CenterOfExistingGeneration({ x: 159, z: 159 }), { x: 88, y: 253, z: 88 });
+  assert.deepEqual(stage2CenterOfExistingGeneration({ x: 160, z: 160 }), { x: 248, y: 253, z: 248 });
+  assert.deepEqual(stage2CenterOfExistingGeneration({ x: -1, z: -1 }), { x: -72, y: 253, z: -72 });
+  assert.deepEqual(stage2SpawnCellChunksFromPlayerBlock({ x: 159, z: 159 }), {
+    cellChunk: { x: 0, z: 0 },
+    centerChunk: { x: 5, z: 5 },
+  });
+  assert.deepEqual(stage2SpawnCellChunksFromPlayerBlock({ x: 160, z: 160 }), {
+    cellChunk: { x: 10, z: 10 },
+    centerChunk: { x: 15, z: 15 },
+  });
+});
+
+test("Stage2Util preserves special-band chunk selection and minimum-distance rejection", () => {
+  assert.equal(stage2IsSpecialSpawnBand(159), false);
+  assert.equal(stage2IsSpecialSpawnBand(160), true);
+  assert.equal(stage2IsSpecialSpawnBand(200), true);
+  assert.equal(stage2IsSpecialSpawnBand(201), false);
+
+  const normalTether = stage2SpawnAttemptCoordinates({
+    cellChunk: { x: 0, z: 0 },
+    centerChunk: { x: 5, z: 5 },
+    spawnY: 104,
+    minBlockDistance: 48,
+    isTether: true,
+    randomChunkXOffset: 2,
+    randomChunkZOffset: 3,
+    randomBlockXOffset: 11,
+    randomBlockZOffset: 7,
+  });
+  assert.deepEqual(normalTether, { chunkX: 2, chunkZ: 3, blockX: 43, blockZ: 55 });
+
+  const specialTether = stage2SpawnAttemptCoordinates({
+    cellChunk: { x: 0, z: 0 },
+    centerChunk: { x: 5, z: 5 },
+    spawnY: 200,
+    minBlockDistance: 0,
+    isTether: true,
+    randomChunkXOffset: 2,
+    randomChunkZOffset: 3,
+    randomBlockXOffset: 11,
+    randomBlockZOffset: 7,
+  });
+  assert.deepEqual(specialTether, { chunkX: 5, chunkZ: 3, blockX: 85, blockZ: 55 });
+
+  const nonTether = stage2SpawnAttemptCoordinates({
+    cellChunk: { x: 0, z: 0 },
+    centerChunk: { x: 5, z: 5 },
+    spawnY: 104,
+    minBlockDistance: 0,
+    isTether: false,
+    randomChunkXOffset: 2,
+    randomChunkZOffset: 3,
+    randomBlockXOffset: 11,
+    randomBlockZOffset: 7,
+  });
+  assert.deepEqual(nonTether, { chunkX: 5, chunkZ: 3, blockX: 91, blockZ: 55 });
+
+  assert.equal(stage2SpawnAttemptCoordinates({
+    cellChunk: { x: 0, z: 0 },
+    centerChunk: { x: 5, z: 5 },
+    spawnY: 163,
+    minBlockDistance: 48,
+    isTether: true,
+    randomChunkXOffset: 5,
+    randomChunkZOffset: 5,
+    randomBlockXOffset: 0,
+    randomBlockZOffset: 0,
+  }), null);
+});
+
+test("Stage2Util floor validation and bounded scan return the block above a safe floor", () => {
+  assert.equal(stage2IsValidFloor({
+    isAir: false,
+    canBeReplaced: false,
+    canStandOnUp: true,
+    isBarrier: false,
+    isMud: false,
+  }), true);
+  assert.equal(stage2IsValidFloor({
+    isAir: false,
+    canBeReplaced: false,
+    canStandOnUp: false,
+    isBarrier: true,
+    isMud: false,
+  }), true);
+  assert.equal(stage2IsValidFloor({
+    isAir: false,
+    canBeReplaced: false,
+    canStandOnUp: false,
+    isBarrier: false,
+    isMud: true,
+  }), true);
+  assert.equal(stage2IsValidFloor({
+    isAir: true,
+    canBeReplaced: false,
+    canStandOnUp: true,
+    isBarrier: false,
+    isMud: false,
+  }), false);
+  assert.equal(stage2IsValidFloor({
+    isAir: false,
+    canBeReplaced: true,
+    canStandOnUp: true,
+    isBarrier: false,
+    isMud: false,
+  }), false);
+
+  assert.equal(stage2FindSafeSpawnY({
+    spawnY: 163,
+    isValidFloor: (y) => y === 161,
+    areAboveBlocksReplaceable: (y, offset) => y === 161 && offset >= 1 && offset <= 3,
+  }), 162);
+  assert.equal(stage2FindSafeSpawnY({
+    spawnY: 163,
+    maxScanDepth: 4,
+    isValidFloor: (y) => y === 159,
+    areAboveBlocksReplaceable: () => true,
+  }), 160);
+  assert.equal(stage2FindSafeSpawnY({
+    spawnY: 163,
+    maxScanDepth: 4,
+    isValidFloor: (y) => y === 158,
+    areAboveBlocksReplaceable: () => true,
+  }), null);
 });
 
 test("Phase 3 source constants and end predicate match current decompilation", () => {

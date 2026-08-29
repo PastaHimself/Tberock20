@@ -322,6 +322,120 @@ export function stage2GeneratorDecorationPlan(chunkWorldX, chunkWorldZ) {
   };
 }
 
+// Stage2Util.java spawn math. These helpers accept plain data so the exact Java
+// rules can be tested without importing @minecraft/server.
+export const STAGE2_UTIL_SOURCE = Object.freeze({
+  cellSizeChunks: 10,
+  cellSizeBlocks: 160,
+  centerOffsetBlocks: 88,
+  centerY: 253,
+  centerChunkOffset: 5,
+  defaultMaxAttempts: 40,
+  defaultScanDepth: 4,
+  candidateAboveOffset: 1,
+  specialSpawnYMinInclusive: 160,
+  specialSpawnYMaxExclusive: 201,
+  specialBlockXOffset: 5,
+  integrityTetherExclusionRadius: 50,
+});
+
+function stage2ChunkFromBlockCoordinate(blockCoordinate) {
+  return Math.floor(blockCoordinate / 16);
+}
+
+function stage2CellOriginChunk(chunkCoordinate) {
+  return Math.floor(chunkCoordinate / STAGE2_UTIL_SOURCE.cellSizeChunks)
+    * STAGE2_UTIL_SOURCE.cellSizeChunks;
+}
+
+export function stage2CenterOfExistingGeneration(playerBlock) {
+  const chunkX = stage2ChunkFromBlockCoordinate(playerBlock.x);
+  const chunkZ = stage2ChunkFromBlockCoordinate(playerBlock.z);
+  const cellChunkX = stage2CellOriginChunk(chunkX);
+  const cellChunkZ = stage2CellOriginChunk(chunkZ);
+  return {
+    x: cellChunkX * 16 + STAGE2_UTIL_SOURCE.centerOffsetBlocks,
+    y: STAGE2_UTIL_SOURCE.centerY,
+    z: cellChunkZ * 16 + STAGE2_UTIL_SOURCE.centerOffsetBlocks,
+  };
+}
+
+export function stage2SpawnCellChunksFromPlayerBlock(playerBlock) {
+  const chunkX = stage2ChunkFromBlockCoordinate(playerBlock.x);
+  const chunkZ = stage2ChunkFromBlockCoordinate(playerBlock.z);
+  const cellChunkX = stage2CellOriginChunk(chunkX);
+  const cellChunkZ = stage2CellOriginChunk(chunkZ);
+  return {
+    cellChunk: { x: cellChunkX, z: cellChunkZ },
+    centerChunk: {
+      x: cellChunkX + STAGE2_UTIL_SOURCE.centerChunkOffset,
+      z: cellChunkZ + STAGE2_UTIL_SOURCE.centerChunkOffset,
+    },
+  };
+}
+
+export function stage2IsSpecialSpawnBand(spawnY) {
+  return (
+    spawnY >= STAGE2_UTIL_SOURCE.specialSpawnYMinInclusive
+    && spawnY < STAGE2_UTIL_SOURCE.specialSpawnYMaxExclusive
+  );
+}
+
+export function stage2SpawnAttemptCoordinates({
+  cellChunk,
+  centerChunk,
+  spawnY,
+  minBlockDistance,
+  isTether,
+  randomChunkXOffset,
+  randomChunkZOffset,
+  randomBlockXOffset,
+  randomBlockZOffset,
+}) {
+  const specialBand = stage2IsSpecialSpawnBand(spawnY);
+  const chunkX = !specialBand && isTether
+    ? cellChunk.x + randomChunkXOffset
+    : centerChunk.x;
+  const chunkZ = cellChunk.z + randomChunkZOffset;
+  const minChunkDistance = Math.floor(minBlockDistance / 16);
+  const dChunkX = chunkX - centerChunk.x;
+  const dChunkZ = chunkZ - centerChunk.z;
+  if (dChunkX * dChunkX + dChunkZ * dChunkZ < minChunkDistance * minChunkDistance) {
+    return null;
+  }
+  return {
+    chunkX,
+    chunkZ,
+    blockX: chunkX * 16 + (specialBand
+      ? STAGE2_UTIL_SOURCE.specialBlockXOffset
+      : randomBlockXOffset),
+    blockZ: chunkZ * 16 + randomBlockZOffset,
+  };
+}
+
+export function stage2IsValidFloor(state) {
+  if (state.isAir || state.canBeReplaced) return false;
+  return state.canStandOnUp || state.isBarrier || state.isMud;
+}
+
+export function stage2FindSafeSpawnY({
+  spawnY,
+  maxScanDepth = STAGE2_UTIL_SOURCE.defaultScanDepth,
+  isValidFloor,
+  areAboveBlocksReplaceable,
+}) {
+  for (let dy = 0; dy <= maxScanDepth; dy += 1) {
+    const candidateY = spawnY - dy;
+    const hasClearance = [1, 2, 3].every((offset) => (
+      areAboveBlocksReplaceable(candidateY, offset)
+    ));
+    if (isValidFloor(candidateY) && hasClearance) {
+      return candidateY + STAGE2_UTIL_SOURCE.candidateAboveOffset;
+    }
+  }
+  return null;
+}
+
 export function phase2IntegrityFloorFromY(y) {
   for (const floor of PHASE2_INTEGRITY_FLOORS) {
     const stage = STAGE2_FLOORS.find((entry) => entry.id === floor.stage2Floor);
