@@ -535,9 +535,10 @@ export function tetherHeartbeatStep(cooldownTicks) {
   return { play: false, nextCooldown: cooldownTicks - 1 };
 }
 
-export function tetherDamageBlocked({ sourceType, cause } = {}) {
-  return sourceType === "thebrokenscript:integrity_phase_2"
-    || cause === "flyIntoWall";
+/** @param {{ sourceType?: string, cause?: string }} [damage] */
+export function tetherDamageBlocked(damage = {}) {
+  return damage.sourceType === "thebrokenscript:integrity_phase_2"
+    || damage.cause === "flyIntoWall";
 }
 
 export function voidTentacleDamageAllowed(cause) {

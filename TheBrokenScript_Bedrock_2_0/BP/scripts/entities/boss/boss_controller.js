@@ -152,7 +152,6 @@ function entityScale(e) {
 function isLivingEntity(e) {
   try {
     if (e.isValid === false) return false;
-    if (typeof e.isValid === "function" && e.isValid() === false) return false;
   } catch {}
   return getHealth(e) > 0;
 }
