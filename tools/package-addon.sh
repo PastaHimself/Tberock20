@@ -14,6 +14,16 @@ mkdir -p "$STAGE_DIR/bp" "$STAGE_DIR/rp" "$MCADDON_DIR"
 cp -a "$ADDON_ROOT/BP/." "$STAGE_DIR/bp/"
 cp -a "$ADDON_ROOT/RP/." "$STAGE_DIR/rp/"
 
+# Keep authoritative Java Shaft NBT and its source-backed Jigsaw definitions in the
+# repository for parity work, but do not ship them until the templates are converted
+# to Bedrock .mcstructure files. Raw Java .nbt files are not valid BP structure assets.
+find "$STAGE_DIR/bp/structures" -type f -name '*.nbt' -delete 2>/dev/null || true
+rm -f \
+  "$STAGE_DIR/bp/worldgen/structures/shaft.json" \
+  "$STAGE_DIR/bp/worldgen/template_pools/hallway.json" \
+  "$STAGE_DIR/bp/worldgen/template_pools/shaft_room.json" \
+  "$STAGE_DIR/bp/worldgen/template_pools/shaft_root.json"
+
 # Normalize generated/legacy source artifacts in the package copy only.
 find "$STAGE_DIR" -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
 if [[ -f "$STAGE_DIR/rp/sound_definitions.json" ]]; then

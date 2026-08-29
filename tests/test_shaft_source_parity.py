@@ -49,14 +49,27 @@ class ShaftSourceParityTests(unittest.TestCase):
     def test_root_jigsaw_connector_matches_source_metadata(self):
         root = module.load_nbt(SOURCE_SHAFT / "shaft_root.nbt")
         connectors = module.jigsaw_connectors(root)
-        self.assertEqual(1, len(connectors), connectors)
-        connector = connectors[0]
-        self.assertEqual([2, 1, 4], connector["pos"])
-        self.assertEqual("thebrokenscript:shaft_root", connector["name"])
-        self.assertEqual("minecraft:final", connector["target"])
-        self.assertEqual("thebrokenscript:hallway", connector["pool"])
-        self.assertEqual("minecraft:air", connector["final_state"])
-        self.assertEqual("aligned", connector["joint"])
+        self.assertEqual(
+            [
+                {
+                    "pos": [2, 0, 0],
+                    "name": "minecraft:empty",
+                    "target": "thebrokenscript:hallway",
+                    "pool": "thebrokenscript:hallway",
+                    "final_state": "minecraft:stone",
+                    "joint": "rollable",
+                },
+                {
+                    "pos": [2, 1, 1],
+                    "name": "thebrokenscript:shaft_root",
+                    "target": "minecraft:empty",
+                    "pool": "minecraft:empty",
+                    "final_state": "minecraft:air",
+                    "joint": "rollable",
+                },
+            ],
+            connectors,
+        )
 
     def test_bedrock_root_pool_and_structure_use_source_connector_ids(self):
         root_pool = json.loads(

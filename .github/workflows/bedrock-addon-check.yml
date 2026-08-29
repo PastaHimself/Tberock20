@@ -42,6 +42,7 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Validate complete add-on
+        if: always()
         run: python tools/validate_addon.py --report artifacts/addon-validation.json
 
       - name: Validate Bedrock resource identifier links
@@ -111,6 +112,16 @@ jobs:
           mkdir -p .ci/mct/resource_packs/rp
           cp -a TheBrokenScript_Bedrock_2_0/BP/. .ci/mct/behavior_packs/bp/
           cp -a TheBrokenScript_Bedrock_2_0/RP/. .ci/mct/resource_packs/rp/
+
+          # The Shaft source templates are authoritative Java NBT retained for
+          # parity work. They are not valid Bedrock .mcstructure assets yet, so
+          # the production validation stage excludes the incomplete Jigsaw slice.
+          find .ci/mct/behavior_packs/bp/structures -type f -name '*.nbt' -delete 2>/dev/null || true
+          rm -f \
+            .ci/mct/behavior_packs/bp/worldgen/structures/shaft.json \
+            .ci/mct/behavior_packs/bp/worldgen/template_pools/hallway.json \
+            .ci/mct/behavior_packs/bp/worldgen/template_pools/shaft_room.json \
+            .ci/mct/behavior_packs/bp/worldgen/template_pools/shaft_root.json
 
           find .ci/mct -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
           if [[ -f .ci/mct/resource_packs/rp/sound_definitions.json ]]; then
