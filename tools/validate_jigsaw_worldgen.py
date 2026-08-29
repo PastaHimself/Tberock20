@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Validate Bedrock Jigsaw worldgen references and staged structure templates.
+"""Validate Bedrock Jigsaw worldgen references and generation settings.
 
-This is a repository-level integrity validator, not a replacement for Minecraft's
-runtime schema validation. It focuses on failures that are easy to introduce while
-porting Java Jigsaw data: duplicate identifiers, unresolved pools/processors,
-unresolved structure templates, invalid Jigsaw generation settings, and invalid
-random-spread relationships.
+This validator catches repository-level integrity errors before Minecraft loads the
+pack. It intentionally mirrors the stable data-driven Jigsaw surface documented by
+Microsoft Learn and the Bedrock Wiki; Minecraft remains the final runtime/schema
+validator.
 """
 
 from __future__ import annotations
@@ -16,7 +15,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 IDENTIFIER_RE = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -42,11 +41,13 @@ JIGSAW_STEPS = {
     "vegetal_decoration",
     "top_layer_modification",
 }
-HEIGHTMAP_PROJECTIONS = {"world_surface", "sea_floor", "none"}
+HEIGHTMAP_PROJECTIONS = {"world_surface", "ocean_floor", "none"}
 LIQUID_SETTINGS = {"apply_waterlogging", "ignore_waterlogging"}
 TERRAIN_ADAPTATIONS = {"beard_box", "beard_thin", "bury", "encapsulate", "none"}
 SPREAD_TYPES = {"linear", "triangular"}
 HEIGHT_ANCHORS = {"absolute", "above_bottom", "below_top", "from_sea"}
+PROJECTIONS = {"rigid", "terrain_matching"}
+SINGLE_POOL_TYPES = {"minecraft:single_pool_element", "minecraft:legacy_single_pool_element"}
 
 
 @dataclass(frozen=True)
@@ -61,7 +62,7 @@ class ValidationResult:
 
 def _load_json(path: Path, errors: list[str]) -> dict[str, Any] | None:
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as exc:
         errors.append(f"{path}: invalid JSON: {exc}")
         return None
@@ -93,50 +94,97 @@ def _component_identifier(
 
 
 def _structure_template_candidates(bp_root: Path, identifier: str) -> tuple[Path, Path]:
-    namespace, rel = identifier.split(":", 1)
-    base = bp_root / "structures" / namespace / rel
+    namespace, relative = identifier.split(":", 1)
+    base = bp_root / "structures" / namespace / relative
     return base.with_suffix(".nbt"), base.with_suffix(".mcstructure")
 
 
-def _validate_single_pool_element(
-    *,
-    path: Path,
-    element: dict[str, Any],
-    bp_root: Path,
-    processor_ids: set[str],
-    errors: list[str],
-) -> None:
-    location = element.get("location")
-    if not isinstance(location, str) or not IDENTIFIER_RE.fullmatch(location):
-        errors.append(f"{path}: single_pool_element has invalid location {location!r}")
-    else:
-        candidates = _structure_template_candidates(bp_root, location)
-        if not any(candidate.is_file() for candidate in candidates):
-            shown = " or ".join(str(p.relative_to(bp_root)) for p in candidates)
-            errors.append(f"{path}: template {location!r} does not resolve to {shown}")
-
-    processors = element.get("processors")
-    if processors is not None and not isinstance(processors, dict):
-        if not isinstance(processors, str) or not IDENTIFIER_RE.fullmatch(processors):
-            errors.append(f"{path}: invalid processors reference {processors!r}")
-        elif processors != "minecraft:empty" and processors not in processor_ids:
-            errors.append(f"{path}: unresolved processor list {processors!r}")
-
-    projection = element.get("projection")
-    if projection is not None and projection not in {"rigid", "terrain_matching"}:
+def _validate_projection(path: Path, projection: Any, errors: list[str]) -> None:
+    if projection is not None and projection not in PROJECTIONS:
         errors.append(f"{path}: invalid projection {projection!r}")
 
 
-def _iter_pool_elements(raw: Any) -> Iterable[dict[str, Any]]:
-    if isinstance(raw, list):
-        for entry in raw:
-            if isinstance(entry, dict):
-                yield entry
+def _validate_processors(
+    path: Path,
+    processors: Any,
+    processor_ids: set[str],
+    errors: list[str],
+) -> None:
+    if processors is None or isinstance(processors, dict):
+        return
+    if not isinstance(processors, str) or not IDENTIFIER_RE.fullmatch(processors):
+        errors.append(f"{path}: invalid processors reference {processors!r}")
+    elif processors != "minecraft:empty" and processors not in processor_ids:
+        errors.append(f"{path}: unresolved processor list {processors!r}")
+
+
+def _validate_pool_element(
+    *,
+    path: Path,
+    element: Any,
+    bp_root: Path,
+    processor_ids: set[str],
+    errors: list[str],
+    allow_list: bool = True,
+) -> None:
+    if not isinstance(element, dict):
+        errors.append(f"{path}: pool element must be an object")
+        return
+
+    element_type = element.get("element_type")
+    if element_type in SINGLE_POOL_TYPES:
+        location = element.get("location")
+        if not isinstance(location, str) or not IDENTIFIER_RE.fullmatch(location):
+            errors.append(f"{path}: {element_type} has invalid location {location!r}")
+        else:
+            candidates = _structure_template_candidates(bp_root, location)
+            if not any(candidate.is_file() for candidate in candidates):
+                shown = " or ".join(str(candidate.relative_to(bp_root)) for candidate in candidates)
+                errors.append(f"{path}: template {location!r} does not resolve to {shown}")
+        _validate_processors(path, element.get("processors"), processor_ids, errors)
+        _validate_projection(path, element.get("projection"), errors)
+        return
+
+    if element_type == "minecraft:empty_pool_element":
+        _validate_projection(path, element.get("projection"), errors)
+        return
+
+    if element_type == "minecraft:feature_pool_element":
+        feature = element.get("feature")
+        if not isinstance(feature, str) or not IDENTIFIER_RE.fullmatch(feature):
+            errors.append(f"{path}: feature_pool_element has invalid feature {feature!r}")
+        _validate_projection(path, element.get("projection"), errors)
+        return
+
+    if element_type == "minecraft:list_pool_element":
+        if not allow_list:
+            errors.append(f"{path}: nested minecraft:list_pool_element is not supported")
+            return
+        children = element.get("elements")
+        if not isinstance(children, list) or not children:
+            errors.append(f"{path}: list_pool_element must contain at least one element")
+            return
+        _validate_projection(path, element.get("projection"), errors)
+        for child in children:
+            _validate_pool_element(
+                path=path,
+                element=child,
+                bp_root=bp_root,
+                processor_ids=processor_ids,
+                errors=errors,
+                allow_list=False,
+            )
+        return
+
+    if not isinstance(element_type, str):
+        errors.append(f"{path}: pool element is missing element_type")
+    else:
+        errors.append(f"{path}: unsupported pool element_type {element_type!r}")
 
 
 def _validate_height_anchor(path: Path, value: Any, field: str, errors: list[str]) -> None:
     if not isinstance(value, dict) or len(value) != 1:
-        errors.append(f"{path}: {field} must be an object containing exactly one height anchor")
+        errors.append(f"{path}: {field} must contain exactly one height anchor")
         return
     anchor, amount = next(iter(value.items()))
     if anchor not in HEIGHT_ANCHORS:
@@ -153,17 +201,10 @@ def _validate_start_height(path: Path, raw: Any, errors: list[str]) -> None:
     if not isinstance(raw, dict):
         errors.append(f"{path}: start_height must be an object")
         return
-
     kind = raw.get("type")
     if kind == "constant":
-        if "value" not in raw:
-            errors.append(f"{path}: constant start_height requires value")
-        else:
-            _validate_height_anchor(path, raw.get("value"), "start_height.value", errors)
+        _validate_height_anchor(path, raw.get("value"), "start_height.value", errors)
     elif kind == "uniform":
-        if "min" not in raw or "max" not in raw:
-            errors.append(f"{path}: uniform start_height requires min and max")
-            return
         _validate_height_anchor(path, raw.get("min"), "start_height.min", errors)
         _validate_height_anchor(path, raw.get("max"), "start_height.max", errors)
     else:
@@ -222,8 +263,7 @@ def validate_pack(bp_root: Path) -> ValidationResult:
             previous = indexes[kind].get(identifier)
             if previous is not None:
                 errors.append(
-                    f"{path}: duplicate {kind} identifier {identifier!r}; "
-                    f"first declared in {previous[0]}"
+                    f"{path}: duplicate {kind} identifier {identifier!r}; first declared in {previous[0]}"
                 )
                 continue
             indexes[kind][identifier] = (path, data)
@@ -231,6 +271,11 @@ def validate_pack(bp_root: Path) -> ValidationResult:
     processor_ids = set(indexes["processor_list"])
     pool_ids = set(indexes["template_pool"])
     structure_ids = set(indexes["jigsaw_structure"])
+
+    for identifier, (path, data) in indexes["processor_list"].items():
+        processors = data["minecraft:processor_list"].get("processors")
+        if not isinstance(processors, list):
+            errors.append(f"{path}: processor list {identifier!r} must contain a processors array")
 
     for identifier, (path, data) in indexes["template_pool"].items():
         component = data["minecraft:template_pool"]
@@ -249,51 +294,19 @@ def validate_pack(bp_root: Path) -> ValidationResult:
             if not isinstance(entry, dict):
                 errors.append(f"{path}: elements[{index}] must be an object")
                 continue
-            weight = entry.get("weight")
-            if weight is not None and (
-                not isinstance(weight, int) or isinstance(weight, bool) or weight <= 0
-            ):
+            weight = entry.get("weight", 1)
+            if not isinstance(weight, int) or isinstance(weight, bool) or weight <= 0:
                 errors.append(f"{path}: elements[{index}].weight must be a positive integer")
-            element = entry.get("element")
-            if not isinstance(element, dict):
-                errors.append(f"{path}: elements[{index}].element must be an object")
-                continue
-            element_type = element.get("element_type")
-            if element_type == "minecraft:single_pool_element":
-                _validate_single_pool_element(
-                    path=path,
-                    element=element,
-                    bp_root=bp_root,
-                    processor_ids=processor_ids,
-                    errors=errors,
-                )
-            elif element_type == "minecraft:list_pool_element":
-                nested = list(_iter_pool_elements(element.get("elements")))
-                if not nested:
-                    errors.append(f"{path}: list_pool_element must contain nested elements")
-                for child in nested:
-                    if child.get("element_type") == "minecraft:single_pool_element":
-                        _validate_single_pool_element(
-                            path=path,
-                            element=child,
-                            bp_root=bp_root,
-                            processor_ids=processor_ids,
-                            errors=errors,
-                        )
-            elif element_type == "minecraft:empty_pool_element":
-                pass
-            elif element_type == "minecraft:feature_pool_element":
-                feature = element.get("feature")
-                if not isinstance(feature, str) or not IDENTIFIER_RE.fullmatch(feature):
-                    errors.append(f"{path}: feature_pool_element has invalid feature {feature!r}")
-            elif not isinstance(element_type, str):
-                errors.append(f"{path}: elements[{index}] is missing element_type")
-            else:
-                errors.append(f"{path}: unsupported pool element_type {element_type!r}")
+            _validate_pool_element(
+                path=path,
+                element=entry.get("element"),
+                bp_root=bp_root,
+                processor_ids=processor_ids,
+                errors=errors,
+            )
 
     for identifier, (path, data) in indexes["jigsaw_structure"].items():
         component = data["minecraft:jigsaw"]
-
         step = component.get("step")
         if step not in JIGSAW_STEPS:
             errors.append(f"{path}: jigsaw structure {identifier!r} has invalid step {step!r}")
@@ -314,15 +327,14 @@ def validate_pack(bp_root: Path) -> ValidationResult:
         if (
             not isinstance(max_depth, int)
             or isinstance(max_depth, bool)
-            or not 1 <= max_depth <= 20
+            or not 0 <= max_depth <= 20
         ):
-            errors.append(f"{path}: max_depth must be an integer in [1, 20]")
+            errors.append(f"{path}: max_depth must be an integer in [0, 20]")
 
-        start_height = component.get("start_height")
-        if start_height is None:
+        if "start_height" not in component:
             errors.append(f"{path}: start_height is required")
         else:
-            _validate_start_height(path, start_height, errors)
+            _validate_start_height(path, component.get("start_height"), errors)
 
         heightmap_projection = component.get("heightmap_projection", "none")
         if heightmap_projection not in HEIGHTMAP_PROJECTIONS:
@@ -353,17 +365,11 @@ def validate_pack(bp_root: Path) -> ValidationResult:
                     continue
                 structure = entry.get("structure")
                 if not isinstance(structure, str) or not IDENTIFIER_RE.fullmatch(structure):
-                    errors.append(
-                        f"{path}: structures[{index}] has invalid structure reference {structure!r}"
-                    )
+                    errors.append(f"{path}: structures[{index}] has invalid structure reference {structure!r}")
                 elif structure not in structure_ids:
                     errors.append(f"{path}: unresolved structure reference {structure!r}")
                 weight = entry.get("weight")
-                if (
-                    not isinstance(weight, int)
-                    or isinstance(weight, bool)
-                    or weight <= 0
-                ):
+                if not isinstance(weight, int) or isinstance(weight, bool) or weight <= 0:
                     errors.append(f"{path}: structures[{index}].weight must be a positive integer")
 
         placement = component.get("placement")
@@ -374,16 +380,18 @@ def validate_pack(bp_root: Path) -> ValidationResult:
             errors.append(f"{path}: placement.type must be 'minecraft:random_spread'")
             continue
 
+        salt = placement.get("salt")
+        if not isinstance(salt, int) or isinstance(salt, bool):
+            errors.append(f"{path}: random-spread salt must be an integer")
+
         spacing = placement.get("spacing")
-        separation = placement.get("separation")
         if not isinstance(spacing, int) or isinstance(spacing, bool) or spacing <= 0:
             errors.append(f"{path}: random-spread spacing must be a positive integer")
-        if (
-            not isinstance(separation, int)
-            or isinstance(separation, bool)
-            or separation < 0
-        ):
+
+        separation = placement.get("separation")
+        if not isinstance(separation, int) or isinstance(separation, bool) or separation < 0:
             errors.append(f"{path}: random-spread separation must be a non-negative integer")
+
         if (
             isinstance(spacing, int)
             and not isinstance(spacing, bool)
@@ -396,15 +404,9 @@ def validate_pack(bp_root: Path) -> ValidationResult:
                 f"(got separation={separation}, spacing={spacing})"
             )
 
-        salt = placement.get("salt")
-        if not isinstance(salt, int) or isinstance(salt, bool):
-            errors.append(f"{path}: random-spread salt must be an integer")
-
         spread_type = placement.get("spread_type")
         if spread_type not in SPREAD_TYPES:
-            errors.append(
-                f"{path}: random-spread spread_type must be one of {sorted(SPREAD_TYPES)!r}"
-            )
+            errors.append(f"{path}: random-spread spread_type must be one of {sorted(SPREAD_TYPES)!r}")
 
     return ValidationResult(errors=tuple(errors), files_checked=files_checked)
 
