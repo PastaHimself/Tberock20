@@ -413,6 +413,12 @@ export function stage2SpawnAttemptCoordinates({
   };
 }
 
+// getRandomFloorPos rejects an IntegrityPhase2 candidate only when the
+// radius-limited closest-Tether query finds an entity.
+export function stage2IntegrityPositionAllowed(hasNearbyTether) {
+  return !hasNearbyTether;
+}
+
 export function stage2IsValidFloor(state) {
   if (state.isAir || state.canBeReplaced) return false;
   return state.canStandOnUp || state.isBarrier || state.isMud;
@@ -426,10 +432,10 @@ export function stage2FindSafeSpawnY({
 }) {
   for (let dy = 0; dy <= maxScanDepth; dy += 1) {
     const candidateY = spawnY - dy;
-    const hasClearance = [1, 2, 3].every((offset) => (
-      areAboveBlocksReplaceable(candidateY, offset)
-    ));
-    if (isValidFloor(candidateY) && hasClearance) {
+    if (
+      isValidFloor(candidateY)
+      && [1, 2, 3].every((offset) => areAboveBlocksReplaceable(candidateY, offset))
+    ) {
       return candidateY + STAGE2_UTIL_SOURCE.candidateAboveOffset;
     }
   }

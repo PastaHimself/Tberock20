@@ -32,6 +32,7 @@ import {
   stage2GeneratorRegion,
   stage2CenterOfExistingGeneration,
   stage2FindSafeSpawnY,
+  stage2IntegrityPositionAllowed,
   stage2IsSpecialSpawnBand,
   stage2IsValidFloor,
   stage2SpawnAttemptCoordinates,
@@ -337,6 +338,8 @@ test("Stage2Util preserves special-band chunk selection and minimum-distance rej
     randomBlockXOffset: 0,
     randomBlockZOffset: 0,
   }), null);
+  assert.equal(stage2IntegrityPositionAllowed(false), true);
+  assert.equal(stage2IntegrityPositionAllowed(true), false);
 });
 
 test("Stage2Util floor validation and bounded scan return the block above a safe floor", () => {
@@ -375,6 +378,17 @@ test("Stage2Util floor validation and bounded scan return the block above a safe
     isBarrier: false,
     isMud: false,
   }), false);
+
+  let clearanceChecks = 0;
+  assert.equal(stage2FindSafeSpawnY({
+    spawnY: 163,
+    isValidFloor: () => false,
+    areAboveBlocksReplaceable: () => {
+      clearanceChecks += 1;
+      return true;
+    },
+  }), null);
+  assert.equal(clearanceChecks, 0, "source checks floor validity before scanning above it");
 
   assert.equal(stage2FindSafeSpawnY({
     spawnY: 163,
