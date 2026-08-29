@@ -1,4 +1,4 @@
-﻿import { world, system } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { EntityDamageCause } from "@minecraft/server";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
@@ -26,8 +26,9 @@ function installDeathHook() {
 }
 
 // ── constants from decompiled sources ──────────────────────────────────────
-// integrity: phase chain p1(910/50) → p2(910/25) → p3(1024/50) at health thresholds,
-//            fireball volleys + ground arms in p3, watching beat, integrity_dies on end
+// Integrity phase advancement is owned by Arena/Phase source semantics, not HP
+// fractions. Source-backed arena constants/predicates live in integrity_arena_model.js;
+// automatic arena startup remains disabled until its Java callsite is recovered.
 // fractured (Jimmy): slam/stomp pulses 12 dmg, rock toss ranged 6, roam variant passive
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
@@ -126,7 +127,7 @@ function tickEntity(e) {
 function tickIntegrityEarly(e) {
   if (!timers.has(e.id)) {
     timers.set(e.id, { init: 1 });
-    bossHooks.setArenaState(true, true);
+    bossHooks.setArenaState(true, e.typeId === "thebrokenscript:integrity_phase_1");
     tryPlayAt(e.dimension, e.location, "thebrokenscript:integrity_watching", 10, 2);
   }
   // hover bob for giant body
@@ -135,31 +136,8 @@ function tickIntegrityEarly(e) {
   }
   meleePulse(e, e.typeId === "thebrokenscript:integrity_phase_1" ? 50 : 25, 6);
 
-  // phase transition by health fraction
-  const frac = getHealth(e) / Math.max(1, maxHealth(e));
-  const threshold = e.typeId === "thebrokenscript:integrity_phase_1" ? 0.5 : 0.4;
-  if (frac < threshold && system.currentTick % 10 === 0) {
-    const next = e.typeId === "thebrokenscript:integrity_phase_1" ? "thebrokenscript:integrity_phase_2" : "thebrokenscript:integrity_phase_3";
-    transitionPhase(e, next);
-  }
-}
-
-function transitionPhase(e, nextTypeId) {
-  const loc = { ...e.location };
-  const frac = getHealth(e) / Math.max(1, maxHealth(e));
-  try { e.remove(); } catch {} deleteTimers(e);
-  try {
-    const next = e.dimension.spawnEntity(nextTypeId, loc);
-    if (next) {
-      try {
-        const hp = next.getComponent("minecraft:health");
-        const max = next.getComponent("minecraft:health")?.effectiveMax ?? 1;
-        const keep = Math.max(1, Math.floor(max * Math.min(1, frac + 0.25)));
-        hp.setCurrentValue(keep);
-      } catch {}
-      if (nextTypeId.endsWith("phase_3")) bossHooks.setArenaState(true, false);
-    }
-  } catch {}
+  // Do not transition Integrity phases from health here. Java Arena/Phase logic
+  // owns those transitions; the old 50%/40% thresholds were fabricated.
 }
 
 // ── Integrity phase 3 ────────────────────────────────────────────────────────
