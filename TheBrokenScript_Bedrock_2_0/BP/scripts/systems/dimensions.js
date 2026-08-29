@@ -1,12 +1,14 @@
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
 
-// ── TBSDimensions.java port — 12 custom dimensions + nightmare set ──────────
+// TBSDimensions.java port — 12 custom dimensions + nightmare set.
+// Dimension definitions are static pack content; stable Script API resolves them
+// through world.getDimension(). Preview-only dynamic-dimension creation is not used.
 export const ALL = [
   "clan_void", "null_torture", "the_moon", "nowhere", "limbo", "nothing",
   "protected_void", "library", "concrete", "lucid", "stage2", "void_shadow"
 ];
-// NIGHTMARES list from source (used for random scare destinations)
+
 export const NIGHTMARES = ["library", "concrete", "limbo", "nothing"];
 
 const handles = new Map();
@@ -15,40 +17,29 @@ function fullId(id) {
   return id.startsWith("thebrokenscript:") ? id : `thebrokenscript:${id}`;
 }
 
-function tryCreate(id) {
-  // Compatibility fallback for preview builds; stable builds use the static JSON
-  // definitions and world.getDimension above.
-  try {
-    const dynamicWorld = /** @type {any} */ (world);
-    if (typeof dynamicWorld.createDimension === "function") {
-      const d = dynamicWorld.createDimension(fullId(id));
-      if (d) { handles.set(id, d); return d; }
-    }
-  } catch {}
-  return undefined;
-}
-
 export function get(id) {
   const key = id.replace("thebrokenscript:", "");
   if (handles.has(key)) {
-    const h = handles.get(key);
-    try { if (h.isValid?.() !== false) return h; } catch {}
+    const handle = handles.get(key);
+    try {
+      if (handle?.isValid?.() !== false) return handle;
+    } catch {}
   }
+
   try {
-    const d = world.getDimension(fullId(key));
-    handles.set(key, d);
-    return d;
-  } catch {
-    return tryCreate(key);
+    const dimension = world.getDimension(fullId(key));
+    handles.set(key, dimension);
+    return dimension;
+  } catch (error) {
+    logger.error(`dimensions: cannot resolve '${key}' from static dimension definitions`, error);
+    return undefined;
   }
 }
 
 export function teleportTo(entity, dimId, location) {
   const dim = get(dimId);
-  if (!dim) {
-    logger.error(`dimensions: cannot resolve '${dimId}'`);
-    return false;
-  }
+  if (!dim) return false;
+
   try {
     entity.teleport(location ?? { x: 0, y: 201, z: 0 }, { dimension: dim });
     return true;
