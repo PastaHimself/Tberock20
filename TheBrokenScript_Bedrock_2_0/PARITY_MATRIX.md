@@ -30,7 +30,8 @@ Parity: `full` / `high` / `approximation` / `unsupported` / `unknown`.
 | Dimensions (13) | data/dimension/*.json | Chunk 10 (strategy pending) | uninspected | unknown | — | see BEDROCK_COMPATIBILITY decision |
 | Portals | block/portal/, portal_controller/extender items | Chunk 08+10 | uninspected | unknown | — | safe arrival validation required |
 | Biomes (15) + carver/features/noise | worldgen/** | Chunk 11 | uninspected | unknown | — | noise_settings = documented approximation |
-| Structures (~250 nbt + shaft jigsaw + xcsf) | structure/, xcsf_structure/ | .mcstructure conversions Chunk 11 | uninspected | unknown | — | xcsf is code-format → reconstruct |
+| Structures (source corpus + shaft jigsaw + xcsf) | structure/, xcsf_structure/ | Shaft source templates staged; remaining structure corpus and XCSF reconstruction still pending | in_progress | unknown | six Shaft source/BP Git blob SHAs match; Jigsaw tooling tests PASS | Do not treat staged templates as generated-world parity |
+| Shaft Jigsaw | `data/thebrokenscript/structure/shaft/*.nbt` (corner, hall, junction, room, room_hall, root) | `BP/structures/thebrokenscript/shaft/*.nbt` + `tools/stage_shaft_jigsaw_templates.py` + `tools/validate_jigsaw_worldgen.py` | in_progress | unknown | all six target blobs are source-identical; 6 local unit tests PASS | Native template pools, `minecraft:jigsaw`, and structure-set placement remain pending source-derived weights/placement semantics |
 | Spawn conditions/modifiers (33) | biome_modifier/spawns, TBSSpawnConditions | spawn director (Chunk 02) + native rules | uninspected | unknown | — | |
 | Recipes (40) | data/recipe/*.json | BP recipes Chunk 13 | uninspected | unknown | — | |
 | Loot tables | loot_table/blocks(150+)/entities(1) | BP loot Chunk 13 | uninspected | unknown | — | |
