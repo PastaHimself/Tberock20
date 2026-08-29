@@ -57,3 +57,8 @@ The Phase 3 controller only relies on APIs already used by the pack: entity spaw
 - [GameMode](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/gamemode?view=minecraft-bedrock-stable)
 - [ItemStack](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/itemstack?view=minecraft-bedrock-stable)
 - [Particle Effects](https://learn.microsoft.com/en-us/minecraft/creator/documents/particleeffects?view=minecraft-bedrock-stable)
+
+## Chunk 22 compatibility note
+
+The SCALE adapter uses the Bedrock entity property surface (integer range/default plus client synchronization), entity events with `set_property`, and the built-in `minecraft:scale` component. These are data-driven definition features; the controller only uses the entity `getProperty`, `setProperty`, and `triggerEvent` methods already guarded by the pack's runtime adapter. Exact Java `Attributes.SCALE` mutation remains an implementation difference, while the value's persistence, client visibility, behavior lookup, and visual application are now represented.
+

@@ -141,17 +141,36 @@ function callEntityMethod(entity, name, ...args) {
 
 function entityScale(e) {
   const propertyScale = callEntityMethod(e, "getProperty", "thebrokenscript:scale");
-  if (typeof propertyScale === "number" && propertyScale > 0) return propertyScale;
+  if (typeof propertyScale === "number" && propertyScale > 0) {
+    if (getNum(e, "scaleVisualApplied", false) !== true) {
+      setEntityScale(e, propertyScale);
+    }
+    return propertyScale;
+  }
   const timerScale = getNum(e, "scale", undefined);
   if (timerScale === undefined) {
     const roll = Math.floor(Math.random() * (
       VOID_TENTACLE_SOURCE.scaleMaxInclusive - VOID_TENTACLE_SOURCE.scaleMinInclusive + 1
     ));
     const sourceScale = voidTentacleScaleFromRoll(roll);
-    setNum(e, "scale", sourceScale);
-    return sourceScale;
+    return setEntityScale(e, sourceScale);
+  }
+  if (getNum(e, "scaleVisualApplied", false) !== true) {
+    setEntityScale(e, timerScale);
   }
   return Number.isFinite(timerScale) && timerScale > 0 ? timerScale : 1;
+}
+
+function setEntityScale(e, scale) {
+  const normalized = Math.max(
+    VOID_TENTACLE_SOURCE.scaleMinInclusive,
+    Math.min(VOID_TENTACLE_SOURCE.scaleMaxInclusive, Math.floor(scale)),
+  );
+  callEntityMethod(e, "setProperty", "thebrokenscript:scale", normalized);
+  callEntityMethod(e, "triggerEvent", `thebrokenscript:scale_${normalized}`);
+  setNum(e, "scale", normalized);
+  setNum(e, "scaleVisualApplied", true);
+  return normalized;
 }
 
 function isLivingEntity(e) {
@@ -391,7 +410,7 @@ function spawnPhase3Tentacles(e, state) {
       z: preset.z + 0.5,
     });
     if (!tentacle) continue;
-    setNum(tentacle, "scale", 2);
+    setEntityScale(tentacle, 2);
     trackPhase3Tentacle(state, tentacle);
   }
 }
@@ -679,8 +698,9 @@ function tickVoidTentacle(e) {
     return;
   }
 
-  // The Java spawn hook rolls SCALE 1..5. Prefer a future exposed Bedrock
-  // property, otherwise persist the same source roll in the controller timer.
+  // The Java spawn hook rolls SCALE 1..5. The Bedrock definition persists the
+  // equivalent property and routes it through minecraft:scale component groups
+  // so the same value drives both behavior ranges and visual size.
   const scale = entityScale(e);
   const plan = voidTentacleAttackPlan({
     scale,

@@ -52,3 +52,11 @@
 
 - Minecraft runtime import tests once a Bedrock install is available.
 - Beta-API runtime smoke test (new dependency channel) alongside the above.
+
+## Chunk 22 — VoidTentacle source SCALE adapter
+
+- TDD red phase: the new SCALE contract test failed because the current entity definition had no persisted property or event-backed visual groups.
+- TDD green phase: `npm test` — **24 passed, 0 failed**.
+- Static checks: `node --check` passed for the changed boss controller and arena model; `void_tentacle.json` parsed successfully.
+- Remote GitHub Actions validation is required on the published commit and is recorded with the resulting run after it completes.
+

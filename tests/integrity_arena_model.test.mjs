@@ -774,3 +774,47 @@ test("Bedrock hazard definitions match source health and attack contracts", asyn
   assert.equal(voidTentacle["minecraft:entity"].components["minecraft:health"].max, VOID_TENTACLE_SOURCE.maxHealth);
   assert.equal(voidTentacle["minecraft:entity"].components["minecraft:attack"].damage, VOID_TENTACLE_SOURCE.meleeDamage);
 });
+
+test("VoidTentacle exposes source SCALE through persisted property and visual scale events", async () => {
+  const definition = JSON.parse(await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/entities/void_tentacle.json"),
+    "utf8",
+  ))["minecraft:entity"];
+  const scaleProperty = definition.description.properties?.["thebrokenscript:scale"];
+  assert.deepEqual(scaleProperty, {
+    type: "int",
+    range: [1, 5],
+    default: "math.random(1, 5)",
+    client_sync: true,
+  });
+  assert.equal(definition.components["minecraft:scale"].value, 1);
+
+  const scaleGroups = Object.fromEntries(
+    Array.from({ length: 5 }, (_, index) => {
+      const scale = index + 1;
+      return [`thebrokenscript:scale_${scale}`, scale];
+    }),
+  );
+  for (const [groupName, scale] of Object.entries(scaleGroups)) {
+    assert.deepEqual(definition.component_groups[groupName], {
+      "minecraft:scale": { value: scale },
+    });
+  }
+
+  const allGroups = Object.keys(scaleGroups);
+  for (const [groupName, scale] of Object.entries(scaleGroups)) {
+    const event = definition.events[groupName];
+    assert.deepEqual(event.remove.component_groups, allGroups);
+    assert.deepEqual(event.add.component_groups, [groupName]);
+    assert.deepEqual(event.set_property, { "thebrokenscript:scale": scale });
+  }
+
+  const controller = await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"),
+    "utf8",
+  );
+  assert.match(controller, /function setEntityScale\(e, scale\)/);
+  assert.match(controller, /callEntityMethod\(e, "triggerEvent", `thebrokenscript:scale_\$\{normalized\}`\)/);
+  assert.match(controller, /setEntityScale\(tentacle, 2\)/);
+  assert.doesNotMatch(controller, /otherwise persist the same source roll in the controller timer/i);
+});

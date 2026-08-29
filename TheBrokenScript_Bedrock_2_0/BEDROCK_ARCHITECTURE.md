@@ -100,3 +100,10 @@ blocks ── portals/dimensions ── worldgen ── integration ── audit
 | 21 | Integrity Phase 3 runtime semantics: tentacle ring, boundary countdown, and cutscene timing model |
 
 Subchunk splits remain allowed (Chunk NNx) without changing this table's contract.
+
+## Chunk 22 mapping update
+
+- `VoidTentacleEntity.Attributes.SCALE` → `description.properties.thebrokenscript:scale` with `client_sync: true`.
+- Scale-dependent rendering → five `minecraft:scale` component groups selected by namespaced entity events.
+- Phase 3 fixed scale presets → controller calls the same property/event bridge with value 2.
+

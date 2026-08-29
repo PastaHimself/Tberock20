@@ -71,3 +71,12 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 - Spawn-condition predicates (24 classes) → spawn director fidelity depends on decompiled constants/timings.
 - Event probabilities/cooldowns (~91 handlers) → same.
 - GeckoLib animation *code* behaviors (head-tracking, procedural tentacles via `api/tentaclev2`) → script equivalents; assets already Bedrock-native.
+
+## A-012 — Java SCALE attribute to Bedrock property/event adapter
+
+Source `VoidTentacleEntity.onFinalizeSpawn` rolls `Attributes.SCALE` inclusively from 1 through 5 when the base scale is unchanged. Phase 3 also creates three fixed tentacles with scale 2.
+
+The Bedrock port persists the equivalent value as the client-synced `thebrokenscript:scale` integer property, maps values 1..5 to `minecraft:scale` component groups, and exposes matching events that set the property and select the visual group. The controller reads the persisted property and uses the same bridge for fixed presets and fallback initialization.
+
+The Java attribute mutation and renderer pipeline are not portable; persistence, synchronization, behavior lookup, and visual size are covered by the Bedrock adapter.
+

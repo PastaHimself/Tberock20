@@ -19,3 +19,4 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 14. **Integrity Phase 3 Java transport is not exact** — the controller now ships source-backed tentacle placement, boundary countdown, and native void terminal damage. The Java Arena participant roster/transfer, transition.png overlay packet, custom music/cutscene packets, client camera override, custom void_mass attribution, and delayed cleanup remain adaptations or unsupported transport (A-011).
 
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.
+
