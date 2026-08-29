@@ -4,6 +4,16 @@ import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
+import {
+  TETHER_SOURCE,
+  VOID_TENTACLE_SOURCE,
+  tetherDamageBlocked,
+  tetherHeartbeatStep,
+  voidTentacleAttackPlan,
+  voidTentacleDamageAllowed,
+  voidTentacleScaleFromRoll,
+  voidTentacleSweepPlan,
+} from "../../systems/integrity_arena_model.js";
 
 // ── boss death sequence (Chunk 14 presentation) ─────────────────────────────
 let deathHookInstalled = false;
@@ -66,6 +76,115 @@ function meleePulse(e, dmg, reach = 5, interval = 20) {
     try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
   }
 }
+
+let damageHookInstalled = false;
+function installDamageHook() {
+  if (damageHookInstalled) return;
+  damageHookInstalled = true;
+  try {
+    world.beforeEvents.entityHurt.subscribe((ev) => {
+      const target = ev.hurtEntity;
+      const cause = ev.damageSource?.cause;
+      const damagingEntity = ev.damageSource?.damagingEntity;
+      if (target.typeId === "thebrokenscript:void_tentacle" && !voidTentacleDamageAllowed(cause)) {
+        ev.cancel = true;
+        return;
+      }
+      if (target.typeId === "thebrokenscript:tether" && tetherDamageBlocked({
+        sourceType: damagingEntity?.typeId,
+        cause,
+      })) {
+        ev.cancel = true;
+      }
+    });
+  } catch {}
+}
+
+function applyEntityAttack(attacker, target, damage) {
+  try {
+    target.applyDamage(damage, { cause: EntityDamageCause.entityAttack, damagingEntity: attacker });
+    return true;
+  } catch {
+    try {
+      target.applyDamage(damage);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+function runLater(callback, ticks) {
+  try {
+    const scheduler = /** @type {any} */ (system);
+    if (typeof scheduler.runTimeout === "function") {
+      scheduler.runTimeout(callback, ticks);
+      return;
+    }
+  } catch {}
+  callback();
+}
+
+function callEntityMethod(entity, name, ...args) {
+  try {
+    const method = entity[name];
+    return typeof method === "function" ? method.call(entity, ...args) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function entityScale(e) {
+  const propertyScale = callEntityMethod(e, "getProperty", "thebrokenscript:scale");
+  if (typeof propertyScale === "number" && propertyScale > 0) return propertyScale;
+  const timerScale = getNum(e, "scale", undefined);
+  if (timerScale === undefined) {
+    const roll = Math.floor(Math.random() * (
+      VOID_TENTACLE_SOURCE.scaleMaxInclusive - VOID_TENTACLE_SOURCE.scaleMinInclusive + 1
+    ));
+    const sourceScale = voidTentacleScaleFromRoll(roll);
+    setNum(e, "scale", sourceScale);
+    return sourceScale;
+  }
+  return Number.isFinite(timerScale) && timerScale > 0 ? timerScale : 1;
+}
+
+function isLivingEntity(e) {
+  try {
+    if (e.isValid === false) return false;
+    if (typeof e.isValid === "function" && e.isValid() === false) return false;
+  } catch {}
+  return getHealth(e) > 0;
+}
+
+function entityIsOnGround(e) {
+  try {
+    const value = e.isOnGround;
+    return typeof value === "function" ? value.call(e) === true : value === true;
+  } catch {
+    return false;
+  }
+}
+
+function isEntityStuck(e) {
+  if (callEntityMethod(e, "hasTag", "thebrokenscript.stuck") === true) return true;
+  return callEntityMethod(e, "getProperty", "thebrokenscript:stuck") === true;
+}
+
+function setEntityStuck(e, stuck) {
+  if (stuck) {
+    callEntityMethod(e, "addTag", "thebrokenscript.stuck");
+    callEntityMethod(e, "setProperty", "thebrokenscript:stuck", true);
+    runLater(() => setEntityStuck(e, false), VOID_TENTACLE_SOURCE.stuckDurationTicks);
+    return;
+  }
+  callEntityMethod(e, "removeTag", "thebrokenscript.stuck");
+  callEntityMethod(e, "setProperty", "thebrokenscript:stuck", false);
+}
+
+function playEntityAnimation(e, animationId) {
+  callEntityMethod(e, "playAnimation", animationId);
+}
 function approach(e, player, speedBlocksPerTick) {
   const dx = player.location.x - e.location.x;
   const dz = player.location.z - e.location.z;
@@ -81,6 +200,7 @@ function approach(e, player, speedBlocksPerTick) {
 
 export function begin(scheduler) {
   installDeathHook();
+  installDamageHook();
   scheduler.every("tbs.boss_tick", 1, onTick);
 }
 
@@ -93,6 +213,12 @@ function onTick() {
   if (nether) dims.push(nether);
   const theEnd = perf.dim("the_end");
   if (theEnd) dims.push(theEnd);
+  // TBSDimensions.STAGE2 and STAGE3 (void_shadow) are the source locations
+  // for Tethers, Integrity P3, and VoidTentacles.
+  for (const id of ["thebrokenscript:stage2", "thebrokenscript:void_shadow"]) {
+    const dim = perf.dim(id);
+    if (dim) dims.push(dim);
+  }
   for (const dim of dims) {
     let list = [];
     try { list = dim.getEntities({ families: ["thebrokenscript_boss"] }); } catch { continue; }
@@ -118,8 +244,8 @@ function tickEntity(e) {
     case "thebrokenscript:fever_stalk": return tickFeverStalk(e);
     case "thebrokenscript:chord": return tickChord(e);
     case "thebrokenscript:chord_projectile": return tickChordProjectile(e);
-    case "thebrokenscript:tether":
-    case "thebrokenscript:void_tentacle": return tickHazard(e);
+    case "thebrokenscript:tether": return tickTether(e);
+    case "thebrokenscript:void_tentacle": return tickVoidTentacle(e);
   }
 }
 
@@ -359,13 +485,136 @@ function tickChordProjectile(e) {
   if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
 }
 
-// ── Stationary hazards (tether / void_tentacle) ──────────────────────────────
-function tickHazard(e) {
-  meleePulse(e, e.typeId === "thebrokenscript:tether" ? 4 : 6, 3, 20);
-  // tentacles are temporary
-  if (e.typeId === "thebrokenscript:void_tentacle") {
-    const life = getNum(e, "life", 600) - 1;
-    setNum(e, "life", life);
-    if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
+// ── Tether / VoidTentacle ───────────────────────────────────────────────────
+function tickTether(e) {
+  // TetherEntity.registerGoals() adds no custom melee goal. Its source-side
+  // path generation remains blocked on a Bedrock equivalent for A* and block
+  // mutation; keep the heartbeat while avoiding a fabricated damage pulse.
+  const heartbeat = tetherHeartbeatStep(getNum(e, "tetherHeartbeatCooldown", 0));
+  setNum(e, "tetherHeartbeatCooldown", heartbeat.nextCooldown);
+  if (heartbeat.play) {
+    // Bedrock's vanilla sound id for SoundEvents.WARDEN_HEARTBEAT.
+    tryPlayAt(e.dimension, e.location, "mob.warden.heartbeat", TETHER_SOURCE.heartbeatVolume, TETHER_SOURCE.heartbeatPitch);
+  }
+}
+
+function targetKind(e) {
+  switch (e.typeId) {
+    case "minecraft:player": return "player";
+    case "thebrokenscript:integrity_arm": return "integrity_p3_ground_arm";
+    case "thebrokenscript:integrity_phase_3": return "integrity_phase_3";
+    default: return null;
+  }
+}
+
+function nearbyTentacleEntities(e, maxDistance) {
+  try {
+    return e.dimension.getEntities({ location: e.location, maxDistance });
+  } catch {
+    return [];
+  }
+}
+
+function tentacleTargetRecord(tentacle, target) {
+  const kind = targetKind(target);
+  if (kind === null) return null;
+  return {
+    entity: target,
+    kind,
+    alive: isLivingEntity(target),
+    onGround: entityIsOnGround(target),
+    stuck: kind === "integrity_phase_3" && isEntityStuck(target),
+    distance: distance(tentacle.location, target.location),
+  };
+}
+
+function voidTentacleAttackCandidates(e, scale) {
+  const records = nearbyTentacleEntities(
+    e,
+    VOID_TENTACLE_SOURCE.attackSearchRadiusMultiplier * scale,
+  );
+  return records
+    .map((target) => tentacleTargetRecord(e, target))
+    .filter((target) => target !== null);
+}
+
+function voidTentacleSweepCandidates(e, scale) {
+  const players = [];
+  const phase3Targets = [];
+  const armTargets = [];
+  for (const target of nearbyTentacleEntities(
+    e,
+    VOID_TENTACLE_SOURCE.sweepPlayerRadiusMultiplier * scale,
+  )) {
+    const record = tentacleTargetRecord(e, target);
+    if (record === null) continue;
+    if (record.kind === "player") players.push(record);
+    if (record.kind === "integrity_phase_3") phase3Targets.push(record);
+    if (record.kind === "integrity_p3_ground_arm") armTargets.push(record);
+  }
+  return { players, phase3Targets, armTargets };
+}
+
+function voidTentacleHasPlayerTarget(e) {
+  let players = [];
+  try { players = world.getAllPlayers(); } catch { return false; }
+  return players.some((player) => (
+    player.dimension.id === e.dimension.id
+    && isLivingEntity(player)
+    && distance(player.location, e.location) <= VOID_TENTACLE_SOURCE.targetAcquisitionRadius
+  ));
+}
+
+function scheduleTentacleSweepDamage(e, playerTargets) {
+  playerTargets.forEach((target, index) => {
+    runLater(() => {
+      applyEntityAttack(e, target.entity, VOID_TENTACLE_SOURCE.sweepDamage);
+    }, index + 1);
+  });
+}
+
+function executeVoidTentacleSweep(e, scale) {
+  const candidates = voidTentacleSweepCandidates(e, scale);
+  const plan = voidTentacleSweepPlan({ ...candidates, scale });
+  scheduleTentacleSweepDamage(e, plan.playerTargets);
+  if (plan.stuckTarget !== undefined && plan.stuckTarget !== null) {
+    setEntityStuck(plan.stuckTarget.entity, true);
+    if (plan.discardDelayTicks > 0) {
+      runLater(() => {
+        try { e.remove(); } catch {}
+        deleteTimers(e);
+      }, plan.discardDelayTicks);
+    }
+  }
+}
+
+function tickVoidTentacle(e) {
+  const cooldown = getNum(e, "voidTentacleCooldown", 0);
+  if (cooldown > 0) {
+    setNum(e, "voidTentacleCooldown", cooldown - 1);
+    return;
+  }
+
+  // The Java spawn hook rolls SCALE 1..5. Prefer a future exposed Bedrock
+  // property, otherwise persist the same source roll in the controller timer.
+  const scale = entityScale(e);
+  const plan = voidTentacleAttackPlan({
+    scale,
+    candidates: voidTentacleAttackCandidates(e, scale),
+    randomFloat: Math.random(),
+    targetAcquired: voidTentacleHasPlayerTarget(e),
+  });
+  if (plan.candidateCount === 0) return;
+  setNum(e, "voidTentacleCooldown", plan.cooldownTicks);
+  if (plan.lookTarget) {
+    try { e.lookAt?.(plan.lookTarget.entity.location); } catch {}
+  }
+  if (plan.action === "melee" && plan.meleeTarget) {
+    applyEntityAttack(e, plan.meleeTarget.entity, VOID_TENTACLE_SOURCE.meleeDamage);
+    return;
+  }
+  if (plan.action === "sweep") {
+    playEntityAnimation(e, "animation.thebrokenscript.void_tentacle.360_sweep");
+    executeVoidTentacleSweep(e, scale);
   }
 }

@@ -199,6 +199,55 @@ export const PHASE3_SOURCE = Object.freeze({
   ]),
 });
 
+// TetherEntity.java and TentacleGoals.java. These are kept separate because
+// Tether registers no custom melee goal while VoidTentacle does.
+export const TETHER_SOURCE = Object.freeze({
+  customMeleeGoal: false,
+  maxHealth: 14,
+  armor: 0,
+  knockbackResistance: 1,
+  pathRootCountMinInclusive: 8,
+  pathRootCountMaxInclusive: 12,
+  pathRadiusMinInclusive: 8,
+  pathRadiusMaxInclusive: 16,
+  pathMaxNodes: 24,
+  pathVariance: 0,
+  heartbeatCooldownTicks: 24,
+  heartbeatPeriodTicks: 25,
+  heartbeatVolume: 2,
+  heartbeatPitch: 1,
+  heartbeatSound: "WARDEN_HEARTBEAT",
+  persistent: true,
+  removeWhenFarAway: false,
+  blockedDamageSources: Object.freeze(["integrity_phase_2", "in_wall"]),
+});
+
+// VoidTentacleEntity.java, TentacleGoals.java, and TentacleHitPacket.java.
+// The multipliers include the source's `(scale * 0.7)` expression so callers
+// can apply them directly to the entity's SCALE attribute.
+export const VOID_TENTACLE_SOURCE = Object.freeze({
+  targetAcquisitionRadius: 100,
+  maxHealth: 14,
+  armor: 0,
+  knockbackResistance: 1,
+  attackIntervalTicks: 25,
+  attackSearchRadiusMultiplier: 5.6, // 8 * 0.7
+  attackCandidateRadiusMultiplier: 4.9, // 7 * 0.7
+  meleeRadiusMultiplier: 1.925, // 2.75 * 0.7
+  sweepPlayerRadiusMultiplier: 4.2, // 6 * 0.7
+  meleeDamage: 5,
+  sweepDamage: 12,
+  sweepChance: 0.35,
+  sweepAnimation: "360_Sweep",
+  sweepStuckDiscardDelayTicks: 60,
+  stuckDurationTicks: 100,
+  scaleMinInclusive: 1,
+  scaleMaxInclusive: 5,
+  persistent: true,
+  removeWhenFarAway: false,
+  allowedDamageCauses: Object.freeze(["override", "void"]),
+});
+
 export function nextIntegrityPhase(phase) {
   switch (phase) {
     case INTEGRITY_PHASE.PHASE_1: return INTEGRITY_PHASE.PHASE_2;
@@ -474,4 +523,129 @@ export function phase3Ended(integrityDying) {
 
 export function phase3TentacleCandidateCount() {
   return PHASE3_SOURCE.tentacleCandidateIndexMaxInclusive - PHASE3_SOURCE.tentacleCandidateIndexMin + 1;
+}
+
+export function tetherHeartbeatStep(cooldownTicks) {
+  if (!Number.isInteger(cooldownTicks) || cooldownTicks < 0) {
+    throw new RangeError(`Tether heartbeat cooldown must be a non-negative integer: ${cooldownTicks}`);
+  }
+  if (cooldownTicks === 0) {
+    return { play: true, nextCooldown: TETHER_SOURCE.heartbeatCooldownTicks };
+  }
+  return { play: false, nextCooldown: cooldownTicks - 1 };
+}
+
+export function tetherDamageBlocked({ sourceType, cause } = {}) {
+  return sourceType === "thebrokenscript:integrity_phase_2"
+    || cause === "flyIntoWall";
+}
+
+export function voidTentacleDamageAllowed(cause) {
+  return VOID_TENTACLE_SOURCE.allowedDamageCauses.includes(cause);
+}
+
+export function voidTentacleScaleFromRoll(roll) {
+  const maxRoll = VOID_TENTACLE_SOURCE.scaleMaxInclusive - VOID_TENTACLE_SOURCE.scaleMinInclusive;
+  if (!Number.isInteger(roll) || roll < 0 || roll > maxRoll) {
+    throw new RangeError(`VoidTentacle scale roll must be in 0..${maxRoll}: ${roll}`);
+  }
+  return VOID_TENTACLE_SOURCE.scaleMinInclusive + roll;
+}
+
+function voidTentacleTargetAllowed(target) {
+  if (target?.alive !== true) return false;
+  if (target.kind === "player" || target.kind === "integrity_p3_ground_arm") return true;
+  return target.kind === "integrity_phase_3" && target.stuck !== true;
+}
+
+export function voidTentacleAttackPlan({
+  scale = 1,
+  candidates = [],
+  randomFloat = 0,
+  targetAcquired = true,
+} = {}) {
+  if (!Number.isFinite(scale) || scale <= 0) {
+    throw new RangeError(`VoidTentacle scale must be positive: ${scale}`);
+  }
+  if (!Number.isFinite(randomFloat) || randomFloat < 0 || randomFloat > 1) {
+    throw new RangeError(`VoidTentacle randomFloat must be in 0..1: ${randomFloat}`);
+  }
+  if (targetAcquired === false) {
+    return {
+      action: "none",
+      candidateCount: 0,
+      cooldownTicks: 0,
+      lookTarget: null,
+      meleeTarget: null,
+    };
+  }
+
+  const searchRadius = VOID_TENTACLE_SOURCE.attackSearchRadiusMultiplier * scale;
+  const candidateRadius = VOID_TENTACLE_SOURCE.attackCandidateRadiusMultiplier * scale;
+  const meleeRadius = VOID_TENTACLE_SOURCE.meleeRadiusMultiplier * scale;
+  const validCandidates = candidates.filter((target) => (
+    voidTentacleTargetAllowed(target)
+    && Number.isFinite(target.distance)
+    && target.distance < searchRadius
+    && target.distance < candidateRadius
+  ));
+  if (validCandidates.length === 0) {
+    return {
+      action: "none",
+      candidateCount: 0,
+      cooldownTicks: 0,
+      lookTarget: null,
+      meleeTarget: null,
+    };
+  }
+
+  const tooClose = validCandidates.filter((target) => target.distance < meleeRadius);
+  const sweep = validCandidates.length > 1
+    || (tooClose.length === 0 && randomFloat <= VOID_TENTACLE_SOURCE.sweepChance);
+  return {
+    action: sweep ? "sweep" : (tooClose.length > 0 ? "melee" : "none"),
+    candidateCount: validCandidates.length,
+    cooldownTicks: VOID_TENTACLE_SOURCE.attackIntervalTicks,
+    lookTarget: validCandidates[0],
+    meleeTarget: sweep ? null : (tooClose[0] ?? null),
+  };
+}
+
+function voidTentacleSweepTargetInRange(target, radius) {
+  return target?.alive === true
+    && Number.isFinite(target.distance)
+    && target.distance < radius;
+}
+
+function closestVoidTentacleTarget(targets, radius) {
+  return targets
+    .filter((target) => voidTentacleSweepTargetInRange(target, radius))
+    .reduce((closest, target) => (
+      closest === null || target.distance < closest.distance ? target : closest
+    ), null);
+}
+
+export function voidTentacleSweepPlan({
+  scale = 1,
+  players = [],
+  phase3Targets = [],
+  armTargets = [],
+} = {}) {
+  if (!Number.isFinite(scale) || scale <= 0) {
+    throw new RangeError(`VoidTentacle scale must be positive: ${scale}`);
+  }
+  const radius = VOID_TENTACLE_SOURCE.sweepPlayerRadiusMultiplier * scale;
+  const playerTargets = players.filter((target) => (
+    target?.onGround === true && voidTentacleSweepTargetInRange(target, radius)
+  ));
+  const phase3Target = closestVoidTentacleTarget(phase3Targets, radius);
+  const armTarget = closestVoidTentacleTarget(armTargets, radius);
+  return {
+    radius,
+    playerTargets,
+    stuckTarget: phase3Target ?? armTarget,
+    discardDelayTicks: phase3Target
+      ? VOID_TENTACLE_SOURCE.sweepStuckDiscardDelayTicks
+      : 0,
+  };
 }

@@ -10,9 +10,11 @@ import {
   PHASE1_SOURCE,
   PHASE2_SOURCE,
   PHASE3_SOURCE,
+  TETHER_SOURCE,
   STAGE2_GENERATOR_SOURCE,
   STAGE2_UTIL_SOURCE,
   STAGE2_FLOORS,
+  VOID_TENTACLE_SOURCE,
   arenaCheckLivingPlayers,
   nextIntegrityPhase,
   phase1Ended,
@@ -38,6 +40,12 @@ import {
   stage2SpawnAttemptCoordinates,
   stage2SpawnCellChunksFromPlayerBlock,
   stage2SpawnFloorFromY,
+  tetherDamageBlocked,
+  tetherHeartbeatStep,
+  voidTentacleAttackPlan,
+  voidTentacleDamageAllowed,
+  voidTentacleScaleFromRoll,
+  voidTentacleSweepPlan,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -447,6 +455,165 @@ test("Phase 3 source constants and end predicate match current decompilation", (
   assert.equal(phase3Ended(true), true);
 });
 
+test("Tether and VoidTentacle source contracts preserve their distinct goals", () => {
+  assert.deepEqual(TETHER_SOURCE, {
+    customMeleeGoal: false,
+    maxHealth: 14,
+    armor: 0,
+    knockbackResistance: 1,
+    pathRootCountMinInclusive: 8,
+    pathRootCountMaxInclusive: 12,
+    pathRadiusMinInclusive: 8,
+    pathRadiusMaxInclusive: 16,
+    pathMaxNodes: 24,
+    pathVariance: 0,
+    heartbeatCooldownTicks: 24,
+    heartbeatPeriodTicks: 25,
+    heartbeatVolume: 2,
+    heartbeatPitch: 1,
+    heartbeatSound: "WARDEN_HEARTBEAT",
+    persistent: true,
+    removeWhenFarAway: false,
+    blockedDamageSources: ["integrity_phase_2", "in_wall"],
+  });
+  assert.deepEqual(tetherHeartbeatStep(0), { play: true, nextCooldown: 24 });
+  assert.deepEqual(tetherHeartbeatStep(24), { play: false, nextCooldown: 23 });
+
+  assert.deepEqual(VOID_TENTACLE_SOURCE, {
+    targetAcquisitionRadius: 100,
+    maxHealth: 14,
+    armor: 0,
+    knockbackResistance: 1,
+    attackIntervalTicks: 25,
+    attackSearchRadiusMultiplier: 5.6,
+    attackCandidateRadiusMultiplier: 4.9,
+    meleeRadiusMultiplier: 1.925,
+    sweepPlayerRadiusMultiplier: 4.2,
+    meleeDamage: 5,
+    sweepDamage: 12,
+    sweepChance: 0.35,
+    sweepAnimation: "360_Sweep",
+    sweepStuckDiscardDelayTicks: 60,
+    stuckDurationTicks: 100,
+    scaleMinInclusive: 1,
+    scaleMaxInclusive: 5,
+    persistent: true,
+    removeWhenFarAway: false,
+    allowedDamageCauses: ["override", "void"],
+  });
+  assert.equal(tetherDamageBlocked({ sourceType: "thebrokenscript:integrity_phase_2", cause: "entityAttack" }), true);
+  assert.equal(tetherDamageBlocked({ sourceType: "minecraft:zombie", cause: "flyIntoWall" }), true);
+  assert.equal(tetherDamageBlocked({ sourceType: "minecraft:zombie", cause: "entityAttack" }), false);
+  assert.equal(voidTentacleDamageAllowed("override"), true);
+  assert.equal(voidTentacleDamageAllowed("void"), true);
+  assert.equal(voidTentacleDamageAllowed("entityAttack"), false);
+  assert.equal(voidTentacleScaleFromRoll(0), 1);
+  assert.equal(voidTentacleScaleFromRoll(4), 5);
+  assert.throws(() => voidTentacleScaleFromRoll(-1), RangeError);
+  assert.throws(() => voidTentacleScaleFromRoll(5), RangeError);
+});
+
+test("VoidTentacle MeleeGoal preserves target filters, strict ranges, cooldown, and sweep chance", () => {
+  const nearPlayer = { kind: "player", alive: true, distance: 1.9 };
+  const outerPlayer = { kind: "player", alive: true, distance: 2.5 };
+  const stuckIntegrity = { kind: "integrity_phase_3", alive: true, stuck: true, distance: 1 };
+  const arm = { kind: "integrity_p3_ground_arm", alive: true, distance: 3 };
+
+  const melee = voidTentacleAttackPlan({
+    scale: 1,
+    candidates: [nearPlayer],
+    randomFloat: 1,
+  });
+  assert.equal(melee.action, "melee");
+  assert.equal(melee.candidateCount, 1);
+  assert.equal(melee.cooldownTicks, 25);
+  assert.equal(melee.lookTarget, nearPlayer);
+  assert.equal(melee.meleeTarget, nearPlayer);
+
+  const noAction = voidTentacleAttackPlan({
+    scale: 1,
+    candidates: [outerPlayer],
+    randomFloat: 0.351,
+  });
+  assert.equal(noAction.action, "none", "a lone non-close target can miss the 35% sweep roll");
+  assert.equal(noAction.cooldownTicks, 25, "source starts cooldown once candidates exist");
+  assert.equal(noAction.meleeTarget, null);
+
+  const sweep = voidTentacleAttackPlan({
+    scale: 1,
+    candidates: [outerPlayer],
+    randomFloat: 0.35,
+  });
+  assert.equal(sweep.action, "sweep", "the source comparison is inclusive at 0.35");
+  assert.equal(sweep.lookTarget, outerPlayer);
+
+  const multiTargetSweep = voidTentacleAttackPlan({
+    scale: 1,
+    candidates: [outerPlayer, arm],
+    randomFloat: 1,
+  });
+  assert.equal(multiTargetSweep.action, "sweep", "two valid candidates always sweep");
+  assert.equal(multiTargetSweep.candidateCount, 2);
+  assert.equal(multiTargetSweep.lookTarget, outerPlayer);
+
+  const filtered = voidTentacleAttackPlan({
+    scale: 1,
+    candidates: [
+      stuckIntegrity,
+      { kind: "unknown", alive: true, distance: 1 },
+      { kind: "player", alive: false, distance: 1 },
+      { kind: "player", alive: true, distance: 4.9 },
+    ],
+    randomFloat: 1,
+  });
+  assert.equal(filtered.action, "none");
+  assert.equal(filtered.candidateCount, 0, "stuck Phase 3, unknown, dead, and boundary targets are excluded");
+  assert.equal(filtered.cooldownTicks, 0);
+
+  const scaleTwo = voidTentacleAttackPlan({
+    scale: 2,
+    candidates: [{ kind: "player", alive: true, distance: 3.8 }],
+    randomFloat: 1,
+  });
+  assert.equal(scaleTwo.action, "melee", "all distance thresholds scale with Attributes.SCALE");
+
+  const noPlayerTarget = voidTentacleAttackPlan({
+    scale: 1,
+    targetAcquired: false,
+    candidates: [nearPlayer],
+    randomFloat: 0,
+  });
+  assert.equal(noPlayerTarget.action, "none");
+  assert.equal(noPlayerTarget.candidateCount, 0, "MeleeGoal cannot run without its live player target");
+});
+
+test("VoidTentacle sweep damages grounded players and prioritizes Phase 3 sticking", () => {
+  const grounded = { kind: "player", alive: true, onGround: true, distance: 4 };
+  const airborne = { kind: "player", alive: true, onGround: false, distance: 1 };
+  const phase3 = { kind: "integrity_phase_3", alive: true, distance: 2 };
+  const arm = { kind: "integrity_p3_ground_arm", alive: true, distance: 1 };
+
+  const phase3Sweep = voidTentacleSweepPlan({
+    scale: 1,
+    players: [grounded, airborne],
+    phase3Targets: [phase3],
+    armTargets: [arm],
+  });
+  assert.equal(phase3Sweep.radius, 4.2);
+  assert.deepEqual(phase3Sweep.playerTargets, [grounded]);
+  assert.equal(phase3Sweep.stuckTarget, phase3, "Phase 3 wins over an arm when both are in range");
+  assert.equal(phase3Sweep.discardDelayTicks, 60);
+
+  const armSweep = voidTentacleSweepPlan({
+    scale: 1,
+    players: [],
+    phase3Targets: [],
+    armTargets: [arm],
+  });
+  assert.equal(armSweep.stuckTarget, arm);
+  assert.equal(armSweep.discardDelayTicks, 0);
+});
+
 test("boss controller does not manufacture Integrity health-threshold phase transitions", async () => {
   const controller = await readFile(
     path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"),
@@ -456,4 +623,48 @@ test("boss controller does not manufacture Integrity health-threshold phase tran
   assert.doesNotMatch(controller, /function transitionPhase\(/);
   assert.doesNotMatch(controller, /const threshold = e\.typeId === "thebrokenscript:integrity_phase_1" \? 0\.5 : 0\.4/);
   assert.match(controller, /setArenaState\(true, e\.typeId === "thebrokenscript:integrity_phase_1"\)/);
+});
+
+test("boss controller preserves source-specific VoidTentacle/Tether dispatch", async () => {
+  const controller = await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"),
+    "utf8",
+  );
+  assert.match(controller, /thebrokenscript:stage2/);
+  assert.match(controller, /thebrokenscript:void_shadow/);
+  assert.match(controller, /function tickTether\(e\)/);
+  assert.match(controller, /function tickVoidTentacle\(e\)/);
+  assert.match(controller, /voidTentacleAttackPlan/);
+  assert.match(controller, /voidTentacleScaleFromRoll/);
+  assert.doesNotMatch(controller, /tentacles are temporary/i);
+  assert.doesNotMatch(controller, /getNum\(e, "life", 600\)/);
+  const tetherBody = controller.match(/function tickTether\(e\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
+  assert.doesNotMatch(tetherBody, /meleePulse/);
+});
+
+test("boss controller protects source-invulnerable VoidTentacles and Tether exceptions", async () => {
+  const controller = await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"),
+    "utf8",
+  );
+  assert.match(controller, /world\.beforeEvents\.entityHurt\.subscribe/);
+  assert.match(controller, /voidTentacleDamageAllowed/);
+  assert.match(controller, /tetherDamageBlocked/);
+});
+
+test("Bedrock hazard definitions match source health and attack contracts", async () => {
+  const tether = JSON.parse(await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/entities/tether.json"),
+    "utf8",
+  ));
+  const voidTentacle = JSON.parse(await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/entities/void_tentacle.json"),
+    "utf8",
+  ));
+  assert.equal(tether["minecraft:entity"].components["minecraft:health"].value, TETHER_SOURCE.maxHealth);
+  assert.equal(tether["minecraft:entity"].components["minecraft:health"].max, TETHER_SOURCE.maxHealth);
+  assert.equal(tether["minecraft:entity"].components["minecraft:attack"], undefined, "Tether has no custom melee goal");
+  assert.equal(voidTentacle["minecraft:entity"].components["minecraft:health"].value, VOID_TENTACLE_SOURCE.maxHealth);
+  assert.equal(voidTentacle["minecraft:entity"].components["minecraft:health"].max, VOID_TENTACLE_SOURCE.maxHealth);
+  assert.equal(voidTentacle["minecraft:entity"].components["minecraft:attack"].damage, VOID_TENTACLE_SOURCE.meleeDamage);
 });
