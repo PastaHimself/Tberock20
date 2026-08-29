@@ -84,6 +84,16 @@ class ShaftSourceParityTests(unittest.TestCase):
         self.assertEqual("thebrokenscript:shaft_root", structure["start_pool"])
         self.assertEqual("thebrokenscript:shaft_root", structure["start_jigsaw_name"])
 
+    def test_packaging_preserves_authoritative_shaft_jigsaw_assets(self):
+        package_script = (REPO_ROOT / "tools/package-addon.sh").read_text(encoding="utf-8")
+        workflow = (REPO_ROOT / ".github/workflows/bedrock-addon-check.yml").read_text(encoding="utf-8")
+
+        self.assertNotIn("find \"$STAGE_DIR/bp/structures\" -type f -name '*.nbt' -delete", package_script)
+        self.assertNotIn("worldgen/structures/shaft.json\" \\", package_script)
+        self.assertNotIn("find .ci/mct/behavior_packs/bp/structures -type f -name '*.nbt' -delete", workflow)
+        self.assertIn("python tools/validate_jigsaw_worldgen.py", workflow)
+        self.assertIn("python tools/validate_jigsaw_nbt_connectors.py", workflow)
+
     def test_no_invented_natural_shaft_structure_set_is_shipped(self):
         self.assertFalse(
             (BP_ROOT / "worldgen/structure_sets/shaft.json").exists(),

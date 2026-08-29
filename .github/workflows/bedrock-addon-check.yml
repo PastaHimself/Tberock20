@@ -49,6 +49,14 @@ jobs:
         if: always()
         run: python tools/validate_resource_links.py --report artifacts/resource-link-validation.json
 
+      - name: Validate Jigsaw worldgen definitions
+        if: always()
+        run: python tools/validate_jigsaw_worldgen.py
+
+      - name: Validate Jigsaw NBT connector graph
+        if: always()
+        run: python tools/validate_jigsaw_nbt_connectors.py
+
       - name: Validate all Bedrock structures
         if: always()
         run: python tools/validate_mcstructures.py --report artifacts/mcstructure-validation.json
@@ -113,16 +121,10 @@ jobs:
           cp -a TheBrokenScript_Bedrock_2_0/BP/. .ci/mct/behavior_packs/bp/
           cp -a TheBrokenScript_Bedrock_2_0/RP/. .ci/mct/resource_packs/rp/
 
-          # The Shaft source templates are authoritative Java NBT retained for
-          # parity work. They are not valid Bedrock .mcstructure assets yet, so
-          # the production validation stage excludes the incomplete Jigsaw slice.
-          find .ci/mct/behavior_packs/bp/structures -type f -name '*.nbt' -delete 2>/dev/null || true
-          rm -f \
-            .ci/mct/behavior_packs/bp/worldgen/structures/shaft.json \
-            .ci/mct/behavior_packs/bp/worldgen/template_pools/hallway.json \
-            .ci/mct/behavior_packs/bp/worldgen/template_pools/shaft_room.json \
-            .ci/mct/behavior_packs/bp/worldgen/template_pools/shaft_root.json
-
+          # Current Bedrock Jigsaw supports structure templates stored as .nbt or
+          # .mcstructure. Keep the source-identical Shaft .nbt files in the exact
+          # production stage that MCT inspects; our dedicated Jigsaw validators run
+          # above before the narrowly scoped MCT compatibility filter is applied.
           find .ci/mct -type f \( -name '*.gif' -o -name '*.json.old' \) -delete
           if [[ -f .ci/mct/resource_packs/rp/sound_definitions.json ]]; then
             mkdir -p .ci/mct/resource_packs/rp/sounds
