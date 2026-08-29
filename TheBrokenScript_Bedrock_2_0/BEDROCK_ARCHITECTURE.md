@@ -96,5 +96,7 @@ blocks ── portals/dimensions ── worldgen ── integration ── audit
 | 17 | Full source parity audit vs SOURCE_INVENTORY (912 entries) |
 | 18 | Final validation (static + runtime) |
 | 19 | Packaging: .mcaddon + final reports |
+| 20 | Remaining safe source ports and VHS UI integration |
+| 21 | Integrity Phase 3 runtime semantics: tentacle ring, boundary countdown, and cutscene timing model |
 
 Subchunk splits remain allowed (Chunk NNx) without changing this table's contract.

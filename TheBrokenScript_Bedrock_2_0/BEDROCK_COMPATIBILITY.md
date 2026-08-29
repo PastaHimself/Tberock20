@@ -1,7 +1,7 @@
 # BEDROCK_COMPATIBILITY.md
 
 Effective target: **Minecraft Bedrock 1.26.50+**. The BP minimum engine is `[1, 26, 50]`; the paired RP retains `[1, 26, 10]`, so the behavior pack sets the effective add-on floor.
-Version-sensitive claims were re-verified against official Microsoft Learn / Minecraft Creator documentation on 2026-08-25 for Chunk 20.
+Version-sensitive claims were re-verified against official Microsoft Learn / Minecraft Creator documentation on 2026-08-29 for Chunk 21.
 
 ## Verified platform facts (with sources)
 
@@ -24,6 +24,7 @@ Version-sensitive claims were re-verified against official Microsoft Learn / Min
 | Particles | Custom particles are resource-pack `particle_effect` documents. Instant emitters, finite particle lifetime, billboard appearance, and namespaced spawning are supported. | Particle Effects; particle document/component references |
 | Blocks experimental | Voxel shapes (culling) behind experimental toggle; block entity events via `onEntity` handler (beta lineage) — not required for Chunk 03; re-check when blocks chunk starts. | 1.26.10 update notes (Experimental) |
 | N-1 rule | Prefer depending on the highest stable minor available within the chosen major; do not chase preview versions. | Latest Platform Version Guidance |
+| Java Phase 3 transport | The source uses custom music/overlay/cutscene packets and a client camera override. This port can preserve their deterministic timing in a pure model, but cannot reproduce the Java packet or camera transport through the add-on runtime. | decompiled/net/thebrokenscript/boss/integrity/Phase3.java; FinalCutscene.java; ADAPTATION_NOTES A-011 |
 
 ## Decisions locked by verification
 
@@ -33,6 +34,10 @@ Version-sensitive claims were re-verified against official Microsoft Learn / Min
 4. **Custom dimensions**: retained on the chosen beta path. Do not remove them merely to eliminate the experiment.
 5. **Camera horror effects**: the previously verified camera APIs remain available; Chunk 20 adds no new camera dependency.
 6. **No community-doc reliance**: Script API, item, form, GameMode, and particle decisions were cross-checked against Microsoft Learn. JSON UI structure was additionally audited against vanilla UI definitions and the repository's strict UI checker.
+
+## Chunk 21 compatibility note
+
+The Phase 3 controller only relies on APIs already used by the pack: entity spawning, Dimension.getTopmostBlock/getBlock, player applyDamage, and the existing scheduler. The exact Java custom overlay, music packet, camera override, and custom damage type remain documented adaptations rather than hidden compatibility assumptions.
 
 ## Documentation changes since the porting prompt was written
 

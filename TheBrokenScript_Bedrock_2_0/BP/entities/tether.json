@@ -17,14 +17,11 @@
         ]
       },
       "minecraft:health": {
-        "value": 910,
-        "max": 910
+        "value": 14,
+        "max": 14
       },
       "minecraft:movement": {
         "value": 0
-      },
-      "minecraft:attack": {
-        "damage": 4
       },
       "minecraft:follow_range": {
         "value": 64,

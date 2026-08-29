@@ -58,6 +58,15 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 ## A-010 — Packet desynchronization
 `PlayerDesyncManager` toggles a Java player flag and resends deferred packets through a server-connection mixin on resync. Bedrock Script API exposes neither packet interception nor deferred packet replay. Chunk 20 makes the item functional with per-player state, nausea/darkness, glitch presentation, and a same-position/rotation teleport on resync. Parity: packet behavior = `ENGINE_UNSUPPORTED`; gameplay beat = `VALIDATED_APPROXIMATION`.
 
+## A-011 — Integrity Phase 3 transport and final cutscene
+1. **Source feature**: Phase3.java ring spawning, boundary kill countdown, custom transition overlay, dimension transfer, music packets, end cutscene, and delayed boss discard.
+2. **Source behavior**: IntRange(0, 250) generates 251 candidate iterations with random radii 100–123 around (200, 202); three preset tentacles use fixed coordinates and SCALE 2. Players above y=90 in the Stage3 dimension receive a 60-tick countdown and then 1,000,000 void_mass damage. FinalCutscene.java runs for 428 ticks with a 108-tick pre-roll, 190-tick camera interpolation, 100-tick zoom, and 40-tick blackout.
+3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase3.java and decompiled/net/thebrokenscript/boss/integrity/FinalCutscene.java.
+4. **Bedrock limitation**: The Java Arena participant roster, custom overlay/music/cutscene packets, client camera override, and custom void_mass damage source have no direct add-on equivalent in the current runtime surface.
+5. **Replacement design**: The pure arena model preserves the exact ring geometry, boundary state machine, and cutscene timing. The boss controller spawns the ring/presets once, applies the countdown to players currently in the boss dimension, and maps terminal damage to Bedrock's native void cause.
+6. **Player-visible difference**: The source transition texture, custom music packets, final camera path, and exact participant transfer/attribution are not reproduced; the deterministic gameplay countdown and tentacle placement are shipped.
+7. **Parity class**: VALIDATED_APPROXIMATION for the runtime slice; ENGINE_UNSUPPORTED for Java-only transport/camera behavior.
+
 ## Pending-analysis adaptations (bytecode required)
 - Spawn-condition predicates (24 classes) → spawn director fidelity depends on decompiled constants/timings.
 - Event probabilities/cooldowns (~91 handlers) → same.
