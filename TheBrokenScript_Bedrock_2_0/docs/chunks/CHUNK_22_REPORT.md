@@ -12,7 +12,7 @@
 - `npm test`: **24 passed, 0 failed**.
 - `node --check` passed for the changed JavaScript files.
 - `void_tentacle.json` parsed successfully.
-- GitHub Actions validation is run on the published commit and recorded in `VALIDATION_LOG.md` after completion.
+- GitHub Actions run 72 ([Bedrock Add-on Check](https://github.com/PastaHimself/tbs-2.0/actions/runs/33260817900)) passed all validation, diagnostics, Creator Tools, packaging, and report-upload steps.
 
 ## Remaining difference
 

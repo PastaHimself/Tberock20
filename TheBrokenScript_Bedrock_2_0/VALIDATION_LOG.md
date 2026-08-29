@@ -58,5 +58,4 @@
 - TDD red phase: the new SCALE contract test failed because the current entity definition had no persisted property or event-backed visual groups.
 - TDD green phase: `npm test` — **24 passed, 0 failed**.
 - Static checks: `node --check` passed for the changed boss controller and arena model; `void_tentacle.json` parsed successfully.
-- Remote GitHub Actions validation is required on the published commit and is recorded with the resulting run after it completes.
-
+- GitHub Actions run 72 ([Bedrock Add-on Check](https://github.com/PastaHimself/tbs-2.0/actions/runs/33260817900)): **success**; all validation, diagnostics, Creator Tools, packaging, and report-upload steps completed successfully.
