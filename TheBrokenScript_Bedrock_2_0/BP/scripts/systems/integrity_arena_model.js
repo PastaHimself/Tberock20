@@ -264,6 +264,33 @@ export const VOID_TENTACLE_SOURCE = Object.freeze({
   allowedDamageCauses: Object.freeze(["override", "void"]),
 });
 
+// GroundAttack.kt and IntegrityP3GroundArmEntity.kt. The Bedrock controller
+// stores the Java owner relationship in a runtime map because Bedrock entity
+// ids are opaque strings rather than the source's synchronized integer id.
+export const GROUND_ATTACK_SOURCE = Object.freeze({
+  attackCooldownTicks: 70,
+  distanceRange: Object.freeze([40, 80]),
+  chance: 1,
+  canMove: false,
+  canUse: true,
+  normalLengthTicks: 175,
+  stuckLengthTicks: 260,
+  targetCaptureTick: 33,
+  armSpawnTick: 40,
+});
+
+export const GROUND_ARM_SOURCE = Object.freeze({
+  impactTick: 5,
+  impactRadius: 5,
+  impactDamage: 15,
+  horizontalKnockback: 1.5,
+  upwardKnockback: 2.6,
+  tentacleSearchRadius: 20,
+  discardWithoutTentacleAfterTick: 40,
+  discardWithTentacleAfterTick: 180,
+  persistent: false,
+});
+
 export function nextIntegrityPhase(phase) {
   switch (phase) {
     case INTEGRITY_PHASE.PHASE_1: return INTEGRITY_PHASE.PHASE_2;
@@ -683,6 +710,74 @@ export function voidTentacleScaleFromRoll(roll) {
     throw new RangeError(`VoidTentacle scale roll must be in 0..${maxRoll}: ${roll}`);
   }
   return VOID_TENTACLE_SOURCE.scaleMinInclusive + roll;
+}
+
+export function groundAttackCanUse({ distance, previousAttack = null } = {}) {
+  const [minDistance, maxDistance] = GROUND_ATTACK_SOURCE.distanceRange;
+  return previousAttack !== "GROUND_ATTACK"
+    && Number.isFinite(distance)
+    && distance >= minDistance
+    && distance <= maxDistance;
+}
+
+export function groundAttackStep({
+  timer = 0,
+  targetBlockPosition = null,
+  targetBlock = null,
+  hasTarget = false,
+  stuck = false,
+} = {}) {
+  const nextTimer = timer + 1;
+  const capturedTarget = nextTimer === GROUND_ATTACK_SOURCE.targetCaptureTick
+    && hasTarget
+    && targetBlock !== null;
+  const nextTargetBlockPosition = capturedTarget
+    ? targetBlock
+    : targetBlockPosition;
+  return {
+    timer: nextTimer,
+    targetBlockPosition: nextTargetBlockPosition,
+    capturedTarget,
+    spawnArm: nextTimer === GROUND_ATTACK_SOURCE.armSpawnTick
+      && nextTargetBlockPosition !== null,
+    lookAtTarget: nextTargetBlockPosition,
+    lengthTicks: stuck
+      ? GROUND_ATTACK_SOURCE.stuckLengthTicks
+      : GROUND_ATTACK_SOURCE.normalLengthTicks,
+  };
+}
+
+export function groundArmImpactPlan({ intersectingPlayers = [] } = {}) {
+  return intersectingPlayers.map((player) => {
+    const horizontalDistance = Math.max(
+      Math.hypot(player.dx ?? 0, player.dz ?? 0),
+      0.001,
+    );
+    return {
+      id: player.id,
+      damage: GROUND_ARM_SOURCE.impactDamage,
+      knockback: {
+        x: (player.dx ?? 0) / horizontalDistance * GROUND_ARM_SOURCE.horizontalKnockback,
+        y: GROUND_ARM_SOURCE.upwardKnockback,
+        z: (player.dz ?? 0) / horizontalDistance * GROUND_ARM_SOURCE.horizontalKnockback,
+      },
+    };
+  });
+}
+
+export function groundArmLifecycleStep({
+  timer = 0,
+  ownerPresent = true,
+  hasTentacleNearby = false,
+} = {}) {
+  const nextTimer = timer + 1;
+  return {
+    timer: nextTimer,
+    impact: ownerPresent && nextTimer === GROUND_ARM_SOURCE.impactTick,
+    discard: !ownerPresent
+      || (nextTimer > GROUND_ARM_SOURCE.discardWithoutTentacleAfterTick && !hasTentacleNearby)
+      || (nextTimer > GROUND_ARM_SOURCE.discardWithTentacleAfterTick && hasTentacleNearby),
+  };
 }
 
 function voidTentacleTargetAllowed(target) {

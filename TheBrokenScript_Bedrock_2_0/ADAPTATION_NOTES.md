@@ -80,3 +80,12 @@ The Bedrock port persists the equivalent value as the client-synced `thebrokensc
 
 The Java attribute mutation and renderer pipeline are not portable; persistence, synchronization, behavior lookup, and visual size are covered by the Bedrock adapter.
 
+## A-013 — Integrity GroundArm owner and contact adapter
+
+1. **Source feature**: `GroundAttack` creates an `IntegrityP3GroundArmEntity`, assigns the Integrity Phase 3 entity as its owner, and the arm later forwards stuck state and damage behavior to that owner.
+2. **Source behavior**: the attack captures the target block at tick 33 and creates the arm at tick 40; the arm impacts intersecting players at tick 5, then discards when its owner is absent or when the source tentacle-proximity thresholds are crossed.
+3. **Source evidence**: `decompiled/net/thebrokenscript/entity/integrity/phase3/attacks/GroundAttack.java` and `decompiled/net/thebrokenscript/entity/integrity/phase3/IntegrityP3GroundArmEntity.java`.
+4. **Bedrock limitation**: Bedrock entity IDs are opaque strings and the current add-on surface does not expose the source's synchronized integer owner field or Java `AABB.intersects` query.
+5. **Replacement design**: the controller keeps a live `arm.id → owner` map, guards invalid references, applies the source timing/damage/impulse plan, and uses a five-block entity query as the contact approximation. GroundArm is explicitly non-persistent in its BP definition.
+6. **Player-visible difference**: owner association is runtime-only and is rebuilt only when a new GroundAttack spawns an arm; player contact is radius-based rather than exact bounding-box intersection.
+7. **Parity class**: `VALIDATED_APPROXIMATION`; exact owner synchronization and geometric contact remain engine gaps.

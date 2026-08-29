@@ -5,11 +5,17 @@ import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import {
+  GROUND_ARM_SOURCE,
+  GROUND_ATTACK_SOURCE,
   PHASE3_SOURCE,
   TETHER_SOURCE,
   VOID_TENTACLE_SOURCE,
   phase3BoundaryKillStep,
   phase3TentacleCandidatePosition,
+  groundArmImpactPlan,
+  groundArmLifecycleStep,
+  groundAttackCanUse,
+  groundAttackStep,
   tetherDamageBlocked,
   tetherHeartbeatStep,
   voidTentacleAttackPlan,
@@ -52,6 +58,10 @@ function installDeathHook() {
 const FIREBALL_SPEED = 0.8;
 
 const timers = new Map();
+// IntegrityP3GroundArmEntity stores a synchronized integer owner id. Bedrock
+// entity ids are opaque strings, so the adapter keeps the live relationship in
+// memory and drops it as soon as either entity becomes invalid.
+const groundArmOwners = new Map();
 
 function getNum(e, key, def) {
   const m = timers.get(e.id);
@@ -64,7 +74,10 @@ function setNum(e, key, v) {
   if (!m) { m = {}; timers.set(e.id, m); }
   m[key] = v;
 }
-function deleteTimers(e) { timers.delete(e.id); }
+function deleteTimers(e) {
+  timers.delete(e.id);
+  groundArmOwners.delete(e.id);
+}
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z); }
 
 function getHealth(e) {
@@ -139,6 +152,43 @@ function callEntityMethod(entity, name, ...args) {
   }
 }
 
+function entityReferenceIsValid(entity) {
+  if (!entity) return false;
+  try { return entity.isValid !== false; } catch { return false; }
+}
+
+function setGroundArmOwner(arm, owner) {
+  if (!arm?.id) return;
+  if (entityReferenceIsValid(owner)) {
+    groundArmOwners.set(arm.id, owner);
+  } else {
+    groundArmOwners.delete(arm.id);
+  }
+}
+
+function getGroundArmOwner(arm) {
+  const owner = groundArmOwners.get(arm?.id);
+  if (!entityReferenceIsValid(owner)) {
+    if (arm?.id) groundArmOwners.delete(arm.id);
+    return null;
+  }
+  return owner;
+}
+
+function spawnIntegrityGroundArm(owner, targetBlock) {
+  if (!entityReferenceIsValid(owner) || !targetBlock) return undefined;
+  const arm = spawnAt(owner.dimension, "thebrokenscript:integrity_arm", {
+    x: targetBlock.x + 0.5,
+    y: targetBlock.y,
+    z: targetBlock.z + 0.5,
+  });
+  if (arm) {
+    setGroundArmOwner(arm, owner);
+    setNum(arm, "groundArmTimer", 0);
+  }
+  return arm;
+}
+
 function entityScale(e) {
   const propertyScale = callEntityMethod(e, "getProperty", "thebrokenscript:scale");
   if (typeof propertyScale === "number" && propertyScale > 0) {
@@ -190,19 +240,37 @@ function entityIsOnGround(e) {
 }
 
 function isEntityStuck(e) {
+  if (getNum(e, "stuck", false) === true) return true;
   if (callEntityMethod(e, "hasTag", "thebrokenscript.stuck") === true) return true;
   return callEntityMethod(e, "getProperty", "thebrokenscript:stuck") === true;
 }
 
 function setEntityStuck(e, stuck) {
+  setNum(e, "stuck", stuck === true);
   if (stuck) {
     callEntityMethod(e, "addTag", "thebrokenscript.stuck");
     callEntityMethod(e, "setProperty", "thebrokenscript:stuck", true);
+    if (e?.typeId === "thebrokenscript:integrity_arm") {
+      const owner = getGroundArmOwner(e);
+      if (owner) {
+        setNum(owner, "stuck", true);
+        callEntityMethod(owner, "addTag", "thebrokenscript.stuck");
+        callEntityMethod(owner, "setProperty", "thebrokenscript:stuck", true);
+      }
+    }
     runLater(() => setEntityStuck(e, false), VOID_TENTACLE_SOURCE.stuckDurationTicks);
     return;
   }
   callEntityMethod(e, "removeTag", "thebrokenscript.stuck");
   callEntityMethod(e, "setProperty", "thebrokenscript:stuck", false);
+  if (e?.typeId === "thebrokenscript:integrity_arm") {
+    const owner = getGroundArmOwner(e);
+    if (owner) {
+      setNum(owner, "stuck", false);
+      callEntityMethod(owner, "removeTag", "thebrokenscript.stuck");
+      callEntityMethod(owner, "setProperty", "thebrokenscript:stuck", false);
+    }
+  }
 }
 
 function playEntityAnimation(e, animationId) {
@@ -298,6 +366,10 @@ function tickIntegrityP3(e) {
       phase3TentaclesSpawned: false,
       pendingKills: {},
       tentacleIds: [],
+      groundAttackCooldown: 0,
+      groundAttackTimer: null,
+      groundAttackTargetId: null,
+      groundAttackTargetBlockPosition: null,
     };
     timers.set(e.id, phase3State);
     bossHooks.setArenaState(true, false);
@@ -326,6 +398,82 @@ function tickIntegrityP3(e) {
     const target = players.find((player) => player.id === id);
     if (target) applyPhase3VoidMass(target.entity, e);
   }
+
+  // GroundAttack is the first Phase 3 attack wired into the controller. The
+  // remaining Phase3Goals attack selector and its other attack classes remain
+  // a separate porting slice.
+  tickIntegrityGroundAttack(e, phase3State);
+}
+
+function integrityGroundAttackTarget(e, targetId = null) {
+  let players = [];
+  try { players = world.getAllPlayers(); } catch { return null; }
+  const activeTarget = targetId !== null && targetId !== undefined;
+  const candidates = players.filter((player) => {
+    try {
+      if (player.dimension.id !== e.dimension.id || !isLivingEntity(player)) return false;
+      if (activeTarget) return player.id === targetId;
+      return groundAttackCanUse({ distance: distance(e.location, player.location) });
+    } catch {
+      return false;
+    }
+  });
+  candidates.sort((a, b) => distance(e.location, a.location) - distance(e.location, b.location));
+  return candidates[0] ?? null;
+}
+
+function blockPositionOf(entity) {
+  return {
+    x: Math.floor(entity.location.x),
+    y: Math.floor(entity.location.y),
+    z: Math.floor(entity.location.z),
+  };
+}
+
+function finishIntegrityGroundAttack(state) {
+  state.groundAttackCooldown = GROUND_ATTACK_SOURCE.attackCooldownTicks;
+  state.groundAttackTimer = null;
+  state.groundAttackTargetId = null;
+  state.groundAttackTargetBlockPosition = null;
+}
+
+function tickIntegrityGroundAttack(e, state) {
+  if (!Number.isInteger(state.groundAttackCooldown)) state.groundAttackCooldown = 0;
+  if (state.groundAttackTimer === undefined) state.groundAttackTimer = null;
+  if (state.groundAttackTargetId === undefined) state.groundAttackTargetId = null;
+  if (state.groundAttackTargetBlockPosition === undefined) {
+    state.groundAttackTargetBlockPosition = null;
+  }
+
+  if (state.groundAttackTimer === null) {
+    if (state.groundAttackCooldown > 0) {
+      state.groundAttackCooldown -= 1;
+      return;
+    }
+    const target = integrityGroundAttackTarget(e);
+    if (!target) return;
+    state.groundAttackTimer = 0;
+    state.groundAttackTargetId = target.id;
+  }
+
+  const target = integrityGroundAttackTarget(e, state.groundAttackTargetId);
+  const step = groundAttackStep({
+    timer: state.groundAttackTimer,
+    targetBlockPosition: state.groundAttackTargetBlockPosition,
+    targetBlock: target ? blockPositionOf(target) : null,
+    hasTarget: target !== null,
+    stuck: isEntityStuck(e),
+  });
+  state.groundAttackTimer = step.timer;
+  state.groundAttackTargetBlockPosition = step.targetBlockPosition;
+  if (target) {
+    try { e.lookAt?.(target.location); } catch {}
+  }
+
+  if (step.spawnArm) {
+    spawnIntegrityGroundArm(e, step.targetBlockPosition);
+  }
+  if (step.timer >= step.lengthTicks) finishIntegrityGroundAttack(state);
 }
 
 function spawnAt(dim, typeId, loc) {
@@ -416,11 +564,51 @@ function spawnPhase3Tentacles(e, state) {
 }
 
 // ── Arm / curious / fireball ────────────────────────────────────────────────
+function hasNearbyVoidTentacle(e) {
+  return nearbyTentacleEntities(e, GROUND_ARM_SOURCE.tentacleSearchRadius)
+    .some((target) => target.typeId === "thebrokenscript:void_tentacle");
+}
+
+function groundArmImpactPlayers(e) {
+  return nearbyTentacleEntities(e, GROUND_ARM_SOURCE.impactRadius)
+    .filter((target) => target.typeId === "minecraft:player" && isLivingEntity(target))
+    .map((player) => ({
+      id: player.id,
+      entity: player,
+      dx: player.location.x - e.location.x,
+      dz: player.location.z - e.location.z,
+    }));
+}
+
+function applyGroundArmImpact(e, owner) {
+  if (!owner) return;
+  const candidates = groundArmImpactPlayers(e);
+  // Bedrock's current entity query has no Java-style bounding-box intersection
+  // predicate. The source query's five-block inflate is retained; the radius
+  // result is the documented contact approximation for this adapter.
+  const impacts = groundArmImpactPlan({ intersectingPlayers: candidates });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    applyEntityAttack(owner, candidate.entity, impact.damage);
+    callEntityMethod(candidate.entity, "applyImpulse", impact.knockback);
+  }
+}
+
 function tickArm(e) {
-  let life = getNum(e, "life", 200);
-  life--; setNum(e, "life", life);
-  meleePulse(e, 50, 4, 30);
-  if (life <= 0 || getHealth(e) <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
+  const owner = getGroundArmOwner(e);
+  const step = groundArmLifecycleStep({
+    timer: getNum(e, "groundArmTimer", 0),
+    ownerPresent: owner !== null,
+    hasTentacleNearby: owner !== null && hasNearbyVoidTentacle(e),
+  });
+  setNum(e, "groundArmTimer", step.timer);
+  if (step.discard) {
+    try { e.remove(); } catch {}
+    deleteTimers(e);
+    return;
+  }
+  if (step.impact) applyGroundArmImpact(e, owner);
 }
 
 function tickCuriousWatcher(e) {

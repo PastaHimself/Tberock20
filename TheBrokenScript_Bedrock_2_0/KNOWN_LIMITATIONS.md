@@ -16,7 +16,6 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 12. **`sites/rblog/file.bin` stays out of the pack** — it is an opaque 85 MB non-Minecraft payload and cannot execute in Bedrock.
 13. **Nostalgia overrides remain partial/deferred** — these replace broad vanilla sound/model assets and can conflict with the main RP. The later `tbs.zip` upload is a multipart/concatenated archive whose outer directory exposes only chunks 3, 5, 6, 7, 8, and 9, so it is not a safe basis for claiming a complete optional-pack import.
 
-14. **Integrity Phase 3 Java transport is not exact** — the controller now ships source-backed tentacle placement, boundary countdown, and native void terminal damage. The Java Arena participant roster/transfer, transition.png overlay packet, custom music/cutscene packets, client camera override, custom void_mass attribution, and delayed cleanup remain adaptations or unsupported transport (A-011).
+14. **Integrity Phase 3 Java transport and attack selection are not exact** — the controller now ships source-backed tentacle placement, boundary countdown, native void terminal damage, and the GroundAttack/GroundArm timing/owner/lifecycle adapter. The Java Arena participant roster/transfer, transition.png overlay packet, custom music/cutscene packets, client camera override, custom void_mass attribution, complete Phase3Goals multi-attack selector, synchronized integer owner field, exact bounding-box contact query, and delayed cleanup remain adaptations or unsupported transport (A-011, A-013).
 
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.
-

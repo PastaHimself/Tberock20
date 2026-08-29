@@ -767,12 +767,17 @@ test("Bedrock hazard definitions match source health and attack contracts", asyn
     path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/entities/void_tentacle.json"),
     "utf8",
   ));
+  const integrityArm = JSON.parse(await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/entities/integrity_arm.json"),
+    "utf8",
+  ));
   assert.equal(tether["minecraft:entity"].components["minecraft:health"].value, TETHER_SOURCE.maxHealth);
   assert.equal(tether["minecraft:entity"].components["minecraft:health"].max, TETHER_SOURCE.maxHealth);
   assert.equal(tether["minecraft:entity"].components["minecraft:attack"], undefined, "Tether has no custom melee goal");
   assert.equal(voidTentacle["minecraft:entity"].components["minecraft:health"].value, VOID_TENTACLE_SOURCE.maxHealth);
   assert.equal(voidTentacle["minecraft:entity"].components["minecraft:health"].max, VOID_TENTACLE_SOURCE.maxHealth);
   assert.equal(voidTentacle["minecraft:entity"].components["minecraft:attack"].damage, VOID_TENTACLE_SOURCE.meleeDamage);
+  assert.equal(integrityArm["minecraft:entity"].components["minecraft:persistent"], undefined, "GroundArm is not persistent in source");
 });
 
 test("VoidTentacle exposes source SCALE through persisted property and visual scale events", async () => {
@@ -817,4 +822,128 @@ test("VoidTentacle exposes source SCALE through persisted property and visual sc
   assert.match(controller, /callEntityMethod\(e, "triggerEvent", `thebrokenscript:scale_\$\{normalized\}`\)/);
   assert.match(controller, /setEntityScale\(tentacle, 2\)/);
   assert.doesNotMatch(controller, /otherwise persist the same source roll in the controller timer/i);
+});
+
+test("GroundAttack and GroundArm preserve source timing, ownership, and lifecycle rules", () => {
+  assert.deepEqual(integrityModel.GROUND_ATTACK_SOURCE, {
+    attackCooldownTicks: 70,
+    distanceRange: [40, 80],
+    chance: 1,
+    canMove: false,
+    canUse: true,
+    normalLengthTicks: 175,
+    stuckLengthTicks: 260,
+    targetCaptureTick: 33,
+    armSpawnTick: 40,
+  });
+  assert.deepEqual(integrityModel.GROUND_ARM_SOURCE, {
+    impactTick: 5,
+    impactRadius: 5,
+    impactDamage: 15,
+    horizontalKnockback: 1.5,
+    upwardKnockback: 2.6,
+    tentacleSearchRadius: 20,
+    discardWithoutTentacleAfterTick: 40,
+    discardWithTentacleAfterTick: 180,
+    persistent: false,
+  });
+  assert.equal(integrityModel.groundAttackCanUse({ distance: 40, previousAttack: "FIREBALL" }), true);
+  assert.equal(integrityModel.groundAttackCanUse({ distance: 80, previousAttack: "FIREBALL" }), true);
+  assert.equal(integrityModel.groundAttackCanUse({ distance: 39.99, previousAttack: "FIREBALL" }), false);
+  assert.equal(integrityModel.groundAttackCanUse({ distance: 80.01, previousAttack: "FIREBALL" }), false);
+  assert.equal(integrityModel.groundAttackCanUse({ distance: 60, previousAttack: "GROUND_ATTACK" }), false);
+
+  const targetBlock = { x: 10, y: -59, z: 20 };
+  assert.deepEqual(integrityModel.groundAttackStep({
+    timer: 32,
+    targetBlockPosition: null,
+    targetBlock,
+    hasTarget: true,
+    stuck: false,
+  }), {
+    timer: 33,
+    targetBlockPosition: targetBlock,
+    capturedTarget: true,
+    spawnArm: false,
+    lookAtTarget: targetBlock,
+    lengthTicks: 175,
+  });
+  assert.deepEqual(integrityModel.groundAttackStep({
+    timer: 39,
+    targetBlockPosition: targetBlock,
+    targetBlock: null,
+    hasTarget: false,
+    stuck: true,
+  }), {
+    timer: 40,
+    targetBlockPosition: targetBlock,
+    capturedTarget: false,
+    spawnArm: true,
+    lookAtTarget: targetBlock,
+    lengthTicks: 260,
+  });
+
+  const impactPlan = integrityModel.groundArmImpactPlan({
+    intersectingPlayers: [{ id: "player", dx: 3, dz: 4 }],
+  }).map(({ id, damage, knockback }) => ({
+    id,
+    damage,
+    knockback: {
+      x: Number(knockback.x.toFixed(6)),
+      y: Number(knockback.y.toFixed(6)),
+      z: Number(knockback.z.toFixed(6)),
+    },
+  }));
+  assert.deepEqual(impactPlan, [{
+    id: "player",
+    damage: 15,
+    knockback: { x: 0.9, y: 2.6, z: 1.2 },
+  }]);
+  assert.deepEqual(integrityModel.groundArmLifecycleStep({
+    timer: 0,
+    ownerPresent: false,
+    hasTentacleNearby: false,
+  }), { timer: 1, impact: false, discard: true });
+  assert.deepEqual(integrityModel.groundArmLifecycleStep({
+    timer: 4,
+    ownerPresent: true,
+    hasTentacleNearby: true,
+  }), { timer: 5, impact: true, discard: false });
+  assert.equal(integrityModel.groundArmLifecycleStep({
+    timer: 39,
+    ownerPresent: true,
+    hasTentacleNearby: false,
+  }).discard, false, "source uses timer > 40");
+  assert.equal(integrityModel.groundArmLifecycleStep({
+    timer: 40,
+    ownerPresent: true,
+    hasTentacleNearby: false,
+  }).timer, 41);
+  assert.equal(integrityModel.groundArmLifecycleStep({
+    timer: 40,
+    ownerPresent: true,
+    hasTentacleNearby: false,
+  }).discard, true);
+  assert.equal(integrityModel.groundArmLifecycleStep({
+    timer: 180,
+    ownerPresent: true,
+    hasTentacleNearby: true,
+  }).discard, true);
+});
+
+test("boss controller propagates the Integrity Phase 3 owner into ground arms", async () => {
+  const controller = await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"),
+    "utf8",
+  );
+  assert.match(controller, /const groundArmOwners = new Map\(\)/);
+  assert.match(controller, /function setGroundArmOwner\(arm, owner\)/);
+  assert.match(controller, /function spawnIntegrityGroundArm\(owner, targetBlock\)/);
+  assert.match(controller, /setGroundArmOwner\(arm, owner\)/);
+  assert.match(controller, /function tickIntegrityGroundAttack\(e, state\)/);
+  assert.match(controller, /tickIntegrityGroundAttack\(e, phase3State\)/);
+  assert.match(controller, /spawnIntegrityGroundArm\(e, step\.targetBlockPosition\)/);
+  assert.match(controller, /groundArmLifecycleStep/);
+  assert.match(controller, /groundArmImpactPlan/);
+  assert.doesNotMatch(controller, /meleePulse\(e, 50, 4, 30\)/);
 });

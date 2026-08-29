@@ -59,3 +59,11 @@
 - TDD green phase: `npm test` — **24 passed, 0 failed**.
 - Static checks: `node --check` passed for the changed boss controller and arena model; `void_tentacle.json` parsed successfully.
 - GitHub Actions run 72 ([Bedrock Add-on Check](https://github.com/PastaHimself/tbs-2.0/actions/runs/33260817900)): **success**; all validation, diagnostics, Creator Tools, packaging, and report-upload steps completed successfully.
+
+## Chunk 23 — Integrity Phase 3 GroundAttack/GroundArm adapter
+
+- TDD red phase: the new GroundAttack/GroundArm controller and non-persistent entity-definition assertions failed before implementation.
+- TDD green phase: `npm test` — **26 passed, 0 failed**.
+- Static checks: `node --check` passed for `integrity_arena_model.js` and `boss_controller.js`; `integrity_arm.json` parsed successfully.
+- Coverage: inclusive 40–80 target selection, tick-33 target-block capture, tick-40 owned-arm spawn, tick-5 impact plan (15 damage, 1.5 horizontal / 2.6 upward impulse), owner-stuck propagation, and source timer/lifecycle discard thresholds.
+- GitHub Actions validation for the published commit is pending.

@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-29 (Chunk 22 — VoidTentacle source SCALE adapter)
+Last updated: 2026-08-29 (Chunk 23 — Integrity Phase 3 GroundAttack/GroundArm adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,7 +11,7 @@ Last updated: 2026-08-29 (Chunk 22 — VoidTentacle source SCALE adapter)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 22 complete — VoidTentacle source SCALE adapter**
+**Chunk 23 complete — Integrity Phase 3 GroundAttack/GroundArm adapter**
 
 
 
@@ -44,12 +44,17 @@ Last updated: 2026-08-29 (Chunk 22 — VoidTentacle source SCALE adapter)
 | 18 Final validation | **completed** (tools/final_validation.ps1 — 68/68 entity pairing, entity/terrain/item texture resolution, per-scope id uniqueness, item lang keys 76/76, geometry refs 29; found+fixed plural texture paths ×15, gradient + vein_center pointers) |
 | 19 Packaging .mcaddon | **completed** (dist/TheBrokenScript_2_0_Bedrock.mcaddon — 145,789,490 bytes, 1400 entries, forward-slash separators verified, key-file spot check PASS; packager rewritten off Compress-Archive due to backslash-entry bug) |
 | 20 Remaining parity ports | **completed** (functional hand cannon/polaroid/portal linker/desyncer; 4×2 circuit-cave painting surrogate; heart-corruption + why-cant-you-leave effects with source eyes particle; supplied VHS JSON UI + four subpacks + Vibrant Visuals; regression tests and strict UI audit) |
-| 21 Integrity Phase 3 runtime semantics | **completed** (source-backed 251-candidate tentacle ring + 3 presets, 60-tick boundary countdown/native void terminal damage, and exact 428-tick cutscene timing model; Java transport/camera gaps ledgered) |\n| 22 VoidTentacle source SCALE adapter | **completed** (persisted client-synced `thebrokenscript:scale` property, event-backed `minecraft:scale` groups for 1..5, and fixed Phase 3 presets at scale 2) |
+| 21 Integrity Phase 3 runtime semantics | **completed** (source-backed 251-candidate tentacle ring + 3 presets, 60-tick boundary countdown/native void terminal damage, and exact 428-tick cutscene timing model; Java transport/camera gaps ledgered) |
+| 22 VoidTentacle source SCALE adapter | **completed** (persisted client-synced `thebrokenscript:scale` property, event-backed `minecraft:scale` groups for 1..5, and fixed Phase 3 presets at scale 2) |
+| 23 Integrity Phase 3 GroundAttack/GroundArm adapter | **completed** (inclusive 40–80 target selection, tick-33 block capture, tick-40 owned arm spawn, tick-5 impact plan, owner-stuck propagation, and tentacle-proximity lifecycle) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
 ## Files created (Chunk 21)
 BP/scripts/systems/integrity_arena_model.js Phase 3 constants/state/cutscene model · BP/scripts/entities/boss/boss_controller.js source-backed ring spawn and boundary countdown · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_21_{SPEC,REPORT}.md
+
+## Files changed (Chunk 23)
+BP/entities/integrity_arm.json (source non-persistent contract) · BP/scripts/systems/integrity_arena_model.js (GroundAttack/GroundArm constants and pure timing/impact/lifecycle plans) · BP/scripts/entities/boss/boss_controller.js (Phase 3 GroundAttack adapter, runtime owner map, arm impacts, stuck propagation, lifecycle) · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_23_{SPEC,REPORT}.md
 
 ## Files created (Chunk 20)
 `BP/scripts/systems/ported_features.js` · `BP/scripts/systems/ported_feature_logic.js` · functional item definitions for desyncer and circuit-cave painting · `BP/entities/circuit_cave_painting.json` · complete RP painting entity/geometry/render/texture chain · `RP/particles/eyes.particle.json` + source eyes texture · VHS `ui/`, `textures/ui/vhs/`, four subpacks, and Vibrant Visuals settings · `tests/remaining_ports.test.mjs` · `docs/chunks/CHUNK_20_REPORT.md`
@@ -156,8 +161,7 @@ See VALIDATION_LOG.md (Chunk 20: 10 JavaScript regressions PASS, all touched JSO
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**PORT COMPLETE THROUGH CHUNK 20.** Remaining work is limited to real-device runtime testing and the explicit engine/deferred items in KNOWN_LIMITATIONS.md (exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity).
+Continue with the complete Phase3Goals multi-attack selector and remaining Integrity/Jimmy/Kerfur lifecycle work, or run the available Minecraft runtime smoke tests. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
 
 ## Exact source references to inspect next
 - Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.
-
