@@ -16,10 +16,13 @@ import {
   FIREBALL_ATTACK_SOURCE,
   FIREBALL_BEDROCK_ADAPTER,
   PHASE3_ATTACK,
+  TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
   phase3AttackCooldown,
   phase3AttackLength,
   selectPhase3ImplementedAttack,
+  tentacleSwipeCenter,
+  tentacleSwipeImpactPlan,
 } from "../../systems/phase3_attack_model.js";
 
 const RUNTIME_FAMILY = "thebrokenscript_phase3_runtime";
@@ -310,6 +313,49 @@ function tickFireballAttack(entity, state) {
   }
 }
 
+function applyTentacleSwipeKnockback(player, impact) {
+  const force = impact.bedrockHorizontalForce;
+  try {
+    // Current stable Script API: applyKnockback(VectorXZ, verticalStrength).
+    player.applyKnockback(force, impact.bedrockVerticalStrength);
+    return;
+  } catch {}
+  try {
+    // Compatibility with the previous four-number signature.
+    const strength = Math.hypot(force.x, force.z);
+    const directionX = strength > 0 ? force.x / strength : 0;
+    const directionZ = strength > 0 ? force.z / strength : 0;
+    player.applyKnockback(directionX, directionZ, strength, impact.bedrockVerticalStrength);
+    return;
+  } catch {}
+  callEntityMethod(player, "applyImpulse", {
+    x: force.x,
+    y: impact.bedrockVerticalStrength,
+    z: force.z,
+  });
+}
+
+function tickTentacleSwipe(entity, state) {
+  if (state.attackTicks !== TENTACLE_SWIPE_SOURCE.hitTick) return;
+  const rotation = callEntityMethod(entity, "getRotation");
+  const center = tentacleSwipeCenter({
+    position: entity.location,
+    yawDegrees: Number.isFinite(rotation?.y) ? rotation.y : 0,
+  });
+  let players = [];
+  try { players = world.getAllPlayers(); } catch { return; }
+  const candidates = players
+    .filter((player) => player.dimension.id === entity.dimension.id && isLiving(player))
+    .map((player) => ({ id: player.id, entity: player, position: player.location }));
+  const impacts = tentacleSwipeImpactPlan({ center, players: candidates });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    applyEntityAttack(entity, candidate.entity, impact.damage);
+    applyTentacleSwipeKnockback(candidate.entity, impact);
+  }
+}
+
 function maybeSelectAttack(entity, state, target) {
   if (state.currentAttack !== PHASE3_ATTACK.NOOP || !target || state.attackDelay > 0 || isStuck(entity)) return;
   const selected = selectPhase3ImplementedAttack({
@@ -373,6 +419,7 @@ function tickPhase3(entity) {
   state.attackTicks += 1;
   if (state.currentAttack === PHASE3_ATTACK.GROUND_ATTACK) tickGroundAttack(entity, state);
   if (state.currentAttack === PHASE3_ATTACK.FIREBALL) tickFireballAttack(entity, state);
+  if (state.currentAttack === PHASE3_ATTACK.TENTACLE_SWIPE) tickTentacleSwipe(entity, state);
 
   const length = phase3AttackLength(state.currentAttack, { stuck: isStuck(entity) });
   if (state.attackTicks >= length) finishAttack(entity, state);
