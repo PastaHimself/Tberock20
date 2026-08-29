@@ -272,6 +272,12 @@ test("Stage2Util uses 10x10 chunk cells and the exact generation center", () => 
   assert.deepEqual(stage2CenterOfExistingGeneration({ x: 159, z: 159 }), { x: 88, y: 253, z: 88 });
   assert.deepEqual(stage2CenterOfExistingGeneration({ x: 160, z: 160 }), { x: 248, y: 253, z: 248 });
   assert.deepEqual(stage2CenterOfExistingGeneration({ x: -1, z: -1 }), { x: -72, y: 253, z: -72 });
+  assert.deepEqual(stage2CenterOfExistingGeneration({ x: -2560, z: -2560 }), {
+    x: -2472, y: 253, z: -2472,
+  });
+  assert.deepEqual(stage2CenterOfExistingGeneration({ x: -2576, z: -2576 }), {
+    x: -2632, y: 253, z: -2632,
+  });
   assert.deepEqual(stage2SpawnCellChunksFromPlayerBlock({ x: 159, z: 159 }), {
     cellChunk: { x: 0, z: 0 },
     centerChunk: { x: 5, z: 5 },
@@ -338,6 +344,17 @@ test("Stage2Util preserves special-band chunk selection and minimum-distance rej
     randomBlockXOffset: 0,
     randomBlockZOffset: 0,
   }), null);
+  assert.deepEqual(stage2SpawnAttemptCoordinates({
+    cellChunk: { x: 0, z: 0 },
+    centerChunk: { x: 5, z: 5 },
+    spawnY: 104,
+    minBlockDistance: 48,
+    isTether: true,
+    randomChunkXOffset: 2,
+    randomChunkZOffset: 5,
+    randomBlockXOffset: 11,
+    randomBlockZOffset: 7,
+  }), { chunkX: 2, chunkZ: 5, blockX: 43, blockZ: 87 });
   assert.equal(stage2IntegrityPositionAllowed(false), true);
   assert.equal(stage2IntegrityPositionAllowed(true), false);
 });
