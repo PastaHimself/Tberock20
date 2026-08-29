@@ -153,13 +153,14 @@ def _audit_scripts(bp_root: Path, errors: list[str]) -> int:
 
 
 def _audit_jigsaw(project_root: Path, errors: list[str]) -> None:
-    # Import the repository validator without adding third-party dependencies.
+    # Import repository validators without adding third-party dependencies.
     tools_root = REPO_ROOT / "tools"
     sys.path.insert(0, str(tools_root))
     try:
-        from validate_jigsaw_worldgen import validate_pack
+        from validate_jigsaw_nbt_connectors import validate_pack as validate_nbt_connectors
+        from validate_jigsaw_worldgen import validate_pack as validate_worldgen
     except Exception as exc:
-        errors.append(f"cannot import tools/validate_jigsaw_worldgen.py: {exc}")
+        errors.append(f"cannot import Jigsaw validators: {exc}")
         return
     finally:
         try:
@@ -167,8 +168,12 @@ def _audit_jigsaw(project_root: Path, errors: list[str]) -> None:
         except ValueError:
             pass
 
-    result = validate_pack(project_root / "BP")
-    errors.extend(f"jigsaw: {message}" for message in result.errors)
+    bp_root = project_root / "BP"
+    worldgen_result = validate_worldgen(bp_root)
+    errors.extend(f"jigsaw-json: {message}" for message in worldgen_result.errors)
+
+    connector_result = validate_nbt_connectors(bp_root)
+    errors.extend(f"jigsaw-nbt: {message}" for message in connector_result.errors)
 
 
 def audit(project_root: Path) -> AuditResult:
