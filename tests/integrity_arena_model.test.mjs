@@ -118,6 +118,12 @@ test("Stage 2 generator preserves source-only placement and template selection r
   assert.equal(STAGE2_GENERATOR_SOURCE.namespace, "thebrokenscript");
   assert.equal(STAGE2_GENERATOR_SOURCE.roomMinBlock, 16);
   assert.equal(STAGE2_GENERATOR_SOURCE.roomMaxBlock, 160);
+  assert.ok(STAGE2_GENERATOR_SOURCE.floor2Variants.every((entry) => (
+    "structureId" in entry
+    && "specialStructureId" in entry
+    && "ordinaryStructureId" in entry
+  )));
+  assert.ok(STAGE2_GENERATOR_SOURCE.floor3Variants.every((entry) => "extraStructureId" in entry));
   assert.deepEqual(STAGE2_GENERATOR_SOURCE.roomPlacements, [
     {
       y: 200,

@@ -58,21 +58,21 @@ export const PHASE2_SOURCE = Object.freeze({
 // Every structure id below is a source template reference; it is not a claim
 // that a Java NBT template can be placed by the Bedrock runtime unchanged.
 const STAGE2_FLOOR2_VARIANTS = Object.freeze([
-  Object.freeze({ variant: 1, structureId: "clandimensionroom1" }),
-  Object.freeze({ variant: 2, structureId: "clandimensionroom2" }),
-  Object.freeze({ variant: 3, structureId: "clandimensionroom3" }),
-  Object.freeze({ variant: 4, structureId: "clandimensionroom3" }),
-  Object.freeze({ variant: 5, specialStructureId: "clandimensionroom2", ordinaryStructureId: "clandimensionroom5" }),
+  Object.freeze({ variant: 1, structureId: "clandimensionroom1", specialStructureId: null, ordinaryStructureId: null }),
+  Object.freeze({ variant: 2, structureId: "clandimensionroom2", specialStructureId: null, ordinaryStructureId: null }),
+  Object.freeze({ variant: 3, structureId: "clandimensionroom3", specialStructureId: null, ordinaryStructureId: null }),
+  Object.freeze({ variant: 4, structureId: "clandimensionroom3", specialStructureId: null, ordinaryStructureId: null }),
+  Object.freeze({ variant: 5, structureId: null, specialStructureId: "clandimensionroom2", ordinaryStructureId: "clandimensionroom5" }),
 ]);
 
 const STAGE2_FLOOR3_VARIANTS = Object.freeze([
-  Object.freeze({ variant: 1, ordinaryStructureId: "woodfloor1" }),
-  Object.freeze({ variant: 2, ordinaryStructureId: "woodfloor2" }),
-  Object.freeze({ variant: 3, ordinaryStructureId: "woodfloor3" }),
-  Object.freeze({ variant: 4, ordinaryStructureId: "woodfloor4" }),
-  Object.freeze({ variant: 5, ordinaryStructureId: "woodfloor5" }),
-  Object.freeze({ variant: 6, ordinaryStructureId: "woodfloor6" }),
-  Object.freeze({ variant: 7, ordinaryStructureId: "woodfloor7" }),
+  Object.freeze({ variant: 1, ordinaryStructureId: "woodfloor1", extraStructureId: null }),
+  Object.freeze({ variant: 2, ordinaryStructureId: "woodfloor2", extraStructureId: null }),
+  Object.freeze({ variant: 3, ordinaryStructureId: "woodfloor3", extraStructureId: null }),
+  Object.freeze({ variant: 4, ordinaryStructureId: "woodfloor4", extraStructureId: null }),
+  Object.freeze({ variant: 5, ordinaryStructureId: "woodfloor5", extraStructureId: null }),
+  Object.freeze({ variant: 6, ordinaryStructureId: "woodfloor6", extraStructureId: null }),
+  Object.freeze({ variant: 7, ordinaryStructureId: "woodfloor7", extraStructureId: null }),
   Object.freeze({ variant: 8, ordinaryStructureId: "woodfloor4", extraStructureId: "woodfloor8" }),
   Object.freeze({ variant: 9, ordinaryStructureId: "woodfloor4", extraStructureId: "woodfloor9" }),
   Object.freeze({ variant: 10, ordinaryStructureId: "woodfloor1", extraStructureId: "tek_woodfloor1" }),
@@ -84,7 +84,7 @@ const STAGE2_FLOOR3_VARIANTS = Object.freeze([
   Object.freeze({ variant: 16, ordinaryStructureId: "woodfloor4", extraStructureId: "tek_woodfloor8" }),
   Object.freeze({ variant: 17, ordinaryStructureId: "woodfloor4", extraStructureId: "tek_woodfloor9" }),
   Object.freeze({ variant: 18, ordinaryStructureId: "woodfloor1", extraStructureId: "tek_woodfloor10" }),
-  Object.freeze({ variant: 19, ordinaryStructureId: "woodfloor1" }),
+  Object.freeze({ variant: 19, ordinaryStructureId: "woodfloor1", extraStructureId: null }),
   Object.freeze({ variant: 20, ordinaryStructureId: "woodfloor2", extraStructureId: "tek_woodfloor12" }),
   Object.freeze({ variant: 21, ordinaryStructureId: "woodfloor2", extraStructureId: "tek_woodfloor13" }),
   Object.freeze({ variant: 22, ordinaryStructureId: "woodfloor3", extraStructureId: "tek_woodfloor14" }),
@@ -101,8 +101,8 @@ const STAGE2_FLOOR3_VARIANTS = Object.freeze([
   Object.freeze({ variant: 33, ordinaryStructureId: "woodfloor1", extraStructureId: "tek_woodfloor26" }),
   Object.freeze({ variant: 34, ordinaryStructureId: "woodfloor1", extraStructureId: "tek_woodfloor27" }),
   Object.freeze({ variant: 35, ordinaryStructureId: "woodfloor2", extraStructureId: "tek_woodfloor28" }),
-  Object.freeze({ variant: 36, ordinaryStructureId: "woodfloor2" }),
-  Object.freeze({ variant: 37, ordinaryStructureId: "woodfloor6" }),
+  Object.freeze({ variant: 36, ordinaryStructureId: "woodfloor2", extraStructureId: null }),
+  Object.freeze({ variant: 37, ordinaryStructureId: "woodfloor6", extraStructureId: null }),
 ]);
 
 export const STAGE2_GENERATOR_SOURCE = Object.freeze({
