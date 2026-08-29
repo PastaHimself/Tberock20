@@ -26,6 +26,7 @@ import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
 import * as stalkController from "./entities/stalk/stalk_controller.js";
 import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
 import * as bossController from "./entities/boss/boss_controller.js";
+import * as phase3Runtime from "./entities/boss/phase3_runtime.js";
 import * as bossSpawnRules from "./entities/boss/boss_spawn_rules.js";
 import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 import * as horrorEvents from "./systems/horror_events.js";
@@ -62,6 +63,7 @@ function onWorldLoad() {
     stalkController.begin(scheduler);
     bossSpawnRules.register();
     bossController.begin(scheduler);
+    phase3Runtime.begin(scheduler);
     horrorEvents.begin(scheduler);
     progression.begin(scheduler);
     commands.begin();
