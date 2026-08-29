@@ -10,6 +10,7 @@ import {
   PHASE1_SOURCE,
   PHASE2_SOURCE,
   PHASE3_SOURCE,
+  STAGE2_GENERATOR_SOURCE,
   STAGE2_FLOORS,
   arenaCheckLivingPlayers,
   nextIntegrityPhase,
@@ -22,6 +23,12 @@ import {
   phase3BoundaryKillEligible,
   phase3Ended,
   phase3TentacleCandidateCount,
+  stage2GeneratorBarrierApplies,
+  stage2GeneratorDecorationPlan,
+  stage2GeneratorFloor2Structure,
+  stage2GeneratorFloor3Structure,
+  stage2GeneratorFloor4Structure,
+  stage2GeneratorRegion,
   stage2SpawnFloorFromY,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
 
@@ -104,6 +111,132 @@ test("Phase2Floors mapping remains distinct from Stage2Floor spawn lookup", () =
   assert.equal(phase2EligibleForLowestPlayer(103), false);
   assert.equal(phase2EligibleForLowestPlayer(104), true);
   assert.equal(phase2Ended(), false);
+});
+
+test("Stage 2 generator preserves source-only placement and template selection rules", () => {
+  assert.equal(STAGE2_GENERATOR_SOURCE.runtimeStatus, "blocked_custom_chunk_generator");
+  assert.equal(STAGE2_GENERATOR_SOURCE.namespace, "thebrokenscript");
+  assert.equal(STAGE2_GENERATOR_SOURCE.roomMinBlock, 16);
+  assert.equal(STAGE2_GENERATOR_SOURCE.roomMaxBlock, 160);
+  assert.deepEqual(STAGE2_GENERATOR_SOURCE.roomPlacements, [
+    {
+      y: 200,
+      variant: "floor1",
+      structureIds: ["clanvoidnew1", "clanvoidnew2", "clanvoidnew3", "clanvoidnew4", "clanvoidnew5", "clanvoidnew6", "clanvoidnew7"],
+    },
+    {
+      y: 207,
+      variant: "floor2",
+      structureIds: ["clandimensionroom1", "clandimensionroom2", "clandimensionroom3", "clandimensionroom5"],
+    },
+    {
+      y: 217,
+      variant: "floor3",
+      structureIds: [
+        "woodfloor1", "woodfloor2", "woodfloor3", "woodfloor4", "woodfloor5", "woodfloor6",
+        "woodfloor7", "woodfloor8", "woodfloor9", "tek_woodfloor1", "tek_woodfloor2",
+        "tek_woodfloor3", "tek_woodfloor4", "tek_woodfloor6", "tek_woodfloor7",
+        "tek_woodfloor8", "tek_woodfloor9", "tek_woodfloor10", "tek_woodfloor12",
+        "tek_woodfloor13", "tek_woodfloor14", "tek_woodfloor15", "tek_woodfloor16",
+        "tek_woodfloor17", "tek_woodfloor18", "tek_woodfloor20", "tek_woodfloor21",
+        "tek_woodfloor22", "tek_woodfloor23", "tek_woodfloor24", "tek_woodfloor25",
+        "tek_woodfloor26", "tek_woodfloor27", "tek_woodfloor28",
+      ],
+    },
+    {
+      y: 233,
+      variant: "floor4",
+      structureIds: ["stone1", "stone2", "stone3", "stone4", "stone5", "stone6", "stone7"],
+    },
+  ]);
+  assert.deepEqual(STAGE2_GENERATOR_SOURCE.surfacePlacement, {
+    y: 252,
+    structureIds: ["fieldbase", "fieldbase2"],
+    primaryProbability: 0.99,
+  });
+  assert.deepEqual(STAGE2_GENERATOR_SOURCE.floorLayers, [
+    { y: 199, sourceBlock: "TBSBlocks.COBBLESTONE_BORDER_BLOCK", belowBlock: "minecraft:barrier" },
+    { y: 160, sourceBlock: "minecraft:bedrock", belowBlock: "minecraft:barrier" },
+  ]);
+  assert.deepEqual(STAGE2_GENERATOR_SOURCE.barrierLayers, [251, 232, 216, 206, 102, 271]);
+  assert.deepEqual(STAGE2_GENERATOR_SOURCE.nowhere, {
+    y: 100,
+    randomOffset: 341873128712,
+    divider: 1,
+  });
+  assert.deepEqual(STAGE2_GENERATOR_SOURCE.tunnel, {
+    x: 80,
+    y: 160,
+    excludedZ: [0, 160],
+    structureIds: [
+      "bedrockhallway1", "bedrockhallway2", "bedrockhallway3", "bedrockhallway4", "bedrockhallway5",
+      "bedrockhallway6", "bedrockhallway7", "bedrockhallway8", "bedrockhallway9", "bedrockhallway10",
+    ],
+    primaryProbability: 0.9,
+  });
+
+  assert.equal(stage2GeneratorFloor2Structure(1, false), "clandimensionroom1");
+  assert.equal(stage2GeneratorFloor2Structure(4, true), "clandimensionroom3");
+  assert.equal(stage2GeneratorFloor2Structure(5, true), "clandimensionroom2");
+  assert.equal(stage2GeneratorFloor2Structure(5, false), "clandimensionroom5");
+  assert.equal(stage2GeneratorFloor3Structure(8, false), "woodfloor4");
+  assert.equal(stage2GeneratorFloor3Structure(8, true), "woodfloor8");
+  assert.equal(stage2GeneratorFloor3Structure(18, true), "tek_woodfloor10");
+  assert.equal(stage2GeneratorFloor3Structure(37, true), "woodfloor6");
+  assert.equal(stage2GeneratorFloor4Structure(false, false, 3), "stone1");
+  assert.equal(stage2GeneratorFloor4Structure(true, true, 3), "stone4");
+});
+
+test("Stage 2 generator region gates and fixed layer plan mirror Java predicates", () => {
+  assert.equal(stage2GeneratorRegion(16, 16), "interior");
+  assert.equal(stage2GeneratorRegion(0, 16), "border");
+  assert.equal(stage2GeneratorRegion(160, 144), "border");
+  assert.equal(stage2GeneratorRegion(161, 16), null);
+  assert.equal(stage2GeneratorRegion(-16, 16), null);
+  assert.equal(stage2GeneratorBarrierApplies(161, 161), true);
+  assert.equal(stage2GeneratorBarrierApplies(162, 161), false);
+  assert.equal(stage2GeneratorBarrierApplies(161, 162), false);
+
+  assert.equal(stage2GeneratorDecorationPlan(16, 16).region, "interior");
+  assert.equal(stage2GeneratorDecorationPlan(16, 16).outerBarrierY, 271);
+  assert.equal(stage2GeneratorDecorationPlan(0, 16).region, "border");
+  assert.equal(stage2GeneratorDecorationPlan(16, 0).surface, null);
+  assert.deepEqual(stage2GeneratorDecorationPlan(80, 16).tunnel, {
+    y: 160,
+    structureIds: STAGE2_GENERATOR_SOURCE.tunnel.structureIds,
+    primaryProbability: 0.9,
+  });
+  assert.equal(stage2GeneratorDecorationPlan(80, 160).tunnel, null);
+  assert.equal(stage2GeneratorDecorationPlan(162, 16), null);
+});
+
+test("Stage 2 generator audit records every source template and its NBT shape", async () => {
+  const audit = JSON.parse(await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/STAGE2_GENERATOR_AUDIT.json"),
+    "utf8",
+  ));
+  assert.equal(audit.templateCount, 64);
+  assert.equal(audit.allSourceTemplatesPresent, true);
+  assert.equal(audit.runtimeStatus, "blocked_custom_chunk_generator");
+  assert.deepEqual(audit.dimensionShapes, [
+    [11, 10, 25],
+    [16, 1, 16],
+    [16, 3, 16],
+    [16, 4, 16],
+    [16, 6, 16],
+    [16, 9, 16],
+    [16, 15, 16],
+    [16, 16, 16],
+  ]);
+  assert.deepEqual(audit.templatesWithEntities, ["stone4", "stone6", "woodfloor8"]);
+  assert.ok(audit.templates.every((template) => (
+    template.sourcePath.endsWith(`.nbt`)
+    && template.paletteSize > 0
+    && template.blockCount > 0
+    && template.connectorCount === 0
+    && template.hasLoot === false
+    && template.hasDataMarker === false
+  )));
 });
 
 test("Phase 3 source constants and end predicate match current decompilation", () => {
