@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+import { world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import { teleportLinkedPortal } from "./ported_features.js";
@@ -88,49 +88,12 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  register("thebrokenscript:be_null_structure", {
-    onPlayerInteract(ev) {
-      if (!ev.player) return;
-
-      const player = ev.player;
-      const dimension = ev.block.dimension;
-      const origin = {
-        x: ev.block.location.x + 24,
-        y: ev.block.location.y,
-        z: ev.block.location.z + 24
-      };
-
-      try {
-        player.onScreenDisplay.setTitle("§8NULL_STRUCTURE", {
-          fadeInDuration: 0,
-          stayDuration: 20,
-          fadeOutDuration: 0
-        });
-      } catch {}
-
-      // Native stable Jigsaw placement using the same source-backed structure
-      // definition used by natural world generation. Run on the next tick so
-      // placement is outside any restricted callback execution mode.
-      system.run(() => {
-        try {
-          world.structureManager.placeJigsawStructure(
-            "thebrokenscript:shaft",
-            dimension,
-            origin,
-            {
-              ignoreStartHeight: true,
-              includeEntities: true,
-              keepJigsaws: false
-            }
-          );
-          try { player.sendMessage("§8the ground splits open..."); } catch {}
-        } catch (error) {
-          logger.error("null_structure: native Shaft placement failed", error);
-          try { player.sendMessage("§8the structure refuses to form."); } catch {}
-        }
-      });
-    }
-  });
+  // Java parity: NullStructureBlock is a passive, invisible marker. Its block entity
+  // stores a structureId plus once-per-player/world trigger state; event handlers query
+  // nearby markers and perform the requested action. It has no use/interact behavior.
+  // Keep the custom component registered because block JSONs reference it, but do not
+  // synthesize a click-to-place structure action here.
+  register("thebrokenscript:be_null_structure", {});
 
   register("thebrokenscript:be_shadow_bug", {
     onRandomTick(ev) {
