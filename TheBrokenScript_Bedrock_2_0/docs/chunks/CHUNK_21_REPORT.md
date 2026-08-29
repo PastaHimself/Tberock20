@@ -23,7 +23,7 @@ This pass replaces the fabricated Integrity Phase 3 fireball/melee behavior with
 - npm test: 23/23 passing locally.
 - node --check: touched model and boss controller pass.
 - JSON parsing: no entity JSON was changed in this chunk.
-- GitHub Actions: queued against the continuation commit; final status is reported after the run completes.
+- GitHub Actions run 33259723699: complete workflow passed, including add-on validation, resource links, Jigsaw/NBT checks, syntax, beta-API typecheck, regressions, Blockception diagnostics, Creator Tools validation, packaging, and artifact/report upload.
 
 ## Parity and remaining gaps
 
