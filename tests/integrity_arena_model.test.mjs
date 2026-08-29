@@ -47,6 +47,7 @@ import {
   voidTentacleScaleFromRoll,
   voidTentacleSweepPlan,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
+import * as integrityModel from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -455,6 +456,97 @@ test("Phase 3 source constants and end predicate match current decompilation", (
   assert.equal(phase3Ended(true), true);
 });
 
+test("Phase 3 flailing-arm ring uses the inclusive source range and angle math", () => {
+  assert.equal(typeof integrityModel.phase3TentacleCandidatePosition, "function");
+  assert.deepEqual(integrityModel.phase3TentacleCandidatePosition(0, 100), { x: 300, z: 202 });
+  assert.deepEqual(integrityModel.phase3TentacleCandidatePosition(250, 100), { x: 300, z: 202 });
+  assert.deepEqual(integrityModel.phase3TentacleCandidatePosition(1, 123), { x: 323, z: 205 });
+  assert.throws(() => integrityModel.phase3TentacleCandidatePosition(-1, 100), RangeError);
+  assert.throws(() => integrityModel.phase3TentacleCandidatePosition(251, 100), RangeError);
+  assert.throws(() => integrityModel.phase3TentacleCandidatePosition(0, 124), RangeError);
+});
+
+test("Phase 3 boundary countdown starts, retains, and kills only eligible players", () => {
+  assert.equal(typeof integrityModel.phase3BoundaryKillStep, "function");
+  const started = integrityModel.phase3BoundaryKillStep({
+    pendingKills: {},
+    players: [
+      { id: "alice", y: 91, inStage3Dimension: true },
+      { id: "at-boundary", y: 90, inStage3Dimension: true },
+      { id: "elsewhere", y: 120, inStage3Dimension: false },
+    ],
+  });
+  assert.deepEqual(started, {
+    pendingKills: { alice: 59 },
+    startedIds: ["alice"],
+    killIds: [],
+  });
+
+  const retained = integrityModel.phase3BoundaryKillStep({
+    pendingKills: { alice: 1, departed: 20 },
+    players: [{ id: "alice", y: 92, inStage3Dimension: true }],
+  });
+  assert.deepEqual(retained, {
+    pendingKills: { alice: 0 },
+    startedIds: [],
+    killIds: [],
+  });
+
+  const killed = integrityModel.phase3BoundaryKillStep({
+    pendingKills: { alice: 0 },
+    players: [{ id: "alice", y: 92, inStage3Dimension: true }],
+  });
+  assert.deepEqual(killed, {
+    pendingKills: {},
+    startedIds: [],
+    killIds: ["alice"],
+  });
+
+  const returned = integrityModel.phase3BoundaryKillStep({
+    pendingKills: { alice: 0 },
+    players: [{ id: "alice", y: 90, inStage3Dimension: true }],
+  });
+  assert.deepEqual(returned, {
+    pendingKills: {},
+    startedIds: [],
+    killIds: [],
+  });
+});
+
+test("Phase 3 final cutscene timing mirrors the Java client constants", () => {
+  assert.deepEqual(integrityModel.PHASE3_CUTSCENE_SOURCE, {
+    preLengthTicks: 108,
+    movementLengthTicks: 190,
+    zoomLengthTicks: 100,
+    zoomOffsetTicks: 10,
+    blackoutTicks: 40,
+    totalLengthTicks: 428,
+    positionStart: { x: 194, y: -45, z: 169 },
+    positionEnd: { x: 194, y: 10, z: 199 },
+    rotationStart: { x: 0, y: 10 },
+    rotationEnd: { x: 0, y: -90 },
+  });
+  assert.equal(typeof integrityModel.phase3CutsceneState, "function");
+  assert.deepEqual(integrityModel.phase3CutsceneState(108), {
+    active: true,
+    ended: false,
+    position: { x: 194, y: -45, z: 169 },
+    rotation: { x: 0, y: 10 },
+    zoom: 1,
+    blackout: false,
+  });
+  assert.deepEqual(integrityModel.phase3CutsceneState(388), {
+    active: true,
+    ended: false,
+    position: { x: 194, y: 10, z: 199 },
+    rotation: { x: 0, y: -90 },
+    zoom: 5,
+    blackout: true,
+  });
+  assert.equal(integrityModel.phase3CutsceneState(428).blackout, false);
+  assert.equal(integrityModel.phase3CutsceneState(429).ended, true);
+});
+
 test("Tether and VoidTentacle source contracts preserve their distinct goals", () => {
   assert.deepEqual(TETHER_SOURCE, {
     customMeleeGoal: false,
@@ -640,6 +732,20 @@ test("boss controller preserves source-specific VoidTentacle/Tether dispatch", a
   assert.doesNotMatch(controller, /getNum\(e, "life", 600\)/);
   const tetherBody = controller.match(/function tickTether\(e\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
   assert.doesNotMatch(tetherBody, /meleePulse/);
+});
+
+test("boss controller uses source-backed Phase 3 boundary behavior", async () => {
+  const controller = await readFile(
+    path.join(repoRoot, "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"),
+    "utf8",
+  );
+  const p3Body = controller.match(/function tickIntegrityP3\(e\)\s*\{([\s\S]*?)\n\}\n\nfunction spawnAt/)?.[1] ?? "";
+  assert.match(controller, /phase3BoundaryKillStep/);
+  assert.match(controller, /phase3TentacleCandidatePosition/);
+  assert.match(controller, /EntityDamageCause\.void/);
+  assert.doesNotMatch(p3Body, /meleePulse/);
+  assert.doesNotMatch(p3Body, /volley/);
+  assert.doesNotMatch(p3Body, /integ_fireball/);
 });
 
 test("boss controller protects source-invulnerable VoidTentacles and Tether exceptions", async () => {

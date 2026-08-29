@@ -5,8 +5,11 @@ import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import {
+  PHASE3_SOURCE,
   TETHER_SOURCE,
   VOID_TENTACLE_SOURCE,
+  phase3BoundaryKillStep,
+  phase3TentacleCandidatePosition,
   tetherDamageBlocked,
   tetherHeartbeatStep,
   voidTentacleAttackPlan,
@@ -39,6 +42,8 @@ function installDeathHook() {
 // Integrity phase advancement is owned by Arena/Phase source semantics, not HP
 // fractions. Source-backed arena constants/predicates live in integrity_arena_model.js;
 // automatic arena startup remains disabled until its Java callsite is recovered.
+// Phase 3 ring spawning and boundary countdown are wired below. The Java
+// participant roster/transfer and custom camera packets remain engine gaps.
 // fractured (Jimmy): slam/stomp pulses 12 dmg, rock toss ranged 6, roam variant passive
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
@@ -267,36 +272,40 @@ function tickIntegrityEarly(e) {
 
 // ── Integrity phase 3 ────────────────────────────────────────────────────────
 function tickIntegrityP3(e) {
-  if (!timers.has(e.id)) {
-    timers.set(e.id, { volley: 100 });
+  let phase3State = timers.get(e.id);
+  if (!phase3State?.phase3) {
+    phase3State = {
+      phase3: true,
+      phase3TentaclesSpawned: false,
+      pendingKills: {},
+      tentacleIds: [],
+    };
+    timers.set(e.id, phase3State);
     bossHooks.setArenaState(true, false);
   }
-  meleePulse(e, 50, 8);
 
-  // fireball volley every ~5s at nearest player
-  const v = getNum(e, "volley", 100) - 1;
-  setNum(e, "volley", v);
-  if (v <= 0) {
-    setNum(e, "volley", 100);
-    const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 64);
-    if (target) {
-      const fb = spawnAt(e.dimension, "thebrokenscript:integ_fireball", {
-        x: e.location.x, y: e.location.y + 4, z: e.location.z
-      });
-      if (fb) {
-        setNum(fb, "dirX", (target.location.x - e.location.x));
-        setNum(fb, "dirY", (target.location.y + 1 - (e.location.y + 4)));
-        setNum(fb, "dirZ", (target.location.z - e.location.z));
-      }
-      // occasional ground arm
-      if (Math.random() < 0.3) {
-        spawnAt(e.dimension, "thebrokenscript:integrity_arm", {
-          x: target.location.x + (Math.random() * 6 - 3),
-          y: target.location.y,
-          z: target.location.z + (Math.random() * 6 - 3)
-        });
-      }
-    }
+  if (!phase3State.phase3TentaclesSpawned) {
+    phase3State.phase3TentaclesSpawned = true;
+    spawnPhase3Tentacles(e, phase3State);
+  }
+
+  const players = phase3BoundaryPlayers(e);
+  const boundaryStep = phase3BoundaryKillStep({
+    pendingKills: phase3State.pendingKills,
+    players: players.map((player) => ({
+      id: player.id,
+      y: player.entity.location.y,
+      inStage3Dimension: player.entity.dimension.id === e.dimension.id,
+    })),
+  });
+  phase3State.pendingKills = boundaryStep.pendingKills;
+
+  // Phase3.java sends transition.png when a player first crosses the boundary.
+  // That is a Java custom overlay packet; Bedrock keeps the exact countdown and
+  // uses the native void damage cause for the terminal damage event.
+  for (const id of boundaryStep.killIds) {
+    const target = players.find((player) => player.id === id);
+    if (target) applyPhase3VoidMass(target.entity, e);
   }
 }
 
@@ -308,6 +317,82 @@ function tryPlayAt(dim, loc, sound, vol = 1, pitch = 1) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== dim.id) continue;
     try { p.playSound(sound, { volume: vol, pitch }); } catch {}
+  }
+}
+
+function phase3BoundaryPlayers(e) {
+  let players = [];
+  try { players = world.getAllPlayers(); } catch { return []; }
+  return players
+    .filter((player) => {
+      try { return player.dimension.id === e.dimension.id; } catch { return false; }
+    })
+    .map((entity) => ({ id: entity.id, entity }));
+}
+
+function applyPhase3VoidMass(player, integrity) {
+  try {
+    player.applyDamage(1_000_000, {
+      // Bedrock has no custom void_mass damage type; void is its closest
+      // built-in cause and preserves the source's terminal-damage intent.
+      cause: EntityDamageCause.void,
+      damagingEntity: integrity,
+    });
+    return;
+  } catch {}
+  try { player.applyDamage(1_000_000); } catch {}
+}
+
+function phase3SurfaceAirY(dim, x, z) {
+  try {
+    // Java's MOTION_BLOCKING_NO_LEAVES height is the first block above the
+    // surface. Bedrock exposes the equivalent top block, so advance one block
+    // before applying the source's y <= -40 gate and air check.
+    const top = dim.getTopmostBlock({ x, z });
+    const topY = top?.location?.y;
+    if (typeof topY !== "number") return null;
+    const y = topY + 1;
+    if (y > -40) return null;
+    const block = dim.getBlock({ x, y, z });
+    if (block && block.isAir !== true) return null;
+    return y;
+  } catch {
+    return null;
+  }
+}
+
+function trackPhase3Tentacle(state, tentacle) {
+  if (tentacle?.id !== undefined) state.tentacleIds.push(tentacle.id);
+}
+
+function spawnPhase3Tentacles(e, state) {
+  const rangeSpan = PHASE3_SOURCE.maxTentacleRangeExclusive - PHASE3_SOURCE.minTentacleRange;
+  for (
+    let index = PHASE3_SOURCE.tentacleCandidateIndexMin;
+    index <= PHASE3_SOURCE.tentacleCandidateIndexMaxInclusive;
+    index += 1
+  ) {
+    const range = PHASE3_SOURCE.minTentacleRange + Math.floor(Math.random() * rangeSpan);
+    const candidate = phase3TentacleCandidatePosition(index, range);
+    const y = phase3SurfaceAirY(e.dimension, candidate.x, candidate.z);
+    if (y === null) continue;
+    trackPhase3Tentacle(state, spawnAt(e.dimension, "thebrokenscript:void_tentacle", {
+      x: candidate.x + 0.5,
+      y,
+      z: candidate.z + 0.5,
+    }));
+  }
+
+  // Phase3.java always adds these three fixed arms and sets their SCALE to 2.
+  for (const preset of PHASE3_SOURCE.presetTentacles) {
+    const tentacle = spawnAt(e.dimension, "thebrokenscript:void_tentacle", {
+      x: preset.x + 0.5,
+      y: preset.y,
+      z: preset.z + 0.5,
+    });
+    if (!tentacle) continue;
+    setNum(tentacle, "scale", 2);
+    trackPhase3Tentacle(state, tentacle);
   }
 }
 

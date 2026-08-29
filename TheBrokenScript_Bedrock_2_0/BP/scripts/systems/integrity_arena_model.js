@@ -199,6 +199,22 @@ export const PHASE3_SOURCE = Object.freeze({
   ]),
 });
 
+// FinalCutscene.java is client-only in the source mod. Keep its timing and
+// camera path explicit so a Bedrock presentation can consume the same contract
+// without pretending that Java camera overrides or custom packets are portable.
+export const PHASE3_CUTSCENE_SOURCE = Object.freeze({
+  preLengthTicks: 108,
+  movementLengthTicks: 190,
+  zoomLengthTicks: 100,
+  zoomOffsetTicks: 10,
+  blackoutTicks: 40,
+  totalLengthTicks: 428,
+  positionStart: Object.freeze({ x: 194, y: -45, z: 169 }),
+  positionEnd: Object.freeze({ x: 194, y: 10, z: 199 }),
+  rotationStart: Object.freeze({ x: 0, y: 10 }),
+  rotationEnd: Object.freeze({ x: 0, y: -90 }),
+});
+
 // TetherEntity.java and TentacleGoals.java. These are kept separate because
 // Tether registers no custom melee goal while VoidTentacle does.
 export const TETHER_SOURCE = Object.freeze({
@@ -523,6 +539,122 @@ export function phase3Ended(integrityDying) {
 
 export function phase3TentacleCandidateCount() {
   return PHASE3_SOURCE.tentacleCandidateIndexMaxInclusive - PHASE3_SOURCE.tentacleCandidateIndexMin + 1;
+}
+
+// Phase3.kt uses IntRange(0, 250), a 0.025132742-radian step, and
+// Random.nextInt(100, 124). The upper bound is exclusive for the random
+// range, while the candidate index range is inclusive.
+export function phase3TentacleCandidatePosition(index, range) {
+  if (
+    !Number.isInteger(index)
+    || index < PHASE3_SOURCE.tentacleCandidateIndexMin
+    || index > PHASE3_SOURCE.tentacleCandidateIndexMaxInclusive
+  ) {
+    throw new RangeError(
+      `Phase 3 tentacle candidate index must be in 0..250: ${index}`,
+    );
+  }
+  if (
+    !Number.isInteger(range)
+    || range < PHASE3_SOURCE.minTentacleRange
+    || range >= PHASE3_SOURCE.maxTentacleRangeExclusive
+  ) {
+    throw new RangeError(
+      `Phase 3 tentacle range must be in 100..123: ${range}`,
+    );
+  }
+
+  const angle = 0.025132742 * index;
+  return {
+    x: Math.round(Math.cos(angle) * range + PHASE3_SOURCE.tentacleCircleCenter.x),
+    z: Math.round(Math.sin(angle) * range + PHASE3_SOURCE.tentacleCircleCenter.z),
+  };
+}
+
+// Mirrors Phase3.tick's LinkedHashMap countdown. A newly eligible player is
+// inserted at 60 and decremented during the same tick, so the first returned
+// state contains 59. The overlay that accompanies insertion is a Java custom
+// packet/resource operation and is intentionally left to the runtime adapter.
+export function phase3BoundaryKillStep({ pendingKills = {}, players = [] } = {}) {
+  const nextPending = {};
+  for (const [id, ticksLeft] of Object.entries(pendingKills)) {
+    if (!Number.isInteger(ticksLeft) || ticksLeft < 0) {
+      throw new RangeError(`Phase 3 pending kill must be a non-negative integer: ${ticksLeft}`);
+    }
+    nextPending[id] = ticksLeft;
+  }
+
+  const eligiblePlayers = players.filter((player) => (
+    player?.id !== undefined
+    && phase3BoundaryKillEligible(player.y, player.inStage3Dimension)
+  ));
+  const eligibleIds = new Set(eligiblePlayers.map((player) => String(player.id)));
+  const startedIds = [];
+  for (const player of eligiblePlayers) {
+    const id = String(player.id);
+    if (Object.prototype.hasOwnProperty.call(nextPending, id)) continue;
+    nextPending[id] = PHASE3_SOURCE.boundaryKillDelayTicks;
+    startedIds.push(id);
+  }
+
+  for (const id of Object.keys(nextPending)) {
+    if (!eligibleIds.has(id)) delete nextPending[id];
+  }
+
+  const killIds = [];
+  for (const id of Object.keys(nextPending)) {
+    if (nextPending[id] <= 0) {
+      killIds.push(id);
+      delete nextPending[id];
+    } else {
+      nextPending[id] -= 1;
+    }
+  }
+
+  return { pendingKills: nextPending, startedIds, killIds };
+}
+
+function clamp01(value) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function lerp(start, end, amount) {
+  return start + (end - start) * amount;
+}
+
+// FinalCutscene.update() interpolates after adding deltaTime. This helper
+// models the resulting state at an already-advanced tick value.
+export function phase3CutsceneState(ticks) {
+  if (!Number.isFinite(ticks)) {
+    throw new RangeError(`Phase 3 cutscene ticks must be finite: ${ticks}`);
+  }
+  const t = Math.max(0, ticks);
+  const motion = clamp01(
+    (t - PHASE3_CUTSCENE_SOURCE.preLengthTicks)
+    / PHASE3_CUTSCENE_SOURCE.movementLengthTicks,
+  );
+  const zoom = clamp01(
+    (t
+      - PHASE3_CUTSCENE_SOURCE.preLengthTicks
+      - PHASE3_CUTSCENE_SOURCE.movementLengthTicks
+      + PHASE3_CUTSCENE_SOURCE.zoomOffsetTicks)
+    / PHASE3_CUTSCENE_SOURCE.zoomLengthTicks,
+  );
+  return {
+    active: t <= PHASE3_CUTSCENE_SOURCE.totalLengthTicks,
+    ended: t > PHASE3_CUTSCENE_SOURCE.totalLengthTicks,
+    position: {
+      x: lerp(PHASE3_CUTSCENE_SOURCE.positionStart.x, PHASE3_CUTSCENE_SOURCE.positionEnd.x, motion),
+      y: lerp(PHASE3_CUTSCENE_SOURCE.positionStart.y, PHASE3_CUTSCENE_SOURCE.positionEnd.y, motion),
+      z: lerp(PHASE3_CUTSCENE_SOURCE.positionStart.z, PHASE3_CUTSCENE_SOURCE.positionEnd.z, motion),
+    },
+    rotation: {
+      x: lerp(PHASE3_CUTSCENE_SOURCE.rotationStart.x, PHASE3_CUTSCENE_SOURCE.rotationEnd.x, motion),
+      y: lerp(PHASE3_CUTSCENE_SOURCE.rotationStart.y, PHASE3_CUTSCENE_SOURCE.rotationEnd.y, motion),
+    },
+    zoom: lerp(1, 5, zoom),
+    blackout: t >= 388 && t < PHASE3_CUTSCENE_SOURCE.totalLengthTicks,
+  };
 }
 
 export function tetherHeartbeatStep(cooldownTicks) {
