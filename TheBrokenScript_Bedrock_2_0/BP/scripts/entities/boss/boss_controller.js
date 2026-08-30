@@ -51,7 +51,7 @@ function installDeathHook() {
 // automatic arena startup remains disabled until its Java callsite is recovered.
 // Phase 3 ring spawning and boundary countdown are wired below. The Java
 // participant roster/transfer and custom camera packets remain engine gaps.
-// fractured (Jimmy): slam/stomp pulses 12 dmg, rock toss ranged 6, roam variant passive
+// fractured (Jimmy) and rock are owned by the dedicated source-specific runtime; fractured_roam remains here.
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
 // chord: flying attacker 4 dmg; chord_projectile launch is delegated to its
@@ -329,9 +329,7 @@ function tickEntity(e) {
     case "thebrokenscript:integrity_arm": return tickArm(e);
     case "thebrokenscript:integrity_curious": return tickCuriousWatcher(e);
     case "thebrokenscript:integ_fireball": return tickFireball(e);
-    case "thebrokenscript:fractured": return tickFractured(e);
     case "thebrokenscript:fractured_roam": return tickFracturedRoam(e);
-    case "thebrokenscript:rock": return tickRock(e);
     case "thebrokenscript:murderfur": return tickMurderfur(e);
     case "thebrokenscript:fever": return tickFever(e);
     case "thebrokenscript:fever_stalk": return tickFeverStalk(e);
@@ -649,27 +647,7 @@ function tickFireball(e) {
 }
 
 // ── Fractured (Jimmy) ────────────────────────────────────────────────────────
-function tickFractured(e) {
-  const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
-  if (!target) return;
-  try { e.lookAt?.(target.location); } catch {}
-  if (distance(e.location, target.location) > 6 && system.currentTick % 5 === 0) {
-    approach(e, target, 0.75); // mov 1.5 ≈ 0.075 b/t
-  }
-  meleePulse(e, 12, 7);
-  // rock toss every ~10s: ranged 6 dmg + brief rock entity
-  const toss = getNum(e, "toss", 200) - 1;
-  setNum(e, "toss", toss);
-  if (toss <= 0) {
-    setNum(e, "toss", 200);
-    if (distance(e.location, target.location) < 40) {
-      try { target.applyDamage(6, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(6); } catch {} }
-      const rock = spawnAt(e.dimension, "thebrokenscript:rock", { x: target.location.x, y: target.location.y + 1, z: target.location.z });
-      if (rock) setNum(rock, "life", 60);
-    }
-  }
-}
-
+// Fractured and Rock are intentionally absent from this controller's boss-family scan.
 function tickFracturedRoam(e) {
   // gentle wander: random drift every second
   if (system.currentTick % 20 === 0) {
@@ -684,11 +662,6 @@ function tickFracturedRoam(e) {
   }
 }
 
-function tickRock(e) {
-  const life = getNum(e, "life", 100) - 1;
-  setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
-}
 
 // ── Murderfur (Kerfur pet) ───────────────────────────────────────────────────
 function tickMurderfur(e) {

@@ -99,3 +99,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: a dedicated runtime owns normalized 1.6-block/tick movement, substepped block/entity collision, source branch order, gravity restoration event, 100-block expiry, and block countdown. The existing Bedrock 6 hit value remains under `CHORD_PROJECTILE_BEDROCK_ADAPTER`; exact face offsets remain in the pure model.
 6. **Player-visible difference**: launch height, entity bounding-box contact, and renderer application of grounded offsets are adapted; the missing BrokenCore formula is not guessed.
 7. **Parity class**: `VALIDATED_APPROXIMATION` with an explicit unresolved damage dependency.
+
+## A-015 — Fractured/Jimmy multipart and keyframe adapters
+
+1. **Source feature**: FracturedEntity, JimAttackSelectorGoal, the four Jimmy attacks, RockEntity, and FracturedPartEntity multipart hit routing.
+2. **Source behavior**: Jimmy starts with a 100-tick attack delay, chooses among the four equal-weight attacks, emits Stomp/Slam/SingleStomp/Rock effects at source timings, and uses RockEntity's 15-damage AOE/owner exclusion/Elytra side effect. FracturedPartEntity temporarily marks the parent as hit via a multipart part and handles burning/spectral arrow side effects.
+3. **Source evidence**: decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,FracturedPartEntity,JimAttackSelectorGoal,RockEntity}.java and decompiled/net/thebrokenscript/entity/fractured/attacks/*.java.
+4. **Bedrock limitation**: add-ons do not expose the Java multipart entity-part hierarchy, custom SUB_ANOM_2 damage source, GeckoLib server bone transforms, or the source moonstone particle registration.
+5. **Replacement design**: the dedicated runtime owns the recovered state machine and impact constants. Player melee is the explicit six-hit progress adapter; projectile hurt is the broad-body substitute for multipart arrow hits; keyframe instruction names are isolated behind KEYFRAME_ADAPTER_TICKS; Rock collision uses getAABB() and a substepped runtime query.
+6. **Player-visible difference**: exact limb hitboxes, burning/spectral arrow parent effects, bone-origin positions, and the 400-particle block burst are not exact; attack timing, damage, cooldown, owner exclusion, and defeat progress are preserved.
+7. **Parity class**: VALIDATED_APPROXIMATION for the recovered gameplay slice; multipart/bone/particle mechanisms remain engine-limited.

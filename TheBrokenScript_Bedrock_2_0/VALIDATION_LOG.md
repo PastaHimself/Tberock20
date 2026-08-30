@@ -2,6 +2,7 @@
 
 | Date (UTC) | Chunk | Check | Result |
 |---|---|---|---|
+| 2026-08-30 | 28 | Local Jimmy slice: 11 deterministic Node regressions PASS; changed model/runtime/main/controller JavaScript node --check PASS; touched Fractured/Rock JSON parse PASS; preceding beta CI repair run passed typecheck, 89 Node regressions, 67 Python validator tests, add-on validators, Blockception, MCT, and packaging; artifact uploads blocked by repository storage quota; Chunk 28 CI pending | PASS (code checks; upload quota noted) |
 | 2026-08-30 | 27 | Integrity Phase 3 lifecycle: 10 deterministic lifecycle regressions PASS; cumulative materialized Node suite 32/32 PASS; Phase 3 model/runtime `node --check` PASS; touched entity JSON parses; Bedrock static scanner 0 errors / 0 warnings; Bedrock world smoke test unavailable locally | PASS |
 | 2026-08-30 | 26 | Chord projectile: 7 focused regressions PASS; cumulative materialized Node suite 32/32 PASS; Chord model/runtime/controller `node --check` PASS; touched entity JSON parses; Bedrock static scanner 0 errors / 0 warnings; Bedrock world smoke test unavailable locally | PASS |
 | 2026-08-29 | 21 | Integrity Phase 3 slice: npm test 23/23 PASS; node --check passed for the model and boss controller; source-backed ring/boundary/cutscene regressions pass; GitHub Actions run 33259723699 completed with all workflow steps passing | PASS |

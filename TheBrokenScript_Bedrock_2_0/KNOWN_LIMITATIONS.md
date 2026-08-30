@@ -18,4 +18,6 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 
 14. **Integrity Phase 3 Java transport and presentation are not exact** — the controller now ships source-backed tentacle placement, boundary countdown, native void terminal damage, GroundAttack/GroundArm timing/owner/lifecycle adaptation, the complete Phase3Goals multi-attack selector, player/fireball damage gates, mace parry, and 298-tick delayed cleanup. The Java Arena participant roster/transfer, transition.png overlay packet, custom music/cutscene packets, client camera override, custom void_mass attribution, synchronized integer owner field, exact bounding-box contact query, and custom dying animation remain adaptations or unsupported transport (A-011, A-013).
 
+15. **Jimmy multipart and animation-bone routing are not exact** — FracturedPartEntity/FracturedSubEntity/Leg use a Java multipart hierarchy and GeckoLib keyframe bone positions. Chunk 28 preserves the recovered attack/timing/damage contract with a dedicated runtime, but player melee/projectile body hits, keyframe trigger ticks, limb origins, and the Rock block-particle burst are explicit Bedrock adapters (A-015).
+
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.

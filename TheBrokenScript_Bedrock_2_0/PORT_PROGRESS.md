@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-30 (Chunk 27 — Integrity Phase 3 damage/death lifecycle)
+Last updated: 2026-08-30 (Chunk 28 — Jimmy attack lifecycle)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,11 +11,9 @@ Last updated: 2026-08-30 (Chunk 27 — Integrity Phase 3 damage/death lifecycle)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 27 complete — Integrity Phase 3 damage/death lifecycle**
+**Chunk 28 complete — Jimmy attack lifecycle**
 
-Chunk 26 completed the Chord projectile runtime correction. Chunk 27 completed the source-backed Integrity Phase 3 damage gate and delayed death lifecycle. The Phase 3 multi-attack selector/runtime from Chunks 24–25 is present at this head.
-
-
+Chunk 28 ports the recoverable FracturedEntity attack state machine, four attack classes, keyframe packet effects, RockEntity flight/impact contract, and dedicated runtime ownership. Chunk 27 completed the Integrity Phase 3 damage/death lifecycle, and Chunk 26 completed the Chord projectile runtime correction.
 
 ## Chunk state
 | Chunk | State |
@@ -53,6 +51,7 @@ Chunk 26 completed the Chord projectile runtime correction. Chunk 27 completed t
 | 25 Complete Phase3Goals multi-attack selector | **completed** (weighted candidates, previous-attack exclusion, distance/vertical gates, attack lengths/cooldowns, and runtime dispatch) |
 | 26 Chord projectile source correction | **completed** (sole-owner movement/collision runtime, 1.6 speed, 100-block expiry, branch-ordered impacts, gravity restoration, 20-tick block countdown, transient entity, and explicit BrokenCore damage adapter) |
 | 27 Integrity Phase 3 damage/death lifecycle | **completed** (player/fireball caps, hurt-frame gate, mace parry, kill causes, center/death state, 298-tick cleanup, and restricted-event deferral) |
+| 28 Jimmy attack lifecycle | **completed** (FracturedEntity delay/selector/attack lengths, Stomp/Slam/MoonRockToss/AirLift effects, RockEntity flight/impact adapter, dedicated runtime ownership, and deterministic regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -61,6 +60,9 @@ BP/scripts/systems/integrity_arena_model.js Phase 3 constants/state/cutscene mod
 
 ## Files changed (Chunk 23)
 BP/entities/integrity_arm.json (source non-persistent contract) · BP/scripts/systems/integrity_arena_model.js (GroundAttack/GroundArm constants and pure timing/impact/lifecycle plans) · BP/scripts/entities/boss/boss_controller.js (Phase 3 GroundAttack adapter, runtime owner map, arm impacts, stuck propagation, lifecycle) · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_23_{SPEC,REPORT}.md
+
+## Files changed (Chunk 28)
+BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
 
 ## Files changed (Chunk 27)
 BP/scripts/systems/phase3_attack_model.js (source lifecycle constants and pure damage/death plans) · BP/scripts/entities/boss/phase3_runtime.js (filtered hurt adapter, deferred death/mace actions, lifecycle state) · tests/phase3_lifecycle_model.test.mjs · docs/chunks/CHUNK_27_{SPEC,REPORT}.md
@@ -149,7 +151,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-Chunk 26/27 focused validation: 32 materialized Node regressions PASS; touched JavaScript passes `node --check`; touched JSON parses; `bedrock_debugger.py` reports 0 errors and 0 warnings. No local Bedrock runtime is installed, so world smoke testing remains a CI/device check. Historical validation remains in VALIDATION_LOG.md.
+Chunk 28 focused local validation: 11 deterministic Jimmy regressions PASS; changed Jimmy model/runtime/main/controller JavaScript passes `node --check`; touched entity JSON parses; ownership assertions PASS. The preceding beta-API CI repair run passed typecheck, 89 JavaScript regressions, 67 Python validator tests, resource/Jigsaw/Blockception/MCT validation, and packaging; artifact uploads were blocked by repository storage quota. Chunk 28 CI is pending. Historical validation remains in VALIDATION_LOG.md.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
@@ -173,7 +175,8 @@ Chunk 26/27 focused validation: 32 materialized Node regressions PASS; touched J
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**Chunk 28 — Jimmy attack lifecycle.** The next unfinished source class is `decompiled/net/thebrokenscript/entity/fractured/FracturedEntity.java`, followed by `decompiled/net/thebrokenscript/entity/fractured/attacks/{SlamAttack,StompAttack,MoonRockTossAttack,AirLiftAttack}.java` and `decompiled/net/thebrokenscript/entity/fractured/RockEntity.java` keyframe/impact behavior. The current generic Jimmy controller still uses an approximation and must be reconciled against those source classes. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Chunk 29 — Jimmy multipart hitbox/support.** The next unfinished source class is `decompiled/net/thebrokenscript/entity/fractured/FracturedPartEntity.java`, followed by `decompiled/net/thebrokenscript/entity/fractured/FracturedSubEntity.java` and `decompiled/net/thebrokenscript/entity/fractured/Leg.java`; `FracturedRoamEntity.java` remains the next host lifecycle slice. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
 
 ## Exact source references to inspect next
+- `decompiled/net/thebrokenscript/entity/fractured/{FracturedPartEntity,FracturedSubEntity,Leg,FracturedRoamEntity}.java`
 - Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.
