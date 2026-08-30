@@ -151,7 +151,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-Chunk 28 focused local validation: 11 deterministic Jimmy regressions PASS; changed Jimmy model/runtime/main/controller JavaScript passes `node --check`; touched entity JSON parses; ownership assertions PASS. The preceding beta-API CI repair run passed typecheck, 89 JavaScript regressions, 67 Python validator tests, resource/Jigsaw/Blockception/MCT validation, and packaging; artifact uploads were blocked by repository storage quota. Chunk 28 CI is pending. Historical validation remains in VALIDATION_LOG.md.
+Chunk 28 focused local validation: 11 deterministic Jimmy regressions PASS; changed Jimmy model/runtime/main/controller JavaScript passes `node --check`; touched entity JSON parses; ownership assertions PASS. GitHub Actions run 33323628395 passed typecheck, 89 JavaScript regressions, 67 Python validator tests, add-on validators, Blockception diagnostics, MCT validation, and packaging; artifact uploads were blocked by repository storage quota. Runtime/device smoke testing remains pending. Historical validation remains in VALIDATION_LOG.md.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
