@@ -712,6 +712,12 @@ export function voidTentacleScaleFromRoll(roll) {
   return VOID_TENTACLE_SOURCE.scaleMinInclusive + roll;
 }
 
+/**
+ * @param {{
+ *   distance?: number;
+ *   previousAttack?: string | null;
+ * }} [options]
+ */
 export function groundAttackCanUse({ distance, previousAttack = null } = {}) {
   const [minDistance, maxDistance] = GROUND_ATTACK_SOURCE.distanceRange;
   return previousAttack !== "GROUND_ATTACK"

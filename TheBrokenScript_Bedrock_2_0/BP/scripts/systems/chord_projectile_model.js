@@ -50,6 +50,12 @@ export const CHORD_PROJECTILE_BEDROCK_ADAPTER = Object.freeze({
 // arrow implementation, then checks creative mode after that delegation.
 // Keep this decision pure so the runtime adapter cannot accidentally damage a
 // Chord or discard an ordinary hit.
+/**
+ * @param {{
+ *   targetType?: string;
+ *   isCreativePlayer?: boolean;
+ * }} [options]
+ */
 export function chordProjectileEntityImpactPlan({ targetType, isCreativePlayer = false } = {}) {
   if (targetType === "thebrokenscript:chord") {
     return {

@@ -510,14 +510,6 @@ function applyTentacleSwipeKnockback(player, impact) {
     player.applyKnockback(force, impact.bedrockVerticalStrength);
     return;
   } catch {}
-  try {
-    // Compatibility with the previous four-number signature.
-    const strength = Math.hypot(force.x, force.z);
-    const directionX = strength > 0 ? force.x / strength : 0;
-    const directionZ = strength > 0 ? force.z / strength : 0;
-    player.applyKnockback(directionX, directionZ, strength, impact.bedrockVerticalStrength);
-    return;
-  } catch {}
   callEntityMethod(player, "applyImpulse", {
     x: force.x,
     y: impact.bedrockVerticalStrength,

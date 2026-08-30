@@ -220,6 +220,16 @@ export function tentaclesAttackCanUse({ hasTarget = true, players = [] } = {}) {
   ));
 }
 
+/**
+ * @param {{
+ *   hasTarget?: boolean;
+ *   attackDelay?: number;
+ *   stuck?: boolean;
+ *   distance?: number;
+ *   previousAttack?: string | null;
+ *   tentaclesUsable?: boolean;
+ * }} [options]
+ */
 export function phase3ImplementedAttackCandidates({
   hasTarget = true,
   attackDelay = 0,
@@ -278,6 +288,17 @@ export function phase3ImplementedAttackCandidates({
   return candidates;
 }
 
+/**
+ * @param {{
+ *   randomFloat?: number;
+ *   hasTarget?: boolean;
+ *   attackDelay?: number;
+ *   stuck?: boolean;
+ *   distance?: number;
+ *   previousAttack?: string | null;
+ *   tentaclesUsable?: boolean;
+ * }} [options]
+ */
 export function selectPhase3ImplementedAttack({ randomFloat = 0, ...state } = {}) {
   if (!Number.isFinite(randomFloat) || randomFloat < 0 || randomFloat >= 1) {
     throw new RangeError(`Phase 3 attack randomFloat must be in [0, 1): ${randomFloat}`);
@@ -334,6 +355,12 @@ export function fireballAttackStep({ attackTicks = 0, shotFireball = false, hasT
   };
 }
 
+/**
+ * @param {{
+ *   position?: { x: number; y: number; z: number };
+ *   yawDegrees?: number;
+ * }} [options]
+ */
 export function tentacleSwipeCenter({ position, yawDegrees = 0 } = {}) {
   if (!position || !Number.isFinite(yawDegrees)) {
     throw new RangeError("TentacleSwipe center requires a position and finite yaw");
@@ -352,6 +379,12 @@ export function tentacleSwipeCenter({ position, yawDegrees = 0 } = {}) {
   };
 }
 
+/**
+ * @param {{
+ *   center?: { x: number; y: number; z: number };
+ *   players?: any[];
+ * }} [options]
+ */
 export function tentacleSwipeImpactPlan({ center, players = [] } = {}) {
   if (!center) return [];
   return players
