@@ -9,6 +9,7 @@ export const PHASE3_ATTACK = Object.freeze({
   FIREBALL: "FIREBALL",
   TENTACLE_SWIPE: "TENTACLE_SWIPE",
   GRAVITY: "GRAVITY",
+  TENTACLES: "TENTACLES",
 });
 
 export const FIREBALL_ATTACK_SOURCE = Object.freeze({
@@ -81,10 +82,58 @@ export const GRAVITY_BEDROCK_ADAPTER = Object.freeze({
   upwardImpulsePerTick: 0.0125,
 });
 
+export const TENTACLES_ATTACK_SOURCE = Object.freeze({
+  attackCooldownTicks: 55,
+  chance: 0.9,
+  canMove: false,
+  lengthTicks: 144,
+  distanceRange: Object.freeze([10, 20]),
+  canUseSearchRadius: 35,
+  canUseMinVerticalOffset: 0,
+  canUseMaxVerticalOffset: 1.5,
+  setupStuck: true,
+  firstPulseSourceTimer: 65,
+  firstPulseAttackTick: 66,
+  firstPulseRadius: 25,
+  firstPulseMinDistanceExclusive: 8,
+  firstPulseDamage: 7.5,
+  firstPulseKnockbackMaxDistanceExclusive: 10,
+  firstPulseHorizontalKnockback: 2.3,
+  firstPulseUpwardKnockback: 1.15,
+  secondPulseSourceTimer: 80,
+  secondPulseAttackTick: 81,
+  secondPulseRadius: 35,
+  secondPulseDamage: 5,
+  secondPulseKnockbackMaxDistanceExclusive: 10,
+  secondPulseHorizontalKnockback: 1.25,
+  secondPulseUpwardKnockback: 0.95,
+  secondPulseKnockbackRequiresOnGround: true,
+});
+
+// TBSDamageTypes.INTEGRITY_SHIELD_BYPASS is a custom Java damage type. Bedrock
+// Script API does not expose a custom damage-type registration path equivalent
+// to that source hook, so the runtime uses an entity-attack damage source while
+// preserving source timing, amounts, radii, and impulses.
+export const TENTACLES_BEDROCK_ADAPTER = Object.freeze({
+  runtimeStatus: "adapted_custom_damage_type",
+  damageCause: "entityAttack",
+});
+
 function withinDistanceRange(distance, range) {
   return Number.isFinite(distance)
     && distance >= range[0]
     && distance <= range[1];
+}
+
+export function tentaclesAttackCanUse({ hasTarget = true, players = [] } = {}) {
+  if (!hasTarget) return false;
+  return players.some((player) => (
+    Number.isFinite(player.distance)
+    && player.distance <= TENTACLES_ATTACK_SOURCE.canUseSearchRadius
+    && Number.isFinite(player.verticalOffset)
+    && player.verticalOffset >= TENTACLES_ATTACK_SOURCE.canUseMinVerticalOffset
+    && player.verticalOffset <= TENTACLES_ATTACK_SOURCE.canUseMaxVerticalOffset
+  ));
 }
 
 export function phase3ImplementedAttackCandidates({
@@ -93,6 +142,7 @@ export function phase3ImplementedAttackCandidates({
   stuck = false,
   distance = Number.NaN,
   previousAttack = null,
+  tentaclesUsable = false,
 } = {}) {
   if (!hasTarget || attackDelay > 0 || stuck) return [];
 
@@ -130,6 +180,17 @@ export function phase3ImplementedAttackCandidates({
       chance: GRAVITY_ATTACK_SOURCE.chance,
     });
   }
+
+  if (
+    previousAttack !== PHASE3_ATTACK.TENTACLES
+    && tentaclesUsable
+    && withinDistanceRange(distance, TENTACLES_ATTACK_SOURCE.distanceRange)
+  ) {
+    candidates.push({
+      type: PHASE3_ATTACK.TENTACLES,
+      chance: TENTACLES_ATTACK_SOURCE.chance,
+    });
+  }
   return candidates;
 }
 
@@ -159,6 +220,8 @@ export function phase3AttackLength(type, { stuck = false } = {}) {
       return TENTACLE_SWIPE_SOURCE.lengthTicks;
     case PHASE3_ATTACK.GRAVITY:
       return GRAVITY_ATTACK_SOURCE.lengthTicks;
+    case PHASE3_ATTACK.TENTACLES:
+      return TENTACLES_ATTACK_SOURCE.lengthTicks;
     default:
       return 0;
   }
@@ -170,6 +233,7 @@ export function phase3AttackCooldown(type) {
     case PHASE3_ATTACK.FIREBALL: return FIREBALL_ATTACK_SOURCE.attackCooldownTicks;
     case PHASE3_ATTACK.TENTACLE_SWIPE: return TENTACLE_SWIPE_SOURCE.attackCooldownTicks;
     case PHASE3_ATTACK.GRAVITY: return GRAVITY_ATTACK_SOURCE.attackCooldownTicks;
+    case PHASE3_ATTACK.TENTACLES: return TENTACLES_ATTACK_SOURCE.attackCooldownTicks;
     default: return 0;
   }
 }
@@ -239,4 +303,64 @@ export function gravityAttackStep({ attackTicks = 0 } = {}) {
     flipGravity: attackTicks > 0 && attackTicks <= GRAVITY_ATTACK_SOURCE.lengthTicks,
     finished: attackTicks >= GRAVITY_ATTACK_SOURCE.lengthTicks,
   };
+}
+
+function tentaclesImpulse(player, horizontalStrength, upwardStrength) {
+  const horizontalDistance = Math.max(Math.hypot(player.dx ?? 0, player.dz ?? 0), 0.001);
+  return {
+    x: (player.dx ?? 0) / horizontalDistance * horizontalStrength,
+    y: upwardStrength,
+    z: (player.dz ?? 0) / horizontalDistance * horizontalStrength,
+  };
+}
+
+export function tentaclesAttackImpactPlan({ attackTicks = 0, players = [] } = {}) {
+  if (!Number.isInteger(attackTicks) || attackTicks < 0) {
+    throw new RangeError(`Tentacles attackTicks must be a non-negative integer: ${attackTicks}`);
+  }
+
+  if (attackTicks === TENTACLES_ATTACK_SOURCE.firstPulseAttackTick) {
+    return players
+      .filter((player) => (
+        Number.isFinite(player.distance)
+        && player.distance <= TENTACLES_ATTACK_SOURCE.firstPulseRadius
+        && player.distance > TENTACLES_ATTACK_SOURCE.firstPulseMinDistanceExclusive
+        && Number.isFinite(player.verticalOffset)
+        && player.verticalOffset >= TENTACLES_ATTACK_SOURCE.canUseMinVerticalOffset
+        && player.verticalOffset <= TENTACLES_ATTACK_SOURCE.canUseMaxVerticalOffset
+      ))
+      .map((player) => ({
+        id: player.id,
+        damage: TENTACLES_ATTACK_SOURCE.firstPulseDamage,
+        impulse: player.distance < TENTACLES_ATTACK_SOURCE.firstPulseKnockbackMaxDistanceExclusive
+          ? tentaclesImpulse(
+            player,
+            TENTACLES_ATTACK_SOURCE.firstPulseHorizontalKnockback,
+            TENTACLES_ATTACK_SOURCE.firstPulseUpwardKnockback,
+          )
+          : null,
+      }));
+  }
+
+  if (attackTicks === TENTACLES_ATTACK_SOURCE.secondPulseAttackTick) {
+    return players
+      .filter((player) => (
+        Number.isFinite(player.distance)
+        && player.distance <= TENTACLES_ATTACK_SOURCE.secondPulseRadius
+      ))
+      .map((player) => ({
+        id: player.id,
+        damage: TENTACLES_ATTACK_SOURCE.secondPulseDamage,
+        impulse: player.distance < TENTACLES_ATTACK_SOURCE.secondPulseKnockbackMaxDistanceExclusive
+          && (!TENTACLES_ATTACK_SOURCE.secondPulseKnockbackRequiresOnGround || player.onGround === true)
+          ? tentaclesImpulse(
+            player,
+            TENTACLES_ATTACK_SOURCE.secondPulseHorizontalKnockback,
+            TENTACLES_ATTACK_SOURCE.secondPulseUpwardKnockback,
+          )
+          : null,
+      }));
+  }
+
+  return [];
 }
