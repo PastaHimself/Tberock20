@@ -18,12 +18,15 @@ import {
   GRAVITY_ATTACK_SOURCE,
   GRAVITY_BEDROCK_ADAPTER,
   PHASE3_ATTACK,
+  TENTACLES_ATTACK_SOURCE,
   TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
   gravityAttackStep,
   phase3AttackCooldown,
   phase3AttackLength,
   selectPhase3ImplementedAttack,
+  tentaclesAttackCanUse,
+  tentaclesAttackImpactPlan,
   tentacleSwipeCenter,
   tentacleSwipeImpactPlan,
 } from "../../systems/phase3_attack_model.js";
@@ -58,6 +61,15 @@ function health(entity) {
 
 function isLiving(entity) {
   return isValid(entity) && health(entity) > 0;
+}
+
+function isOnGround(entity) {
+  try {
+    const value = entity.isOnGround;
+    return typeof value === "function" ? value.call(entity) === true : value === true;
+  } catch {
+    return false;
+  }
 }
 
 function isStuck(entity) {
@@ -365,14 +377,53 @@ function tickGravityAttack(state) {
   if (step.flipGravity) gravityActiveThisTick = true;
 }
 
+function tentaclesPlayerRecords(entity) {
+  let players = [];
+  try { players = world.getAllPlayers(); } catch { return []; }
+  return players
+    .filter((player) => {
+      try { return player.dimension.id === entity.dimension.id && isLiving(player); } catch { return false; }
+    })
+    .map((player) => ({
+      id: player.id,
+      entity: player,
+      distance: distance(entity.location, player.location),
+      verticalOffset: player.location.y - entity.location.y,
+      dx: player.location.x - entity.location.x,
+      dz: player.location.z - entity.location.z,
+      onGround: isOnGround(player),
+    }));
+}
+
+function tickTentaclesAttack(entity, state) {
+  const candidates = tentaclesPlayerRecords(entity);
+  const impacts = tentaclesAttackImpactPlan({
+    attackTicks: state.attackTicks,
+    players: candidates,
+  });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    // Java uses the custom INTEGRITY_SHIELD_BYPASS damage type. Bedrock has no
+    // equivalent Script API registration path; the model documents this adapter.
+    applyEntityAttack(entity, candidate.entity, impact.damage);
+    if (impact.impulse) callEntityMethod(candidate.entity, "applyImpulse", impact.impulse);
+  }
+}
+
 function maybeSelectAttack(entity, state, target) {
   if (state.currentAttack !== PHASE3_ATTACK.NOOP || !target || state.attackDelay > 0 || isStuck(entity)) return;
+  const tentaclesCandidates = tentaclesPlayerRecords(entity);
   const selected = selectPhase3ImplementedAttack({
     hasTarget: true,
     attackDelay: state.attackDelay,
     stuck: false,
     distance: distance(entity.location, target.location),
     previousAttack: state.previousAttack,
+    tentaclesUsable: tentaclesAttackCanUse({
+      hasTarget: true,
+      players: tentaclesCandidates,
+    }),
     randomFloat: Math.random(),
   });
   if (selected === null) return;
@@ -383,6 +434,11 @@ function maybeSelectAttack(entity, state, target) {
   state.groundAttackTargetId = selected === PHASE3_ATTACK.GROUND_ATTACK ? target.id : null;
   state.groundAttackTargetBlockPosition = null;
   state.shotFireball = false;
+  if (selected === PHASE3_ATTACK.TENTACLES) {
+    // TentaclesAttack.setup stops navigation/movement and sets the boss stuck.
+    callEntityMethod(entity, "clearVelocity");
+    setStuck(entity, TENTACLES_ATTACK_SOURCE.setupStuck);
+  }
 }
 
 function tickPhase3(entity) {
@@ -430,6 +486,7 @@ function tickPhase3(entity) {
   if (state.currentAttack === PHASE3_ATTACK.FIREBALL) tickFireballAttack(entity, state);
   if (state.currentAttack === PHASE3_ATTACK.TENTACLE_SWIPE) tickTentacleSwipe(entity, state);
   if (state.currentAttack === PHASE3_ATTACK.GRAVITY) tickGravityAttack(state);
+  if (state.currentAttack === PHASE3_ATTACK.TENTACLES) tickTentaclesAttack(entity, state);
 
   const length = phase3AttackLength(state.currentAttack, { stuck: isStuck(entity) });
   if (state.attackTicks >= length) finishAttack(entity, state);
