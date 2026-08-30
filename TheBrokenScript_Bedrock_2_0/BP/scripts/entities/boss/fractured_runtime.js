@@ -411,7 +411,7 @@ function installDamageHook() {
       if (cause !== EntityDamageCause.projectile) event.cancel = true;
     });
   } catch (error) {
-    logger.warn("fractured damage hook unavailable", error);
+    logger.warn(`fractured damage hook unavailable: ${error}`);
   }
 }
 
@@ -425,7 +425,7 @@ function installSpawnHook() {
       if (entity?.typeId === FRACTURED_TYPE) getFracturedState(entity);
     });
   } catch (error) {
-    logger.warn("fractured spawn hook unavailable", error);
+    logger.warn(`fractured spawn hook unavailable: ${error}`);
   }
 }
 
