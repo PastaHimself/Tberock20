@@ -7,11 +7,16 @@
       "is_summonable": true,
       "is_experimental": false
     },
-    "component_groups": {},
+    "component_groups": {
+      "thebrokenscript:chord_projectile_gravity": {
+        "minecraft:physics": {
+          "has_gravity": true
+        }
+      }
+    },
     "components": {
       "minecraft:type_family": {
         "family": [
-          "thebrokenscript_boss",
           "thebrokenscript_chord_projectile_runtime",
           "monster",
           "mob"
@@ -52,6 +57,14 @@
         "value": 1.0
       }
     },
-    "events": {}
+    "events": {
+      "thebrokenscript:chord_projectile_restore_gravity": {
+        "add": {
+          "component_groups": [
+            "thebrokenscript:chord_projectile_gravity"
+          ]
+        }
+      }
+    }
   }
 }

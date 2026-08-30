@@ -4,6 +4,7 @@ import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
+import { registerChordProjectileLaunch } from "./chord_projectile_runtime.js";
 import {
   GROUND_ARM_SOURCE,
   GROUND_ATTACK_SOURCE,
@@ -53,7 +54,8 @@ function installDeathHook() {
 // fractured (Jimmy): slam/stomp pulses 12 dmg, rock toss ranged 6, roam variant passive
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
-// chord: flying attacker 4 dmg; chord_projectile straight-line 6 dmg
+// chord: flying attacker 4 dmg; chord_projectile launch is delegated to its
+// source-specific runtime adapter (the 6-damage value remains isolated there).
 // tether/void_tentacle: proximity hazards
 const FIREBALL_SPEED = 0.8;
 
@@ -334,7 +336,6 @@ function tickEntity(e) {
     case "thebrokenscript:fever": return tickFever(e);
     case "thebrokenscript:fever_stalk": return tickFeverStalk(e);
     case "thebrokenscript:chord": return tickChord(e);
-    case "thebrokenscript:chord_projectile": return tickChordProjectile(e);
     case "thebrokenscript:tether": return tickTether(e);
     case "thebrokenscript:void_tentacle": return tickVoidTentacle(e);
   }
@@ -740,40 +741,21 @@ function tickChord(e) {
   meleePulse(e, 4, 3, 15);
   // fire chord projectile occasionally
   if (system.currentTick % 160 === 0) {
-    const pr = spawnAt(e.dimension, "thebrokenscript:chord_projectile", { x: e.location.x, y: e.location.y + 0.5, z: e.location.z });
+    const origin = { x: e.location.x, y: e.location.y, z: e.location.z };
+    const pr = spawnAt(e.dimension, "thebrokenscript:chord_projectile", origin);
     if (pr) {
-      setNum(pr, "dirX", target.location.x - e.location.x);
-      setNum(pr, "dirY", (target.location.y + 1) - e.location.y);
-      setNum(pr, "dirZ", target.location.z - e.location.z);
+      registerChordProjectileLaunch(
+        pr,
+        {
+          x: target.location.x - e.location.x,
+          y: target.location.y - e.location.y,
+          z: target.location.z - e.location.z,
+        },
+        e,
+        origin,
+      );
     }
   }
-}
-
-function tickChordProjectile(e) {
-  const dx = getNum(e, "dirX", 0);
-  const dy = getNum(e, "dirY", 0);
-  const dz = getNum(e, "dirZ", 0);
-  const len = Math.hypot(dx, dy, dz);
-  if (len > 0) {
-    try {
-      e.teleport({
-        x: e.location.x + (dx / len) * 0.9,
-        y: e.location.y + (dy / len) * 0.9,
-        z: e.location.z + (dz / len) * 0.9
-      });
-    } catch {}
-  }
-  for (const p of world.getAllPlayers()) {
-    if (p.dimension.id !== e.dimension.id) continue;
-    if (distance(p.location, e.location) < 2) {
-      try { p.applyDamage(6, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(6); } catch {} }
-      try { e.remove(); } catch {} deleteTimers(e);
-      return;
-    }
-  }
-  const life = getNum(e, "life", 160) - 1;
-  setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
 }
 
 // ── Tether / VoidTentacle ───────────────────────────────────────────────────

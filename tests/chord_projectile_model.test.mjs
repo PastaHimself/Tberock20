@@ -5,9 +5,12 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   CHORD_PROJECTILE_BEDROCK_ADAPTER,
+  CHORD_PROJECTILE_GROUNDED_OFFSETS,
   CHORD_PROJECTILE_SOURCE,
   chordProjectileBlockHitStep,
   chordProjectileDirection,
+  chordProjectileEntityImpactPlan,
+  chordProjectileGroundedOffset,
   chordProjectileShouldDiscardForTravel,
   chordProjectileTravelDistance,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/chord_projectile_model.js";
@@ -30,8 +33,38 @@ test("ChordProjectileEntity source contract is preserved", () => {
     restoreGravityAfterBlockHit: true,
   });
   assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.runtimeStatus, "adapted_brokencore_arrow_damage");
-  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.movementRuntimeStatus, "adapted_existing_chord_tick_correction");
+  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.movementRuntimeStatus, "adapted_source_launch_vector");
   assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.entityHitDamage, 6);
+});
+
+test("Chord projectile entity impacts preserve the Java branch order", () => {
+  assert.deepEqual(chordProjectileEntityImpactPlan({
+    targetType: "thebrokenscript:chord",
+    isCreativePlayer: false,
+  }), {
+    targetKind: "chord",
+    applyDamage: false,
+    discard: true,
+    restoreGravity: true,
+  });
+  assert.deepEqual(chordProjectileEntityImpactPlan({
+    targetType: "minecraft:player",
+    isCreativePlayer: true,
+  }), {
+    targetKind: "creative_player",
+    applyDamage: true,
+    discard: true,
+    restoreGravity: true,
+  });
+  assert.deepEqual(chordProjectileEntityImpactPlan({
+    targetType: "minecraft:zombie",
+    isCreativePlayer: false,
+  }), {
+    targetKind: "entity",
+    applyDamage: true,
+    discard: false,
+    restoreGravity: true,
+  });
 });
 
 test("Chord projectile direction keeps Java speed separate from aim normalization", () => {
@@ -74,6 +107,19 @@ test("Chord projectile block hit queues exactly the source 20-tick discard", () 
   });
 });
 
+test("Chord projectile grounded offsets preserve every Java block face", () => {
+  assert.deepEqual(CHORD_PROJECTILE_GROUNDED_OFFSETS, {
+    south: { x: 215, y: 180 },
+    north: { x: 215, y: 0 },
+    east: { x: 215, y: -90 },
+    west: { x: 215, y: 90 },
+    down: { x: 115, y: 180 },
+    up: { x: 185, y: 180 },
+  });
+  assert.deepEqual(chordProjectileGroundedOffset("WEST"), { x: 215, y: 90 });
+  assert.equal(chordProjectileGroundedOffset(null), null);
+});
+
 test("Chord projectile runtime is wired after the boss tick and entity stays transient", async () => {
   const entityPath = path.join(
     repoRoot,
@@ -94,6 +140,15 @@ test("Chord projectile runtime is wired after the boss tick and entity stays tra
   assert.ok(
     components["minecraft:type_family"].family.includes("thebrokenscript_chord_projectile_runtime"),
   );
+  assert.equal(components["minecraft:type_family"].family.includes("thebrokenscript_boss"), false);
+  assert.equal(
+    entity["minecraft:entity"].component_groups["thebrokenscript:chord_projectile_gravity"]["minecraft:physics"].has_gravity,
+    true,
+  );
+  assert.deepEqual(
+    entity["minecraft:entity"].events["thebrokenscript:chord_projectile_restore_gravity"],
+    { add: { component_groups: ["thebrokenscript:chord_projectile_gravity"] } },
+  );
 
   const main = await readFile(mainPath, "utf8");
   const bossBegin = main.indexOf("bossController.begin(scheduler);");
@@ -101,7 +156,22 @@ test("Chord projectile runtime is wired after the boss tick and entity stays tra
   assert.ok(bossBegin >= 0 && chordBegin > bossBegin);
 
   const runtime = await readFile(runtimePath, "utf8");
+  const bossPath = path.join(
+    repoRoot,
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js",
+  );
+  const boss = await readFile(bossPath, "utf8");
+  assert.match(boss, /registerChordProjectileLaunch/);
+  assert.doesNotMatch(boss, /function tickChordProjectile/);
+  assert.doesNotMatch(boss, /case "thebrokenscript:chord_projectile"/);
   assert.match(runtime, /CHORD_PROJECTILE_SOURCE\.launchSpeedBlocksPerTick/);
   assert.match(runtime, /chordProjectileShouldDiscardForTravel/);
   assert.match(runtime, /chordProjectileBlockHitStep/);
+  assert.match(runtime, /launchRegistered/);
+  assert.match(runtime, /chordProjectileGroundedOffset/);
+  assert.match(runtime, /EntityDamageCause\.projectile/);
+  assert.match(runtime, /GameMode\.Creative/);
+  assert.match(runtime, /GRAVITY_RESTORE_EVENT/);
+  assert.match(runtime, /triggerEvent\(GRAVITY_RESTORE_EVENT\)/);
+  assert.match(runtime, /applyDamage\(/);
 });
