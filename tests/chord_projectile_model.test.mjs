@@ -25,6 +25,7 @@ test("ChordProjectileEntity source contract is preserved", () => {
     restoreGravityAfterBlockHit: true,
   });
   assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.runtimeStatus, "adapted_brokencore_arrow_damage");
+  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.movementRuntimeStatus, "adapted_existing_chord_tick_correction");
   assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.entityHitDamage, 6);
 });
 
@@ -40,7 +41,7 @@ test("Chord projectile expires by 100-block travel distance, not a fabricated ti
   assert.equal(chordProjectileShouldDiscardForTravel({ x: 10, y: 20, z: 130 }, initial), true);
 });
 
-test("Chord projectile block hit queues the source 20-tick discard", () => {
+test("Chord projectile block hit queues exactly the source 20-tick discard", () => {
   assert.deepEqual(chordProjectileBlockHitStep(null), {
     grounded: true,
     discard: false,
@@ -51,9 +52,14 @@ test("Chord projectile block hit queues the source 20-tick discard", () => {
     discard: false,
     discardTicksRemaining: 19,
   });
-  assert.deepEqual(chordProjectileBlockHitStep(1), {
+  assert.deepEqual(chordProjectileBlockHitStep(2), {
     grounded: true,
     discard: false,
+    discardTicksRemaining: 1,
+  });
+  assert.deepEqual(chordProjectileBlockHitStep(1), {
+    grounded: true,
+    discard: true,
     discardTicksRemaining: 0,
   });
   assert.deepEqual(chordProjectileBlockHitStep(0), {
