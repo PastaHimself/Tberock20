@@ -57,17 +57,22 @@ test("TentacleSwipeAttack source constants are preserved", () => {
 
 test("GravityAttack source constants and Bedrock adapter are explicit", () => {
   assert.deepEqual(GRAVITY_ATTACK_SOURCE, {
-    attackCooldownTicks: 100,
-    chance: 0.45,
+    attackCooldownTicks: 140,
+    chance: 0.15,
     canMove: false,
     canUse: true,
-    lengthTicks: 180,
-    distanceRange: [0, 45],
+    lengthTicks: 240,
+    distanceRange: [-Infinity, Infinity],
+    particlesPerTick: 20,
+    particleSpreadXZ: 5,
+    particleVelocity: { x: 0, y: 2, z: 0 },
+    particleBlock: "thebrokenscript:intense_projection",
     inverseGravityStrength: -0.0125,
     stage3Dimension: "thebrokenscript:void_shadow",
   });
   assert.equal(GRAVITY_BEDROCK_ADAPTER.runtimeStatus, "adapted_default_gravity");
   assert.equal(GRAVITY_BEDROCK_ADAPTER.upwardImpulsePerTick, -GRAVITY_ATTACK_SOURCE.inverseGravityStrength);
+  assert.equal(GRAVITY_BEDROCK_ADAPTER.particleRuntimeStatus, "blocked_block_particle_equivalent");
 });
 
 test("TentaclesAttack source constants and custom-damage adaptation are explicit", () => {
@@ -93,7 +98,7 @@ test("implemented selector preserves Phase3Goals gates", () => {
 test("implemented selector preserves per-attack ranges", () => {
   assert.deepEqual(
     phase3ImplementedAttackCandidates({ distance: 50 }).map((candidate) => candidate.type),
-    [PHASE3_ATTACK.GROUND_ATTACK, PHASE3_ATTACK.FIREBALL, PHASE3_ATTACK.TENTACLE_SWIPE],
+    [PHASE3_ATTACK.GROUND_ATTACK, PHASE3_ATTACK.FIREBALL, PHASE3_ATTACK.TENTACLE_SWIPE, PHASE3_ATTACK.GRAVITY],
   );
   assert.deepEqual(
     phase3ImplementedAttackCandidates({ distance: 20 }).map((candidate) => candidate.type),
@@ -107,6 +112,10 @@ test("implemented selector preserves per-attack ranges", () => {
     phase3ImplementedAttackCandidates({ distance: 15, tentaclesUsable: true }).map((candidate) => candidate.type),
     [PHASE3_ATTACK.FIREBALL, PHASE3_ATTACK.TENTACLE_SWIPE, PHASE3_ATTACK.GRAVITY, PHASE3_ATTACK.TENTACLES],
   );
+  assert.deepEqual(
+    phase3ImplementedAttackCandidates({ distance: 1000 }).map((candidate) => candidate.type),
+    [PHASE3_ATTACK.FIREBALL, PHASE3_ATTACK.TENTACLE_SWIPE, PHASE3_ATTACK.GRAVITY],
+  );
 });
 
 test("implemented selector excludes the immediately previous attack", () => {
@@ -115,13 +124,14 @@ test("implemented selector excludes the immediately previous attack", () => {
     [
       { type: PHASE3_ATTACK.FIREBALL, chance: 0.15 },
       { type: PHASE3_ATTACK.TENTACLE_SWIPE, chance: 0.15 },
+      { type: PHASE3_ATTACK.GRAVITY, chance: 0.15 },
     ],
   );
   assert.deepEqual(
     phase3ImplementedAttackCandidates({ distance: 20, previousAttack: PHASE3_ATTACK.FIREBALL }),
     [
       { type: PHASE3_ATTACK.TENTACLE_SWIPE, chance: 0.15 },
-      { type: PHASE3_ATTACK.GRAVITY, chance: 0.45 },
+      { type: PHASE3_ATTACK.GRAVITY, chance: 0.15 },
     ],
   );
   assert.equal(
@@ -136,10 +146,12 @@ test("implemented selector excludes the immediately previous attack", () => {
 
 test("implemented selector uses Java weighted-choice semantics", () => {
   assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0 }), PHASE3_ATTACK.GROUND_ATTACK);
-  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.7 }), PHASE3_ATTACK.GROUND_ATTACK);
-  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.8 }), PHASE3_ATTACK.FIREBALL);
-  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.95 }), PHASE3_ATTACK.TENTACLE_SWIPE);
-  assert.equal(selectPhase3ImplementedAttack({ distance: 20, randomFloat: 0.5 }), PHASE3_ATTACK.GRAVITY);
+  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.68 }), PHASE3_ATTACK.GROUND_ATTACK);
+  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.7 }), PHASE3_ATTACK.FIREBALL);
+  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.8 }), PHASE3_ATTACK.TENTACLE_SWIPE);
+  assert.equal(selectPhase3ImplementedAttack({ distance: 50, randomFloat: 0.9 }), PHASE3_ATTACK.GRAVITY);
+  assert.equal(selectPhase3ImplementedAttack({ distance: 20, randomFloat: 0.5 }), PHASE3_ATTACK.TENTACLE_SWIPE);
+  assert.equal(selectPhase3ImplementedAttack({ distance: 20, randomFloat: 0.8 }), PHASE3_ATTACK.GRAVITY);
   assert.equal(
     selectPhase3ImplementedAttack({ distance: 15, tentaclesUsable: true, randomFloat: 0.6 }),
     PHASE3_ATTACK.TENTACLES,
@@ -151,12 +163,12 @@ test("attack lengths and cooldowns match implemented source attacks", () => {
   assert.equal(phase3AttackLength(PHASE3_ATTACK.GROUND_ATTACK, { stuck: true }), 260);
   assert.equal(phase3AttackLength(PHASE3_ATTACK.FIREBALL), 144);
   assert.equal(phase3AttackLength(PHASE3_ATTACK.TENTACLE_SWIPE), 40);
-  assert.equal(phase3AttackLength(PHASE3_ATTACK.GRAVITY), 180);
+  assert.equal(phase3AttackLength(PHASE3_ATTACK.GRAVITY), 240);
   assert.equal(phase3AttackLength(PHASE3_ATTACK.TENTACLES), 144);
   assert.equal(phase3AttackCooldown(PHASE3_ATTACK.GROUND_ATTACK), 70);
   assert.equal(phase3AttackCooldown(PHASE3_ATTACK.FIREBALL), 120);
   assert.equal(phase3AttackCooldown(PHASE3_ATTACK.TENTACLE_SWIPE), 100);
-  assert.equal(phase3AttackCooldown(PHASE3_ATTACK.GRAVITY), 100);
+  assert.equal(phase3AttackCooldown(PHASE3_ATTACK.GRAVITY), 140);
   assert.equal(phase3AttackCooldown(PHASE3_ATTACK.TENTACLES), 55);
 });
 
@@ -191,10 +203,10 @@ test("TentacleSwipe center and impact plan retain source transform and hit rules
 test("Gravity attack flips for its active source duration", () => {
   assert.equal(gravityAttackStep({ attackTicks: 0 }).flipGravity, false);
   assert.equal(gravityAttackStep({ attackTicks: 1 }).flipGravity, true);
-  assert.equal(gravityAttackStep({ attackTicks: 179 }).finished, false);
-  assert.equal(gravityAttackStep({ attackTicks: 180 }).flipGravity, true);
-  assert.equal(gravityAttackStep({ attackTicks: 180 }).finished, true);
-  assert.equal(gravityAttackStep({ attackTicks: 181 }).flipGravity, false);
+  assert.equal(gravityAttackStep({ attackTicks: 239 }).finished, false);
+  assert.equal(gravityAttackStep({ attackTicks: 240 }).flipGravity, true);
+  assert.equal(gravityAttackStep({ attackTicks: 240 }).finished, true);
+  assert.equal(gravityAttackStep({ attackTicks: 241 }).flipGravity, false);
 });
 
 test("TentaclesAttack canUse matches the source vertical player gate", () => {
