@@ -22,6 +22,7 @@ export const CHORD_PROJECTILE_SOURCE = Object.freeze({
 // an adaptation instead of being presented as source-exact.
 export const CHORD_PROJECTILE_BEDROCK_ADAPTER = Object.freeze({
   runtimeStatus: "adapted_brokencore_arrow_damage",
+  movementRuntimeStatus: "adapted_existing_chord_tick_correction",
   entityHitDamage: 6,
   collisionSubstepDistance: 0.4,
 });
@@ -60,7 +61,7 @@ export function chordProjectileBlockHitStep(discardTicksRemaining) {
   if (!Number.isInteger(discardTicksRemaining) || discardTicksRemaining < 0) {
     throw new RangeError(`Chord projectile discard countdown must be a non-negative integer: ${discardTicksRemaining}`);
   }
-  if (discardTicksRemaining === 0) {
+  if (discardTicksRemaining <= 1) {
     return { grounded: true, discard: true, discardTicksRemaining: 0 };
   }
   return {
