@@ -12,6 +12,83 @@ export const PHASE3_ATTACK = Object.freeze({
   TENTACLES: "TENTACLES",
 });
 
+// IntegrityPhase3Entity.java keeps these lifecycle values outside the attack
+// classes. Keep them in the pure model so the runtime adapter cannot silently
+// replace source timing or damage caps with Bedrock defaults.
+export const PHASE3_LIFECYCLE_SOURCE = Object.freeze({
+  initialAttackDelayTicks: 100,
+  normalHurtFrameWindowTicks: 30,
+  stuckHurtFrameWindowTicks: 10,
+  maceParryWindowTicks: 80,
+  idleStuckTimeoutTicks: 100,
+  deathCleanupDelayTicks: 298,
+});
+
+export function phase3DamagePlan({
+  dying = false,
+  hurtFrames = 0,
+  sourceKind = "other",
+  incomingAmount = 0,
+  stuck = false,
+  maceAttack = false,
+  maceParryCooldown = 0,
+  targetHealth = Number.POSITIVE_INFINITY,
+} = {}) {
+  const rejected = {
+    apply: false,
+    amount: 0,
+    beginDeath: false,
+    hurtFrames: 0,
+    setMaceParryCooldown: false,
+    parryMace: false,
+  };
+  if (dying) return rejected;
+
+  if (sourceKind === "void" || sourceKind === "self_destruct" || sourceKind === "generic_kill") {
+    return { ...rejected, beginDeath: true };
+  }
+  if (hurtFrames > 0) return rejected;
+
+  if (sourceKind === "player" && maceAttack && maceParryCooldown > 0) {
+    return { ...rejected, parryMace: true };
+  }
+
+  let amount;
+  if (sourceKind === "integ_fireball") {
+    amount = 50;
+  } else if (sourceKind === "player") {
+    const incoming = Number.isFinite(incomingAmount) ? incomingAmount : 0;
+    amount = stuck ? Math.min(incoming * 3, 40) : Math.min(incoming / 2, 10);
+  } else {
+    return rejected;
+  }
+
+  const lethal = Number.isFinite(targetHealth)
+    && targetHealth > 0
+    && amount >= targetHealth;
+  return {
+    apply: true,
+    amount,
+    beginDeath: lethal,
+    hurtFrames: stuck
+      ? PHASE3_LIFECYCLE_SOURCE.stuckHurtFrameWindowTicks
+      : PHASE3_LIFECYCLE_SOURCE.normalHurtFrameWindowTicks,
+    setMaceParryCooldown: sourceKind === "player" && maceAttack,
+    parryMace: false,
+  };
+}
+
+export function phase3DeathStep({ dying = false, deathTicks = 0 } = {}) {
+  if (!dying) return { dying: false, deathTicks: 0, remove: false };
+  const elapsed = Number.isInteger(deathTicks) && deathTicks >= 0 ? deathTicks : 0;
+  const nextDeathTicks = elapsed + 1;
+  return {
+    dying: true,
+    deathTicks: nextDeathTicks,
+    remove: nextDeathTicks >= PHASE3_LIFECYCLE_SOURCE.deathCleanupDelayTicks,
+  };
+}
+
 export const FIREBALL_ATTACK_SOURCE = Object.freeze({
   attackCooldownTicks: 120,
   chance: 0.15,

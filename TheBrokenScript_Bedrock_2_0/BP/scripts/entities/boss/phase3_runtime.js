@@ -1,4 +1,4 @@
-import { world, EntityDamageCause } from "@minecraft/server";
+import { world, system, EquipmentSlot, EntityDamageCause } from "@minecraft/server";
 import { logger } from "../../core/logging.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as perf from "../../systems/perf.js";
@@ -18,12 +18,15 @@ import {
   GRAVITY_ATTACK_SOURCE,
   GRAVITY_BEDROCK_ADAPTER,
   PHASE3_ATTACK,
+  PHASE3_LIFECYCLE_SOURCE,
   TENTACLES_ATTACK_SOURCE,
   TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
   gravityAttackStep,
   phase3AttackCooldown,
   phase3AttackLength,
+  phase3DamagePlan,
+  phase3DeathStep,
   selectPhase3ImplementedAttack,
   tentaclesAttackCanUse,
   tentaclesAttackImpactPlan,
@@ -32,10 +35,15 @@ import {
 } from "../../systems/phase3_attack_model.js";
 
 const RUNTIME_FAMILY = "thebrokenscript_phase3_runtime";
+const DYING_TAG = "thebrokenscript.dying";
 const states = new Map();
 const armOwners = new Map();
 const projectileStates = new Map();
+const pendingHurtFrames = new Map();
+const pendingMaceParryCooldowns = new Map();
+const pendingDeaths = new Map();
 let gravityActiveThisTick = false;
+let damageHookInstalled = false;
 
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -88,6 +96,22 @@ function setStuck(entity, stuck) {
   }
 }
 
+function isDying(entity) {
+  if (callEntityMethod(entity, "hasTag", DYING_TAG) === true) return true;
+  return callEntityMethod(entity, "getProperty", "thebrokenscript:dying") === true;
+}
+
+function setDying(entity, dying) {
+  if (!isValid(entity)) return;
+  if (dying) {
+    callEntityMethod(entity, "addTag", DYING_TAG);
+    callEntityMethod(entity, "setProperty", "thebrokenscript:dying", true);
+  } else {
+    callEntityMethod(entity, "removeTag", DYING_TAG);
+    callEntityMethod(entity, "setProperty", "thebrokenscript:dying", false);
+  }
+}
+
 function dimensions() {
   const result = [];
   for (const id of ["overworld", "nether", "the_end", "thebrokenscript:stage2", "thebrokenscript:void_shadow"]) {
@@ -125,6 +149,9 @@ function removeEntity(entity) {
   states.delete(entity.id);
   armOwners.delete(entity.id);
   projectileStates.delete(entity.id);
+  pendingHurtFrames.delete(entity.id);
+  pendingMaceParryCooldowns.delete(entity.id);
+  pendingDeaths.delete(entity.id);
 }
 
 function applyEntityAttack(attacker, target, damage, cause = EntityDamageCause.entityAttack) {
@@ -134,6 +161,146 @@ function applyEntityAttack(attacker, target, damage, cause = EntityDamageCause.e
   } catch {
     try { target.applyDamage(damage); return true; } catch { return false; }
   }
+}
+
+function damageSourceKind(event) {
+  const cause = event.damageSource?.cause;
+  const source = event.damageSource?.damagingEntity;
+  if (cause === EntityDamageCause.void) return "void";
+  if (cause === EntityDamageCause.selfDestruct) return "self_destruct";
+  // Bedrock's override cause is the closest stable cause for an indirect
+  // health/kill operation; Java calls this GENERIC_KILL in the source entity.
+  if (cause === EntityDamageCause.override) return "generic_kill";
+  if (source?.typeId === "thebrokenscript:integ_fireball") return "integ_fireball";
+  if (source?.typeId === "minecraft:player") return "player";
+  return "other";
+}
+
+function phase3DamageState(entity) {
+  const state = states.get(entity.id);
+  return {
+    dying: state?.dying === true || isDying(entity) || pendingDeaths.has(entity.id),
+    hurtFrames: Math.max(state?.hurtFrames ?? 0, pendingHurtFrames.get(entity.id) ?? 0),
+    maceParryCooldown: Math.max(
+      state?.maceParryCooldown ?? 0,
+      pendingMaceParryCooldowns.get(entity.id) ?? 0,
+    ),
+    stuck: isStuck(entity),
+  };
+}
+
+function storePhase3DamageState(entity, plan) {
+  const state = states.get(entity.id);
+  if (state) {
+    state.hurtFrames = Math.max(state.hurtFrames, plan.hurtFrames);
+    if (plan.setMaceParryCooldown) {
+      state.maceParryCooldown = Math.max(
+        state.maceParryCooldown,
+        PHASE3_LIFECYCLE_SOURCE.maceParryWindowTicks,
+      );
+    }
+    return;
+  }
+  pendingHurtFrames.set(entity.id, Math.max(pendingHurtFrames.get(entity.id) ?? 0, plan.hurtFrames));
+  if (plan.setMaceParryCooldown) {
+    pendingMaceParryCooldowns.set(
+      entity.id,
+      Math.max(
+        pendingMaceParryCooldowns.get(entity.id) ?? 0,
+        PHASE3_LIFECYCLE_SOURCE.maceParryWindowTicks,
+      ),
+    );
+  }
+}
+
+function queuePhase3Death(entity) {
+  if (!isValid(entity) || states.get(entity.id)?.dying === true || pendingDeaths.has(entity.id)) return;
+  pendingDeaths.set(entity.id, entity);
+  try {
+    system.run(() => {
+      const queued = pendingDeaths.get(entity.id);
+      if (!queued) return;
+      pendingDeaths.delete(entity.id);
+      if (isValid(queued)) beginPhase3Death(queued);
+    });
+  } catch {
+    pendingDeaths.delete(entity.id);
+  }
+}
+
+function beginPhase3Death(entity) {
+  if (!isValid(entity)) return;
+  const state = states.get(entity.id) ?? initPhase3(entity);
+  if (state.dying) return;
+
+  // Java sets dying, clears its target, finishes the current attack, and moves
+  // to Phase3.CENTER before the delayed super.die call. Bedrock has no direct
+  // target-clear/death-animation equivalent, so the tag/state and teleport
+  // are kept in this adapter and cleanup is driven by the same tick count.
+  state.dying = true;
+  state.deathTicks = 0;
+  finishAttack(entity, state);
+  setDying(entity, true);
+  try { entity.teleport(PHASE3_SOURCE.center); } catch {}
+}
+
+function breakParriedMace(player) {
+  try {
+    const equippable = player.getComponent("minecraft:equippable");
+    const mainhand = equippable?.getEquipmentSlot(EquipmentSlot.Mainhand);
+    if (!mainhand?.hasItem() || mainhand.typeId !== "minecraft:mace") return;
+    const item = mainhand.getItem();
+    const durability = item?.getComponent("minecraft:durability");
+    if (!durability) return;
+    durability.damage = durability.maxDurability;
+    mainhand.setItem(item);
+  } catch {}
+}
+
+function queueMaceParry(player) {
+  try { system.run(() => breakParriedMace(player)); } catch {}
+}
+
+function installDamageHook() {
+  if (damageHookInstalled) return;
+  damageHookInstalled = true;
+  try {
+    world.beforeEvents.entityHurt.subscribe((event) => {
+      const target = event.hurtEntity;
+      if (!target || target.typeId !== "thebrokenscript:integrity_phase_3") return;
+
+      const sourceKind = damageSourceKind(event);
+      const state = phase3DamageState(target);
+      const plan = phase3DamagePlan({
+        ...state,
+        sourceKind,
+        incomingAmount: event.damage,
+        maceAttack: sourceKind === "player" && event.damageSource?.cause === EntityDamageCause.maceSmash,
+        targetHealth: health(target),
+      });
+
+      if (plan.setMaceParryCooldown) storePhase3DamageState(target, plan);
+      if (plan.parryMace) {
+        event.cancel = true;
+        queueMaceParry(event.damageSource?.damagingEntity);
+        return;
+      }
+      if (plan.beginDeath) {
+        event.cancel = true;
+        queuePhase3Death(target);
+        return;
+      }
+      if (!plan.apply) {
+        // IntegrityPhase3Entity.hurt returns false for all other entities and
+        // damage causes, including ordinary environmental damage.
+        event.cancel = true;
+        return;
+      }
+
+      event.damage = plan.amount;
+      storePhase3DamageState(target, plan);
+    });
+  } catch {}
 }
 
 function phase3SurfaceAirY(dim, x, z) {
@@ -205,6 +372,7 @@ function applyVoidMass(player, integrity) {
 }
 
 function initPhase3(entity) {
+  const restoredDying = isDying(entity);
   const state = {
     phase3: true,
     phase3TentaclesSpawned: false,
@@ -212,15 +380,21 @@ function initPhase3(entity) {
     tentacleIds: [],
     currentAttack: PHASE3_ATTACK.NOOP,
     previousAttack: null,
-    attackDelay: 0,
+    attackDelay: PHASE3_LIFECYCLE_SOURCE.initialAttackDelayTicks,
     attackTicks: 0,
     groundAttackTimer: 0,
     groundAttackTargetId: null,
     groundAttackTargetBlockPosition: null,
     shotFireball: false,
     stuckTimer: 0,
+    hurtFrames: pendingHurtFrames.get(entity.id) ?? 0,
+    maceParryCooldown: pendingMaceParryCooldowns.get(entity.id) ?? 0,
+    dying: restoredDying || pendingDeaths.has(entity.id),
+    deathTicks: 0,
   };
   states.set(entity.id, state);
+  pendingHurtFrames.delete(entity.id);
+  pendingMaceParryCooldowns.delete(entity.id);
   bossHooks.setArenaState(true, false);
   return state;
 }
@@ -444,10 +618,21 @@ function maybeSelectAttack(entity, state, target) {
 function tickPhase3(entity) {
   const state = states.get(entity.id)?.phase3 ? states.get(entity.id) : initPhase3(entity);
 
+  if (state.dying || isDying(entity)) {
+    state.dying = true;
+    const death = phase3DeathStep({
+      dying: true,
+      deathTicks: state.deathTicks,
+    });
+    state.deathTicks = death.deathTicks;
+    if (death.remove) removeEntity(entity);
+    return;
+  }
+
   // IntegrityPhase3Entity starts a 100-tick stuck timer when it is stuck while
   // idle. Attacks clear stuck state when they finish.
   if (isStuck(entity) && state.currentAttack === PHASE3_ATTACK.NOOP) {
-    if (state.stuckTimer <= 0) state.stuckTimer = 100;
+    if (state.stuckTimer <= 0) state.stuckTimer = PHASE3_LIFECYCLE_SOURCE.idleStuckTimeoutTicks;
     else {
       state.stuckTimer -= 1;
       if (state.stuckTimer <= 0) setStuck(entity, false);
@@ -478,6 +663,8 @@ function tickPhase3(entity) {
 
   const target = nearestPlayer(entity);
   if (state.attackDelay > 0) state.attackDelay -= 1;
+  if (state.hurtFrames > 0) state.hurtFrames -= 1;
+  if (state.maceParryCooldown > 0) state.maceParryCooldown -= 1;
   maybeSelectAttack(entity, state, target);
   if (state.currentAttack === PHASE3_ATTACK.NOOP || state.attackDelay > 0) return;
 
@@ -652,5 +839,6 @@ function onTick() {
 }
 
 export function begin(scheduler) {
+  installDamageHook();
   scheduler.every("tbs.phase3_runtime_tick", 1, onTick);
 }

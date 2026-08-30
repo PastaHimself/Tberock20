@@ -59,13 +59,13 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 `PlayerDesyncManager` toggles a Java player flag and resends deferred packets through a server-connection mixin on resync. Bedrock Script API exposes neither packet interception nor deferred packet replay. Chunk 20 makes the item functional with per-player state, nausea/darkness, glitch presentation, and a same-position/rotation teleport on resync. Parity: packet behavior = `ENGINE_UNSUPPORTED`; gameplay beat = `VALIDATED_APPROXIMATION`.
 
 ## A-011 — Integrity Phase 3 transport and final cutscene
-1. **Source feature**: Phase3.java ring spawning, boundary kill countdown, custom transition overlay, dimension transfer, music packets, end cutscene, and delayed boss discard.
+1. **Source feature**: Phase3.java ring spawning, boundary kill countdown, custom transition overlay, dimension transfer, music packets, end cutscene, and delayed boss discard; IntegrityPhase3Entity.java damage/death lifecycle.
 2. **Source behavior**: IntRange(0, 250) generates 251 candidate iterations with random radii 100–123 around (200, 202); three preset tentacles use fixed coordinates and SCALE 2. Players above y=90 in the Stage3 dimension receive a 60-tick countdown and then 1,000,000 void_mass damage. FinalCutscene.java runs for 428 ticks with a 108-tick pre-roll, 190-tick camera interpolation, 100-tick zoom, and 40-tick blackout.
 3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase3.java and decompiled/net/thebrokenscript/boss/integrity/FinalCutscene.java.
 4. **Bedrock limitation**: The Java Arena participant roster, custom overlay/music/cutscene packets, client camera override, and custom void_mass damage source have no direct add-on equivalent in the current runtime surface.
-5. **Replacement design**: The pure arena model preserves the exact ring geometry, boundary state machine, and cutscene timing. The boss controller spawns the ring/presets once, applies the countdown to players currently in the boss dimension, and maps terminal damage to Bedrock's native void cause.
-6. **Player-visible difference**: The source transition texture, custom music packets, final camera path, and exact participant transfer/attribution are not reproduced; the deterministic gameplay countdown and tentacle placement are shipped.
-7. **Parity class**: VALIDATED_APPROXIMATION for the runtime slice; ENGINE_UNSUPPORTED for Java-only transport/camera behavior.
+5. **Replacement design**: The pure arena model preserves the exact ring geometry, boundary state machine, cutscene timing, Phase 3 attack selector, damage caps, hurt-frame gate, and death delay. The runtime spawns the ring/presets once, applies the countdown to players currently in the boss dimension, maps terminal damage to Bedrock's native void cause, filters Phase 3 hurt events, defers restricted-context mutations, and removes the dying entity after 298 ticks.
+6. **Player-visible difference**: The source transition texture, custom music packets, final camera path, exact participant transfer/attribution, and custom superclass death animation are not reproduced; the deterministic gameplay countdown, attacks, damage gate, and delayed cleanup are shipped.
+7. **Parity class**: VALIDATED_APPROXIMATION for the gameplay/runtime slice; ENGINE_UNSUPPORTED for Java-only transport/camera behavior.
 
 ## Pending-analysis adaptations (bytecode required)
 - Spawn-condition predicates (24 classes) → spawn director fidelity depends on decompiled constants/timings.
@@ -89,3 +89,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: the controller keeps a live `arm.id → owner` map, guards invalid references, applies the source timing/damage/impulse plan, and uses a five-block entity query as the contact approximation. GroundArm is explicitly non-persistent in its BP definition.
 6. **Player-visible difference**: owner association is runtime-only and is rebuilt only when a new GroundAttack spawns an arm; player contact is radius-based rather than exact bounding-box intersection.
 7. **Parity class**: `VALIDATED_APPROXIMATION`; exact owner synchronization and geometric contact remain engine gaps.
+
+## A-014 — Chord projectile and BrokenCore arrow-damage adapter
+
+1. **Source feature**: `ChordEntity.performProjectileAttack` and `ChordProjectileEntity` movement, distance expiry, impact branches, gravity restoration, grounded offsets, and empty pickup behavior.
+2. **Source behavior**: source speed is `1.6f`, inaccuracy is `0.0f`, `initialPos` is the Chord position, and `setBaseDamageFromMob(2.0f)` is called. The projectile is transient, no-gravity in flight, discarded at 100 blocks, and queues 20-tick block-hit removal.
+3. **Source evidence**: `decompiled/net/thebrokenscript/entity/boss/ChordEntity.java`, `ChordProjectileEntity.java`, and `decompiled_brokencore/net/thebrokenscript/brokencore/api/entity/base/UwuableArrow.java`.
+4. **Bedrock limitation**: the repository does not contain `UwuableArrow#setBaseDamageFromMob`; the server API also does not expose the Java bounding-box interpolation used by `getY(1.0)` or the client renderer's grounded `Vec2` hook.
+5. **Replacement design**: a dedicated runtime owns normalized 1.6-block/tick movement, substepped block/entity collision, source branch order, gravity restoration event, 100-block expiry, and block countdown. The existing Bedrock 6 hit value remains under `CHORD_PROJECTILE_BEDROCK_ADAPTER`; exact face offsets remain in the pure model.
+6. **Player-visible difference**: launch height, entity bounding-box contact, and renderer application of grounded offsets are adapted; the missing BrokenCore formula is not guessed.
+7. **Parity class**: `VALIDATED_APPROXIMATION` with an explicit unresolved damage dependency.
