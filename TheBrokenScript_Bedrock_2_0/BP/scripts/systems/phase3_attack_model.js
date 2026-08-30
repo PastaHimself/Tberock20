@@ -63,12 +63,18 @@ export const TENTACLE_SWIPE_BEDROCK_ADAPTER = Object.freeze({
 });
 
 export const GRAVITY_ATTACK_SOURCE = Object.freeze({
-  attackCooldownTicks: 100,
-  chance: 0.45,
+  attackCooldownTicks: 140,
+  chance: 0.15,
   canMove: false,
   canUse: true,
-  lengthTicks: 180,
-  distanceRange: Object.freeze([0, 45]),
+  lengthTicks: 240,
+  // Attack.kt's inherited MIN_VALUE..MAX_VALUE range is special-cased by
+  // Phase3Goals as unbounded, so model that semantic directly in JavaScript.
+  distanceRange: Object.freeze([Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY]),
+  particlesPerTick: 20,
+  particleSpreadXZ: 5,
+  particleVelocity: Object.freeze({ x: 0, y: 2, z: 0 }),
+  particleBlock: "thebrokenscript:intense_projection",
   inverseGravityStrength: -0.0125,
   stage3Dimension: "thebrokenscript:void_shadow",
 });
@@ -80,6 +86,7 @@ export const GRAVITY_ATTACK_SOURCE = Object.freeze({
 export const GRAVITY_BEDROCK_ADAPTER = Object.freeze({
   runtimeStatus: "adapted_default_gravity",
   upwardImpulsePerTick: 0.0125,
+  particleRuntimeStatus: "blocked_block_particle_equivalent",
 });
 
 export const TENTACLES_ATTACK_SOURCE = Object.freeze({
