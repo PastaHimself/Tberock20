@@ -15,9 +15,12 @@ import {
 import {
   FIREBALL_ATTACK_SOURCE,
   FIREBALL_BEDROCK_ADAPTER,
+  GRAVITY_ATTACK_SOURCE,
+  GRAVITY_BEDROCK_ADAPTER,
   PHASE3_ATTACK,
   TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
+  gravityAttackStep,
   phase3AttackCooldown,
   phase3AttackLength,
   selectPhase3ImplementedAttack,
@@ -29,6 +32,7 @@ const RUNTIME_FAMILY = "thebrokenscript_phase3_runtime";
 const states = new Map();
 const armOwners = new Map();
 const projectileStates = new Map();
+let gravityActiveThisTick = false;
 
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -356,6 +360,11 @@ function tickTentacleSwipe(entity, state) {
   }
 }
 
+function tickGravityAttack(state) {
+  const step = gravityAttackStep({ attackTicks: state.attackTicks });
+  if (step.flipGravity) gravityActiveThisTick = true;
+}
+
 function maybeSelectAttack(entity, state, target) {
   if (state.currentAttack !== PHASE3_ATTACK.NOOP || !target || state.attackDelay > 0 || isStuck(entity)) return;
   const selected = selectPhase3ImplementedAttack({
@@ -420,6 +429,7 @@ function tickPhase3(entity) {
   if (state.currentAttack === PHASE3_ATTACK.GROUND_ATTACK) tickGroundAttack(entity, state);
   if (state.currentAttack === PHASE3_ATTACK.FIREBALL) tickFireballAttack(entity, state);
   if (state.currentAttack === PHASE3_ATTACK.TENTACLE_SWIPE) tickTentacleSwipe(entity, state);
+  if (state.currentAttack === PHASE3_ATTACK.GRAVITY) tickGravityAttack(state);
 
   const length = phase3AttackLength(state.currentAttack, { stuck: isStuck(entity) });
   if (state.attackTicks >= length) finishAttack(entity, state);
@@ -554,15 +564,34 @@ function tickEntity(entity) {
   }
 }
 
+function applyStage3InverseGravity(players) {
+  if (!gravityActiveThisTick) return;
+  for (const player of players) {
+    try {
+      if (player.dimension.id !== GRAVITY_ATTACK_SOURCE.stage3Dimension || !isLiving(player)) continue;
+      // Java replaces Player#getDefaultGravity with -0.0125 while the global
+      // Phase 3 gravity flag is active. Script API has no player gravity setter,
+      // so add the equivalent upward velocity increment exactly once per tick.
+      callEntityMethod(player, "applyImpulse", {
+        x: 0,
+        y: GRAVITY_BEDROCK_ADAPTER.upwardImpulsePerTick,
+        z: 0,
+      });
+    } catch {}
+  }
+}
+
 function onTick() {
   let players = [];
   try { players = world.getAllPlayers(); } catch { return; }
   if (players.length === 0) return;
+  gravityActiveThisTick = false;
   for (const dim of dimensions()) {
     for (const entity of runtimeEntities(dim)) {
       try { tickEntity(entity); } catch (error) { logger.error(`phase3 runtime ${entity.typeId} ${entity.id}`, error); }
     }
   }
+  applyStage3InverseGravity(players);
 }
 
 export function begin(scheduler) {
