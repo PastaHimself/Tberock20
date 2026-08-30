@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   CHORD_PROJECTILE_BEDROCK_ADAPTER,
   CHORD_PROJECTILE_SOURCE,
@@ -8,6 +11,8 @@ import {
   chordProjectileShouldDiscardForTravel,
   chordProjectileTravelDistance,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/chord_projectile_model.js";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("ChordProjectileEntity source contract is preserved", () => {
   assert.deepEqual(CHORD_PROJECTILE_SOURCE, {
@@ -67,4 +72,36 @@ test("Chord projectile block hit queues exactly the source 20-tick discard", () 
     discard: true,
     discardTicksRemaining: 0,
   });
+});
+
+test("Chord projectile runtime is wired after the boss tick and entity stays transient", async () => {
+  const entityPath = path.join(
+    repoRoot,
+    "TheBrokenScript_Bedrock_2_0/BP/entities/chord_projectile.json",
+  );
+  const mainPath = path.join(
+    repoRoot,
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/main.js",
+  );
+  const runtimePath = path.join(
+    repoRoot,
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/chord_projectile_runtime.js",
+  );
+  const entity = JSON.parse(await readFile(entityPath, "utf8"));
+  const components = entity["minecraft:entity"].components;
+  assert.equal(components["minecraft:persistent"], undefined);
+  assert.equal(components["minecraft:physics"].has_gravity, false);
+  assert.ok(
+    components["minecraft:type_family"].family.includes("thebrokenscript_chord_projectile_runtime"),
+  );
+
+  const main = await readFile(mainPath, "utf8");
+  const bossBegin = main.indexOf("bossController.begin(scheduler);");
+  const chordBegin = main.indexOf("chordProjectileRuntime.begin(scheduler);");
+  assert.ok(bossBegin >= 0 && chordBegin > bossBegin);
+
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /CHORD_PROJECTILE_SOURCE\.launchSpeedBlocksPerTick/);
+  assert.match(runtime, /chordProjectileShouldDiscardForTravel/);
+  assert.match(runtime, /chordProjectileBlockHitStep/);
 });
