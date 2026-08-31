@@ -34,7 +34,31 @@ test("root collision envelopes cover source multipart extents while runtime filt
   }
 });
 
-test("generic roam drift pauses while the source SWITCHING adapter owns the entity", async () => {
+test("generic boss ticking delegates Roam ownership to the dedicated runtime", async () => {
   const controller = await readFile(bossControllerPath, "utf8");
-  assert.match(controller, /fractured_roam_switching/);
+  assert.match(controller, /case "thebrokenscript:fractured_roam": return tickFracturedRoam\(e\)/);
+  assert.match(controller, /dedicated runtime owns the source timers/);
+});
+
+test("dedicated runtime owns the source FracturedRoam host lifecycle and Arena handoff", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /fractured_roam_model\.js/);
+  assert.match(runtime, /fracturedRoamServerTimerStep/);
+  assert.match(runtime, /fracturedRoamBaseTick/);
+  assert.match(runtime, /fracturedRoamDespawnStep/);
+  assert.match(runtime, /fracturedRoamDigEligibility/);
+  assert.match(runtime, /fracturedRoamArenaPlan/);
+  assert.match(runtime, /arenaStartMusicTicks/);
+  assert.match(runtime, /arenaSubAnomalyCount/);
+  assert.match(runtime, /spawnArenaSubAnomalies/);
+  assert.match(runtime, /thebrokenscript:sub_anomaly_2/);
+  assert.match(runtime, /runTimeout/);
+  assert.match(runtime, /ROAM_ARENA_SOURCE\.introSound/);
+  assert.match(runtime, /ROAM_ARENA_SOURCE\.loopSound/);
+});
+
+test("generic boss ticking no longer fabricates a below-half-health Roam promotion", async () => {
+  const controller = await readFile(bossControllerPath, "utf8");
+  assert.doesNotMatch(controller, /damaged below half/);
+  assert.doesNotMatch(controller, /getHealth\(e\) < maxHealth\(e\) \* 0\.5/);
 });
