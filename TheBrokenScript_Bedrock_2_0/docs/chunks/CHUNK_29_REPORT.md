@@ -15,7 +15,7 @@
 
 ## Validation
 
-- Local focused suite: 10 passed, 0 failed.
+- Local focused suite: 11 passed, 0 failed.
 - node --check passed for fractured_multipart_model.js, fractured_runtime.js, and boss_controller.js.
 - Static runtime assertions passed for deferred arrow effects, EntityDamageCause.projectile routing, root collision envelopes, six logical AABBs, and generic roam ownership.
 - GitHub Actions validation for the published head is pending; no Minecraft Bedrock world is installed locally, so in-game behavior still requires device/runtime smoke testing.

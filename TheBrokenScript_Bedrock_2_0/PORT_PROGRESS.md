@@ -155,7 +155,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-Chunk 29 focused local validation: 10 deterministic multipart regressions PASS; changed multipart model/runtime/controller JavaScript passes `node --check`; fractured and fractured_roam collision-envelope JSON parses; source extents and six-part filtering assertions PASS. GitHub Actions validation for this head is pending; runtime/device smoke testing remains pending. Historical validation remains in VALIDATION_LOG.md.
+Chunk 29 focused local validation: 11 deterministic multipart regressions PASS; changed multipart model/runtime/controller JavaScript passes `node --check`; fractured and fractured_roam collision-envelope JSON parses; source extents and six-part filtering assertions PASS. GitHub Actions validation for this head is pending; runtime/device smoke testing remains pending. Historical validation remains in VALIDATION_LOG.md.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
