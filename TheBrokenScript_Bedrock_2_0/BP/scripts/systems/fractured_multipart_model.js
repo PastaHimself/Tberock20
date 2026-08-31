@@ -132,6 +132,14 @@ export function multipartAabbs({ position, yawDegrees = 0 } = {}) {
   });
 }
 
+/** Mirrors BaseFracturedEntity's decrement-then-promote switching tick. */
+export function fracturedRoamSwitchStep(switchTicks = FRACTURED_MULTIPART_SOURCE.roamSwitchTicks) {
+  const current = Math.max(0, Math.floor(Number(switchTicks) || 0));
+  if (current === 0) return { switchTicks: 0, promote: true };
+  const next = current - 1;
+  return { switchTicks: next, promote: next === 0 };
+}
+
 export function pointInsideAabb(point, aabb) {
   if (!point || !aabb) return false;
   return point.x >= aabb.min.x && point.x <= aabb.max.x &&

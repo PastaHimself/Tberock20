@@ -15,6 +15,7 @@ import {
 import {
   FRACTURED_MULTIPART_SOURCE,
   fracturedPartHitPlan,
+  fracturedRoamSwitchStep,
   multipartAabbs,
   multipartPartDefinitions,
   pointInsideAabb,
@@ -227,10 +228,9 @@ function tickFracturedRoamSwitch(entity, state) {
     roamSwitchStates.delete(entity?.id);
     return;
   }
-  if (state.switchTicks > 0) {
-    state.switchTicks -= 1;
-    return;
-  }
+  const switchStep = fracturedRoamSwitchStep(state.switchTicks);
+  state.switchTicks = switchStep.switchTicks;
+  if (!switchStep.promote) return;
   const location = copyPosition(entity.location);
   let fractured = null;
   try {

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   FRACTURED_MULTIPART_SOURCE,
   fracturedPartHitPlan,
+  fracturedRoamSwitchStep,
   multipartAabbs,
   multipartEntityMatches,
   multipartPartDefinitions,
@@ -161,6 +162,17 @@ test("a FracturedRoam part hit requests the source SWITCHING state", () => {
     igniteSeconds: 0,
     spectralGlowTicks: 0,
   });
+});
+
+test("FracturedRoam promotion decrements before the source 103-tick switch completes", () => {
+  let state = { switchTicks: FRACTURED_MULTIPART_SOURCE.roamSwitchTicks, promote: false };
+  for (let tick = 0; tick < 102; tick += 1) {
+    state = fracturedRoamSwitchStep(state.switchTicks);
+    assert.equal(state.promote, false);
+  }
+  assert.equal(state.switchTicks, 1);
+  state = fracturedRoamSwitchStep(state.switchTicks);
+  assert.deepEqual(state, { switchTicks: 0, promote: true });
 });
 
 test("multipart entity identity treats a part and its parent as the same source entity", () => {
