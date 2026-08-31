@@ -118,3 +118,6 @@ test("RandomStroll keeps the source 45-tick interval and Arena keeps the source 
     startMusicTicks: 340,
     subAnomalyCount: 30,
     playerRange: 150,
+    subAnomalyRadius: 20,
+  });
+});
