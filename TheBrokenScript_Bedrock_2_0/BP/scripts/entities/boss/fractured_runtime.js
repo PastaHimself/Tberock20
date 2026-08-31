@@ -12,12 +12,21 @@ import {
   fracturedRockFlightStep,
   fracturedRockImpactPlan,
 } from "../../systems/fractured_attack_model.js";
+import {
+  FRACTURED_MULTIPART_SOURCE,
+  fracturedPartHitPlan,
+  multipartAabbs,
+  multipartPartDefinitions,
+  pointInsideAabb,
+} from "../../systems/fractured_multipart_model.js";
 
 const FRACTURED_TYPE = "thebrokenscript:fractured";
+const FRACTURED_ROAM_TYPE = "thebrokenscript:fractured_roam";
 const ROCK_TYPE = "thebrokenscript:rock";
 const FRACTURED_FAMILY = "thebrokenscript_fractured_runtime";
 const ROCK_FAMILY = "thebrokenscript_fractured_rock_runtime";
 const DEFEATED_TAG = "thebrokenscript.fractured_defeated";
+const ROAM_SWITCH_TAG = "thebrokenscript.fractured_roam_switching";
 const ATTACK_TAG_PREFIX = "thebrokenscript.fractured_attack.";
 
 // The Java attack effects are emitted by GeckoLib keyframes. The decompiled
@@ -39,6 +48,7 @@ const COLLISION_SUBSTEP_BLOCKS = 0.4;
 
 const fracturedStates = new Map();
 const rockStates = new Map();
+const roamSwitchStates = new Map();
 let damageHookInstalled = false;
 let spawnHookInstalled = false;
 
@@ -70,6 +80,64 @@ function getHealth(entity) {
 
 function getAabb(entity) {
   try { return entity.getAABB(); } catch { return null; }
+}
+
+function getBodyYaw(entity) {
+  try {
+    const rotation = entity.getRotation();
+    return typeof rotation?.y === "number" ? rotation.y : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function projectileImpactPoint(projectile) {
+  if (!projectile) return null;
+  const aabb = getAabb(projectile);
+  if (aabb?.center) return copyPosition(aabb.center);
+  try {
+    return projectile.location ? copyPosition(projectile.location) : null;
+  } catch {
+    return null;
+  }
+}
+
+function projectileHitsMultipartPart(parent, projectile) {
+  const point = projectileImpactPoint(projectile);
+  if (!point) return false;
+  return multipartAabbs({
+    position: copyPosition(parent.location),
+    yawDegrees: getBodyYaw(parent),
+  }).some((part) => pointInsideAabb(point, part));
+}
+
+function isEntityOnFire(entity) {
+  if (!entity) return false;
+  try {
+    const value = entity.isOnFire;
+    if (typeof value === "function" && value.call(entity) === true) return true;
+    if (value === true) return true;
+  } catch {}
+  try {
+    return Boolean(entity.getComponent("minecraft:onfire"));
+  } catch {
+    return false;
+  }
+}
+
+function applyMultipartArrowEffects(entity, plan) {
+  if (plan.igniteSeconds <= 0 && plan.spectralGlowTicks <= 0) return;
+  try {
+    system.run(() => {
+      if (!isValid(entity)) return;
+      if (plan.igniteSeconds > 0) {
+        callEntity(entity, "setOnFire", plan.igniteSeconds, true);
+      }
+      if (plan.spectralGlowTicks > 0) {
+        callEntity(entity, "addEffect", "glowing", plan.spectralGlowTicks);
+      }
+    });
+  } catch {}
 }
 
 function hasGroundSupport(entity) {
@@ -143,6 +211,47 @@ function removeFracturedState(entity) {
 
 function removeRockState(entity) {
   rockStates.delete(entity?.id);
+}
+
+function beginFracturedRoamSwitch(entity) {
+  if (!isValid(entity) || roamSwitchStates.has(entity.id)) return;
+  roamSwitchStates.set(entity.id, {
+    entity,
+    switchTicks: FRACTURED_MULTIPART_SOURCE.roamSwitchTicks,
+  });
+  callEntity(entity, "addTag", ROAM_SWITCH_TAG);
+}
+
+function tickFracturedRoamSwitch(entity, state) {
+  if (!isValid(entity)) {
+    roamSwitchStates.delete(entity?.id);
+    return;
+  }
+  if (state.switchTicks > 0) {
+    state.switchTicks -= 1;
+    return;
+  }
+  const location = copyPosition(entity.location);
+  let fractured = null;
+  try {
+    fractured = entity.dimension.spawnEntity(FRACTURED_TYPE, location);
+  } catch (error) {
+    logger.warn(`fractured roam switch spawn unavailable: ${error}`);
+    return;
+  }
+  if (!fractured) return;
+  safeRemove(entity);
+  roamSwitchStates.delete(entity.id);
+}
+
+function tickRoamSwitchStates() {
+  for (const [id, state] of roamSwitchStates) {
+    if (!state?.entity) {
+      roamSwitchStates.delete(id);
+      continue;
+    }
+    tickFracturedRoamSwitch(state.entity, state);
+  }
 }
 
 function safeRemove(entity) {
@@ -385,12 +494,11 @@ function installDamageHook() {
   try {
     world.beforeEvents.entityHurt.subscribe((event) => {
       const entity = event.hurtEntity;
-      if (entity?.typeId !== FRACTURED_TYPE) return;
+      const isFractured = entity?.typeId === FRACTURED_TYPE;
+      const isRoam = entity?.typeId === FRACTURED_ROAM_TYPE;
+      if (!isFractured && !isRoam) return;
 
-      // FracturedPartEntity converts a successful hit on a multipart part into
-      // the custom SUB_ANOM_2 damage source. Bedrock has no multipart entity in
-      // this pack, so player melee is the explicit gameplay signal adapter.
-      if (isAcceptedProgressHit(event)) {
+      if (isFractured && isAcceptedProgressHit(event)) {
         const state = getFracturedState(entity);
         event.cancel = true;
         if (state.defeated || state.attackedCooldown > 0) return;
@@ -404,17 +512,37 @@ function installDamageHook() {
         return;
       }
 
-      // Java FracturedEntity ignores fire, fall, wall, and ordinary non-part
-      // damage. Arrow/projectile damage is allowed as the broad Bedrock body
-      // hitbox adapter for Java multipart arrow hits.
-      const cause = event.damageSource?.cause;
-      if (cause !== EntityDamageCause.projectile) event.cancel = true;
+      const source = event.damageSource;
+      if (source?.cause === EntityDamageCause.projectile) {
+        const projectile = source.damagingProjectile;
+        const plan = fracturedPartHitPlan({
+          parentType: entity.typeId,
+          partHit: projectileHitsMultipartPart(entity, projectile),
+          projectileType: projectile?.typeId ?? null,
+          projectileOnFire: isEntityOnFire(projectile),
+          // Bedrock has no direct equivalent of Java isInvulnerableTo().
+          invulnerable: false,
+        });
+        event.cancel = plan.cancel;
+        if (plan.swap) {
+          try {
+            system.run(() => {
+              if (isValid(entity)) beginFracturedRoamSwitch(entity);
+            });
+          } catch {}
+        }
+        if (plan.allowParentDamage) applyMultipartArrowEffects(entity, plan);
+        return;
+      }
+
+      // FracturedPartEntity is the only source path that can damage Jimmy;
+      // ordinary body hits and all direct damage to the roam host are rejected.
+      event.cancel = true;
     });
   } catch (error) {
-    logger.warn(`fractured damage hook unavailable: ${error}`);
+    logger.warn(`fractured multipart damage hook unavailable: ${error}`);
   }
 }
-
 function installSpawnHook() {
   if (spawnHookInstalled) return;
   spawnHookInstalled = true;
@@ -646,6 +774,7 @@ function tickDimension(dimension) {
 
 function onTick() {
   for (const dimension of dimensionsToTick()) tickDimension(dimension);
+  tickRoamSwitchStates();
   for (const [id, state] of fracturedStates) {
     if (!state) fracturedStates.delete(id);
   }
@@ -682,7 +811,10 @@ export function begin(scheduler) {
 
 export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
   fracturedType: FRACTURED_TYPE,
+  fracturedRoamType: FRACTURED_ROAM_TYPE,
   rockType: ROCK_TYPE,
+  multipartPartCount: multipartPartDefinitions().length,
+  roamSwitchTicks: FRACTURED_MULTIPART_SOURCE.roamSwitchTicks,
   fracturedFamily: FRACTURED_FAMILY,
   rockFamily: ROCK_FAMILY,
   keyframeAdapterTicks: KEYFRAME_ADAPTER_TICKS,

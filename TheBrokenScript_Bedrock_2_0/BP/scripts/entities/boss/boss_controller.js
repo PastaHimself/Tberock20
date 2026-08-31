@@ -649,6 +649,7 @@ function tickFireball(e) {
 // ── Fractured (Jimmy) ────────────────────────────────────────────────────────
 // Fractured and Rock are intentionally absent from this controller's boss-family scan.
 function tickFracturedRoam(e) {
+  if (callEntityMethod(e, "hasTag", "thebrokenscript.fractured_roam_switching") === true) return;
   // gentle wander: random drift every second
   if (system.currentTick % 20 === 0) {
     const ang = Math.random() * Math.PI * 2;
