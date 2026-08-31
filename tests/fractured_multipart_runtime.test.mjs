@@ -14,7 +14,7 @@ test("Jimmy runtime owns conceptual multipart hit routing and deferred arrow eff
   assert.match(runtime, /ROAM_SWITCH_TAG/);
   assert.match(runtime, /system\.run\(\(\) =>/);
   assert.match(runtime, /setOnFire/);
-  assert.match(runtime, /addEffect\("glowing"/);
+  assert.match(runtime, /"addEffect", "glowing"/);
   assert.doesNotMatch(runtime, /minecraft:projectile/);
   assert.match(runtime, /EntityDamageCause\.projectile/);
 });
