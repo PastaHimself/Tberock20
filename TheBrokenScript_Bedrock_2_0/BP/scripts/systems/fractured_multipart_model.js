@@ -108,6 +108,7 @@ function partOffset(part) {
  * Builds the six logical AABBs that replace Java multipart entities. Entity
  * positions are treated as the lower Y edge, matching the source setPos plus
  * EntityDimensions behavior; the current Bedrock entity remains the renderer.
+ * @param {{ position?: { x: number, y: number, z: number }, yawDegrees?: number }} options
  */
 export function multipartAabbs({ position, yawDegrees = 0 } = {}) {
   if (!position) return [];
