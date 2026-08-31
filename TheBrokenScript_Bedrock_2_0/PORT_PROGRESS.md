@@ -13,7 +13,7 @@ Last updated: 2026-08-31 (Chunk 29 — Jimmy multipart hitbox/support)
 ## Current chunk
 **Chunk 29 complete — Jimmy multipart hitbox/support**
 
-Chunk 29 ports the recoverable FracturedPartEntity, FracturedSubEntity, Leg, and BaseFracturedEntity multipart contract into a pure geometry/hit model and a dedicated runtime adapter. The runtime preserves the six logical part dimensions and offsets, body-yaw leg transforms, arrow side-effect order, and FracturedRoam SWITCHING promotion timer. Chunk 28 completed Jimmy's attack lifecycle, Chunk 27 completed the Integrity Phase 3 damage/death lifecycle, and Chunk 26 completed the Chord projectile runtime correction.
+Chunk 29 ports the recoverable FracturedPartEntity, FracturedSubEntity, Leg, and BaseFracturedEntity multipart contract into a pure geometry/hit model and a dedicated runtime adapter. The runtime preserves the six logical part dimensions and offsets, explicit parent-part versus leg-subentity behavior, role-specific body-yaw transforms, arrow side-effect order, the 149-tick Roam rising guard, and FracturedRoam SWITCHING promotion after the source 103-tick duration.
 
 ## Chunk state
 | Chunk | State |
@@ -155,7 +155,7 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-Chunk 29 focused local validation: 11 deterministic multipart regressions PASS; changed multipart model/runtime/controller JavaScript passes `node --check`; fractured and fractured_roam collision-envelope JSON parses; source extents and six-part filtering assertions PASS. GitHub Actions run 33358396432 passed typecheck, 111 JavaScript regressions, 67 Python validator tests, add-on validators, Blockception diagnostics (0 errors / 0 warnings), Mojang Creator Tools validation (0 blockers after documented false-positive filtering), and packaging; artifact uploads were blocked by repository storage quota. Runtime/device smoke testing remains pending. Historical validation remains in VALIDATION_LOG.md.
+Chunk 29 focused local validation: 12 deterministic multipart regressions PASS; changed multipart model/runtime/controller JavaScript node --check PASS; fractured and fractured_roam collision-envelope JSON parse and source-extents assertions PASS; GitHub Actions run 33359740828 passed all code/validation gates; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
