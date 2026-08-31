@@ -55,6 +55,7 @@ export const FRACTURED_MULTIPART_SOURCE = Object.freeze({
     igniteSeconds: 20,
     spectralGlowTicks: 400,
   }),
+  roamRiseTicks: 149,
   roamSwitchTicks: 103,
   roamSwapState: "SWITCHING",
 });
@@ -104,6 +105,12 @@ function partOffset(part) {
   return part.role === "sub_entity" ? part.targetOffset : part.offset;
 }
 
+function partYawDegrees(part, yawDegrees) {
+  // MultipartEntityPart.updatePosition uses positive body yaw, while the
+  // source Leg.tick rotates its target offset by negative body yaw.
+  return part.role === "sub_entity" ? -yawDegrees : yawDegrees;
+}
+
 /**
  * Builds the six logical AABBs that replace Java multipart entities. Entity
  * positions are treated as the lower Y edge, matching the source setPos plus
@@ -113,7 +120,7 @@ function partOffset(part) {
 export function multipartAabbs({ position, yawDegrees = 0 } = {}) {
   if (!position) return [];
   return multipartPartDefinitions().map((part) => {
-    const center = multipartWorldPosition(position, partOffset(part), yawDegrees);
+    const center = multipartWorldPosition(position, partOffset(part), partYawDegrees(part, yawDegrees));
     const halfWidth = part.width / 2;
     return {
       name: part.name,
@@ -158,30 +165,46 @@ function isArrowProjectile(projectileType) {
 
 /**
  * Mirrors FracturedPartEntity.hurt ordering. Arrow side effects occur before
- * the source invulnerability check; a FracturedRoam part swaps first and gets
- * none of those effects.
+ * the source invulnerability check; a FracturedRoam head/chest part swaps
+ * first and gets none of those effects. Leg sub-entities delegate to the
+ * parent and do not invoke swap or apply the arrow side effects.
+ * @param {{
+ *   parentType?: string,
+ *   partHit?: boolean | { name?: string, role?: string },
+ *   partRole?: string | null,
+ *   projectileType?: string | null,
+ *   projectileOnFire?: boolean,
+ *   invulnerable?: boolean,
+ *   roamState?: string,
+ * }} options
  */
 export function fracturedPartHitPlan({
   parentType = "thebrokenscript:fractured",
   partHit = false,
+  partRole = null,
   projectileType = null,
   projectileOnFire = false,
   invulnerable = false,
+  roamState = "NORMAL",
 } = {}) {
-  const hit = partHit === true;
+  const matchedPart = typeof partHit === "object" && partHit !== null ? partHit : null;
+  const hit = partHit === true || Boolean(matchedPart?.name);
+  const role = partRole ?? matchedPart?.role ?? "part";
+  const isPart = role === "part";
   const isRoam = parentType === "thebrokenscript:fractured_roam";
   const arrow = isArrowProjectile(projectileType);
-  const swap = hit && isRoam;
-  const allowParentDamage = hit && !swap && !invulnerable && arrow;
+  const isRoamPart = isRoam && isPart;
+  const swap = hit && isRoamPart && roamState === "NORMAL";
+  const allowParentDamage = hit && !isRoamPart && !invulnerable && arrow;
   return {
     cancel: !allowParentDamage,
     allowParentDamage,
     markHitViaPart: allowParentDamage,
     swap,
-    igniteSeconds: hit && !swap && arrow && projectileOnFire
+    igniteSeconds: hit && !isRoam && isPart && arrow && projectileOnFire
       ? FRACTURED_MULTIPART_SOURCE.arrowEffects.igniteSeconds
       : 0,
-    spectralGlowTicks: hit && !swap && projectileType === "minecraft:spectral_arrow"
+    spectralGlowTicks: hit && !isRoam && isPart && projectileType === "minecraft:spectral_arrow"
       ? FRACTURED_MULTIPART_SOURCE.arrowEffects.spectralGlowTicks
       : 0,
   };

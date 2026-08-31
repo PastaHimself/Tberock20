@@ -51,6 +51,7 @@ const COLLISION_SUBSTEP_BLOCKS = 0.4;
 const fracturedStates = new Map();
 const rockStates = new Map();
 const roamSwitchStates = new Map();
+const roamLifecycleStates = new Map();
 let damageHookInstalled = false;
 let spawnHookInstalled = false;
 
@@ -106,11 +107,11 @@ function projectileImpactPoint(projectile) {
 
 function projectileHitsMultipartPart(parent, projectile) {
   const point = projectileImpactPoint(projectile);
-  if (!point) return false;
+  if (!point) return null;
   return multipartAabbs({
     position: copyPosition(parent.location),
     yawDegrees: getBodyYaw(parent),
-  }).some((part) => pointInsideAabb(point, part));
+  }).find((part) => pointInsideAabb(point, part)) ?? null;
 }
 
 function isEntityOnFire(entity) {
@@ -207,6 +208,29 @@ function getRockState(entity) {
   return state;
 }
 
+function getFracturedRoamLifecycleState(entity) {
+  let state = roamLifecycleStates.get(entity.id);
+  if (state) return state;
+  state = {
+    entity,
+    state: "RISING",
+    riseTicks: FRACTURED_MULTIPART_SOURCE.roamRiseTicks,
+  };
+  roamLifecycleStates.set(entity.id, state);
+  return state;
+}
+
+function tickFracturedRoamLifecycle(entity) {
+  const state = getFracturedRoamLifecycleState(entity);
+  if (state.state !== "RISING") return;
+  // BaseFracturedEntity promotes on the tick after the decrement reaches zero.
+  if (state.riseTicks > 0) {
+    state.riseTicks -= 1;
+    return;
+  }
+  state.state = "NORMAL";
+}
+
 function removeFracturedState(entity) {
   fracturedStates.delete(entity?.id);
 }
@@ -217,6 +241,9 @@ function removeRockState(entity) {
 
 function beginFracturedRoamSwitch(entity) {
   if (!isValid(entity) || roamSwitchStates.has(entity.id)) return;
+  const lifecycle = getFracturedRoamLifecycleState(entity);
+  if (lifecycle.state !== "NORMAL") return;
+  lifecycle.state = FRACTURED_MULTIPART_SOURCE.roamSwapState;
   roamSwitchStates.set(entity.id, {
     entity,
     switchTicks: FRACTURED_MULTIPART_SOURCE.roamSwitchTicks,
@@ -243,6 +270,7 @@ function tickFracturedRoamSwitch(entity, state) {
   if (!fractured) return;
   safeRemove(entity);
   roamSwitchStates.delete(entity.id);
+  roamLifecycleStates.delete(entity.id);
 }
 
 function tickRoamSwitchStates() {
@@ -516,13 +544,17 @@ function installDamageHook() {
       const source = event.damageSource;
       if (source?.cause === EntityDamageCause.projectile) {
         const projectile = source.damagingProjectile;
+        const matchedPart = projectileHitsMultipartPart(entity, projectile);
+        const roamLifecycle = isRoam ? getFracturedRoamLifecycleState(entity) : null;
         const plan = fracturedPartHitPlan({
           parentType: entity.typeId,
-          partHit: projectileHitsMultipartPart(entity, projectile),
+          partHit: matchedPart,
+          partRole: matchedPart?.role ?? null,
           projectileType: projectile?.typeId ?? null,
           projectileOnFire: isEntityOnFire(projectile),
           // Bedrock has no direct equivalent of Java isInvulnerableTo().
           invulnerable: false,
+          roamState: roamLifecycle?.state ?? "NORMAL",
         });
         event.cancel = plan.cancel;
         if (plan.swap) {
@@ -552,6 +584,7 @@ function installSpawnHook() {
       const entity = event.entity;
       if (entity?.typeId === ROCK_TYPE) getRockState(entity);
       if (entity?.typeId === FRACTURED_TYPE) getFracturedState(entity);
+      if (entity?.typeId === FRACTURED_ROAM_TYPE) getFracturedRoamLifecycleState(entity);
     });
   } catch (error) {
     logger.warn(`fractured spawn hook unavailable: ${error}`);
@@ -763,13 +796,21 @@ function tickRock(rock) {
 function tickDimension(dimension) {
   let fractured = [];
   let rocks = [];
+  let roams = [];
   try { fractured = dimension.getEntities({ families: [FRACTURED_FAMILY] }); } catch {}
   try { rocks = dimension.getEntities({ families: [ROCK_FAMILY] }); } catch {}
+  try {
+    roams = dimension.getEntities({ families: ["thebrokenscript_boss"] })
+      .filter((entity) => entity.typeId === FRACTURED_ROAM_TYPE);
+  } catch {}
   for (const entity of fractured) {
     try { tickFractured(entity); } catch (error) { logger.error(`fractured tick ${entity.id}`, error); }
   }
   for (const rock of rocks) {
     try { tickRock(rock); } catch (error) { logger.error(`rock tick ${rock.id}`, error); }
+  }
+  for (const roam of roams) {
+    try { tickFracturedRoamLifecycle(roam); } catch (error) { logger.error(`fractured roam lifecycle ${roam.id}`, error); }
   }
 }
 
@@ -778,6 +819,9 @@ function onTick() {
   tickRoamSwitchStates();
   for (const [id, state] of fracturedStates) {
     if (!state) fracturedStates.delete(id);
+  }
+  for (const [id, state] of roamLifecycleStates) {
+    if (!state?.entity || !isValid(state.entity)) roamLifecycleStates.delete(id);
   }
 }
 
@@ -815,6 +859,7 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
   fracturedRoamType: FRACTURED_ROAM_TYPE,
   rockType: ROCK_TYPE,
   multipartPartCount: multipartPartDefinitions().length,
+  roamRiseTicks: FRACTURED_MULTIPART_SOURCE.roamRiseTicks,
   roamSwitchTicks: FRACTURED_MULTIPART_SOURCE.roamSwitchTicks,
   fracturedFamily: FRACTURED_FAMILY,
   rockFamily: ROCK_FAMILY,

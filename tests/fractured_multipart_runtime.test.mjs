@@ -11,6 +11,10 @@ test("Jimmy runtime owns conceptual multipart hit routing and deferred arrow eff
   const runtime = await readFile(runtimePath, "utf8");
   assert.match(runtime, /multipartAabbs/);
   assert.match(runtime, /fracturedPartHitPlan/);
+  assert.match(runtime, /partRole: matchedPart\?\.role/);
+  assert.match(runtime, /roamState: roamLifecycle\?\.state/);
+  assert.match(runtime, /roamRiseTicks/);
+  assert.match(runtime, /\.find\(\(part\) => pointInsideAabb/);
   assert.match(runtime, /ROAM_SWITCH_TAG/);
   assert.match(runtime, /system\.run\(\(\) =>/);
   assert.match(runtime, /setOnFire/);

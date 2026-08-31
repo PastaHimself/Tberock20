@@ -54,9 +54,15 @@ test("Jimmy multipart dimensions and offsets preserve BaseFracturedEntity source
       igniteSeconds: 20,
       spectralGlowTicks: 400,
     },
+    roamRiseTicks: 149,
     roamSwitchTicks: 103,
     roamSwapState: "SWITCHING",
   });
+  assert.deepEqual(multipartPartDefinitions().map((part) => [part.name, part.role]), [
+    ["head", "part"], ["chest", "part"],
+    ["frontleft", "sub_entity"], ["frontright", "sub_entity"],
+    ["backleft", "sub_entity"], ["backright", "sub_entity"],
+  ]);
   assert.deepEqual(multipartPartDefinitions().map((part) => part.name), [
     "head", "chest", "frontleft", "frontright", "backleft", "backright",
   ]);
@@ -92,6 +98,14 @@ test("conceptual part AABBs preserve source dimensions while remaining a runtime
     role: "sub_entity",
     min: { x: 37.5, y: 10, z: 37.5 },
     max: { x: 52.5, y: 25, z: 52.5 },
+  });
+  const rotatedFrontLeft = multipartAabbs({ position: { x: 0, y: 0, z: 0 }, yawDegrees: 90 })
+    .find((box) => box.name === "frontleft");
+  assert.deepEqual(rotatedFrontLeft, {
+    name: "frontleft",
+    role: "sub_entity",
+    min: { x: 37.5, y: 0, z: -52.5 },
+    max: { x: 52.5, y: 15, z: -37.5 },
   });
   assert.equal(pointInsideAabb({ x: 0, y: 105, z: 10 }, head), true);
   assert.equal(pointInsideAabb({ x: 0, y: 97.99, z: 10 }, head), false);
@@ -169,6 +183,45 @@ test("a FracturedRoam part hit requests the source SWITCHING state", () => {
     partHit: true,
     projectileType: "minecraft:spectral_arrow",
   })), false);
+});
+
+test("multipart roles preserve FracturedPartEntity versus MultipartSubEntity behavior", () => {
+  const mainLeg = fracturedPartHitPlan({
+    parentType: "thebrokenscript:fractured",
+    partHit: true,
+    partRole: "sub_entity",
+    projectileType: "minecraft:arrow",
+    projectileOnFire: true,
+  });
+  assert.equal(mainLeg.allowParentDamage, true);
+  assert.equal(mainLeg.swap, false);
+  assert.equal(mainLeg.igniteSeconds, 0);
+  assert.equal(mainLeg.spectralGlowTicks, 0);
+
+  const roamLeg = fracturedPartHitPlan({
+    parentType: "thebrokenscript:fractured_roam",
+    partHit: true,
+    partRole: "sub_entity",
+    projectileType: "minecraft:spectral_arrow",
+    projectileOnFire: true,
+    roamState: "NORMAL",
+  });
+  assert.equal(roamLeg.allowParentDamage, true);
+  assert.equal(roamLeg.swap, false);
+  assert.equal(roamLeg.igniteSeconds, 0);
+  assert.equal(roamLeg.spectralGlowTicks, 0);
+
+  const risingHead = fracturedPartHitPlan({
+    parentType: "thebrokenscript:fractured_roam",
+    partHit: true,
+    partRole: "part",
+    projectileType: "minecraft:arrow",
+    projectileOnFire: true,
+    roamState: "RISING",
+  });
+  assert.equal(risingHead.cancel, true);
+  assert.equal(risingHead.swap, false);
+  assert.equal(risingHead.igniteSeconds, 0);
 });
 
 test("FracturedRoam promotion decrements before the source 103-tick switch completes", () => {
