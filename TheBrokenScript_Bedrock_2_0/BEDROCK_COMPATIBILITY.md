@@ -67,3 +67,10 @@ The SCALE adapter uses the Bedrock entity property surface (integer range/defaul
 The GroundArm adapter uses the documented `Dimension.getEntities({ location, maxDistance })` query for nearby-player and nearby-tentacle lookup, `Entity.applyImpulse` for the source knockback plan, and `Entity.remove` for source discard behavior. Each call is guarded because these APIs can throw on invalid/unloaded entities. Bedrock still provides no direct Java bounding-box intersection or synchronized integer owner field, so those two details remain explicit adaptations.
 
 Official references: [Dimension.getEntities](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/dimension?view=minecraft-bedrock-stable) · [Entity.applyImpulse](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable) · [Entity.remove](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable)
+
+
+## Chunk 29 compatibility note
+
+The multipart adapter uses the documented Entity.getAABB() surface to obtain a projectile's current center, Entity.setOnFire(seconds, useEffects) for the burning-arrow parent effect, Entity.addEffect(effectType, duration, options) for the spectral-arrow glowing effect, and System.run to defer those mutations out of the world.beforeEvents.entityHurt restricted callback. These APIs cover the supported side effects; no current add-on API creates a Java-style child multipart entity or exposes exact moving-part projectile intersection.
+
+Official references: [Entity.getAABB](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable#getaabb) · [Entity.setOnFire](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable#setonfire) · [Entity.addEffect](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable#addeffect) · [System.run](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/system?view=minecraft-bedrock-stable#run)

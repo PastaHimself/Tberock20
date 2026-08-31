@@ -100,12 +100,22 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: launch height, entity bounding-box contact, and renderer application of grounded offsets are adapted; the missing BrokenCore formula is not guessed.
 7. **Parity class**: `VALIDATED_APPROXIMATION` with an explicit unresolved damage dependency.
 
-## A-015 — Fractured/Jimmy multipart and keyframe adapters
+## A-015 — Fractured/Jimmy attack and keyframe adapters
 
-1. **Source feature**: FracturedEntity, JimAttackSelectorGoal, the four Jimmy attacks, RockEntity, and FracturedPartEntity multipart hit routing.
-2. **Source behavior**: Jimmy starts with a 100-tick attack delay, chooses among the four equal-weight attacks, emits Stomp/Slam/SingleStomp/Rock effects at source timings, and uses RockEntity's 15-damage AOE/owner exclusion/Elytra side effect. FracturedPartEntity temporarily marks the parent as hit via a multipart part and handles burning/spectral arrow side effects.
-3. **Source evidence**: decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,FracturedPartEntity,JimAttackSelectorGoal,RockEntity}.java and decompiled/net/thebrokenscript/entity/fractured/attacks/*.java.
-4. **Bedrock limitation**: add-ons do not expose the Java multipart entity-part hierarchy, custom SUB_ANOM_2 damage source, GeckoLib server bone transforms, or the source moonstone particle registration.
-5. **Replacement design**: the dedicated runtime owns the recovered state machine and impact constants. Player melee is the explicit six-hit progress adapter; projectile hurt is the broad-body substitute for multipart arrow hits; keyframe instruction names are isolated behind KEYFRAME_ADAPTER_TICKS; Rock collision uses getAABB() and a substepped runtime query.
-6. **Player-visible difference**: exact limb hitboxes, burning/spectral arrow parent effects, bone-origin positions, and the 400-particle block burst are not exact; attack timing, damage, cooldown, owner exclusion, and defeat progress are preserved.
-7. **Parity class**: VALIDATED_APPROXIMATION for the recovered gameplay slice; multipart/bone/particle mechanisms remain engine-limited.
+1. **Source feature**: FracturedEntity, JimAttackSelectorGoal, the four Jimmy attacks, and RockEntity.
+2. **Source behavior**: Jimmy starts with a 100-tick attack delay, chooses among the four equal-weight attacks, emits Stomp/Slam/SingleStomp/Rock effects at source timings, and uses RockEntity's 15-damage AOE/owner exclusion/Elytra side effect.
+3. **Source evidence**: decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,JimAttackSelectorGoal,RockEntity}.java and decompiled/net/thebrokenscript/entity/fractured/attacks/*.java.
+4. **Bedrock limitation**: add-ons do not expose GeckoLib server bone transforms, the custom SUB_ANOM_2 damage source, or the source moonstone particle registration.
+5. **Replacement design**: the dedicated runtime owns the recovered state machine and impact constants. Player melee is the explicit six-hit progress adapter; keyframe instruction names are isolated behind KEYFRAME_ADAPTER_TICKS; Rock collision uses getAABB() and a substepped runtime query.
+6. **Player-visible difference**: exact attack keyframe timestamps, bone-origin positions, and the 400-particle block burst are not exact; attack timing, damage, cooldown, owner exclusion, and defeat progress are preserved.
+7. **Parity class**: VALIDATED_APPROXIMATION for the recovered gameplay slice; keyframe/bone/particle mechanisms remain engine-limited.
+
+## A-016 — Jimmy multipart hitbox and FracturedRoam switch adapter
+
+1. **Source feature**: BaseFracturedEntity's head/chest/leg-part layout, FracturedPartEntity, FracturedSubEntity, Leg, and the FracturedRoam multipart-trigger path.
+2. **Source behavior**: the source builds head 14×14 at (1, 88, 10), chest 18×18 at (1, 68, 10), four 15×15 subentities at frontleft/frontright/backleft/backright, and four 45-block Leg targets. Part hurt handling calls Roam.swap() first; burning arrows ignite the parent for 20 seconds, spectral arrows add glowing for 400 ticks, and accepted part hits temporarily set the parent's hit-via-part flag. Leg.tick rotates target offsets by the parent's body yaw. A FracturedRoam part hit enters SWITCHING and the host promotes to the main Fractured entity after the source 103-tick switching duration.
+3. **Source evidence**: decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java; decompiled/net/thebrokenscript/entity/fractured/{FracturedPartEntity,FracturedSubEntity,Leg,FracturedRoamEntity}.java; decompiled/net/thebrokenscript/boss/fractured/JimArena.java.
+4. **Bedrock limitation**: Bedrock add-ons do not expose Java child multipart entities, parent/part identity, GeckoLib limb transforms, or the source's exact projectile sweep against moving part entities.
+5. **Replacement design**: fractured_multipart_model.js preserves the six logical part definitions, dimensions, offsets, yaw transform, AABBs, hit-plan ordering, and 103-tick state. The runtime applies a derived 105×102 root collision envelope, filters projectile centers against the six conceptual AABBs, defers setOnFire/addEffect side effects with system.run, and tags/ticks FracturedRoam until it can spawn the main Fractured entity.
+6. **Player-visible difference**: projectiles use conceptual part filtering rather than actual child entities, so continuous projectile contact and exact part identity are adapted. FracturedRoam promotion spawns the main entity directly; JimArena arena construction, camera/music choreography, and full underground/dig/despawn lifecycle remain pending.
+7. **Parity class**: VALIDATED_APPROXIMATION for the multipart gameplay contract; Java hierarchy, exact bone/render contact, and arena transport remain engine/deferred gaps.
