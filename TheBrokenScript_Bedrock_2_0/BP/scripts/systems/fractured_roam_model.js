@@ -18,6 +18,16 @@ export const FRACTURED_ROAM_SOURCE = Object.freeze({
   navigationSpeedModifier: 0.4,
   randomStrollSpeedModifier: 0.6,
   randomStrollIntervalTicks: 45,
+  randomStrollHorizontalRange: 100,
+  randomStrollVerticalRange: 7,
+  strollSupportDepth: 10,
+  strollSupportLookahead: 8,
+  strollStuckTicks: 20,
+  surfaceRecoveryMaxDistance: 64,
+  surfaceRecoveryStep: 3,
+  surfaceRecoveryHeightOffset: 60,
+  surfaceRecoveryScanLayers: 41,
+  moveControlMaxTurnDegrees: 90,
   digRoll: 1,
   digRollBound: 1000,
   arenaStartMusicTicks: 340,
@@ -123,6 +133,149 @@ export function fracturedRoamDespawnStep({ state, despawnTimer } = {}) {
 export function fracturedRoamStrollDue(tick) {
   const current = nonNegativeTicks(tick, 0);
   return current % FRACTURED_ROAM_SOURCE.randomStrollIntervalTicks === 0;
+}
+
+function finiteCoordinate(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function airAt(isAirAt, position) {
+  try {
+    return isAirAt(position) === true;
+  } catch {
+    return false;
+  }
+}
+
+/** Mirrors BaseFracturedEntity.findSurfaceAhead's integer scan.\n+ * @param {{ position?: { x?: number, y?: number, z?: number }, yawDegrees?: number, maxDist?: number, step?: number, minBuildHeight?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
+ */
+export function fracturedRoamFindSurfaceAhead({
+  position,
+  yawDegrees = 0,
+  maxDist = FRACTURED_ROAM_SOURCE.surfaceRecoveryMaxDistance,
+  step = FRACTURED_ROAM_SOURCE.surfaceRecoveryStep,
+  minBuildHeight = -64,
+  isAirAt,
+} = {}) {
+  if (typeof isAirAt !== "function") return null;
+  const origin = position ?? {};
+  const maxDistance = Math.max(0, Math.floor(finiteCoordinate(maxDist, FRACTURED_ROAM_SOURCE.surfaceRecoveryMaxDistance)));
+  const stride = Math.floor(finiteCoordinate(step, FRACTURED_ROAM_SOURCE.surfaceRecoveryStep));
+  if (stride <= 0) return null;
+  const minimumY = Math.floor(finiteCoordinate(minBuildHeight, -64));
+  const yaw = (finiteCoordinate(yawDegrees, 0) + 90) * Math.PI / 180;
+  const dirX = -Math.sin(yaw);
+  const dirZ = Math.cos(yaw);
+  const originX = finiteCoordinate(origin.x);
+  const originY = finiteCoordinate(origin.y);
+  const originZ = finiteCoordinate(origin.z);
+
+  for (let distance = stride; distance <= maxDistance; distance += stride) {
+    const checkX = Math.trunc(originX + dirX * distance);
+    const checkZ = Math.trunc(originZ + dirZ * distance);
+    const baseY = Math.trunc(originY) + FRACTURED_ROAM_SOURCE.surfaceRecoveryHeightOffset;
+    for (let offset = 0; offset < FRACTURED_ROAM_SOURCE.surfaceRecoveryScanLayers; offset += 1) {
+      const checkY = baseY - offset;
+      if (checkY < minimumY) break;
+      const base = { x: checkX, y: checkY, z: checkZ };
+      if (!airAt(isAirAt, base) &&
+          airAt(isAirAt, { x: checkX, y: checkY + 1, z: checkZ }) &&
+          airAt(isAirAt, { x: checkX, y: checkY + 2, z: checkZ })) {
+        return { x: checkX + 0.5, y: checkY + 1, z: checkZ + 0.5 };
+      }
+    }
+  }
+  return null;
+}
+
+/** Mirrors RandomStrollGoal.hasSupportNear's downward support search.\n+ * @param {{ position?: { x?: number, y?: number, z?: number }, checkDepth?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
+ */
+export function fracturedRoamSupportNear({
+  position,
+  checkDepth = FRACTURED_ROAM_SOURCE.strollSupportDepth,
+  isAirAt,
+} = {}) {
+  if (typeof isAirAt !== "function") return false;
+  const origin = position ?? {};
+  const baseX = Math.floor(finiteCoordinate(origin.x));
+  const baseY = Math.floor(finiteCoordinate(origin.y));
+  const baseZ = Math.floor(finiteCoordinate(origin.z));
+  const depth = Math.max(0, Math.floor(finiteCoordinate(checkDepth, FRACTURED_ROAM_SOURCE.strollSupportDepth)));
+  for (let offset = 1; offset <= depth; offset += 1) {
+    if (!airAt(isAirAt, { x: baseX, y: baseY - offset, z: baseZ })) return true;
+  }
+  return false;
+}
+
+/** Mirrors RandomStrollGoal.hasSupportAhead's eight-block path probe.\n+ * @param {{ current?: { x?: number, y?: number, z?: number }, wanted?: { x?: number, y?: number, z?: number }, lookaheadDist?: number, checkDepth?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
+ */
+export function fracturedRoamSupportAhead({
+  current,
+  wanted,
+  lookaheadDist = FRACTURED_ROAM_SOURCE.strollSupportLookahead,
+  checkDepth = FRACTURED_ROAM_SOURCE.strollSupportDepth,
+  isAirAt,
+} = {}) {
+  if (typeof isAirAt !== "function") return false;
+  const from = current ?? {};
+  const destination = wanted ?? from;
+  const fromX = finiteCoordinate(from.x);
+  const fromY = finiteCoordinate(from.y);
+  const fromZ = finiteCoordinate(from.z);
+  const dx = finiteCoordinate(destination.x) - fromX;
+  const dz = finiteCoordinate(destination.z) - fromZ;
+  const horizontalDistance = Math.hypot(dx, dz);
+  if (horizontalDistance < 0.001) return true;
+  const checkDistance = Math.min(Math.max(0, finiteCoordinate(lookaheadDist, FRACTURED_ROAM_SOURCE.strollSupportLookahead)), horizontalDistance);
+  return fracturedRoamSupportNear({
+    position: {
+      x: fromX + (dx / horizontalDistance) * checkDistance,
+      y: fromY,
+      z: fromZ + (dz / horizontalDistance) * checkDistance,
+    },
+    checkDepth,
+    isAirAt,
+  });
+}
+
+function wrapDegrees(degrees) {
+  const wrapped = ((degrees + 180) % 360 + 360) % 360 - 180;
+  return wrapped === -180 ? 180 : wrapped;
+}
+
+/** Mirrors BaseFracturedEntity.RoamMoveControl.tick's movement decision.\n+ * @param {{ operation?: string, position?: { x?: number, z?: number }, wanted?: { x?: number, z?: number }, yawDegrees?: number, speedModifier?: number, movementSpeed?: number }} options
+ */
+export function fracturedRoamMoveControlStep({
+  operation = "WAIT",
+  position,
+  wanted,
+  yawDegrees = 0,
+  speedModifier = 0.6,
+  movementSpeed = 0.075,
+} = {}) {
+  const yaw = finiteCoordinate(yawDegrees);
+  if (operation !== "MOVE_TO") return { operation, yawDegrees: yaw, forward: 0, speed: 0 };
+  const from = position ?? {};
+  const destination = wanted ?? from;
+  const dx = finiteCoordinate(destination.x) - finiteCoordinate(from.x);
+  const dz = finiteCoordinate(destination.z) - finiteCoordinate(from.z);
+  const horizontalDistanceSquared = dx * dx + dz * dz;
+  if (horizontalDistanceSquared < 0.125) {
+    return { operation: "WAIT", yawDegrees: yaw, forward: 0, speed: 0 };
+  }
+  const targetYaw = Math.atan2(dz, dx) * 180 / Math.PI - 90;
+  const delta = wrapDegrees(targetYaw - yaw);
+  const limitedDelta = Math.max(
+    -FRACTURED_ROAM_SOURCE.moveControlMaxTurnDegrees,
+    Math.min(FRACTURED_ROAM_SOURCE.moveControlMaxTurnDegrees, delta),
+  );
+  return {
+    operation: "MOVE_TO",
+    yawDegrees: yaw + limitedDelta,
+    forward: 1,
+    speed: finiteCoordinate(speedModifier, 0.6) * finiteCoordinate(movementSpeed, 0.075),
+  };
 }
 
 /** Captures JimArena.start's observable schedule without inventing Bedrock-only packets. */

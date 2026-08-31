@@ -29,9 +29,13 @@ import {
   fracturedRoamDigEligibility,
   fracturedRoamDigGoalStart,
   fracturedRoamDigGoalStop,
+  fracturedRoamFindSurfaceAhead,
+  fracturedRoamMoveControlStep,
   fracturedRoamRandomInclusive,
   fracturedRoamRandomInt,
   fracturedRoamServerTimerStep,
+  fracturedRoamSupportAhead,
+  fracturedRoamSupportNear,
   fracturedRoamStrollDue,
 } from "../../systems/fractured_roam_model.js";
 
@@ -62,8 +66,6 @@ const KEYFRAME_ADAPTER_TICKS = Object.freeze({
 const MOVEMENT_ADAPTER_BLOCKS_PER_TICK = 0.075;
 const COLLISION_SUBSTEP_BLOCKS = 0.4;
 const ROAM_ARENA_SOURCE = fracturedRoamArenaPlan();
-const ROAM_STROLL_MOVEMENT_ADAPTER = FRACTURED_ROAM_SOURCE.randomStrollSpeedModifier * MOVEMENT_ADAPTER_BLOCKS_PER_TICK;
-const ROAM_DIG_MOVEMENT_ADAPTER = FRACTURED_ROAM_SOURCE.navigationSpeedModifier * MOVEMENT_ADAPTER_BLOCKS_PER_TICK;
 
 const fracturedStates = new Map();
 const rockStates = new Map();
@@ -170,6 +172,48 @@ function hasGroundSupport(entity) {
   try { return entity.isOnGround === true; } catch { return false; }
 }
 
+function roamIsAirAt(dimension, position) {
+  const block = blockAt(dimension, position);
+  if (!block) return false;
+  try { return block.isAir === true; } catch { return false; }
+}
+
+function roamMinimumBuildHeight(dimension) {
+  try {
+    const range = dimension.heightRange;
+    return typeof range?.min === "number" ? range.min : -64;
+  } catch {
+    return -64;
+  }
+}
+
+function recoverFracturedRoamFromAir(entity, state) {
+  if (hasGroundSupport(entity)) {
+    state.lastSafeGroundPosition = copyPosition(entity.location);
+    state.airborneTicks = 0;
+    return;
+  }
+
+  state.airborneTicks += 1;
+  const safe = state.lastSafeGroundPosition;
+  const fellTooFar = safe && safe.y - entity.location.y > 20;
+  if (!safe || (!fellTooFar && state.airborneTicks <= 40)) return;
+
+  const surface = fracturedRoamFindSurfaceAhead({
+    position: copyPosition(entity.location),
+    yawDegrees: getBodyYaw(entity),
+    minBuildHeight: roamMinimumBuildHeight(entity.dimension),
+    isAirAt: (position) => roamIsAirAt(entity.dimension, position),
+  }) ?? safe;
+  callEntity(entity, "clearVelocity");
+  try { entity.teleport(surface); } catch { return; }
+  state.lastSafeGroundPosition = copyPosition(surface);
+  state.airborneTicks = 0;
+  state.wanderTarget = null;
+  state.lastPosition = copyPosition(surface);
+  state.stuckTicks = 0;
+}
+
 function dimensionsToTick() {
   const dimensions = [];
   for (const id of ["overworld", "nether", "the_end", "thebrokenscript:stage2", "thebrokenscript:void_shadow"]) {
@@ -250,6 +294,10 @@ function getFracturedRoamLifecycleState(entity) {
     undergroundTimer: 0,
     navigationCooldown: 0,
     wanderTarget: null,
+    lastSafeGroundPosition: hasGroundSupport(entity) ? copyPosition(entity.location) : null,
+    airborneTicks: 0,
+    stuckTicks: 0,
+    lastPosition: copyPosition(entity.location),
   };
   roamLifecycleStates.set(entity.id, state);
   callEntity(entity, "addTag", ROAM_NO_AI_TAG);
@@ -258,28 +306,38 @@ function getFracturedRoamLifecycleState(entity) {
 
 function randomRoamTarget(entity) {
   const angle = Math.random() * Math.PI * 2;
-  const radius = Math.random() * 30;
+  const radius = Math.random() * FRACTURED_ROAM_SOURCE.randomStrollHorizontalRange;
   return {
     x: entity.location.x + Math.cos(angle) * radius,
-    y: entity.location.y + (Math.random() * 14 - 7),
+    y: entity.location.y + (Math.random() * FRACTURED_ROAM_SOURCE.randomStrollVerticalRange * 2 - FRACTURED_ROAM_SOURCE.randomStrollVerticalRange),
     z: entity.location.z + Math.sin(angle) * radius,
   };
 }
 
-function moveRoamToward(entity, target, speed) {
-  if (!target) return;
-  const dx = target.x - entity.location.x;
-  const dz = target.z - entity.location.z;
+function moveRoamToward(entity, target, sourceSpeedModifier) {
+  if (!target) return false;
+  const location = copyPosition(entity.location);
+  const control = fracturedRoamMoveControlStep({
+    operation: "MOVE_TO",
+    position: location,
+    wanted: target,
+    yawDegrees: getBodyYaw(entity),
+    speedModifier: sourceSpeedModifier,
+    movementSpeed: MOVEMENT_ADAPTER_BLOCKS_PER_TICK,
+  });
+  if (control.operation !== "MOVE_TO") return false;
+  const dx = target.x - location.x;
+  const dz = target.z - location.z;
   const horizontalDistance = Math.hypot(dx, dz);
-  if (horizontalDistance < 0.125) return;
-  const amount = Math.min(speed, horizontalDistance);
+  const amount = Math.min(control.speed, horizontalDistance);
   try {
     entity.teleport({
-      x: entity.location.x + (dx / horizontalDistance) * amount,
-      y: entity.location.y,
-      z: entity.location.z + (dz / horizontalDistance) * amount,
-    });
-  } catch {}
+      x: location.x + (dx / horizontalDistance) * amount,
+      y: location.y,
+      z: location.z + (dz / horizontalDistance) * amount,
+    }, { rotation: { x: 0, y: control.yawDegrees } });
+    return true;
+  } catch { return false; }
 }
 
 function tickFracturedRoamMovement(entity, state) {
@@ -288,11 +346,43 @@ function tickFracturedRoamMovement(entity, state) {
   if (state.state === "NORMAL") {
     if (!hasGroundSupport(entity)) return;
     if (!state.wanderTarget && fracturedRoamStrollDue(system.currentTick)) {
-      state.wanderTarget = randomRoamTarget(entity);
+      const target = randomRoamTarget(entity);
+      if (fracturedRoamSupportNear({
+        position: target,
+        isAirAt: (position) => roamIsAirAt(entity.dimension, position),
+      })) {
+        state.wanderTarget = target;
+        state.lastPosition = copyPosition(entity.location);
+        state.stuckTicks = 0;
+      }
     }
-    if (state.wanderTarget) {
-      moveRoamToward(entity, state.wanderTarget, ROAM_STROLL_MOVEMENT_ADAPTER);
-      if (distance(entity.location, state.wanderTarget) < 0.5) state.wanderTarget = null;
+    if (!state.wanderTarget) return;
+    if (!fracturedRoamSupportAhead({
+      current: entity.location,
+      wanted: state.wanderTarget,
+      isAirAt: (position) => roamIsAirAt(entity.dimension, position),
+    })) {
+      state.stuckTicks = 21;
+      state.wanderTarget = null;
+      return;
+    }
+    moveRoamToward(entity, state.wanderTarget, FRACTURED_ROAM_SOURCE.randomStrollSpeedModifier);
+    const dx = state.wanderTarget.x - entity.location.x;
+    const dz = state.wanderTarget.z - entity.location.z;
+    if (dx * dx + dz * dz <= 1) {
+      state.wanderTarget = null;
+      state.stuckTicks = 0;
+      return;
+    }
+    const movedDistance = distance(entity.location, state.lastPosition);
+    if (movedDistance * movedDistance < 0.0025) state.stuckTicks += 1;
+    else {
+      state.stuckTicks = 0;
+      state.lastPosition = copyPosition(entity.location);
+    }
+    if (state.stuckTicks > FRACTURED_ROAM_SOURCE.strollStuckTicks) {
+      state.wanderTarget = null;
+      state.stuckTicks = 0;
     }
     return;
   }
@@ -321,13 +411,14 @@ function tickFracturedRoamMovement(entity, state) {
     }
   }
   if (state.wanderTarget) {
-    moveRoamToward(entity, state.wanderTarget, ROAM_DIG_MOVEMENT_ADAPTER);
+    moveRoamToward(entity, state.wanderTarget, FRACTURED_ROAM_SOURCE.navigationSpeedModifier);
     if (distance(entity.location, state.wanderTarget) < 0.5) state.wanderTarget = null;
   }
 }
 
 function tickFracturedRoamLifecycle(entity) {
   const state = getFracturedRoamLifecycleState(entity);
+  recoverFracturedRoamFromAir(entity, state);
   if (state.state === "SWITCHING") return true;
 
   const baseStep = fracturedRoamBaseTick({
@@ -1192,6 +1283,14 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
     FRACTURED_ROAM_SOURCE.digCooldownMinTicks,
     FRACTURED_ROAM_SOURCE.digCooldownMaxExclusive,
   ],
+  roamRandomStrollHorizontalRange: FRACTURED_ROAM_SOURCE.randomStrollHorizontalRange,
+  roamRandomStrollVerticalRange: FRACTURED_ROAM_SOURCE.randomStrollVerticalRange,
+  roamSupportDepth: FRACTURED_ROAM_SOURCE.strollSupportDepth,
+  roamSupportLookahead: FRACTURED_ROAM_SOURCE.strollSupportLookahead,
+  roamStuckTicks: FRACTURED_ROAM_SOURCE.strollStuckTicks,
+  roamSurfaceRecoveryMaxDistance: FRACTURED_ROAM_SOURCE.surfaceRecoveryMaxDistance,
+  roamSurfaceRecoveryStep: FRACTURED_ROAM_SOURCE.surfaceRecoveryStep,
+  roamMoveControlMaxTurnDegrees: FRACTURED_ROAM_SOURCE.moveControlMaxTurnDegrees,
   arenaStartMusicTicks: FRACTURED_ROAM_SOURCE.arenaStartMusicTicks,
   arenaSubAnomalyCount: FRACTURED_ROAM_SOURCE.arenaSubAnomalyCount,
   arenaPlayerRange: FRACTURED_ROAM_SOURCE.arenaPlayerRange,
@@ -1204,5 +1303,8 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
   usesSourceAttackModel: true,
   usesSingleRockRuntimeOwner: true,
   usesSourceRoamLifecycleModel: true,
+  usesSourceRoamSurfaceRecovery: true,
+  usesSourceRoamMoveControl: true,
+  usesSourceRoamSupportChecks: true,
   usesJimArenaScheduleAdapter: true,
 });

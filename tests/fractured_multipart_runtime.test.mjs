@@ -47,6 +47,11 @@ test("dedicated runtime owns the source FracturedRoam host lifecycle and Arena h
   assert.match(runtime, /fracturedRoamBaseTick/);
   assert.match(runtime, /fracturedRoamDespawnStep/);
   assert.match(runtime, /fracturedRoamDigEligibility/);
+  assert.match(runtime, /fracturedRoamFindSurfaceAhead/);
+  assert.match(runtime, /fracturedRoamMoveControlStep/);
+  assert.match(runtime, /fracturedRoamSupportAhead/);
+  assert.match(runtime, /fracturedRoamSupportNear/);
+  assert.match(runtime, /recoverFracturedRoamFromAir/);
   assert.match(runtime, /fracturedRoamArenaPlan/);
   assert.match(runtime, /arenaStartMusicTicks/);
   assert.match(runtime, /arenaSubAnomalyCount/);

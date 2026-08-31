@@ -8,7 +8,11 @@ import {
   fracturedRoamDigGoalStart,
   fracturedRoamDigGoalStop,
   fracturedRoamDespawnStep,
+  fracturedRoamFindSurfaceAhead,
+  fracturedRoamMoveControlStep,
   fracturedRoamServerTimerStep,
+  fracturedRoamSupportAhead,
+  fracturedRoamSupportNear,
   fracturedRoamStrollDue,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/fractured_roam_model.js";
 
@@ -30,6 +34,16 @@ test("FracturedRoam preserves the source timers and arena constants", () => {
     navigationSpeedModifier: 0.4,
     randomStrollSpeedModifier: 0.6,
     randomStrollIntervalTicks: 45,
+    randomStrollHorizontalRange: 100,
+    randomStrollVerticalRange: 7,
+    strollSupportDepth: 10,
+    strollSupportLookahead: 8,
+    strollStuckTicks: 20,
+    surfaceRecoveryMaxDistance: 64,
+    surfaceRecoveryStep: 3,
+    surfaceRecoveryHeightOffset: 60,
+    surfaceRecoveryScanLayers: 41,
+    moveControlMaxTurnDegrees: 90,
     digRoll: 1,
     digRollBound: 1000,
     arenaStartMusicTicks: 340,
@@ -120,4 +134,67 @@ test("RandomStroll keeps the source 45-tick interval and Arena keeps the source 
     playerRange: 150,
     subAnomalyRadius: 20,
   });
+});
+
+test("BaseFracturedEntity finds the first supported surface along its facing vector", () => {
+  const solid = new Set(["-3,90,0"]);
+  const isAirAt = ({ x, y, z }) => !solid.has(`${x},${y},${z}`);
+
+  assert.deepEqual(fracturedRoamFindSurfaceAhead({
+    position: { x: 0, y: 64, z: 0 },
+    yawDegrees: 0,
+    isAirAt,
+  }), { x: -2.5, y: 91, z: 0.5 });
+  assert.equal(fracturedRoamFindSurfaceAhead({
+    position: { x: 0, y: 64, z: 0 },
+    yawDegrees: 0,
+    isAirAt: () => true,
+  }), null);
+});
+
+test("Roam stroll support checks use the source ten-block depth and eight-block lookahead", () => {
+  const solid = new Set(["8,63,0"]);
+  const isAirAt = ({ x, y, z }) => !solid.has(`${x},${y},${z}`);
+
+  assert.equal(fracturedRoamSupportNear({
+    position: { x: 8.25, y: 64, z: 0.25 },
+    isAirAt,
+  }), true);
+  assert.equal(fracturedRoamSupportAhead({
+    current: { x: 0, y: 64, z: 0 },
+    wanted: { x: 20, y: 64, z: 0 },
+    isAirAt,
+  }), true);
+  assert.equal(fracturedRoamSupportAhead({
+    current: { x: 0, y: 64, z: 0 },
+    wanted: { x: 20, y: 64, z: 0 },
+    isAirAt: () => true,
+  }), false);
+});
+
+test("RoamMoveControl mirrors WAIT, close-target, turn, and forward branches", () => {
+  assert.deepEqual(fracturedRoamMoveControlStep({
+    operation: "WAIT",
+    position: { x: 0, y: 64, z: 0 },
+    wanted: { x: 1, y: 64, z: 0 },
+    yawDegrees: 12,
+    speedModifier: 0.6,
+    movementSpeed: 0.075,
+  }), { operation: "WAIT", yawDegrees: 12, forward: 0, speed: 0 });
+  assert.deepEqual(fracturedRoamMoveControlStep({
+    operation: "MOVE_TO",
+    position: { x: 0, y: 64, z: 0 },
+    wanted: { x: 0.1, y: 64, z: 0 },
+    yawDegrees: 12,
+    speedModifier: 0.6,
+    movementSpeed: 0.075,
+  }), { operation: "WAIT", yawDegrees: 12, forward: 0, speed: 0 });
+  assert.deepEqual(fracturedRoamMoveControlStep({
+    operation: "MOVE_TO",
+    position: { x: 0, y: 64, z: 0 },
+    wanted: { x: 1, y: 64, z: 0 },
+    yawDegrees: 0,
+    speedModifier: 0.6,
+    movementSpeed: 0.075,
+  }), { operation: "MOVE_TO", yawDegrees: -90, forward: 1, speed: 0.045 });
 });
