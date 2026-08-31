@@ -18,7 +18,7 @@
 - Local focused suite: 11 passed, 0 failed.
 - node --check passed for fractured_multipart_model.js, fractured_runtime.js, and boss_controller.js.
 - Static runtime assertions passed for deferred arrow effects, EntityDamageCause.projectile routing, root collision envelopes, six logical AABBs, and generic roam ownership.
-- GitHub Actions validation for the published head is pending; no Minecraft Bedrock world is installed locally, so in-game behavior still requires device/runtime smoke testing.
+- GitHub Actions run 33358396432 passed typecheck, 111 JavaScript regressions, 67 Python validator tests, add-on validators, Blockception diagnostics (0 errors / 0 warnings), Mojang Creator Tools validation (0 blockers after documented false-positive filtering), and packaging; artifact uploads were blocked by repository storage quota. No Minecraft Bedrock world is installed locally, so in-game behavior still requires device/runtime smoke testing.
 
 ## Next unfinished source slice
 
