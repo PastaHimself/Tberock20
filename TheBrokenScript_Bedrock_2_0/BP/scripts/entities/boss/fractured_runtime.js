@@ -518,9 +518,7 @@ function startFracturedRoamArena(entity) {
   // arena identity because Java reset() can run before the delayed event.
   arena.musicScheduled = runAfter(() => {
     if (roamArenaStates.get(jimmy.id) === arena && isValid(jimmy)) finishFracturedRoamArenaIntro(arena);
-  }, ROAM_ARENA_SOURCE.startMusicTicks)) {
-    arena.musicScheduled = false;
-  }
+  }, ROAM_ARENA_SOURCE.startMusicTicks);
   return jimmy;
 }
 
