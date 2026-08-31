@@ -7,9 +7,12 @@ import {
   CHORD_PROJECTILE_BEDROCK_ADAPTER,
   CHORD_PROJECTILE_GROUNDED_OFFSETS,
   CHORD_PROJECTILE_SOURCE,
+  CHORD_PROJECTILE_VANILLA_ARROW_DAMAGE,
   chordProjectileBlockHitStep,
+  chordProjectileBaseDamageFromMob,
   chordProjectileDirection,
   chordProjectileEntityImpactPlan,
+  chordProjectileDifficultyId,
   chordProjectileGroundedOffset,
   chordProjectileShouldDiscardForTravel,
   chordProjectileTravelDistance,
@@ -32,9 +35,28 @@ test("ChordProjectileEntity source contract is preserved", () => {
     restoreGravityAfterEntityHit: true,
     restoreGravityAfterBlockHit: true,
   });
-  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.runtimeStatus, "adapted_brokencore_arrow_damage");
+  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.runtimeStatus, "adapted_brokencore_arrow_collision");
   assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.movementRuntimeStatus, "adapted_source_launch_vector");
-  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.entityHitDamage, 6);
+  assert.equal(CHORD_PROJECTILE_BEDROCK_ADAPTER.damageRuntimeStatus, "vanilla_abstract_arrow_formula");
+  assert.deepEqual(CHORD_PROJECTILE_VANILLA_ARROW_DAMAGE, {
+    difficultyMeanPerId: 0.11,
+    triangleSpread: 0.57425,
+  });
+});
+
+test("Chord projectile preserves vanilla AbstractArrow difficulty damage", () => {
+  assert.deepEqual([
+    chordProjectileDifficultyId("peaceful"),
+    chordProjectileDifficultyId("easy"),
+    chordProjectileDifficultyId("normal"),
+    chordProjectileDifficultyId("hard"),
+  ], [0, 1, 2, 3]);
+  const samples = [0.9, 0.1];
+  assert.ok(Math.abs(chordProjectileBaseDamageFromMob({
+    power: CHORD_PROJECTILE_SOURCE.baseDamageFromMob,
+    difficultyId: 2,
+    randomDouble: () => samples.shift(),
+  }) - 4.6794) < 1e-12);
 });
 
 test("Chord projectile entity impacts preserve the Java branch order", () => {

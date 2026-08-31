@@ -16,6 +16,14 @@ export const CHORD_PROJECTILE_SOURCE = Object.freeze({
   restoreGravityAfterBlockHit: true,
 });
 
+// Vanilla 1.21.1 AbstractArrow#setBaseDamageFromMob(float) uses the launch
+// power plus a difficulty-weighted triangular random term. The Chord source
+// passes 2.0f, so keep both the callsite input and vanilla constants explicit.
+export const CHORD_PROJECTILE_VANILLA_ARROW_DAMAGE = Object.freeze({
+  difficultyMeanPerId: 0.11,
+  triangleSpread: 0.57425,
+});
+
 // ChordProjectileEntity stores this Vec2 for the client model after a block
 // hit. Bedrock's server-side collision adapter may not receive a
 // BlockHitResult face, so keep the exact source table separate from the
@@ -34,17 +42,65 @@ export function chordProjectileGroundedOffset(face) {
   return offset ? { x: offset.x, y: offset.y } : null;
 }
 
-// ChordProjectileEntity delegates actual entity-hit damage to BrokenCore's
-// UwuableArrow#setBaseDamageFromMob(2.0f). That dependency is not present in
-// this repository, so the existing Bedrock 6-damage value remains isolated as
-// an adaptation instead of being presented as source-exact.
+// ChordProjectileEntity delegates actual entity-hit damage to vanilla
+// AbstractArrow#setBaseDamageFromMob(2.0f), inherited through BrokenCore's
+// UwuableArrow. The Bedrock adapter keeps only the engine-specific collision
+// values here; the damage formula is pure and source-backed below.
 export const CHORD_PROJECTILE_BEDROCK_ADAPTER = Object.freeze({
-  runtimeStatus: "adapted_brokencore_arrow_damage",
+  runtimeStatus: "adapted_brokencore_arrow_collision",
   movementRuntimeStatus: "adapted_source_launch_vector",
-  entityHitDamage: 6,
+  damageRuntimeStatus: "vanilla_abstract_arrow_formula",
   collisionSubstepDistance: 0.4,
   collisionQueryRadius: 2,
 });
+
+/** Maps Bedrock's stable Difficulty enum values to Java Difficulty ids. */
+export function chordProjectileDifficultyId(difficulty) {
+  const value = typeof difficulty === "string"
+    ? difficulty
+    : difficulty?.id ?? difficulty?.value ?? difficulty?.name ?? "";
+  switch (String(value).toLowerCase()) {
+    case "peaceful":
+    case "p":
+    case "0":
+      return 0;
+    case "easy":
+    case "e":
+    case "1":
+      return 1;
+    case "normal":
+    case "n":
+    case "2":
+      return 2;
+    case "hard":
+    case "h":
+    case "3":
+      return 3;
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Mirrors vanilla 1.21.1 AbstractArrow#setBaseDamageFromMob(float).
+ * RandomSource.triangle(mean, spread) consumes two uniform draws.
+ *
+ * @param {{ power?: number, difficultyId?: number, randomDouble?: () => number }} [options]
+ */
+export function chordProjectileBaseDamageFromMob({
+  power = CHORD_PROJECTILE_SOURCE.baseDamageFromMob,
+  difficultyId = 0,
+  randomDouble = Math.random,
+} = {}) {
+  const velocity = Number(power);
+  const difficulty = Number(difficultyId);
+  const safeVelocity = Number.isFinite(velocity) ? velocity : CHORD_PROJECTILE_SOURCE.baseDamageFromMob;
+  const safeDifficulty = Number.isFinite(difficulty) ? difficulty : 0;
+  const mean = safeDifficulty * CHORD_PROJECTILE_VANILLA_ARROW_DAMAGE.difficultyMeanPerId;
+  const first = Number(randomDouble()) || 0;
+  const second = Number(randomDouble()) || 0;
+  return safeVelocity * 2 + mean + CHORD_PROJECTILE_VANILLA_ARROW_DAMAGE.triangleSpread * (first - second);
+}
 
 // The Java onHitEntity branch checks Chord before delegating to the vanilla
 // arrow implementation, then checks creative mode after that delegation.

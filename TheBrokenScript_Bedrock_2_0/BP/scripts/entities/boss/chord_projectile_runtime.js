@@ -5,6 +5,8 @@ import {
   CHORD_PROJECTILE_BEDROCK_ADAPTER,
   CHORD_PROJECTILE_SOURCE,
   chordProjectileBlockHitStep,
+  chordProjectileBaseDamageFromMob,
+  chordProjectileDifficultyId,
   chordProjectileDirection,
   chordProjectileEntityImpactPlan,
   chordProjectileGroundedOffset,
@@ -281,8 +283,16 @@ function isCreativePlayer(entity) {
   try { return entity.getGameMode() === GameMode.Creative; } catch { return false; }
 }
 
+function currentDifficultyId() {
+  try { return chordProjectileDifficultyId(world.getDifficulty()); } catch { return 0; }
+}
+
 function applyProjectileDamage(projectile, target) {
-  const damage = CHORD_PROJECTILE_BEDROCK_ADAPTER.entityHitDamage;
+  const damage = chordProjectileBaseDamageFromMob({
+    power: CHORD_PROJECTILE_SOURCE.baseDamageFromMob,
+    difficultyId: currentDifficultyId(),
+    randomDouble: Math.random,
+  });
   try {
     target.applyDamage(damage, {
       cause: EntityDamageCause.projectile,
