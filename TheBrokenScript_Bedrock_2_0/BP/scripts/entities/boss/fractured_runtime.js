@@ -19,6 +19,7 @@ import {
   multipartAabbs,
   multipartPartDefinitions,
   pointInsideAabb,
+  shouldApplyMultipartArrowEffects,
 } from "../../systems/fractured_multipart_model.js";
 
 const FRACTURED_TYPE = "thebrokenscript:fractured";
@@ -531,7 +532,7 @@ function installDamageHook() {
             });
           } catch {}
         }
-        if (plan.allowParentDamage) applyMultipartArrowEffects(entity, plan);
+        if (shouldApplyMultipartArrowEffects(plan)) applyMultipartArrowEffects(entity, plan);
         return;
       }
 

@@ -9,6 +9,7 @@ import {
   multipartPartDefinitions,
   multipartWorldPosition,
   pointInsideAabb,
+  shouldApplyMultipartArrowEffects,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/fractured_multipart_model.js";
 
 test("Jimmy multipart dimensions and offsets preserve BaseFracturedEntity source values", () => {
@@ -145,6 +146,7 @@ test("missed and invulnerable part hits are rejected without parent damage", () 
   assert.equal(plan.allowParentDamage, false);
   assert.equal(plan.markHitViaPart, false);
   assert.equal(plan.igniteSeconds, 20);
+  assert.equal(shouldApplyMultipartArrowEffects(plan), true);
 });
 
 test("a FracturedRoam part hit requests the source SWITCHING state", () => {
@@ -162,6 +164,11 @@ test("a FracturedRoam part hit requests the source SWITCHING state", () => {
     igniteSeconds: 0,
     spectralGlowTicks: 0,
   });
+  assert.equal(shouldApplyMultipartArrowEffects(fracturedPartHitPlan({
+    parentType: "thebrokenscript:fractured_roam",
+    partHit: true,
+    projectileType: "minecraft:spectral_arrow",
+  })), false);
 });
 
 test("FracturedRoam promotion decrements before the source 103-tick switch completes", () => {

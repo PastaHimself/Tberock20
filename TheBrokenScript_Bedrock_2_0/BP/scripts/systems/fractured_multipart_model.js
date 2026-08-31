@@ -186,3 +186,10 @@ export function fracturedPartHitPlan({
       : 0,
   };
 }
+
+/** Java applies arrow side effects before the part invulnerability return. */
+/** @param {{ swap?: boolean, igniteSeconds?: number, spectralGlowTicks?: number }} plan */
+export function shouldApplyMultipartArrowEffects(plan = {}) {
+  return plan.swap !== true &&
+    (plan.igniteSeconds > 0 || plan.spectralGlowTicks > 0);
+}
