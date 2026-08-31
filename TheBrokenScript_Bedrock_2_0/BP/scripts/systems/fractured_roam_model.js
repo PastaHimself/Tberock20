@@ -82,7 +82,9 @@ export function fracturedRoamBaseTick({
   };
 }
 
-/** Mirrors FracturedRoamGoUnDerGroundGoal.canUse. */
+/** Mirrors FracturedRoamGoUnDerGroundGoal.canUse.
+ * @param {{ state?: string, digCooldown?: number, roll?: number }} options
+ */
 export function fracturedRoamDigEligibility({ state, digCooldown, roll } = {}) {
   return state === "NORMAL" && Number(digCooldown) <= 0 && roll === FRACTURED_ROAM_SOURCE.digRoll;
 }
@@ -105,7 +107,9 @@ export function fracturedRoamDigGoalStop(digCooldown) {
   };
 }
 
-/** Mirrors FracturedRoamEntity's despawn timer branch. */
+/** Mirrors FracturedRoamEntity's despawn timer branch.
+ * @param {{ state?: string, despawnTimer?: number }} options
+ */
 export function fracturedRoamDespawnStep({ state, despawnTimer } = {}) {
   const current = nonNegativeTicks(despawnTimer, 0);
   if (current > 0) return { state, despawnTimer: current - 1 };
