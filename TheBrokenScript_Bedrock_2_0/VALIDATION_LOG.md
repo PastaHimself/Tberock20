@@ -54,6 +54,8 @@
 
 | 2026-09-01 | 33 | Rock block-impact burst: 13 focused Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit pending; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
 
+| 2026-09-01 | 34 | Custom damage-source adapter: 53/53 deterministic Node regressions PASS; source catalog preserves all 15 resource definitions and TBSDamageTypes registry flags; damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS; BedrockWiki/Microsoft Learn attribution references checked; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+
 ## Pending validations (later chunks)
 
 - Minecraft runtime import tests once a Bedrock install is available.
@@ -73,4 +75,3 @@
 - Static checks: `node --check` passed for `integrity_arena_model.js` and `boss_controller.js`; `integrity_arm.json` parsed successfully.
 - Coverage: inclusive 40–80 target selection, tick-33 target-block capture, tick-40 owned-arm spawn, tick-5 impact plan (15 damage, 1.5 horizontal / 2.6 upward impulse), owner-stuck propagation, and source timer/lifecycle discard thresholds.
 - GitHub Actions validation for the published commit is pending.
-

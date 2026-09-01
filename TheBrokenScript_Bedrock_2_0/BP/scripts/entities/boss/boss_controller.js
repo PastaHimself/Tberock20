@@ -5,6 +5,7 @@ import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import { registerChordProjectileLaunch } from "./chord_projectile_runtime.js";
+import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
 import {
   GROUND_ARM_SOURCE,
   GROUND_ATTACK_SOURCE,
@@ -88,12 +89,19 @@ function getHealth(e) {
 function maxHealth(e) {
   try { return e.getComponent("minecraft:health")?.effectiveMax ?? 0; } catch { return 0; }
 }
-function meleePulse(e, dmg, reach = 5, interval = 20) {
+function meleePulse(e, dmg, reach = 5, interval = 20, sourceId = null) {
   if (system.currentTick % interval !== 0) return;
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) > reach) continue;
-    try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
+    if (sourceId) {
+      applyDamageWithSource(p, dmg, sourceId, {
+        cause: EntityDamageCause.entityAttack,
+        damagingEntity: e,
+      });
+    } else {
+      try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
+    }
   }
 }
 
@@ -120,7 +128,13 @@ function installDamageHook() {
   } catch {}
 }
 
-function applyEntityAttack(attacker, target, damage) {
+function applyEntityAttack(attacker, target, damage, sourceId = null) {
+  if (sourceId) {
+    return applyDamageWithSource(target, damage, sourceId, {
+      cause: EntityDamageCause.entityAttack,
+      damagingEntity: attacker,
+    }).accepted;
+  }
   try {
     target.applyDamage(damage, { cause: EntityDamageCause.entityAttack, damagingEntity: attacker });
     return true;
@@ -498,15 +512,11 @@ function phase3BoundaryPlayers(e) {
 
 function applyPhase3VoidMass(player, integrity) {
   try {
-    player.applyDamage(1_000_000, {
-      // Bedrock has no custom void_mass damage type; void is its closest
-      // built-in cause and preserves the source's terminal-damage intent.
+    applyDamageWithSource(player, 1_000_000, "thebrokenscript:void_mass", {
       cause: EntityDamageCause.void,
       damagingEntity: integrity,
     });
-    return;
   } catch {}
-  try { player.applyDamage(1_000_000); } catch {}
 }
 
 function phase3SurfaceAirY(dim, x, z) {
@@ -636,7 +646,11 @@ function tickFireball(e) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) < 2.5) {
-      try { p.applyDamage(12, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(12); } catch {} }
+      applyDamageWithSource(p, 12, "thebrokenscript:integrity_ball", {
+        cause: EntityDamageCause.projectile,
+        damagingEntity: e,
+        damagingProjectile: e,
+      });
       try { e.remove(); } catch {} deleteTimers(e);
       return;
     }
@@ -678,7 +692,7 @@ function tickFever(e) {
     approach(e, target, 0.2);
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.05, z: e.location.z }); } catch {}
   }
-  meleePulse(e, 10, 5);
+  meleePulse(e, 10, 5, 20, "thebrokenscript:fever_attack");
   if (system.currentTick % 100 === 0) {
     try { target.addEffect("blindness", 60, { amplifier: 0, showParticles: false }); } catch {}
   }
@@ -705,7 +719,7 @@ function tickChord(e) {
     approach(e, target, 0.15);
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.03, z: e.location.z }); } catch {}
   }
-  meleePulse(e, 4, 3, 15);
+  meleePulse(e, 4, 3, 15, "thebrokenscript:chord_lazer");
   // fire chord projectile occasionally
   if (system.currentTick % 160 === 0) {
     const origin = { x: e.location.x, y: e.location.y, z: e.location.z };

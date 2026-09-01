@@ -62,7 +62,7 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 1. **Source feature**: Phase3.java ring spawning, boundary kill countdown, custom transition overlay, dimension transfer, music packets, end cutscene, and delayed boss discard; IntegrityPhase3Entity.java damage/death lifecycle.
 2. **Source behavior**: IntRange(0, 250) generates 251 candidate iterations with random radii 100–123 around (200, 202); three preset tentacles use fixed coordinates and SCALE 2. Players above y=90 in the Stage3 dimension receive a 60-tick countdown and then 1,000,000 void_mass damage. FinalCutscene.java runs for 428 ticks with a 108-tick pre-roll, 190-tick camera interpolation, 100-tick zoom, and 40-tick blackout.
 3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase3.java and decompiled/net/thebrokenscript/boss/integrity/FinalCutscene.java.
-4. **Bedrock limitation**: The Java Arena participant roster, custom overlay/music/cutscene packets, client camera override, and custom void_mass damage source have no direct add-on equivalent in the current runtime surface.
+4. **Bedrock limitation**: The Java Arena participant roster, custom overlay/music/cutscene packets, client camera override, and custom void_mass damage-type registration have no direct add-on equivalent in the current runtime surface.
 5. **Replacement design**: fractured_multipart_model.js preserves the six logical part definitions, role-specific positive/negative yaw transforms, AABBs, hit-plan ordering, the 149-tick Roam rising guard, and the 103-tick switch state. The runtime applies a derived 105×102 root collision envelope, filters projectile centers against the six conceptual AABBs, defers setOnFire/addEffect side effects with system.run, and tracks Roam until it can legally enter SWITCHING and spawn the main Fractured entity.
 6. **Player-visible difference**: The source transition texture, custom music packets, final camera path, exact participant transfer/attribution, and custom superclass death animation are not reproduced; the deterministic gameplay countdown, attacks, damage gate, and delayed cleanup are shipped.
 7. **Parity class**: VALIDATED_APPROXIMATION for the gameplay/runtime slice; ENGINE_UNSUPPORTED for Java-only transport/camera behavior.
@@ -131,3 +131,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: emitter lifetime and motion integration are Bedrock particle-system behavior rather than Java `TerrainParticle` behavior.
 7. **Parity class**: `VALIDATED_APPROXIMATION` with source count/material/spatial/timing parity.
 
+## A-018 — Java custom damage-source catalog and attribution adapter
+
+1. **Source feature**: the 15 `data/thebrokenscript/damage_type/*.json` definitions and the `TBSDamageTypes` registry builders.
+2. **Source behavior**: source ids, death-message metadata, `hurt`/`burning` effects, exhaustion (`0.1`, except `bad_sun` at `0.0`), scaling (`always`, except `bad_sun` at `never`), no-knockback flags, and armor/effect/invulnerability/shield/totem bypass flags are preserved from the resource and registry layers.
+3. **Source evidence**: `source_extracted/data/thebrokenscript/damage_type/*.json` and `decompiled/net/thebrokenscript/registry/TBSDamageTypes.java`.
+4. **Bedrock limitation**: Bedrock cannot register arbitrary Java damage-type ids or reproduce their death-message, exhaustion, scaling, and bypass metadata through `Entity.applyDamage()`.
+5. **Docs checked**: stable `Entity.applyDamage`, `EntityApplyDamageOptions`, `EntityApplyDamageByProjectileOptions`, `EntityDamageSource`, and `EntityDamageCause` references. Bedrock exposes native cause plus optional damaging entity/projectile fields.
+6. **Replacement design**: `damage_source_model.js` is a pure 15-entry catalog and plan builder. `damage_source_runtime.js` validates the custom id, sends the nearest native cause with entity/projectile attribution, and retains the custom source id in a same-tick runtime ledger. Recovered callsites now route Jimmy stomp, Rock, Integrity ball, Integrity shield bypass, void mass, Fever, and Chord damage through the adapter.
+7. **Player-visible difference**: custom source ids remain available to the port's same-tick logic, but Bedrock's native death text and armor/effect/shield/totem handling still follow the selected built-in cause.
+8. **Parity class**: `VALIDATED_APPROXIMATION` for source catalog and attribution; exact custom damage-type registration remains engine-unsupported.

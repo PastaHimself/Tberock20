@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-01 (Chunk 33 — Rock block-impact particle burst)
+Last updated: 2026-09-01 (Chunk 34 — custom damage-source catalog and attribution adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-01 (Chunk 33 — Rock block-impact particle burst)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 33 complete — Rock block-impact particle burst**
+**Chunk 34 complete — custom damage-source catalog and attribution adapter**
 
-Chunk 33 ports the recoverable RockEntity block-hit presentation contract into a pure burst plan, a dedicated runtime call, and a Bedrock particle emitter. The implementation preserves the source 400-particle count, moon-stone material, independent x/z ±15 and y ±7.5 offset ranges, upward initial velocity, and one-tick post-impact cleanup boundary. Chunks 30–32 are now also reflected in the branch: FracturedRoam lifecycle/movement recovery and the inherited Chord arrow damage formula are source-backed adapters.
+Chunk 34 ports the 15 Java custom damage types into a pure source catalog and native Bedrock attribution adapter. Source ids, message metadata, effects, exhaustion/scaling, no-knockback, and registry bypass flags are preserved; recovered Jimmy, Rock, Integrity, Fever, and Chord callsites now send native cause/entity/projectile attribution while retaining the custom id in a same-tick ledger. Bedrock custom registration and exact death-message/bypass behavior remain documented engine gaps.
 
 ## Chunk state
 | Chunk | State |
@@ -57,6 +57,7 @@ Chunk 33 ports the recoverable RockEntity block-hit presentation contract into a
 | 31 FracturedRoam movement recovery/control | **completed** (surface recovery scan, support probes, stuck cutoff, stroll range, and MoveControl turn/forward boundary) |
 | 32 Chord inherited arrow damage | **completed** (vanilla 1.21.1 AbstractArrow difficulty-weighted triangle formula, stable Bedrock difficulty mapping, runtime adapter, and regressions) |
 | 33 Rock block-impact particle burst | **completed** (400 moon-stone particle emitter, exact source offset/count/velocity plan, one-tick cleanup, and regressions) |
+| 34 Custom damage-source catalog and attribution | **completed** (15 source definitions and registry flags, native cause/entity/projectile adapter, same-tick source ledger, runtime routing, and regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -74,6 +75,9 @@ Chunks 30–31 updated the FracturedRoam model/runtime/controller and lifecycle 
 
 ## Files changed (Chunk 33)
 BP/scripts/systems/fractured_attack_model.js · BP/scripts/entities/boss/fractured_runtime.js · BP/entities/rock.json · RP/particles/moon_stone_block_burst.particle.json · tests/fractured_attack_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_33_{SPEC,REPORT}.md
+
+## Files changed (Chunk 34)
+BP/scripts/systems/damage_source_model.js · BP/scripts/systems/damage_source_runtime.js · BP/scripts/entities/boss/{boss_controller,phase3_runtime,fractured_runtime}.js · tests/damage_source_{model,runtime}.test.mjs · docs/chunks/CHUNK_34_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -169,6 +173,8 @@ Chunk 29 focused local validation: 12 deterministic multipart regressions PASS; 
 
 Chunk 33 focused local validation: 13 Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit is recorded in the PR; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally.
 
+Chunk 34 focused local validation: 53/53 deterministic Node regressions PASS; custom damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS. Microsoft Learn and BedrockWiki references confirm native cause/entity/projectile attribution and no custom damage-type registry path. Bedrock world/runtime smoke test unavailable locally.
+
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -191,10 +197,9 @@ Chunk 33 focused local validation: 13 Jimmy model/runtime regressions PASS; chan
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**Next source boundary.** Remaining safe parity candidates are Java custom damage-source attribution, exact rendered bone contact, and additional presentation behavior. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** Remaining safe parity candidates are exact rendered bone contact and additional presentation behavior. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
 
 ## Exact source references to inspect next
 - `decompiled/net/thebrokenscript/entity/fractured/FracturedRoamEntity.java`
 - `decompiled/net/thebrokenscript/entity/fractured/JimArena.java`
 - Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.
-

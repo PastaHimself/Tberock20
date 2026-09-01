@@ -2,6 +2,7 @@ import { world, system, EquipmentSlot, EntityDamageCause } from "@minecraft/serv
 import { logger } from "../../core/logging.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as perf from "../../systems/perf.js";
+import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
 import {
   GROUND_ARM_SOURCE,
   GROUND_ATTACK_SOURCE,
@@ -154,7 +155,14 @@ function removeEntity(entity) {
   pendingDeaths.delete(entity.id);
 }
 
-function applyEntityAttack(attacker, target, damage, cause = EntityDamageCause.entityAttack) {
+function applyEntityAttack(attacker, target, damage, cause = EntityDamageCause.entityAttack, sourceId = null) {
+  if (sourceId) {
+    return applyDamageWithSource(target, damage, sourceId, {
+      cause,
+      damagingEntity: attacker,
+      damagingProjectile: cause === EntityDamageCause.projectile ? attacker : null,
+    }).accepted;
+  }
   try {
     target.applyDamage(damage, { cause, damagingEntity: attacker });
     return true;
@@ -365,10 +373,11 @@ function phase3Players(entity) {
 
 function applyVoidMass(player, integrity) {
   try {
-    player.applyDamage(1_000_000, { cause: EntityDamageCause.void, damagingEntity: integrity });
-    return;
+    applyDamageWithSource(player, 1_000_000, "thebrokenscript:void_mass", {
+      cause: EntityDamageCause.void,
+      damagingEntity: integrity,
+    });
   } catch {}
-  try { player.applyDamage(1_000_000); } catch {}
 }
 
 function initPhase3(entity) {
@@ -570,9 +579,10 @@ function tickTentaclesAttack(entity, state) {
   for (const impact of impacts) {
     const candidate = candidates.find((entry) => entry.id === impact.id);
     if (!candidate) continue;
-    // Java uses the custom INTEGRITY_SHIELD_BYPASS damage type. Bedrock has no
-    // equivalent Script API registration path; the model documents this adapter.
-    applyEntityAttack(entity, candidate.entity, impact.damage);
+    // Java uses the custom INTEGRITY_SHIELD_BYPASS damage type. The native
+    // entity-attack cause carries the engine attribution while the source id
+    // remains available to the same-tick Bedrock adapter ledger.
+    applyEntityAttack(entity, candidate.entity, impact.damage, EntityDamageCause.entityAttack, "thebrokenscript:integ_bypass");
     if (impact.impulse) callEntityMethod(candidate.entity, "applyImpulse", impact.impulse);
   }
 }
@@ -783,7 +793,13 @@ function tickFireball(fireball) {
 
   const hit = fireballEntityHit(fireball, projectile);
   if (hit) {
-    applyEntityAttack(fireball, hit, FIREBALL_ATTACK_SOURCE.entityHitDamage, EntityDamageCause.projectile);
+    applyEntityAttack(
+      fireball,
+      hit,
+      FIREBALL_ATTACK_SOURCE.entityHitDamage,
+      EntityDamageCause.projectile,
+      "thebrokenscript:integrity_ball",
+    );
     explodeFireball(fireball);
     return;
   }
@@ -834,3 +850,4 @@ export function begin(scheduler) {
   installDamageHook();
   scheduler.every("tbs.phase3_runtime_tick", 1, onTick);
 }
+

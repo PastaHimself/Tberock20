@@ -39,7 +39,7 @@ test("runtime exposes one scheduler owner and one collision owner", async () => 
   assert.match(runtime, /scheduler\.every\("tbs\.fractured_runtime", 1, onTick\)/);
   assert.match(runtime, /getEntities\(\{ families: \[FRACTURED_FAMILY\] \}\)/);
   assert.match(runtime, /getEntities\(\{ families: \[ROCK_FAMILY\] \}\)/);
-  assert.match(runtime, /applyProjectileDamage\(target, plan\.damage, state\.owner, rock\)/);
+  assert.match(runtime, /applyProjectileDamage\(target, plan\.damage, state\.owner, rock, "thebrokenscript:rock"\)/);
   assert.match(runtime, /EquipmentSlot\.Chest/);
   assert.match(runtime, /EntityDamageCause\.projectile/);
   assert.match(runtime, /fracturedRockImpactPlan/);

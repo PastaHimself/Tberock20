@@ -1,6 +1,7 @@
 import { EntityDamageCause, EquipmentSlot, world, system } from "@minecraft/server";
 import * as perf from "../../systems/perf.js";
 import { logger } from "../../core/logging.js";
+import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
 import {
   FRACTURED_ATTACKS,
   FRACTURED_LIFECYCLE_SOURCE,
@@ -701,8 +702,15 @@ function setDefeated(entity, state) {
   // present, so the tag is the stable gameplay state for future presentation.
 }
 
-function applyDamage(target, amount, damagingEntity, damagingProjectile = null) {
+function applyDamage(target, amount, damagingEntity, damagingProjectile = null, sourceId = null) {
   if (!isValid(target)) return false;
+  if (sourceId) {
+    return applyDamageWithSource(target, amount, sourceId, {
+      cause: damagingProjectile ? EntityDamageCause.projectile : EntityDamageCause.entityAttack,
+      damagingEntity,
+      damagingProjectile,
+    }).accepted;
+  }
   try {
     const options = {
       cause: EntityDamageCause.entityAttack,
@@ -715,8 +723,15 @@ function applyDamage(target, amount, damagingEntity, damagingProjectile = null) 
   }
 }
 
-function applyProjectileDamage(target, amount, owner, projectile) {
+function applyProjectileDamage(target, amount, owner, projectile, sourceId = null) {
   if (!isValid(target)) return false;
+  if (sourceId) {
+    return applyDamageWithSource(target, amount, sourceId, {
+      cause: EntityDamageCause.projectile,
+      damagingEntity: owner,
+      damagingProjectile: projectile,
+    }).accepted;
+  }
   try {
     const options = {
       cause: EntityDamageCause.projectile,
@@ -758,7 +773,7 @@ function playerPulse(entity, center, plan, knockbackMode = "view") {
       if (!isValid(player) || player.dimension.id !== entity.dimension.id) continue;
       if (plan.groundedOnly && !hasGroundSupport(player)) continue;
       if (distance(player.location, center) > plan.radius) continue;
-      applyDamage(player, plan.damage, entity);
+      applyDamage(player, plan.damage, entity, null, "thebrokenscript:jimmy_stomp");
       if (knockbackMode === "radial") applyRadialKnockback(player, center, plan.knockback);
       else applyViewKnockback(player, plan.knockback);
     } catch {}
@@ -1121,7 +1136,7 @@ function rockHitTargets(rock, position, state) {
         intersects,
       });
       if (!plan.applyDamage) continue;
-      applyProjectileDamage(target, plan.damage, state.owner, rock);
+      applyProjectileDamage(target, plan.damage, state.owner, rock, "thebrokenscript:rock");
       breakElytra(target);
     } catch {}
   }
