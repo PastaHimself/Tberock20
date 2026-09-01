@@ -207,7 +207,7 @@ Chunk 35 focused local validation: 19/19 deterministic Node regressions PASS for
 
 ## Chunk 36 — Source particle resources and event bridge
 
-Chunk 36 adds the eight previously missing source particle textures and nine Bedrock emitter definitions, with source-backed provider sizes/lifetimes/materials and known event counts/spread. Null/Eyes use named emitters in the horror event system; Curved emits its 55-particle effect once at the recovered 6200-tick despawn boundary. Focused particle regressions and local JSON parsing pass; Bedrock runtime smoke testing remains unavailable locally.
+Chunk 36 adds the eight previously missing source particle textures and nine Bedrock emitter definitions, with source-backed provider sizes/lifetimes/materials and known event counts/spread. Null/Eyes use named emitters in the horror event system; Curved emits its 55-particle effect once at the recovered 6200-tick despawn boundary. Focused particle regressions and local JSON parsing pass; GitHub Actions run 123 PASS; Bedrock runtime smoke testing remains unavailable locally.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.

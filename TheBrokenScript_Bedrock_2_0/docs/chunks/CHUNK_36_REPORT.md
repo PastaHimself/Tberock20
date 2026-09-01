@@ -26,6 +26,9 @@ Curved emits the source-counted particle burst once at its 6200-tick despawn.
 - `node --check` passed for `particle_model.js`.
 - Bedrock world/runtime smoke testing remains unavailable locally; the GitHub
   workflow is the authoritative pack/schema validation gate.
+- GitHub Actions [run 123](https://github.com/PastaHimself/tbs-2.0/actions/runs/33528304807) completed successfully, including pack
+  validation, beta type-checking, 67 JavaScript regressions, Blockception
+  diagnostics, Mojang Creator Tools validation, packaging, and report upload.
 
 ## Files
 

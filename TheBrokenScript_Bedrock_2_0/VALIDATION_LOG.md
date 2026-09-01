@@ -77,4 +77,4 @@
 - Coverage: inclusive 40–80 target selection, tick-33 target-block capture, tick-40 owned-arm spawn, tick-5 impact plan (15 damage, 1.5 horizontal / 2.6 upward impulse), owner-stuck propagation, and source timer/lifecycle discard thresholds.
 - GitHub Actions validation for the published commit is pending.
 
-| 2026-09-01 | 36 | Source particle resource/event bridge: 8/8 focused particle regressions plus 59 existing regressions PASS (67/67 total); nine particle JSON resources parsed locally; changed particle model/runtime JavaScript node --check PASS; Bedrock world/runtime smoke test unavailable locally; GitHub workflow validation pending | PASS (local code checks) |
+| 2026-09-01 | 36 | Source particle resource/event bridge: 8/8 focused particle regressions plus 59 existing regressions PASS (67/67 total); nine particle JSON resources parsed locally; changed particle model/runtime JavaScript node --check PASS; Bedrock world/runtime smoke test unavailable locally; GitHub Actions [run 123](https://github.com/PastaHimself/tbs-2.0/actions/runs/33528304807) PASS | PASS (CI + local code checks) |
