@@ -4,7 +4,7 @@ Every entry documents an engine-driven adaptation (prompt §35). Seed set from C
 
 ## A-001 — Custom fluid `void_liquid`
 1. **Source feature**: Void liquid fluid (source + flowing) with custom block, used by void dimensions.
-2. **Source behavior**: TBSFluids/TBSFluidTypes registry; flowing/source semantics; player interaction (damage/visuals per code — bytecode analysis pending).
+2. **Source behavior**: the source builds head 14×14 at (1, 88, 10), chest 18×18 at (1, 68, 10), four 15×15 subentities at frontleft/frontright/backleft/backright, and four 45-block Leg targets. The head/chest FracturedPartEntity children call Roam.swap() first; burning arrows ignite the parent for 20 seconds, spectral arrows add glowing for 400 ticks, and accepted part hits temporarily set the parent's hit-via-part flag. The four FracturedSubEntity legs delegate to the parent without invoking swap or applying those arrow side effects. MultipartEntityPart uses positive body yaw, while Leg.tick rotates target offsets by negative body yaw. A FracturedRoam head/chest hit enters SWITCHING only from NORMAL, and the host promotes to the main Fractured entity after the source 103-tick switching duration.
 3. **Source evidence**: `neoforge/fluids/`, `TBSFluids*.class`, `item.thebrokenscript.void_liquid_bucket`.
 4. **Bedrock limitation**: No data-driven or script-registered custom fluids.
 5. **Docs checked**: Creator block/item references; scripting module docs (no fluid registration API).
@@ -59,15 +59,85 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 `PlayerDesyncManager` toggles a Java player flag and resends deferred packets through a server-connection mixin on resync. Bedrock Script API exposes neither packet interception nor deferred packet replay. Chunk 20 makes the item functional with per-player state, nausea/darkness, glitch presentation, and a same-position/rotation teleport on resync. Parity: packet behavior = `ENGINE_UNSUPPORTED`; gameplay beat = `VALIDATED_APPROXIMATION`.
 
 ## A-011 — Integrity Phase 3 transport and final cutscene
-1. **Source feature**: Phase3.java ring spawning, boundary kill countdown, custom transition overlay, dimension transfer, music packets, end cutscene, and delayed boss discard.
+1. **Source feature**: Phase3.java ring spawning, boundary kill countdown, custom transition overlay, dimension transfer, music packets, end cutscene, and delayed boss discard; IntegrityPhase3Entity.java damage/death lifecycle.
 2. **Source behavior**: IntRange(0, 250) generates 251 candidate iterations with random radii 100–123 around (200, 202); three preset tentacles use fixed coordinates and SCALE 2. Players above y=90 in the Stage3 dimension receive a 60-tick countdown and then 1,000,000 void_mass damage. FinalCutscene.java runs for 428 ticks with a 108-tick pre-roll, 190-tick camera interpolation, 100-tick zoom, and 40-tick blackout.
 3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase3.java and decompiled/net/thebrokenscript/boss/integrity/FinalCutscene.java.
-4. **Bedrock limitation**: The Java Arena participant roster, custom overlay/music/cutscene packets, client camera override, and custom void_mass damage source have no direct add-on equivalent in the current runtime surface.
-5. **Replacement design**: The pure arena model preserves the exact ring geometry, boundary state machine, and cutscene timing. The boss controller spawns the ring/presets once, applies the countdown to players currently in the boss dimension, and maps terminal damage to Bedrock's native void cause.
-6. **Player-visible difference**: The source transition texture, custom music packets, final camera path, and exact participant transfer/attribution are not reproduced; the deterministic gameplay countdown and tentacle placement are shipped.
-7. **Parity class**: VALIDATED_APPROXIMATION for the runtime slice; ENGINE_UNSUPPORTED for Java-only transport/camera behavior.
+4. **Bedrock limitation**: The Java Arena participant roster, custom overlay/music/cutscene packets, client camera override, and custom void_mass damage-type registration have no direct add-on equivalent in the current runtime surface.
+5. **Replacement design**: fractured_multipart_model.js preserves the six logical part definitions, role-specific positive/negative yaw transforms, AABBs, hit-plan ordering, the 149-tick Roam rising guard, and the 103-tick switch state. The runtime applies a derived 105×102 root collision envelope, filters projectile centers against the six conceptual AABBs, defers setOnFire/addEffect side effects with system.run, and tracks Roam until it can legally enter SWITCHING and spawn the main Fractured entity.
+6. **Player-visible difference**: The source transition texture, custom music packets, final camera path, exact participant transfer/attribution, and custom superclass death animation are not reproduced; the deterministic gameplay countdown, attacks, damage gate, and delayed cleanup are shipped.
+7. **Parity class**: VALIDATED_APPROXIMATION for the gameplay/runtime slice; ENGINE_UNSUPPORTED for Java-only transport/camera behavior.
 
 ## Pending-analysis adaptations (bytecode required)
 - Spawn-condition predicates (24 classes) → spawn director fidelity depends on decompiled constants/timings.
 - Event probabilities/cooldowns (~91 handlers) → same.
 - GeckoLib animation *code* behaviors (head-tracking, procedural tentacles via `api/tentaclev2`) → script equivalents; assets already Bedrock-native.
+
+## A-012 — Java SCALE attribute to Bedrock property/event adapter
+
+Source `VoidTentacleEntity.onFinalizeSpawn` rolls `Attributes.SCALE` inclusively from 1 through 5 when the base scale is unchanged. Phase 3 also creates three fixed tentacles with scale 2.
+
+The Bedrock port persists the equivalent value as the client-synced `thebrokenscript:scale` integer property, maps values 1..5 to `minecraft:scale` component groups, and exposes matching events that set the property and select the visual group. The controller reads the persisted property and uses the same bridge for fixed presets and fallback initialization.
+
+The Java attribute mutation and renderer pipeline are not portable; persistence, synchronization, behavior lookup, and visual size are covered by the Bedrock adapter.
+
+## A-013 — Integrity GroundArm owner and contact adapter
+
+1. **Source feature**: `GroundAttack` creates an `IntegrityP3GroundArmEntity`, assigns the Integrity Phase 3 entity as its owner, and the arm later forwards stuck state and damage behavior to that owner.
+2. **Source behavior**: the attack captures the target block at tick 33 and creates the arm at tick 40; the arm impacts intersecting players at tick 5, then discards when its owner is absent or when the source tentacle-proximity thresholds are crossed.
+3. **Source evidence**: `decompiled/net/thebrokenscript/entity/integrity/phase3/attacks/GroundAttack.java` and `decompiled/net/thebrokenscript/entity/integrity/phase3/IntegrityP3GroundArmEntity.java`.
+4. **Bedrock limitation**: Bedrock entity IDs are opaque strings and the current add-on surface does not expose the source's synchronized integer owner field or Java `AABB.intersects` query.
+5. **Replacement design**: the controller keeps a live `arm.id → owner` map, guards invalid references, applies the source timing/damage/impulse plan, and uses a five-block entity query as the contact approximation. GroundArm is explicitly non-persistent in its BP definition.
+6. **Player-visible difference**: owner association is runtime-only and is rebuilt only when a new GroundAttack spawns an arm; player contact is radius-based rather than exact bounding-box intersection.
+7. **Parity class**: `VALIDATED_APPROXIMATION`; exact owner synchronization and geometric contact remain engine gaps.
+
+## A-014 — Chord projectile and BrokenCore arrow-damage adapter
+
+1. **Source feature**: `ChordEntity.performProjectileAttack` and `ChordProjectileEntity` movement, distance expiry, impact branches, gravity restoration, grounded offsets, and empty pickup behavior.
+2. **Source behavior**: source speed is `1.6f`, inaccuracy is `0.0f`, `initialPos` is the Chord position, and `setBaseDamageFromMob(2.0f)` is called. The projectile is transient, no-gravity in flight, discarded at 100 blocks, and queues 20-tick block-hit removal.
+3. **Source evidence**: `decompiled/net/thebrokenscript/entity/boss/ChordEntity.java`, `ChordProjectileEntity.java`, and `decompiled_brokencore/net/thebrokenscript/brokencore/api/entity/base/UwuableArrow.java`.
+4. **Bedrock limitation**: the server API does not expose the Java bounding-box interpolation used by `getY(1.0)` or the client renderer's grounded `Vec2` hook.
+5. **Replacement design**: a dedicated runtime owns normalized 1.6-block/tick movement, substepped block/entity collision, source branch order, gravity restoration event, 100-block expiry, and block countdown. The pure model mirrors inherited vanilla `AbstractArrow#setBaseDamageFromMob(2.0f)` with the source difficulty-weighted triangular term; the runtime maps stable Bedrock `World.getDifficulty()` values to Java difficulty ids. Exact face offsets remain in the pure model.
+6. **Player-visible difference**: launch height, entity bounding-box contact, and renderer application of grounded offsets remain adapted; the inherited vanilla arrow damage calculation is now source-backed.
+7. **Parity class**: `VALIDATED_APPROXIMATION` for the gameplay/runtime slice; renderer and continuous-contact differences remain documented adapters.
+
+## A-015 — Fractured/Jimmy attack and keyframe adapters
+
+1. **Source feature**: FracturedEntity, JimAttackSelectorGoal, the four Jimmy attacks, and RockEntity.
+2. **Source behavior**: Jimmy starts with a 100-tick attack delay, chooses among the four equal-weight attacks, emits Stomp/Slam/SingleStomp/Rock effects at source timings, and uses RockEntity's 15-damage AOE/owner exclusion/Elytra side effect.
+3. **Source evidence**: decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,JimAttackSelectorGoal,RockEntity}.java and decompiled/net/thebrokenscript/entity/fractured/attacks/*.java.
+4. **Bedrock limitation**: add-ons do not expose GeckoLib server bone transforms or the custom SUB_ANOM_2 damage source. A Bedrock custom particle emitter replaces Java's block-particle registration.
+5. **Replacement design**: the dedicated runtime owns the recovered state machine and impact constants. Player melee is the explicit six-hit progress adapter; keyframe instruction names are isolated behind KEYFRAME_ADAPTER_TICKS; Rock collision uses getAABB() and a substepped runtime query. Block impact invokes a custom Bedrock moon-stone emitter with the source count, offset ranges, upward velocity, and one-tick cleanup boundary.
+6. **Player-visible difference**: exact attack keyframe timestamps and bone-origin positions remain adapters; the 400-particle moon-stone burst preserves the source count/material/spatial plan, with Bedrock emitter lifetime and particle physics as the engine-specific presentation layer. Attack timing, damage, cooldown, owner exclusion, and defeat progress are preserved.
+7. **Parity class**: VALIDATED_APPROXIMATION for the recovered gameplay slice; keyframe/bone mechanisms remain engine-limited while the block-particle burst is source-backed through a Bedrock emitter.
+
+## A-016 — Jimmy multipart hitbox and FracturedRoam switch adapter
+
+1. **Source feature**: BaseFracturedEntity's head/chest/leg-part layout, FracturedPartEntity, FracturedSubEntity, Leg, and the FracturedRoam multipart-trigger path.
+2. **Source behavior**: the source builds head 14×14 at (1, 88, 10), chest 18×18 at (1, 68, 10), four 15×15 subentities at frontleft/frontright/backleft/backright, and four 45-block Leg targets. Part hurt handling calls Roam.swap() first; burning arrows ignite the parent for 20 seconds, spectral arrows add glowing for 400 ticks, and accepted part hits temporarily set the parent's hit-via-part flag. Leg.tick rotates target offsets by the parent's body yaw. A FracturedRoam part hit enters SWITCHING and the host promotes to the main Fractured entity after the source 103-tick switching duration.
+3. **Source evidence**: decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java; decompiled/net/thebrokenscript/entity/fractured/{FracturedPartEntity,FracturedSubEntity,Leg,FracturedRoamEntity}.java; decompiled/net/thebrokenscript/boss/fractured/JimArena.java.
+4. **Bedrock limitation**: Bedrock add-ons do not expose Java child multipart entities, parent/part identity, GeckoLib limb transforms, or the source's exact projectile sweep against moving part entities.
+5. **Replacement design**: fractured_multipart_model.js preserves the six logical part definitions, dimensions, offsets, yaw transform, AABBs, hit-plan ordering, and 103-tick state. The runtime applies a derived 105×102 root collision envelope, filters projectile centers against the six conceptual AABBs, defers setOnFire/addEffect side effects with system.run, and tags/ticks FracturedRoam until it can spawn the main Fractured entity.
+6. **Player-visible difference**: projectiles use conceptual part filtering rather than actual child entities, so continuous projectile contact and exact part identity are adapted. FracturedRoam promotion spawns the main entity directly; the JimArena participant/sound schedule and underground/dig/despawn lifecycle are adapted in Chunks 30–31, while bossbar, camera, and guaranteed looping-music control remain engine gaps.
+7. **Parity class**: VALIDATED_APPROXIMATION for the multipart gameplay contract; Java hierarchy, exact bone/render contact, and presentation transport remain engine/deferred gaps.
+
+
+## A-017 — Rock block-impact particle burst adapter
+
+1. **Source feature**: `RockEntity.onHitBlock`.
+2. **Source behavior**: after the superclass block-hit path, the source emits 400 `BlockParticleOption(BLOCK, MOON_STONE)` particles at independent offsets `x/z ∈ [-15, 15]`, `y ∈ [-7.5, 7.5]`, with upward velocity `(0, 2, 0)`, then queues discard one tick later.
+3. **Source evidence**: `decompiled/net/thebrokenscript/entity/fractured/RockEntity.java`.
+4. **Bedrock limitation**: `Dimension.spawnParticle` accepts a named emitter rather than Java's block-particle option and does not expose Java client particle lifetime/physics directly.
+5. **Replacement design**: `moon_stone_block_burst.particle.json` uses the existing moon-stone texture, emits exactly 400 particles, preserves the source offset ranges and upward initial velocity, and is invoked once at the Rock block-impact position. The existing one-tick grounded cleanup remains in the runtime.
+6. **Player-visible difference**: emitter lifetime and motion integration are Bedrock particle-system behavior rather than Java `TerrainParticle` behavior.
+7. **Parity class**: `VALIDATED_APPROXIMATION` with source count/material/spatial/timing parity.
+
+## A-018 — Java custom damage-source catalog and attribution adapter
+
+1. **Source feature**: the 15 `data/thebrokenscript/damage_type/*.json` definitions and the `TBSDamageTypes` registry builders.
+2. **Source behavior**: source ids, death-message metadata, `hurt`/`burning` effects, exhaustion (`0.1`, except `bad_sun` at `0.0`), scaling (`always`, except `bad_sun` at `never`), no-knockback flags, and armor/effect/invulnerability/shield/totem bypass flags are preserved from the resource and registry layers.
+3. **Source evidence**: `source_extracted/data/thebrokenscript/damage_type/*.json` and `decompiled/net/thebrokenscript/registry/TBSDamageTypes.java`.
+4. **Bedrock limitation**: Bedrock cannot register arbitrary Java damage-type ids or reproduce their death-message, exhaustion, scaling, and bypass metadata through `Entity.applyDamage()`.
+5. **Docs checked**: stable `Entity.applyDamage`, `EntityApplyDamageOptions`, `EntityApplyDamageByProjectileOptions`, `EntityDamageSource`, and `EntityDamageCause` references. Bedrock exposes native cause plus optional damaging entity/projectile fields.
+6. **Replacement design**: `damage_source_model.js` is a pure 15-entry catalog and plan builder. `damage_source_runtime.js` validates the custom id, sends the nearest native cause with entity/projectile attribution, and retains the custom source id in a same-tick runtime ledger. Recovered callsites now route Jimmy stomp, Rock, Integrity ball, Integrity shield bypass, void mass, Fever, and Chord damage through the adapter.
+7. **Player-visible difference**: custom source ids remain available to the port's same-tick logic, but Bedrock's native death text and armor/effect/shield/totem handling still follow the selected built-in cause.
+8. **Parity class**: `VALIDATED_APPROXIMATION` for source catalog and attribution; exact custom damage-type registration remains engine-unsupported.

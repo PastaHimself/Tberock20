@@ -2,6 +2,10 @@
 
 | Date (UTC) | Chunk | Check | Result |
 |---|---|---|---|
+| 2026-08-31 | 29 | Jimmy multipart model/runtime: 12 focused deterministic Node regressions PASS; changed multipart model/runtime/controller JavaScript node --check PASS; fractured and fractured_roam collision-envelope JSON parse and source-extents assertions PASS; GitHub Actions run 33359740828 passed type-check, 112 JavaScript regressions, 67 Python validator tests, add-on validators, Blockception diagnostics (0 errors / 0 warnings), Mojang Creator Tools validation (0 blockers after documented false-positive filtering), and packaging; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally | PASS (code checks; upload quota noted)
+| 2026-08-30 | 28 | Local Jimmy slice: 11 deterministic Node regressions PASS; changed model/runtime/main/controller JavaScript node --check PASS; touched Fractured/Rock JSON parse PASS; GitHub Actions run 33323628395 passed typecheck, 89 Node regressions, 67 Python validator tests, add-on validators, Blockception, MCT, and packaging; artifact uploads blocked by repository storage quota | PASS (code checks; upload quota noted) |
+| 2026-08-30 | 27 | Integrity Phase 3 lifecycle: 10 deterministic lifecycle regressions PASS; cumulative materialized Node suite 32/32 PASS; Phase 3 model/runtime `node --check` PASS; touched entity JSON parses; Bedrock static scanner 0 errors / 0 warnings; Bedrock world smoke test unavailable locally | PASS |
+| 2026-08-30 | 26 | Chord projectile: 7 focused regressions PASS; cumulative materialized Node suite 32/32 PASS; Chord model/runtime/controller `node --check` PASS; touched entity JSON parses; Bedrock static scanner 0 errors / 0 warnings; Bedrock world smoke test unavailable locally | PASS |
 | 2026-08-29 | 21 | Integrity Phase 3 slice: npm test 23/23 PASS; node --check passed for the model and boss controller; source-backed ring/boundary/cutscene regressions pass; GitHub Actions run 33259723699 completed with all workflow steps passing | PASS |
 | 2026-08-25 | 20 | Remaining parity ports: JavaScript regression suite 10/10 PASS (VHS HUD/subpacks, server-ui dependency and preview-compatible CI typings, five item components, 100-block spectator-safe cannon targeting, painting face mapping/UV/consumption, symmetric dimension-safe portal links with fallback guard, finite effects + eyes particle, complete BP/RP painting chain); touched JSON `jq empty` PASS; touched JS `node --check` PASS; strict JSON UI audit 0 errors / 0 warnings / 0 info; source image dimensions verified (painting 128×64, polaroid 1080×942, eyes 16×16) | PASS |
 | 2026-08-23 | 19 | Packaging: tools/package_mcaddon.ps1 rewritten to System.IO.Compression (Compress-Archive PS5.1 writes backslash entry names — Minecraft cannot import); dist/TheBrokenScript_2_0_Bedrock.mcaddon = 145,789,490 B / 1400 entries; separator scan all forward-slash; top-level BP+RP roots correct; key-file spot check (manifests, main.js, blocks/items/dimensions/biomes/entity/geo samples) PASS | PASS |
@@ -48,7 +52,26 @@
 | 2026-08-22 | 00 | Microsoft Learn verification of manifest/script-versioning/camera/dimensions facts (MCP) | PASS |
 | 2026-08-22 | 00 | Chunk schedule revised against discovered content (19-chunk plan) | PASS |
 
+| 2026-09-01 | 33 | Rock block-impact burst: 13 focused Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit pending; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+
+| 2026-09-01 | 34 | Custom damage-source adapter: 53/53 deterministic Node regressions PASS; source catalog preserves all 15 resource definitions and TBSDamageTypes registry flags; damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS; BedrockWiki/Microsoft Learn attribution references checked; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+
 ## Pending validations (later chunks)
 
 - Minecraft runtime import tests once a Bedrock install is available.
 - Beta-API runtime smoke test (new dependency channel) alongside the above.
+
+## Chunk 22 — VoidTentacle source SCALE adapter
+
+- TDD red phase: the new SCALE contract test failed because the current entity definition had no persisted property or event-backed visual groups.
+- TDD green phase: `npm test` — **24 passed, 0 failed**.
+- Static checks: `node --check` passed for the changed boss controller and arena model; `void_tentacle.json` parsed successfully.
+- GitHub Actions run 72 ([Bedrock Add-on Check](https://github.com/PastaHimself/tbs-2.0/actions/runs/33260817900)): **success**; all validation, diagnostics, Creator Tools, packaging, and report-upload steps completed successfully.
+
+## Chunk 23 — Integrity Phase 3 GroundAttack/GroundArm adapter
+
+- TDD red phase: the new GroundAttack/GroundArm controller and non-persistent entity-definition assertions failed before implementation.
+- TDD green phase: `npm test` — **26 passed, 0 failed**.
+- Static checks: `node --check` passed for `integrity_arena_model.js` and `boss_controller.js`; `integrity_arm.json` parsed successfully.
+- Coverage: inclusive 40–80 target selection, tick-33 target-block capture, tick-40 owned-arm spawn, tick-5 impact plan (15 damage, 1.5 horizontal / 2.6 upward impulse), owner-stuck propagation, and source timer/lifecycle discard thresholds.
+- GitHub Actions validation for the published commit is pending.

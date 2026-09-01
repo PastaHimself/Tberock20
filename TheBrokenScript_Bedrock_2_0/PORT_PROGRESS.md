@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-29 (Chunk 21 — Integrity Phase 3 runtime semantics)
+Last updated: 2026-09-01 (Chunk 34 — custom damage-source catalog and attribution adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-08-29 (Chunk 21 — Integrity Phase 3 runtime semantics)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 21 complete — Integrity Phase 3 runtime semantics**
+**Chunk 34 complete — custom damage-source catalog and attribution adapter**
 
-
+Chunk 34 ports the 15 Java custom damage types into a pure source catalog and native Bedrock attribution adapter. Source ids, message metadata, effects, exhaustion/scaling, no-knockback, and registry bypass flags are preserved; recovered Jimmy, Rock, Integrity, Fever, and Chord callsites now send native cause/entity/projectile attribution while retaining the custom id in a same-tick ledger. Bedrock custom registration and exact death-message/bypass behavior remain documented engine gaps.
 
 ## Chunk state
 | Chunk | State |
@@ -45,11 +45,48 @@ Last updated: 2026-08-29 (Chunk 21 — Integrity Phase 3 runtime semantics)
 | 19 Packaging .mcaddon | **completed** (dist/TheBrokenScript_2_0_Bedrock.mcaddon — 145,789,490 bytes, 1400 entries, forward-slash separators verified, key-file spot check PASS; packager rewritten off Compress-Archive due to backslash-entry bug) |
 | 20 Remaining parity ports | **completed** (functional hand cannon/polaroid/portal linker/desyncer; 4×2 circuit-cave painting surrogate; heart-corruption + why-cant-you-leave effects with source eyes particle; supplied VHS JSON UI + four subpacks + Vibrant Visuals; regression tests and strict UI audit) |
 | 21 Integrity Phase 3 runtime semantics | **completed** (source-backed 251-candidate tentacle ring + 3 presets, 60-tick boundary countdown/native void terminal damage, and exact 428-tick cutscene timing model; Java transport/camera gaps ledgered) |
+| 22 VoidTentacle source SCALE adapter | **completed** (persisted client-synced `thebrokenscript:scale` property, event-backed `minecraft:scale` groups for 1..5, and fixed Phase 3 presets at scale 2) |
+| 23 Integrity Phase 3 GroundAttack/GroundArm adapter | **completed** (inclusive 40–80 target selection, tick-33 block capture, tick-40 owned arm spawn, tick-5 impact plan, owner-stuck propagation, and tentacle-proximity lifecycle) |
+| 24 Integrity Phase 3 attack model/runtime | **completed** (source-backed Fireball, TentacleSwipe, Gravity, and Tentacles constants, selector gates, timing, pulses, and Bedrock adapters) |
+| 25 Complete Phase3Goals multi-attack selector | **completed** (weighted candidates, previous-attack exclusion, distance/vertical gates, attack lengths/cooldowns, and runtime dispatch) |
+| 26 Chord projectile source correction | **completed** (sole-owner movement/collision runtime, 1.6 speed, 100-block expiry, branch-ordered impacts, gravity restoration, 20-tick block countdown, transient entity, and explicit BrokenCore damage adapter) |
+| 27 Integrity Phase 3 damage/death lifecycle | **completed** (player/fireball caps, hurt-frame gate, mace parry, kill causes, center/death state, 298-tick cleanup, and restricted-event deferral) |
+| 28 Jimmy attack lifecycle | **completed** (FracturedEntity delay/selector/attack lengths, Stomp/Slam/MoonRockToss/AirLift effects, RockEntity flight/impact adapter, dedicated runtime ownership, and deterministic regressions) |
+| 29 Jimmy multipart hitbox/support | **completed** (six source-backed logical parts, body-yaw/Leg transforms, projectile part filtering, arrow side effects, FracturedRoam SWITCHING adapter, root collision envelope, and deterministic regressions) |
+| 30 FracturedRoam host lifecycle | **completed** (149-tick server timer, underground/dig/despawn boundaries, arena handoff, participant/sound schedule, and deterministic lifecycle adapters) |
+| 31 FracturedRoam movement recovery/control | **completed** (surface recovery scan, support probes, stuck cutoff, stroll range, and MoveControl turn/forward boundary) |
+| 32 Chord inherited arrow damage | **completed** (vanilla 1.21.1 AbstractArrow difficulty-weighted triangle formula, stable Bedrock difficulty mapping, runtime adapter, and regressions) |
+| 33 Rock block-impact particle burst | **completed** (400 moon-stone particle emitter, exact source offset/count/velocity plan, one-tick cleanup, and regressions) |
+| 34 Custom damage-source catalog and attribution | **completed** (15 source definitions and registry flags, native cause/entity/projectile adapter, same-tick source ledger, runtime routing, and regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
 ## Files created (Chunk 21)
 BP/scripts/systems/integrity_arena_model.js Phase 3 constants/state/cutscene model · BP/scripts/entities/boss/boss_controller.js source-backed ring spawn and boundary countdown · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_21_{SPEC,REPORT}.md
+
+## Files changed (Chunk 23)
+BP/entities/integrity_arm.json (source non-persistent contract) · BP/scripts/systems/integrity_arena_model.js (GroundAttack/GroundArm constants and pure timing/impact/lifecycle plans) · BP/scripts/entities/boss/boss_controller.js (Phase 3 GroundAttack adapter, runtime owner map, arm impacts, stuck propagation, lifecycle) · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_23_{SPEC,REPORT}.md
+
+## Files changed (Chunk 29)
+BP/entities/{fractured,fractured_roam}.json · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_multipart_model.js · tests/fractured_multipart_{model,runtime}.test.mjs · docs/chunks/CHUNK_29_{SPEC,REPORT}.md
+
+## Files changed (Chunks 30–32)
+Chunks 30–31 updated the FracturedRoam model/runtime/controller and lifecycle regressions; Chunk 32 updated the Chord projectile model/runtime and projectile regressions.
+
+## Files changed (Chunk 33)
+BP/scripts/systems/fractured_attack_model.js · BP/scripts/entities/boss/fractured_runtime.js · BP/entities/rock.json · RP/particles/moon_stone_block_burst.particle.json · tests/fractured_attack_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_33_{SPEC,REPORT}.md
+
+## Files changed (Chunk 34)
+BP/scripts/systems/damage_source_model.js · BP/scripts/systems/damage_source_runtime.js · BP/scripts/entities/boss/{boss_controller,phase3_runtime,fractured_runtime}.js · tests/damage_source_{model,runtime}.test.mjs · docs/chunks/CHUNK_34_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 28)
+BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
+
+## Files changed (Chunk 27)
+BP/scripts/systems/phase3_attack_model.js (source lifecycle constants and pure damage/death plans) · BP/scripts/entities/boss/phase3_runtime.js (filtered hurt adapter, deferred death/mace actions, lifecycle state) · tests/phase3_lifecycle_model.test.mjs · docs/chunks/CHUNK_27_{SPEC,REPORT}.md
+
+## Files changed (Chunk 26)
+BP/entities/chord_projectile.json · BP/scripts/entities/boss/boss_controller.js · BP/scripts/entities/boss/chord_projectile_runtime.js · BP/scripts/systems/chord_projectile_model.js · tests/chord_projectile_model.test.mjs · docs/chunks/CHUNK_26_{SPEC,REPORT}.md
 
 ## Files created (Chunk 20)
 `BP/scripts/systems/ported_features.js` · `BP/scripts/systems/ported_feature_logic.js` · functional item definitions for desyncer and circuit-cave painting · `BP/entities/circuit_cave_painting.json` · complete RP painting entity/geometry/render/texture chain · `RP/particles/eyes.particle.json` + source eyes texture · VHS `ui/`, `textures/ui/vhs/`, four subpacks, and Vibrant Visuals settings · `tests/remaining_ports.test.mjs` · `docs/chunks/CHUNK_20_REPORT.md`
@@ -132,7 +169,11 @@ tools/sync_scripts.ps1 · tools/validate_pack.ps1 · tools/package_mcaddon.ps1 �
 SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.json · PARITY_MATRIX.md · BEDROCK_ARCHITECTURE.md · BEDROCK_COMPATIBILITY.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · KNOWN_LIMITATIONS.md · PORT_PROGRESS.md · docs/chunks/CHUNK_00_SPEC.md · docs/chunks/CHUNK_00_REPORT.md · tools/build_source_inventory.ps1 · tools/build_source_map.ps1
 
 ## Validation completed
-See VALIDATION_LOG.md (Chunk 20: 10 JavaScript regressions PASS, all touched JSON parses, all touched scripts pass `node --check`, strict JSON UI audit 0/0, source image dimensions verified; prior Chunks 19→02 remain PASS).
+Chunk 29 focused local validation: 12 deterministic multipart regressions PASS; changed multipart model/runtime/controller JavaScript node --check PASS; fractured and fractured_roam collision-envelope JSON parse and source-extents assertions PASS; GitHub Actions run 33359740828 passed all code/validation gates; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally.
+
+Chunk 33 focused local validation: 13 Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit is recorded in the PR; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally.
+
+Chunk 34 focused local validation: 53/53 deterministic Node regressions PASS; custom damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS. Microsoft Learn and BedrockWiki references confirm native cause/entity/projectile attribution and no custom damage-type registry path. Bedrock world/runtime smoke test unavailable locally.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
@@ -156,7 +197,9 @@ See VALIDATION_LOG.md (Chunk 20: 10 JavaScript regressions PASS, all touched JSO
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**PORT COMPLETE THROUGH CHUNK 20.** Remaining work is limited to real-device runtime testing and the explicit engine/deferred items in KNOWN_LIMITATIONS.md (exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity).
+**Next source boundary.** Remaining safe parity candidates are exact rendered bone contact and additional presentation behavior. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
 
 ## Exact source references to inspect next
+- `decompiled/net/thebrokenscript/entity/fractured/FracturedRoamEntity.java`
+- `decompiled/net/thebrokenscript/entity/fractured/JimArena.java`
 - Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.

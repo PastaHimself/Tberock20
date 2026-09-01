@@ -11,7 +11,7 @@
     "components": {
       "minecraft:type_family": {
         "family": [
-          "thebrokenscript_boss",
+          "thebrokenscript_phase3_runtime",
           "monster",
           "mob"
         ]

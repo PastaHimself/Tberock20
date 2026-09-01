@@ -1,7 +1,7 @@
 # BEDROCK_COMPATIBILITY.md
 
 Effective target: **Minecraft Bedrock 1.26.50+**. The BP minimum engine is `[1, 26, 50]`; the paired RP retains `[1, 26, 10]`, so the behavior pack sets the effective add-on floor.
-Version-sensitive claims were re-verified against official Microsoft Learn / Minecraft Creator documentation on 2026-08-29 for Chunk 21.
+Version-sensitive claims were re-verified against official Microsoft Learn / Minecraft Creator documentation on 2026-08-29 for Chunk 23.
 
 ## Verified platform facts (with sources)
 
@@ -57,3 +57,20 @@ The Phase 3 controller only relies on APIs already used by the pack: entity spaw
 - [GameMode](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/gamemode?view=minecraft-bedrock-stable)
 - [ItemStack](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/itemstack?view=minecraft-bedrock-stable)
 - [Particle Effects](https://learn.microsoft.com/en-us/minecraft/creator/documents/particleeffects?view=minecraft-bedrock-stable)
+
+## Chunk 22 compatibility note
+
+The SCALE adapter uses the Bedrock entity property surface (integer range/default plus client synchronization), entity events with `set_property`, and the built-in `minecraft:scale` component. These are data-driven definition features; the controller only uses the entity `getProperty`, `setProperty`, and `triggerEvent` methods already guarded by the pack's runtime adapter. Exact Java `Attributes.SCALE` mutation remains an implementation difference, while the value's persistence, client visibility, behavior lookup, and visual application are now represented.
+
+## Chunk 23 compatibility note
+
+The GroundArm adapter uses the documented `Dimension.getEntities({ location, maxDistance })` query for nearby-player and nearby-tentacle lookup, `Entity.applyImpulse` for the source knockback plan, and `Entity.remove` for source discard behavior. Each call is guarded because these APIs can throw on invalid/unloaded entities. Bedrock still provides no direct Java bounding-box intersection or synchronized integer owner field, so those two details remain explicit adaptations.
+
+Official references: [Dimension.getEntities](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/dimension?view=minecraft-bedrock-stable) · [Entity.applyImpulse](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable) · [Entity.remove](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable)
+
+
+## Chunk 29 compatibility note
+
+The multipart adapter uses the documented Entity.getAABB() surface to obtain a projectile's current center, Entity.setOnFire(seconds, useEffects) for the burning-arrow parent effect, Entity.addEffect(effectType, duration, options) for the spectral-arrow glowing effect, and System.run to defer those mutations out of the world.beforeEvents.entityHurt restricted callback. These APIs cover the supported side effects; no current add-on API creates a Java-style child multipart entity or exposes exact moving-part projectile intersection.
+
+Official references: [Entity.getAABB](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable#getaabb) · [Entity.setOnFire](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable#setonfire) · [Entity.addEffect](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable#addeffect) · [System.run](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/system?view=minecraft-bedrock-stable#run)

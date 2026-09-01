@@ -4,12 +4,20 @@ import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
+import { registerChordProjectileLaunch } from "./chord_projectile_runtime.js";
+import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
 import {
+  GROUND_ARM_SOURCE,
+  GROUND_ATTACK_SOURCE,
   PHASE3_SOURCE,
   TETHER_SOURCE,
   VOID_TENTACLE_SOURCE,
   phase3BoundaryKillStep,
   phase3TentacleCandidatePosition,
+  groundArmImpactPlan,
+  groundArmLifecycleStep,
+  groundAttackCanUse,
+  groundAttackStep,
   tetherDamageBlocked,
   tetherHeartbeatStep,
   voidTentacleAttackPlan,
@@ -44,14 +52,19 @@ function installDeathHook() {
 // automatic arena startup remains disabled until its Java callsite is recovered.
 // Phase 3 ring spawning and boundary countdown are wired below. The Java
 // participant roster/transfer and custom camera packets remain engine gaps.
-// fractured (Jimmy): slam/stomp pulses 12 dmg, rock toss ranged 6, roam variant passive
+// Fractured, Rock, and FracturedRoam are owned by the dedicated source-specific runtime.
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
-// chord: flying attacker 4 dmg; chord_projectile straight-line 6 dmg
+// chord: flying attacker 4 dmg; chord_projectile launch is delegated to its
+// source-specific runtime adapter (the 6-damage value remains isolated there).
 // tether/void_tentacle: proximity hazards
 const FIREBALL_SPEED = 0.8;
 
 const timers = new Map();
+// IntegrityP3GroundArmEntity stores a synchronized integer owner id. Bedrock
+// entity ids are opaque strings, so the adapter keeps the live relationship in
+// memory and drops it as soon as either entity becomes invalid.
+const groundArmOwners = new Map();
 
 function getNum(e, key, def) {
   const m = timers.get(e.id);
@@ -64,7 +77,10 @@ function setNum(e, key, v) {
   if (!m) { m = {}; timers.set(e.id, m); }
   m[key] = v;
 }
-function deleteTimers(e) { timers.delete(e.id); }
+function deleteTimers(e) {
+  timers.delete(e.id);
+  groundArmOwners.delete(e.id);
+}
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z); }
 
 function getHealth(e) {
@@ -73,12 +89,19 @@ function getHealth(e) {
 function maxHealth(e) {
   try { return e.getComponent("minecraft:health")?.effectiveMax ?? 0; } catch { return 0; }
 }
-function meleePulse(e, dmg, reach = 5, interval = 20) {
+function meleePulse(e, dmg, reach = 5, interval = 20, sourceId = null) {
   if (system.currentTick % interval !== 0) return;
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) > reach) continue;
-    try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
+    if (sourceId) {
+      applyDamageWithSource(p, dmg, sourceId, {
+        cause: EntityDamageCause.entityAttack,
+        damagingEntity: e,
+      });
+    } else {
+      try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
+    }
   }
 }
 
@@ -105,7 +128,13 @@ function installDamageHook() {
   } catch {}
 }
 
-function applyEntityAttack(attacker, target, damage) {
+function applyEntityAttack(attacker, target, damage, sourceId = null) {
+  if (sourceId) {
+    return applyDamageWithSource(target, damage, sourceId, {
+      cause: EntityDamageCause.entityAttack,
+      damagingEntity: attacker,
+    }).accepted;
+  }
   try {
     target.applyDamage(damage, { cause: EntityDamageCause.entityAttack, damagingEntity: attacker });
     return true;
@@ -139,19 +168,75 @@ function callEntityMethod(entity, name, ...args) {
   }
 }
 
+function entityReferenceIsValid(entity) {
+  if (!entity) return false;
+  try { return entity.isValid !== false; } catch { return false; }
+}
+
+function setGroundArmOwner(arm, owner) {
+  if (!arm?.id) return;
+  if (entityReferenceIsValid(owner)) {
+    groundArmOwners.set(arm.id, owner);
+  } else {
+    groundArmOwners.delete(arm.id);
+  }
+}
+
+function getGroundArmOwner(arm) {
+  const owner = groundArmOwners.get(arm?.id);
+  if (!entityReferenceIsValid(owner)) {
+    if (arm?.id) groundArmOwners.delete(arm.id);
+    return null;
+  }
+  return owner;
+}
+
+function spawnIntegrityGroundArm(owner, targetBlock) {
+  if (!entityReferenceIsValid(owner) || !targetBlock) return undefined;
+  const arm = spawnAt(owner.dimension, "thebrokenscript:integrity_arm", {
+    x: targetBlock.x + 0.5,
+    y: targetBlock.y,
+    z: targetBlock.z + 0.5,
+  });
+  if (arm) {
+    setGroundArmOwner(arm, owner);
+    setNum(arm, "groundArmTimer", 0);
+  }
+  return arm;
+}
+
 function entityScale(e) {
   const propertyScale = callEntityMethod(e, "getProperty", "thebrokenscript:scale");
-  if (typeof propertyScale === "number" && propertyScale > 0) return propertyScale;
+  if (typeof propertyScale === "number" && propertyScale > 0) {
+    if (getNum(e, "scaleVisualApplied", false) !== true) {
+      setEntityScale(e, propertyScale);
+    }
+    return propertyScale;
+  }
   const timerScale = getNum(e, "scale", undefined);
   if (timerScale === undefined) {
     const roll = Math.floor(Math.random() * (
       VOID_TENTACLE_SOURCE.scaleMaxInclusive - VOID_TENTACLE_SOURCE.scaleMinInclusive + 1
     ));
     const sourceScale = voidTentacleScaleFromRoll(roll);
-    setNum(e, "scale", sourceScale);
-    return sourceScale;
+    return setEntityScale(e, sourceScale);
+  }
+  if (getNum(e, "scaleVisualApplied", false) !== true) {
+    setEntityScale(e, timerScale);
   }
   return Number.isFinite(timerScale) && timerScale > 0 ? timerScale : 1;
+}
+
+function setEntityScale(e, scale) {
+  const normalized = Math.max(
+    VOID_TENTACLE_SOURCE.scaleMinInclusive,
+    Math.min(VOID_TENTACLE_SOURCE.scaleMaxInclusive, Math.floor(scale)),
+  );
+  callEntityMethod(e, "setProperty", "thebrokenscript:scale", normalized);
+  callEntityMethod(e, "triggerEvent", `thebrokenscript:scale_${normalized}`);
+  setNum(e, "scale", normalized);
+  setNum(e, "scaleVisualApplied", true);
+  return normalized;
 }
 
 function isLivingEntity(e) {
@@ -171,19 +256,37 @@ function entityIsOnGround(e) {
 }
 
 function isEntityStuck(e) {
+  if (getNum(e, "stuck", false) === true) return true;
   if (callEntityMethod(e, "hasTag", "thebrokenscript.stuck") === true) return true;
   return callEntityMethod(e, "getProperty", "thebrokenscript:stuck") === true;
 }
 
 function setEntityStuck(e, stuck) {
+  setNum(e, "stuck", stuck === true);
   if (stuck) {
     callEntityMethod(e, "addTag", "thebrokenscript.stuck");
     callEntityMethod(e, "setProperty", "thebrokenscript:stuck", true);
+    if (e?.typeId === "thebrokenscript:integrity_arm") {
+      const owner = getGroundArmOwner(e);
+      if (owner) {
+        setNum(owner, "stuck", true);
+        callEntityMethod(owner, "addTag", "thebrokenscript.stuck");
+        callEntityMethod(owner, "setProperty", "thebrokenscript:stuck", true);
+      }
+    }
     runLater(() => setEntityStuck(e, false), VOID_TENTACLE_SOURCE.stuckDurationTicks);
     return;
   }
   callEntityMethod(e, "removeTag", "thebrokenscript.stuck");
   callEntityMethod(e, "setProperty", "thebrokenscript:stuck", false);
+  if (e?.typeId === "thebrokenscript:integrity_arm") {
+    const owner = getGroundArmOwner(e);
+    if (owner) {
+      setNum(owner, "stuck", false);
+      callEntityMethod(owner, "removeTag", "thebrokenscript.stuck");
+      callEntityMethod(owner, "setProperty", "thebrokenscript:stuck", false);
+    }
+  }
 }
 
 function playEntityAnimation(e, animationId) {
@@ -240,14 +343,11 @@ function tickEntity(e) {
     case "thebrokenscript:integrity_arm": return tickArm(e);
     case "thebrokenscript:integrity_curious": return tickCuriousWatcher(e);
     case "thebrokenscript:integ_fireball": return tickFireball(e);
-    case "thebrokenscript:fractured": return tickFractured(e);
     case "thebrokenscript:fractured_roam": return tickFracturedRoam(e);
-    case "thebrokenscript:rock": return tickRock(e);
     case "thebrokenscript:murderfur": return tickMurderfur(e);
     case "thebrokenscript:fever": return tickFever(e);
     case "thebrokenscript:fever_stalk": return tickFeverStalk(e);
     case "thebrokenscript:chord": return tickChord(e);
-    case "thebrokenscript:chord_projectile": return tickChordProjectile(e);
     case "thebrokenscript:tether": return tickTether(e);
     case "thebrokenscript:void_tentacle": return tickVoidTentacle(e);
   }
@@ -279,6 +379,10 @@ function tickIntegrityP3(e) {
       phase3TentaclesSpawned: false,
       pendingKills: {},
       tentacleIds: [],
+      groundAttackCooldown: 0,
+      groundAttackTimer: null,
+      groundAttackTargetId: null,
+      groundAttackTargetBlockPosition: null,
     };
     timers.set(e.id, phase3State);
     bossHooks.setArenaState(true, false);
@@ -307,6 +411,82 @@ function tickIntegrityP3(e) {
     const target = players.find((player) => player.id === id);
     if (target) applyPhase3VoidMass(target.entity, e);
   }
+
+  // GroundAttack is the first Phase 3 attack wired into the controller. The
+  // remaining Phase3Goals attack selector and its other attack classes remain
+  // a separate porting slice.
+  tickIntegrityGroundAttack(e, phase3State);
+}
+
+function integrityGroundAttackTarget(e, targetId = null) {
+  let players = [];
+  try { players = world.getAllPlayers(); } catch { return null; }
+  const activeTarget = targetId !== null && targetId !== undefined;
+  const candidates = players.filter((player) => {
+    try {
+      if (player.dimension.id !== e.dimension.id || !isLivingEntity(player)) return false;
+      if (activeTarget) return player.id === targetId;
+      return groundAttackCanUse({ distance: distance(e.location, player.location) });
+    } catch {
+      return false;
+    }
+  });
+  candidates.sort((a, b) => distance(e.location, a.location) - distance(e.location, b.location));
+  return candidates[0] ?? null;
+}
+
+function blockPositionOf(entity) {
+  return {
+    x: Math.floor(entity.location.x),
+    y: Math.floor(entity.location.y),
+    z: Math.floor(entity.location.z),
+  };
+}
+
+function finishIntegrityGroundAttack(state) {
+  state.groundAttackCooldown = GROUND_ATTACK_SOURCE.attackCooldownTicks;
+  state.groundAttackTimer = null;
+  state.groundAttackTargetId = null;
+  state.groundAttackTargetBlockPosition = null;
+}
+
+function tickIntegrityGroundAttack(e, state) {
+  if (!Number.isInteger(state.groundAttackCooldown)) state.groundAttackCooldown = 0;
+  if (state.groundAttackTimer === undefined) state.groundAttackTimer = null;
+  if (state.groundAttackTargetId === undefined) state.groundAttackTargetId = null;
+  if (state.groundAttackTargetBlockPosition === undefined) {
+    state.groundAttackTargetBlockPosition = null;
+  }
+
+  if (state.groundAttackTimer === null) {
+    if (state.groundAttackCooldown > 0) {
+      state.groundAttackCooldown -= 1;
+      return;
+    }
+    const target = integrityGroundAttackTarget(e);
+    if (!target) return;
+    state.groundAttackTimer = 0;
+    state.groundAttackTargetId = target.id;
+  }
+
+  const target = integrityGroundAttackTarget(e, state.groundAttackTargetId);
+  const step = groundAttackStep({
+    timer: state.groundAttackTimer,
+    targetBlockPosition: state.groundAttackTargetBlockPosition,
+    targetBlock: target ? blockPositionOf(target) : null,
+    hasTarget: target !== null,
+    stuck: isEntityStuck(e),
+  });
+  state.groundAttackTimer = step.timer;
+  state.groundAttackTargetBlockPosition = step.targetBlockPosition;
+  if (target) {
+    try { e.lookAt?.(target.location); } catch {}
+  }
+
+  if (step.spawnArm) {
+    spawnIntegrityGroundArm(e, step.targetBlockPosition);
+  }
+  if (step.timer >= step.lengthTicks) finishIntegrityGroundAttack(state);
 }
 
 function spawnAt(dim, typeId, loc) {
@@ -332,15 +512,11 @@ function phase3BoundaryPlayers(e) {
 
 function applyPhase3VoidMass(player, integrity) {
   try {
-    player.applyDamage(1_000_000, {
-      // Bedrock has no custom void_mass damage type; void is its closest
-      // built-in cause and preserves the source's terminal-damage intent.
+    applyDamageWithSource(player, 1_000_000, "thebrokenscript:void_mass", {
       cause: EntityDamageCause.void,
       damagingEntity: integrity,
     });
-    return;
   } catch {}
-  try { player.applyDamage(1_000_000); } catch {}
 }
 
 function phase3SurfaceAirY(dim, x, z) {
@@ -391,17 +567,57 @@ function spawnPhase3Tentacles(e, state) {
       z: preset.z + 0.5,
     });
     if (!tentacle) continue;
-    setNum(tentacle, "scale", 2);
+    setEntityScale(tentacle, 2);
     trackPhase3Tentacle(state, tentacle);
   }
 }
 
 // ── Arm / curious / fireball ────────────────────────────────────────────────
+function hasNearbyVoidTentacle(e) {
+  return nearbyTentacleEntities(e, GROUND_ARM_SOURCE.tentacleSearchRadius)
+    .some((target) => target.typeId === "thebrokenscript:void_tentacle");
+}
+
+function groundArmImpactPlayers(e) {
+  return nearbyTentacleEntities(e, GROUND_ARM_SOURCE.impactRadius)
+    .filter((target) => target.typeId === "minecraft:player" && isLivingEntity(target))
+    .map((player) => ({
+      id: player.id,
+      entity: player,
+      dx: player.location.x - e.location.x,
+      dz: player.location.z - e.location.z,
+    }));
+}
+
+function applyGroundArmImpact(e, owner) {
+  if (!owner) return;
+  const candidates = groundArmImpactPlayers(e);
+  // Bedrock's current entity query has no Java-style bounding-box intersection
+  // predicate. The source query's five-block inflate is retained; the radius
+  // result is the documented contact approximation for this adapter.
+  const impacts = groundArmImpactPlan({ intersectingPlayers: candidates });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    applyEntityAttack(owner, candidate.entity, impact.damage);
+    callEntityMethod(candidate.entity, "applyImpulse", impact.knockback);
+  }
+}
+
 function tickArm(e) {
-  let life = getNum(e, "life", 200);
-  life--; setNum(e, "life", life);
-  meleePulse(e, 50, 4, 30);
-  if (life <= 0 || getHealth(e) <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
+  const owner = getGroundArmOwner(e);
+  const step = groundArmLifecycleStep({
+    timer: getNum(e, "groundArmTimer", 0),
+    ownerPresent: owner !== null,
+    hasTentacleNearby: owner !== null && hasNearbyVoidTentacle(e),
+  });
+  setNum(e, "groundArmTimer", step.timer);
+  if (step.discard) {
+    try { e.remove(); } catch {}
+    deleteTimers(e);
+    return;
+  }
+  if (step.impact) applyGroundArmImpact(e, owner);
 }
 
 function tickCuriousWatcher(e) {
@@ -430,7 +646,11 @@ function tickFireball(e) {
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     if (distance(p.location, e.location) < 2.5) {
-      try { p.applyDamage(12, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(12); } catch {} }
+      applyDamageWithSource(p, 12, "thebrokenscript:integrity_ball", {
+        cause: EntityDamageCause.projectile,
+        damagingEntity: e,
+        damagingProjectile: e,
+      });
       try { e.remove(); } catch {} deleteTimers(e);
       return;
     }
@@ -441,46 +661,15 @@ function tickFireball(e) {
 }
 
 // ── Fractured (Jimmy) ────────────────────────────────────────────────────────
-function tickFractured(e) {
-  const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
-  if (!target) return;
-  try { e.lookAt?.(target.location); } catch {}
-  if (distance(e.location, target.location) > 6 && system.currentTick % 5 === 0) {
-    approach(e, target, 0.75); // mov 1.5 ≈ 0.075 b/t
-  }
-  meleePulse(e, 12, 7);
-  // rock toss every ~10s: ranged 6 dmg + brief rock entity
-  const toss = getNum(e, "toss", 200) - 1;
-  setNum(e, "toss", toss);
-  if (toss <= 0) {
-    setNum(e, "toss", 200);
-    if (distance(e.location, target.location) < 40) {
-      try { target.applyDamage(6, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(6); } catch {} }
-      const rock = spawnAt(e.dimension, "thebrokenscript:rock", { x: target.location.x, y: target.location.y + 1, z: target.location.z });
-      if (rock) setNum(rock, "life", 60);
-    }
-  }
-}
-
+// The dedicated fractured runtime performs the source-specific work after this
+// family scan reaches the harmless compatibility dispatch below.
 function tickFracturedRoam(e) {
-  // gentle wander: random drift every second
-  if (system.currentTick % 20 === 0) {
-    const ang = Math.random() * Math.PI * 2;
-    try { e.teleport({ x: e.location.x + Math.cos(ang), y: e.location.y, z: e.location.z + Math.sin(ang) }); } catch {}
-  }
-  // damaged below half → become hostile Jimmy
-  if (getHealth(e) < maxHealth(e) * 0.5) {
-    const loc = { ...e.location };
-    try { e.remove(); } catch {} deleteTimers(e);
-    spawnAt(e.dimension, "thebrokenscript:fractured", loc);
-  }
+  // The dedicated runtime owns the source timers, underground goal, despawn,
+  // and JimArena handoff. Keep the generic family dispatch harmless so this
+  // controller cannot apply a second, fabricated promotion or drift tick.
+  return e;
 }
 
-function tickRock(e) {
-  const life = getNum(e, "life", 100) - 1;
-  setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
-}
 
 // ── Murderfur (Kerfur pet) ───────────────────────────────────────────────────
 function tickMurderfur(e) {
@@ -503,7 +692,7 @@ function tickFever(e) {
     approach(e, target, 0.2);
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.05, z: e.location.z }); } catch {}
   }
-  meleePulse(e, 10, 5);
+  meleePulse(e, 10, 5, 20, "thebrokenscript:fever_attack");
   if (system.currentTick % 100 === 0) {
     try { target.addEffect("blindness", 60, { amplifier: 0, showParticles: false }); } catch {}
   }
@@ -530,43 +719,24 @@ function tickChord(e) {
     approach(e, target, 0.15);
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.03, z: e.location.z }); } catch {}
   }
-  meleePulse(e, 4, 3, 15);
+  meleePulse(e, 4, 3, 15, "thebrokenscript:chord_lazer");
   // fire chord projectile occasionally
   if (system.currentTick % 160 === 0) {
-    const pr = spawnAt(e.dimension, "thebrokenscript:chord_projectile", { x: e.location.x, y: e.location.y + 0.5, z: e.location.z });
+    const origin = { x: e.location.x, y: e.location.y, z: e.location.z };
+    const pr = spawnAt(e.dimension, "thebrokenscript:chord_projectile", origin);
     if (pr) {
-      setNum(pr, "dirX", target.location.x - e.location.x);
-      setNum(pr, "dirY", (target.location.y + 1) - e.location.y);
-      setNum(pr, "dirZ", target.location.z - e.location.z);
+      registerChordProjectileLaunch(
+        pr,
+        {
+          x: target.location.x - e.location.x,
+          y: target.location.y - e.location.y,
+          z: target.location.z - e.location.z,
+        },
+        e,
+        origin,
+      );
     }
   }
-}
-
-function tickChordProjectile(e) {
-  const dx = getNum(e, "dirX", 0);
-  const dy = getNum(e, "dirY", 0);
-  const dz = getNum(e, "dirZ", 0);
-  const len = Math.hypot(dx, dy, dz);
-  if (len > 0) {
-    try {
-      e.teleport({
-        x: e.location.x + (dx / len) * 0.9,
-        y: e.location.y + (dy / len) * 0.9,
-        z: e.location.z + (dz / len) * 0.9
-      });
-    } catch {}
-  }
-  for (const p of world.getAllPlayers()) {
-    if (p.dimension.id !== e.dimension.id) continue;
-    if (distance(p.location, e.location) < 2) {
-      try { p.applyDamage(6, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(6); } catch {} }
-      try { e.remove(); } catch {} deleteTimers(e);
-      return;
-    }
-  }
-  const life = getNum(e, "life", 160) - 1;
-  setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
 }
 
 // ── Tether / VoidTentacle ───────────────────────────────────────────────────
@@ -679,8 +849,9 @@ function tickVoidTentacle(e) {
     return;
   }
 
-  // The Java spawn hook rolls SCALE 1..5. Prefer a future exposed Bedrock
-  // property, otherwise persist the same source roll in the controller timer.
+  // The Java spawn hook rolls SCALE 1..5. The Bedrock definition persists the
+  // equivalent property and routes it through minecraft:scale component groups
+  // so the same value drives both behavior ranges and visual size.
   const scale = entityScale(e);
   const plan = voidTentacleAttackPlan({
     scale,

@@ -7,11 +7,17 @@
       "is_summonable": true,
       "is_experimental": false
     },
-    "component_groups": {},
+    "component_groups": {
+      "thebrokenscript:chord_projectile_gravity": {
+        "minecraft:physics": {
+          "has_gravity": true
+        }
+      }
+    },
     "components": {
       "minecraft:type_family": {
         "family": [
-          "thebrokenscript_boss",
+          "thebrokenscript_chord_projectile_runtime",
           "monster",
           "mob"
         ]
@@ -34,11 +40,12 @@
         "width": 0.5,
         "height": 1.15
       },
-      "minecraft:physics": {},
+      "minecraft:physics": {
+        "has_gravity": false
+      },
       "minecraft:push_through": {
         "value": 1
       },
-      "minecraft:persistent": {},
       "minecraft:experience_reward": {
         "on_death": "query.last_hit_by_player ? 0 : 0"
       },
@@ -50,6 +57,14 @@
         "value": 1.0
       }
     },
-    "events": {}
+    "events": {
+      "thebrokenscript:chord_projectile_restore_gravity": {
+        "add": {
+          "component_groups": [
+            "thebrokenscript:chord_projectile_gravity"
+          ]
+        }
+      }
+    }
   }
 }

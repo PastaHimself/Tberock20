@@ -100,3 +100,16 @@ blocks ── portals/dimensions ── worldgen ── integration ── audit
 | 21 | Integrity Phase 3 runtime semantics: tentacle ring, boundary countdown, and cutscene timing model |
 
 Subchunk splits remain allowed (Chunk NNx) without changing this table's contract.
+
+## Chunk 22 mapping update
+
+- `VoidTentacleEntity.Attributes.SCALE` → `description.properties.thebrokenscript:scale` with `client_sync: true`.
+- Scale-dependent rendering → five `minecraft:scale` component groups selected by namespaced entity events.
+- Phase 3 fixed scale presets → controller calls the same property/event bridge with value 2.
+
+## Chunk 23 mapping update
+
+- `GroundAttack` target/range/timing → Phase 3 controller state plus pure model functions: inclusive 40–80 selection, target-block capture at tick 33, arm creation at tick 40, and 70-tick post-attack cooldown.
+- `IntegrityP3GroundArmEntity` ownership → guarded in-memory `arm.id → Integrity Phase 3 entity` references; owner absence discards the arm.
+- GroundArm impact/lifecycle → tick-5 source damage and knockback plan, owner-stuck propagation, and tick `>40` / `>180` tentacle-proximity discard thresholds.
+- Java `AABB.intersects` → Bedrock five-block `Dimension.getEntities` contact approximation; exact synchronized integer owner IDs and the complete Phase3Goals selector remain deferred.
