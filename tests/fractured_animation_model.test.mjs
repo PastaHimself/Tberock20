@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   FRACTURED_ANIMATION_SOURCE,
+  FRACTURED_CONTACT_PARTICLE_PRESENTATION,
   FRACTURED_PRESENTATION_ANIMATIONS,
   FRACTURED_RENDERED_CONTACT_SOURCE,
   fracturedAnimationEventPlan,
@@ -59,10 +60,33 @@ test("rendered contact events retain the Java tracked bone contract", () => {
   assert.deepEqual(FRACTURED_RENDERED_CONTACT_SOURCE, {
     trackedBones: ["ROCK", "right_l_claw", "left_l_claw", "right_f_tarsus"],
     events: {
-      SingleStomp: { bones: ["right_f_tarsus"], spatialAdapter: "source_stomp_offset" },
-      Slam: { bones: ["right_l_claw", "left_l_claw"], spatialAdapter: "bone_world_position" },
-      OffenseRockThrow: { bones: ["ROCK"], spatialAdapter: "bone_world_position" },
-      DefensiveRockRelease: { bones: ["ROCK"], spatialAdapter: "bone_world_position" },
+      SingleStomp: {
+        bones: ["right_f_tarsus"],
+        locators: ["right_f_tarsus_contact"],
+        spatialAdapter: "source_stomp_offset",
+      },
+      Slam: {
+        bones: ["right_l_claw", "left_l_claw"],
+        locators: ["right_l_claw_contact", "left_l_claw_contact"],
+        spatialAdapter: "bone_world_position",
+      },
+      OffenseRockThrow: { bones: ["ROCK"], locators: ["rock_contact"], spatialAdapter: "bone_world_position" },
+      DefensiveRockRelease: { bones: ["ROCK"], locators: ["rock_contact"], spatialAdapter: "bone_world_position" },
+    },
+  });
+});
+
+test("rendered contact presentation binds source events to animated bone locators", () => {
+  assert.deepEqual(FRACTURED_CONTACT_PARTICLE_PRESENTATION, {
+    effect: "jimmy_contact_burst",
+    events: {
+      SingleStomp: [{ effect: "jimmy_contact_burst", locator: "right_f_tarsus_contact" }],
+      Slam: [
+        { effect: "jimmy_contact_burst", locator: "right_l_claw_contact" },
+        { effect: "jimmy_contact_burst", locator: "left_l_claw_contact" },
+      ],
+      OffenseRockThrow: [{ effect: "jimmy_contact_burst", locator: "rock_contact" }],
+      DefensiveRockRelease: [{ effect: "jimmy_contact_burst", locator: "rock_contact" }],
     },
   });
 });

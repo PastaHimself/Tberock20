@@ -76,10 +76,48 @@ export const FRACTURED_PRESENTATION_ANIMATIONS = Object.freeze({
 export const FRACTURED_RENDERED_CONTACT_SOURCE = Object.freeze({
   trackedBones: Object.freeze(["ROCK", "right_l_claw", "left_l_claw", "right_f_tarsus"]),
   events: Object.freeze({
-    SingleStomp: Object.freeze({ bones: Object.freeze(["right_f_tarsus"]), spatialAdapter: "source_stomp_offset" }),
-    Slam: Object.freeze({ bones: Object.freeze(["right_l_claw", "left_l_claw"]), spatialAdapter: "bone_world_position" }),
-    OffenseRockThrow: Object.freeze({ bones: Object.freeze(["ROCK"]), spatialAdapter: "bone_world_position" }),
-    DefensiveRockRelease: Object.freeze({ bones: Object.freeze(["ROCK"]), spatialAdapter: "bone_world_position" }),
+    SingleStomp: Object.freeze({
+      bones: Object.freeze(["right_f_tarsus"]),
+      locators: Object.freeze(["right_f_tarsus_contact"]),
+      spatialAdapter: "source_stomp_offset",
+    }),
+    Slam: Object.freeze({
+      bones: Object.freeze(["right_l_claw", "left_l_claw"]),
+      locators: Object.freeze(["right_l_claw_contact", "left_l_claw_contact"]),
+      spatialAdapter: "bone_world_position",
+    }),
+    OffenseRockThrow: Object.freeze({
+      bones: Object.freeze(["ROCK"]),
+      locators: Object.freeze(["rock_contact"]),
+      spatialAdapter: "bone_world_position",
+    }),
+    DefensiveRockRelease: Object.freeze({
+      bones: Object.freeze(["ROCK"]),
+      locators: Object.freeze(["rock_contact"]),
+      spatialAdapter: "bone_world_position",
+    }),
+  }),
+});
+
+// Resource-pack particle events are the exact visual-contact bridge. Their
+// emitters follow these geometry locators as the animation moves each bone;
+// gameplay damage still uses the separately documented server spatial adapter.
+export const FRACTURED_CONTACT_PARTICLE_PRESENTATION = Object.freeze({
+  effect: "jimmy_contact_burst",
+  events: Object.freeze({
+    SingleStomp: Object.freeze([
+      Object.freeze({ effect: "jimmy_contact_burst", locator: "right_f_tarsus_contact" }),
+    ]),
+    Slam: Object.freeze([
+      Object.freeze({ effect: "jimmy_contact_burst", locator: "right_l_claw_contact" }),
+      Object.freeze({ effect: "jimmy_contact_burst", locator: "left_l_claw_contact" }),
+    ]),
+    OffenseRockThrow: Object.freeze([
+      Object.freeze({ effect: "jimmy_contact_burst", locator: "rock_contact" }),
+    ]),
+    DefensiveRockRelease: Object.freeze([
+      Object.freeze({ effect: "jimmy_contact_burst", locator: "rock_contact" }),
+    ]),
   }),
 });
 

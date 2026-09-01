@@ -14,6 +14,9 @@
       "identifier": "thebrokenscript:fractured_roam",
       "textures": {
         "default": "textures/entities/fractured_no_rock"
+      },
+      "particle_effects": {
+        "jimmy_contact_burst": "thebrokenscript:jimmy_contact_burst"
       }
     }
   }

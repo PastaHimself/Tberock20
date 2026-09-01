@@ -17,11 +17,11 @@ Port the recovered Fractured/Jimmy animation timing and controller presentation 
 2. Convert animation instruction seconds to deterministic 20 Hz runtime ticks, retaining the explicit source stomp server tick.
 3. Start the matching Bedrock entity animation through `Entity.playAnimation` for attack and defeat presentation.
 4. Map FracturedRoam lifecycle states to Spawn/Idle/Walk/Flee/Underground/Loss and avoid replaying an unchanged clip every tick.
-5. Keep the Java tracked-bone contract in a pure model and identify the unavailable world-position query as an adapter.
+5. Add geometry locators and timeline particle events for the Java tracked-bone contact contract; identify the unavailable server world-position query as a separate adapter.
 
 ## Explicit limitation
 
-Bedrock does not expose GeckoLib's server-side rendered-bone transforms. Exact animated limb/rock world origins remain a follow-up engine adapter; gameplay event timing and animation presentation are still source-backed.
+Bedrock does not expose GeckoLib's server-side rendered-bone transforms. Locator-bound client particles provide visual contact at the animated bone, but exact server-side limb/rock world origins remain a follow-up gameplay adapter.
 
 ## Acceptance checks
 

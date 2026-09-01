@@ -13,7 +13,7 @@ Last updated: 2026-09-01 (Chunk 35 — Fractured animation timeline and presenta
 ## Current chunk
 **Chunk 35 complete — Fractured animation timeline and presentation bridge**
 
-Chunk 35 ports the recovered Fractured/Jimmy animation timeline into a pure model and drives the existing Bedrock animation resources through `Entity.playAnimation`. Stomp, Slam, MoonRockToss, and DefenseAirLift now use source-backed event ticks, while FracturedRoam maps RISING/NORMAL/DIGGING/UNDERGROUND/SWITCHING/DEFEATED to the source Spawn/Idle/Walk/Flee/Underground/Loss presentation clips. Exact server-side render-bone world positions remain an explicit adapter because the Script API does not expose GeckoLib bone transforms.
+Chunk 35 ports the recovered Fractured/Jimmy animation timeline into a pure model and drives the existing Bedrock animation resources through `Entity.playAnimation`. Stomp, Slam, MoonRockToss, and DefenseAirLift now use source-backed event ticks and locator-bound contact particles, while FracturedRoam maps RISING/NORMAL/DIGGING/UNDERGROUND/SWITCHING/DEFEATED to the source Spawn/Idle/Walk/Flee/Underground/Loss presentation clips. Exact server-side render-bone world positions remain an explicit gameplay adapter because the Script API does not expose GeckoLib bone transforms.
 
 ## Chunk state
 | Chunk | State |
@@ -58,7 +58,7 @@ Chunk 35 ports the recovered Fractured/Jimmy animation timeline into a pure mode
 | 32 Chord inherited arrow damage | **completed** (vanilla 1.21.1 AbstractArrow difficulty-weighted triangle formula, stable Bedrock difficulty mapping, runtime adapter, and regressions) |
 | 33 Rock block-impact particle burst | **completed** (400 moon-stone particle emitter, exact source offset/count/velocity plan, one-tick cleanup, and regressions) |
 | 34 Custom damage-source catalog and attribution | **completed** (15 source definitions and registry flags, native cause/entity/projectile adapter, same-tick source ledger, runtime routing, and regressions) |
-| 35 Fractured animation timeline and presentation bridge | **completed** (source keyframe names/seconds, deterministic 20 Hz event ticks, direct attack animation playback, Roam state presentation mapping, tracked-bone contract, and regressions) |
+| 35 Fractured animation timeline and presentation bridge | **completed** (source keyframe names/seconds, deterministic 20 Hz event ticks, direct attack animation playback, locator-bound contact presentation, Roam state mapping, tracked-bone contract, and regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -81,7 +81,7 @@ BP/scripts/systems/fractured_attack_model.js · BP/scripts/entities/boss/fractur
 BP/scripts/systems/damage_source_model.js · BP/scripts/systems/damage_source_runtime.js · BP/scripts/entities/boss/{boss_controller,phase3_runtime,fractured_runtime}.js · tests/damage_source_{model,runtime}.test.mjs · docs/chunks/CHUNK_34_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 35)
-BP/scripts/systems/fractured_animation_model.js · BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_animation_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_35_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
+BP/scripts/systems/fractured_animation_model.js · BP/scripts/entities/boss/fractured_runtime.js · RP/models/entity/fractured.geo.json · RP/entity/{fractured,fractured_roam}.entity.json · RP/animations/fractured.animation.json · RP/particles/jimmy_contact_burst.particle.json · tests/fractured_animation_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_35_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -179,7 +179,7 @@ Chunk 33 focused local validation: 13 Jimmy model/runtime regressions PASS; chan
 
 Chunk 34 focused local validation: 53/53 deterministic Node regressions PASS; custom damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS. Microsoft Learn and BedrockWiki references confirm native cause/entity/projectile attribution and no custom damage-type registry path. Bedrock world/runtime smoke test unavailable locally.
 
-Chunk 35 focused local validation: 18/18 deterministic Node regressions PASS for the animation, attack, and dedicated Fractured runtime slice; changed animation model/runtime JavaScript `node --check` PASS; source event-tick, presentation-state, tracked-bone, and runtime bridge assertions PASS. Bedrock world/runtime smoke test unavailable locally.
+Chunk 35 focused local validation: 19/19 deterministic Node regressions PASS for the animation, attack, and dedicated Fractured runtime slice; changed animation model/runtime JavaScript `node --check` PASS; source event-tick, presentation-state, tracked-bone, locator-bound particle, and runtime bridge assertions PASS. Bedrock animation/entity/particle JSON parse and locator/timeline assertions PASS. Bedrock world/runtime smoke test unavailable locally.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
