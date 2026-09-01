@@ -24,6 +24,11 @@ import {
   shouldApplyMultipartArrowEffects,
 } from "../../systems/fractured_multipart_model.js";
 import {
+  fracturedAnimationEventPlan,
+  fracturedAnimationId,
+  fracturedPresentationAnimationId,
+} from "../../systems/fractured_animation_model.js";
+import {
   FRACTURED_ROAM_SOURCE,
   fracturedRoamArenaPlan,
   fracturedRoamBaseTick,
@@ -50,18 +55,6 @@ const DEFEATED_TAG = "thebrokenscript.fractured_defeated";
 const ROAM_SWITCH_TAG = "thebrokenscript.fractured_roam_switching";
 const ROAM_NO_AI_TAG = "thebrokenscript.fractured_roam_no_ai";
 const ATTACK_TAG_PREFIX = "thebrokenscript.fractured_attack.";
-
-// The Java attack effects are emitted by GeckoLib keyframes. The decompiled
-// source exposes the instruction names but not their animation timestamps, and
-// Bedrock's current renderer does not expose the Java model bones to script.
-// Keep these fallback timings isolated so a future animation bridge can replace
-// them without changing the source-backed model.
-const KEYFRAME_ADAPTER_TICKS = Object.freeze({
-  slam: 1,
-  bigStomp: 1,
-  moonRockToss: 1,
-  airLift: 1,
-});
 
 // BaseFracturedEntity's RoamMoveControl uses the Java movement attribute. This
 // is the existing Bedrock movement conversion, not a source combat constant.
@@ -300,10 +293,19 @@ function getFracturedRoamLifecycleState(entity) {
     airborneTicks: 0,
     stuckTicks: 0,
     lastPosition: copyPosition(entity.location),
+    presentationAnimation: null,
   };
   roamLifecycleStates.set(entity.id, state);
   callEntity(entity, "addTag", ROAM_NO_AI_TAG);
+  playFracturedPresentation(entity, state, false);
   return state;
+}
+
+function playFracturedPresentation(entity, state, moving) {
+  const animationId = fracturedPresentationAnimationId(state.state, moving);
+  if (state.presentationAnimation === animationId) return;
+  state.presentationAnimation = animationId;
+  callEntity(entity, "playAnimation", animationId);
 }
 
 function randomRoamTarget(entity) {
@@ -346,7 +348,10 @@ function tickFracturedRoamMovement(entity, state) {
   if (!state.aiEnabled || state.state === "SWITCHING" || state.state === "DESPAWNING") return;
 
   if (state.state === "NORMAL") {
-    if (!hasGroundSupport(entity)) return;
+    if (!hasGroundSupport(entity)) {
+      playFracturedPresentation(entity, state, false);
+      return;
+    }
     if (!state.wanderTarget && fracturedRoamStrollDue(system.currentTick)) {
       const target = randomRoamTarget(entity);
       if (fracturedRoamSupportNear({
@@ -358,7 +363,10 @@ function tickFracturedRoamMovement(entity, state) {
         state.stuckTicks = 0;
       }
     }
-    if (!state.wanderTarget) return;
+    if (!state.wanderTarget) {
+      playFracturedPresentation(entity, state, false);
+      return;
+    }
     if (!fracturedRoamSupportAhead({
       current: entity.location,
       wanted: state.wanderTarget,
@@ -366,14 +374,17 @@ function tickFracturedRoamMovement(entity, state) {
     })) {
       state.stuckTicks = 21;
       state.wanderTarget = null;
+      playFracturedPresentation(entity, state, false);
       return;
     }
+    playFracturedPresentation(entity, state, true);
     moveRoamToward(entity, state.wanderTarget, FRACTURED_ROAM_SOURCE.randomStrollSpeedModifier);
     const dx = state.wanderTarget.x - entity.location.x;
     const dz = state.wanderTarget.z - entity.location.z;
     if (dx * dx + dz * dz <= 1) {
       state.wanderTarget = null;
       state.stuckTicks = 0;
+      playFracturedPresentation(entity, state, false);
       return;
     }
     const movedDistance = distance(entity.location, state.lastPosition);
@@ -385,6 +396,7 @@ function tickFracturedRoamMovement(entity, state) {
     if (state.stuckTicks > FRACTURED_ROAM_SOURCE.strollStuckTicks) {
       state.wanderTarget = null;
       state.stuckTicks = 0;
+      playFracturedPresentation(entity, state, false);
     }
     return;
   }
@@ -413,15 +425,23 @@ function tickFracturedRoamMovement(entity, state) {
     }
   }
   if (state.wanderTarget) {
+    playFracturedPresentation(entity, state, true);
     moveRoamToward(entity, state.wanderTarget, FRACTURED_ROAM_SOURCE.navigationSpeedModifier);
-    if (distance(entity.location, state.wanderTarget) < 0.5) state.wanderTarget = null;
+    if (distance(entity.location, state.wanderTarget) < 0.5) {
+      state.wanderTarget = null;
+      playFracturedPresentation(entity, state, false);
+    }
   }
 }
 
 function tickFracturedRoamLifecycle(entity) {
   const state = getFracturedRoamLifecycleState(entity);
+  const previousState = state.state;
   recoverFracturedRoamFromAir(entity, state);
-  if (state.state === "SWITCHING") return true;
+  if (state.state === "SWITCHING") {
+    playFracturedPresentation(entity, state, false);
+    return true;
+  }
 
   const baseStep = fracturedRoamBaseTick({
     state: state.state,
@@ -488,6 +508,8 @@ function tickFracturedRoamLifecycle(entity) {
     state.navigationCooldown = 0;
     state.wanderTarget = null;
   }
+
+  if (state.state !== previousState) playFracturedPresentation(entity, state, false);
 
   return true;
 }
@@ -652,6 +674,7 @@ function beginFracturedRoamSwitch(entity) {
     switchTicks: FRACTURED_ROAM_SOURCE.switchingTicks,
   });
   callEntity(entity, "addTag", ROAM_SWITCH_TAG);
+  playFracturedPresentation(entity, lifecycle, false);
 }
 
 function tickFracturedRoamSwitch(entity, state) {
@@ -683,10 +706,15 @@ function safeRemove(entity) {
   try { entity.remove(); } catch { try { entity.kill(); } catch {} }
 }
 
+function playFracturedAnimation(entity, attack) {
+  callEntity(entity, "playAnimation", fracturedAnimationId(attack));
+}
+
 function setAttackTag(entity, state, attack) {
   if (state.attackTag) callEntity(entity, "removeTag", state.attackTag);
   state.attackTag = attack === "noop" ? null : `${ATTACK_TAG_PREFIX}${attack}`;
   if (state.attackTag) callEntity(entity, "addTag", state.attackTag);
+  playFracturedAnimation(entity, attack);
 }
 
 function setDefeated(entity, state) {
@@ -697,9 +725,10 @@ function setDefeated(entity, state) {
   state.emitted.clear();
   setAttackTag(entity, state, "noop");
   callEntity(entity, "addTag", DEFEATED_TAG);
-  // Java switches to BaseFracturedEntity.JimmyStates.DEFEATED and lets the
-  // client loss controller run. No matching Bedrock animation controller is
-  // present, so the tag is the stable gameplay state for future presentation.
+  // Java switches to BaseFracturedEntity.JimmyStates.DEFEATED and the death
+  // controller plays Loss. Bedrock has no server-side GeckoLib controller, but
+  // its playAnimation bridge can start the same resource-pack animation.
+  playFracturedAnimation(entity, "loss");
 }
 
 function applyDamage(target, amount, damagingEntity, damagingProjectile = null, sourceId = null) {
@@ -800,11 +829,16 @@ function sameCenterClawPositions(entity) {
 }
 
 function emitAttackEffect(entity, state, attack, target) {
-  const triggerTick = attack === "stomp"
-    ? FRACTURED_SOURCE.stomp.triggerTick
-    : KEYFRAME_ADAPTER_TICKS[attack];
-  if (triggerTick === undefined || state.attackTicks !== triggerTick) return;
-  const key = `${attack}:${triggerTick}`;
+  const events = fracturedAnimationEventPlan(attack, state.attackTicks);
+  if (attack === "moonRockToss" && !events.includes("OffenseRockThrow")) return;
+  if (attack === "airLift" && !events.includes("DefensiveRockRelease")) return;
+  if (attack !== "stomp" && attack !== "slam" && attack !== "moonRockToss" && attack !== "airLift") return;
+  if (attack === "stomp" && !events.includes("SingleStomp")) return;
+  if (attack === "slam" && !events.includes("Slam")) return;
+  const eventName = events.find((name) =>
+    name === "SingleStomp" || name === "Slam" || name === "OffenseRockThrow" || name === "DefensiveRockRelease");
+  if (!eventName) return;
+  const key = `${attack}:${eventName}`;
   if (state.emitted.has(key)) return;
   state.emitted.add(key);
 
@@ -1312,7 +1346,8 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
   arenaSubAnomalyRadius: FRACTURED_ROAM_SOURCE.arenaSubAnomalyRadius,
   fracturedFamily: FRACTURED_FAMILY,
   rockFamily: ROCK_FAMILY,
-  keyframeAdapterTicks: KEYFRAME_ADAPTER_TICKS,
+  animationEventAdapter: "fractured_animation_model",
+  animationPresentationBridge: true,
   collisionSubstepBlocks: COLLISION_SUBSTEP_BLOCKS,
   movementAdapterBlocksPerTick: MOVEMENT_ADAPTER_BLOCKS_PER_TICK,
   usesSourceAttackModel: true,

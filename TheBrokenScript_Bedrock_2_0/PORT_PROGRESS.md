@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-01 (Chunk 34 — custom damage-source catalog and attribution adapter)
+Last updated: 2026-09-01 (Chunk 35 — Fractured animation timeline and presentation bridge)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-01 (Chunk 34 — custom damage-source catalog and attribut
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 34 complete — custom damage-source catalog and attribution adapter**
+**Chunk 35 complete — Fractured animation timeline and presentation bridge**
 
-Chunk 34 ports the 15 Java custom damage types into a pure source catalog and native Bedrock attribution adapter. Source ids, message metadata, effects, exhaustion/scaling, no-knockback, and registry bypass flags are preserved; recovered Jimmy, Rock, Integrity, Fever, and Chord callsites now send native cause/entity/projectile attribution while retaining the custom id in a same-tick ledger. Bedrock custom registration and exact death-message/bypass behavior remain documented engine gaps.
+Chunk 35 ports the recovered Fractured/Jimmy animation timeline into a pure model and drives the existing Bedrock animation resources through `Entity.playAnimation`. Stomp, Slam, MoonRockToss, and DefenseAirLift now use source-backed event ticks, while FracturedRoam maps RISING/NORMAL/DIGGING/UNDERGROUND/SWITCHING/DEFEATED to the source Spawn/Idle/Walk/Flee/Underground/Loss presentation clips. Exact server-side render-bone world positions remain an explicit adapter because the Script API does not expose GeckoLib bone transforms.
 
 ## Chunk state
 | Chunk | State |
@@ -58,6 +58,7 @@ Chunk 34 ports the 15 Java custom damage types into a pure source catalog and na
 | 32 Chord inherited arrow damage | **completed** (vanilla 1.21.1 AbstractArrow difficulty-weighted triangle formula, stable Bedrock difficulty mapping, runtime adapter, and regressions) |
 | 33 Rock block-impact particle burst | **completed** (400 moon-stone particle emitter, exact source offset/count/velocity plan, one-tick cleanup, and regressions) |
 | 34 Custom damage-source catalog and attribution | **completed** (15 source definitions and registry flags, native cause/entity/projectile adapter, same-tick source ledger, runtime routing, and regressions) |
+| 35 Fractured animation timeline and presentation bridge | **completed** (source keyframe names/seconds, deterministic 20 Hz event ticks, direct attack animation playback, Roam state presentation mapping, tracked-bone contract, and regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -78,6 +79,9 @@ BP/scripts/systems/fractured_attack_model.js · BP/scripts/entities/boss/fractur
 
 ## Files changed (Chunk 34)
 BP/scripts/systems/damage_source_model.js · BP/scripts/systems/damage_source_runtime.js · BP/scripts/entities/boss/{boss_controller,phase3_runtime,fractured_runtime}.js · tests/damage_source_{model,runtime}.test.mjs · docs/chunks/CHUNK_34_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 35)
+BP/scripts/systems/fractured_animation_model.js · BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_animation_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_35_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -175,6 +179,8 @@ Chunk 33 focused local validation: 13 Jimmy model/runtime regressions PASS; chan
 
 Chunk 34 focused local validation: 53/53 deterministic Node regressions PASS; custom damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS. Microsoft Learn and BedrockWiki references confirm native cause/entity/projectile attribution and no custom damage-type registry path. Bedrock world/runtime smoke test unavailable locally.
 
+Chunk 35 focused local validation: 18/18 deterministic Node regressions PASS for the animation, attack, and dedicated Fractured runtime slice; changed animation model/runtime JavaScript `node --check` PASS; source event-tick, presentation-state, tracked-bone, and runtime bridge assertions PASS. Bedrock world/runtime smoke test unavailable locally.
+
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -197,9 +203,9 @@ Chunk 34 focused local validation: 53/53 deterministic Node regressions PASS; cu
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**Next source boundary.** Remaining safe parity candidates are exact rendered bone contact and additional presentation behavior. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
 
 ## Exact source references to inspect next
-- `decompiled/net/thebrokenscript/entity/fractured/FracturedRoamEntity.java`
-- `decompiled/net/thebrokenscript/entity/fractured/JimArena.java`
+- `decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java`
+- `decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,FracturedModel,FracturedRoamEntity}.java`
 - Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.

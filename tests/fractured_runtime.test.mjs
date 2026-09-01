@@ -43,7 +43,12 @@ test("runtime exposes one scheduler owner and one collision owner", async () => 
   assert.match(runtime, /EquipmentSlot\.Chest/);
   assert.match(runtime, /EntityDamageCause\.projectile/);
   assert.match(runtime, /fracturedRockImpactPlan/);
-  assert.match(runtime, /KEYFRAME_ADAPTER_TICKS/);
+  assert.match(runtime, /fracturedAnimationEventPlan/);
+  assert.match(runtime, /fracturedAnimationId/);
+  assert.match(runtime, /fracturedPresentationAnimationId/);
+  assert.match(runtime, /playFracturedPresentation/);
+  assert.match(runtime, /playAnimation/);
+  assert.doesNotMatch(runtime, /KEYFRAME_ADAPTER_TICKS/);
   assert.doesNotMatch(runtime, /\.applyKnockback\s*\([^)]*,[^)]*,[^)]*,[^)]*\)/);
 });
 

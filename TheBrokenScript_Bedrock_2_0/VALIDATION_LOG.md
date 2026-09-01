@@ -55,6 +55,7 @@
 | 2026-09-01 | 33 | Rock block-impact burst: 13 focused Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit pending; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
 
 | 2026-09-01 | 34 | Custom damage-source adapter: 53/53 deterministic Node regressions PASS; source catalog preserves all 15 resource definitions and TBSDamageTypes registry flags; damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS; BedrockWiki/Microsoft Learn attribution references checked; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+| 2026-09-01 | 35 | Fractured animation timeline/presentation bridge: 18/18 deterministic Node regressions PASS; source attack keyframe seconds and BaseFractured presentation mappings verified; changed animation model/runtime JavaScript `node --check` PASS; tracked-bone contract and direct `playAnimation` bridge assertions PASS; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
 
 ## Pending validations (later chunks)
 
