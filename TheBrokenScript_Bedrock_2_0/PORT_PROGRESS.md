@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-01 (Chunk 35 — Fractured animation timeline and presentation bridge)
+Last updated: 2026-09-01 (Chunk 36 — source particle resources and event bridge)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,10 +11,9 @@ Last updated: 2026-09-01 (Chunk 35 — Fractured animation timeline and presenta
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 35 complete — Fractured animation timeline and presentation bridge**
+**Chunk 36 complete — Source particle resources and event bridge**
 
-Chunk 35 ports the recovered Fractured/Jimmy animation timeline into a pure model and drives the existing Bedrock animation resources through `Entity.playAnimation`. Stomp, Slam, MoonRockToss, and DefenseAirLift now use source-backed event ticks and locator-bound contact particles, while FracturedRoam maps RISING/NORMAL/DIGGING/UNDERGROUND/SWITCHING/DEFEATED to the source Spawn/Idle/Walk/Flee/Underground/Loss presentation clips. Exact server-side render-bone world positions remain an explicit gameplay adapter because the Script API does not expose GeckoLib bone transforms.
-
+Chunk 36 ports all nine declared source particle resources into the Bedrock resource pack, preserves the registered Java provider contracts in a pure model, and wires the known Null, Eyes, and Curved sendParticles callsites through named Bedrock emitters. Paper's crossed-quad renderer and the two resource-only definitions remain explicit adapters.
 ## Chunk state
 | Chunk | State |
 |---|---|
@@ -59,6 +58,7 @@ Chunk 35 ports the recovered Fractured/Jimmy animation timeline into a pure mode
 | 33 Rock block-impact particle burst | **completed** (400 moon-stone particle emitter, exact source offset/count/velocity plan, one-tick cleanup, and regressions) |
 | 34 Custom damage-source catalog and attribution | **completed** (15 source definitions and registry flags, native cause/entity/projectile adapter, same-tick source ledger, runtime routing, and regressions) |
 | 35 Fractured animation timeline and presentation bridge | **completed** (source keyframe names/seconds, deterministic 20 Hz event ticks, direct attack animation playback, locator-bound contact presentation, Roam state mapping, tracked-bone contract, and regressions) |
+| 36 Source particle resources and event bridge | **completed** (nine source definitions/resources; Null/Eyes/Curved event bridge; Paper/resource-only differences ledgered) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -82,6 +82,9 @@ BP/scripts/systems/damage_source_model.js · BP/scripts/systems/damage_source_ru
 
 ## Files changed (Chunk 35)
 BP/scripts/systems/fractured_animation_model.js · BP/scripts/entities/boss/fractured_runtime.js · RP/models/entity/fractured.geo.json · RP/entity/{fractured,fractured_roam}.entity.json · RP/animations/fractured.animation.json · RP/particles/jimmy_contact_burst.particle.json · tests/fractured_animation_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_35_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 36)
+BP/scripts/systems/{particle_model,particle_runtime}.js · RP/particles/*.particle.json (nine source identifiers) · RP/textures/particle/** (eight copied source textures) · systems/horror_events.js · entities/stalk/stalk_controller.js · tests/particle_{model,runtime}.test.mjs · docs/chunks/CHUNK_36_{SPEC,REPORT}.md · parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -202,10 +205,9 @@ Chunk 35 focused local validation: 19/19 deterministic Node regressions PASS for
 ## Experimental requirements so far
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
+## Chunk 36 — Source particle resources and event bridge
+
+Chunk 36 adds the eight previously missing source particle textures and nine Bedrock emitter definitions, with source-backed provider sizes/lifetimes/materials and known event counts/spread. Null/Eyes use named emitters in the horror event system; Curved emits its 55-particle effect once at the recovered 6200-tick despawn boundary. Focused particle regressions and local JSON parsing pass; Bedrock runtime smoke testing remains unavailable locally.
+
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
-
-## Exact source references to inspect next
-- `decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java`
-- `decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,FracturedModel,FracturedRoamEntity}.java`
-- Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.
