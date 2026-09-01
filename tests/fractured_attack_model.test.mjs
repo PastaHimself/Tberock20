@@ -8,6 +8,7 @@ import {
   fracturedAttackStep,
   fracturedDefeatStep,
   fracturedImpactPlan,
+  fracturedRockBlockBurstPlan,
   fracturedRockImpactPlan,
   fracturedRockFlightStep,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/fractured_attack_model.js";
@@ -41,6 +42,12 @@ test("Jimmy constants preserve the recovered source timings and damage values", 
       throwInaccuracy: 0,
       blockImpactCleanupTicks: 1,
       hitboxInflation: 4,
+      blockParticleBurst: {
+        effectId: "thebrokenscript:moon_stone_block_burst",
+        count: 400,
+        offset: { x: 15, y: 7.5, z: 15 },
+        initialVelocity: { x: 0, y: 2, z: 0 },
+      },
       airLiftPulseDelayTicks: 25,
       airLiftPulseRadius: 32,
       airLiftPulseDamage: 12,
@@ -131,6 +138,22 @@ test("rock throw and air-lift plans retain source damage and timing", () => {
     pulseDamage: 12,
     pulseKnockback: 10,
     groundedOnly: true,
+  });
+});
+
+test("rock block impact preserves the source moon-stone particle burst", () => {
+  assert.deepEqual(FRACTURED_SOURCE.rock.blockParticleBurst, {
+    effectId: "thebrokenscript:moon_stone_block_burst",
+    count: 400,
+    offset: { x: 15, y: 7.5, z: 15 },
+    initialVelocity: { x: 0, y: 2, z: 0 },
+  });
+  assert.deepEqual(fracturedRockBlockBurstPlan({ x: 1, y: 2, z: 3 }), {
+    effectId: "thebrokenscript:moon_stone_block_burst",
+    count: 400,
+    origin: { x: 1, y: 2, z: 3 },
+    offset: { x: 15, y: 7.5, z: 15 },
+    initialVelocity: { x: 0, y: 2, z: 0 },
   });
 });
 

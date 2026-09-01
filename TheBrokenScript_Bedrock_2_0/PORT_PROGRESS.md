@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-08-31 (Chunk 29 — Jimmy multipart hitbox/support)
+Last updated: 2026-09-01 (Chunk 33 — Rock block-impact particle burst)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-08-31 (Chunk 29 — Jimmy multipart hitbox/support)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 29 complete — Jimmy multipart hitbox/support**
+**Chunk 33 complete — Rock block-impact particle burst**
 
-Chunk 29 ports the recoverable FracturedPartEntity, FracturedSubEntity, Leg, and BaseFracturedEntity multipart contract into a pure geometry/hit model and a dedicated runtime adapter. The runtime preserves the six logical part dimensions and offsets, explicit parent-part versus leg-subentity behavior, role-specific body-yaw transforms, arrow side-effect order, the 149-tick Roam rising guard, and FracturedRoam SWITCHING promotion after the source 103-tick duration.
+Chunk 33 ports the recoverable RockEntity block-hit presentation contract into a pure burst plan, a dedicated runtime call, and a Bedrock particle emitter. The implementation preserves the source 400-particle count, moon-stone material, independent x/z ±15 and y ±7.5 offset ranges, upward initial velocity, and one-tick post-impact cleanup boundary. Chunks 30–32 are now also reflected in the branch: FracturedRoam lifecycle/movement recovery and the inherited Chord arrow damage formula are source-backed adapters.
 
 ## Chunk state
 | Chunk | State |
@@ -53,6 +53,10 @@ Chunk 29 ports the recoverable FracturedPartEntity, FracturedSubEntity, Leg, and
 | 27 Integrity Phase 3 damage/death lifecycle | **completed** (player/fireball caps, hurt-frame gate, mace parry, kill causes, center/death state, 298-tick cleanup, and restricted-event deferral) |
 | 28 Jimmy attack lifecycle | **completed** (FracturedEntity delay/selector/attack lengths, Stomp/Slam/MoonRockToss/AirLift effects, RockEntity flight/impact adapter, dedicated runtime ownership, and deterministic regressions) |
 | 29 Jimmy multipart hitbox/support | **completed** (six source-backed logical parts, body-yaw/Leg transforms, projectile part filtering, arrow side effects, FracturedRoam SWITCHING adapter, root collision envelope, and deterministic regressions) |
+| 30 FracturedRoam host lifecycle | **completed** (149-tick server timer, underground/dig/despawn boundaries, arena handoff, participant/sound schedule, and deterministic lifecycle adapters) |
+| 31 FracturedRoam movement recovery/control | **completed** (surface recovery scan, support probes, stuck cutoff, stroll range, and MoveControl turn/forward boundary) |
+| 32 Chord inherited arrow damage | **completed** (vanilla 1.21.1 AbstractArrow difficulty-weighted triangle formula, stable Bedrock difficulty mapping, runtime adapter, and regressions) |
+| 33 Rock block-impact particle burst | **completed** (400 moon-stone particle emitter, exact source offset/count/velocity plan, one-tick cleanup, and regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -64,6 +68,12 @@ BP/entities/integrity_arm.json (source non-persistent contract) · BP/scripts/sy
 
 ## Files changed (Chunk 29)
 BP/entities/{fractured,fractured_roam}.json · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_multipart_model.js · tests/fractured_multipart_{model,runtime}.test.mjs · docs/chunks/CHUNK_29_{SPEC,REPORT}.md
+
+## Files changed (Chunks 30–32)
+Chunks 30–31 updated the FracturedRoam model/runtime/controller and lifecycle regressions; Chunk 32 updated the Chord projectile model/runtime and projectile regressions.
+
+## Files changed (Chunk 33)
+BP/scripts/systems/fractured_attack_model.js · BP/scripts/entities/boss/fractured_runtime.js · BP/entities/rock.json · RP/particles/moon_stone_block_burst.particle.json · tests/fractured_attack_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_33_{SPEC,REPORT}.md
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -157,6 +167,8 @@ SOURCE_INVENTORY.json · SOURCE_MAP.json · ASSET_MAP.json · IDENTIFIER_MAP.jso
 ## Validation completed
 Chunk 29 focused local validation: 12 deterministic multipart regressions PASS; changed multipart model/runtime/controller JavaScript node --check PASS; fractured and fractured_roam collision-envelope JSON parse and source-extents assertions PASS; GitHub Actions run 33359740828 passed all code/validation gates; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally.
 
+Chunk 33 focused local validation: 13 Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit is recorded in the PR; artifact uploads were blocked by repository storage quota. Bedrock world/runtime smoke test unavailable locally.
+
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -179,9 +191,10 @@ Chunk 29 focused local validation: 12 deterministic multipart regressions PASS; 
 - **Beta APIs are required**: BP manifest depends on `@minecraft/server` `2.11.0-beta` and has minimum engine `[1, 26, 50]`. Worlds must enable the “Beta APIs” experiment. The Polaroid additionally uses stable `@minecraft/server-ui` `2.1.0`.
 
 ## Next chunk
-**Chunk 30 — FracturedRoam host lifecycle.** The next unfinished source slice is the remaining FracturedRoamEntity lifecycle: underground/dig movement, switching animation/state progression, arena start choreography, and despawn/host transitions. Chunk 29 only ports the multipart hit → SWITCHING → direct Fractured promotion adapter; it does not claim the full Java host lifecycle. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** Remaining safe parity candidates are Java custom damage-source attribution, exact rendered bone contact, and additional presentation behavior. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
 
 ## Exact source references to inspect next
 - `decompiled/net/thebrokenscript/entity/fractured/FracturedRoamEntity.java`
 - `decompiled/net/thebrokenscript/entity/fractured/JimArena.java`
 - Optional future passes: runtime device testing, verified Bedrock font-page mapping, complete Nostalgia archive review, plushie block forms + skin-fit, and NBT conversion tooling.
+

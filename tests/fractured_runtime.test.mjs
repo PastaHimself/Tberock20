@@ -7,6 +7,7 @@ const mainPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/main.js", im
 const bossControllerPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js", import.meta.url);
 const fracturedPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/entities/fractured.json", import.meta.url);
 const rockPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/entities/rock.json", import.meta.url);
+const particlePath = new URL("../TheBrokenScript_Bedrock_2_0/RP/particles/moon_stone_block_burst.particle.json", import.meta.url);
 
 test("Jimmy and Rock are owned by the dedicated runtime families", async () => {
   const fractured = JSON.parse(await readFile(fracturedPath, "utf8"));
@@ -44,4 +45,19 @@ test("runtime exposes one scheduler owner and one collision owner", async () => 
   assert.match(runtime, /fracturedRockImpactPlan/);
   assert.match(runtime, /KEYFRAME_ADAPTER_TICKS/);
   assert.doesNotMatch(runtime, /\.applyKnockback\s*\([^)]*,[^)]*,[^)]*,[^)]*\)/);
+});
+
+test("Rock block impact is wired to the source-counted custom particle emitter", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  const particle = JSON.parse(await readFile(particlePath, "utf8"));
+  assert.match(runtime, /spawnParticle\(burst\.effectId, burst\.origin\)/);
+  assert.equal(particle.particle_effect.description.identifier, "thebrokenscript:moon_stone_block_burst");
+  assert.equal(particle.particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 400);
+  assert.deepEqual(particle.particle_effect.components["minecraft:emitter_shape_point"].offset, [
+    "Math.random(-15, 15)",
+    "Math.random(-7.5, 7.5)",
+    "Math.random(-15, 15)",
+  ]);
+  assert.deepEqual(particle.particle_effect.components["minecraft:emitter_shape_point"].direction, [0, 1, 0]);
+  assert.equal(particle.particle_effect.components["minecraft:particle_initial_speed"], 2);
 });

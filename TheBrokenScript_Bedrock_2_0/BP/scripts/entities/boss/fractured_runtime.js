@@ -9,6 +9,7 @@ import {
   fracturedAttackStep,
   fracturedDefeatStep,
   fracturedImpactPlan,
+  fracturedRockBlockBurstPlan,
   fracturedRockFlightStep,
   fracturedRockImpactPlan,
 } from "../../systems/fractured_attack_model.js";
@@ -1133,9 +1134,8 @@ function finishRockBlockImpact(rock, state, position) {
   state.previousPosition = copyPosition(position);
   callEntity(rock, "clearVelocity");
   try { rock.teleport(position); } catch {}
-  // Java emits 400 moon-stone block particles before the one-tick discard.
-  // The Bedrock pack has no matching block-particle asset, so preserve the
-  // timing and sound hook without inventing a particle identifier.
+  const burst = fracturedRockBlockBurstPlan(position);
+  try { rock.dimension.spawnParticle(burst.effectId, burst.origin); } catch {}
   try { rock.dimension.playSound("dig.stone", position, { volume: 1, pitch: 1 }); } catch {}
 }
 

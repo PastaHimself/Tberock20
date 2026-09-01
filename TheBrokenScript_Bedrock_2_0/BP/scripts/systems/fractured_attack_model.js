@@ -32,12 +32,28 @@ export const FRACTURED_SOURCE = Object.freeze({
     throwInaccuracy: 0,
     blockImpactCleanupTicks: 1,
     hitboxInflation: 4,
+    blockParticleBurst: Object.freeze({
+      effectId: "thebrokenscript:moon_stone_block_burst",
+      count: 400,
+      offset: Object.freeze({ x: 15, y: 7.5, z: 15 }),
+      initialVelocity: Object.freeze({ x: 0, y: 2, z: 0 }),
+    }),
     airLiftPulseDelayTicks: 25,
     airLiftPulseRadius: 32,
     airLiftPulseDamage: 12,
     airLiftPulseKnockback: 10,
   }),
 });
+
+export function fracturedRockBlockBurstPlan(origin = { x: 0, y: 0, z: 0 }) {
+  return {
+    effectId: FRACTURED_SOURCE.rock.blockParticleBurst.effectId,
+    count: FRACTURED_SOURCE.rock.blockParticleBurst.count,
+    origin: { x: origin.x, y: origin.y, z: origin.z },
+    offset: { ...FRACTURED_SOURCE.rock.blockParticleBurst.offset },
+    initialVelocity: { ...FRACTURED_SOURCE.rock.blockParticleBurst.initialVelocity },
+  };
+}
 
 const SELECTABLE_ATTACKS = Object.freeze(["stomp", "slam", "moonRockToss", "airLift"]);
 

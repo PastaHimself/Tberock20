@@ -52,6 +52,8 @@
 | 2026-08-22 | 00 | Microsoft Learn verification of manifest/script-versioning/camera/dimensions facts (MCP) | PASS |
 | 2026-08-22 | 00 | Chunk schedule revised against discovered content (19-chunk plan) | PASS |
 
+| 2026-09-01 | 33 | Rock block-impact burst: 13 focused Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit pending; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+
 ## Pending validations (later chunks)
 
 - Minecraft runtime import tests once a Bedrock install is available.
@@ -71,3 +73,4 @@
 - Static checks: `node --check` passed for `integrity_arena_model.js` and `boss_controller.js`; `integrity_arm.json` parsed successfully.
 - Coverage: inclusive 40–80 target selection, tick-33 target-block capture, tick-40 owned-arm spawn, tick-5 impact plan (15 damage, 1.5 horizontal / 2.6 upward impulse), owner-stuck propagation, and source timer/lifecycle discard thresholds.
 - GitHub Actions validation for the published commit is pending.
+

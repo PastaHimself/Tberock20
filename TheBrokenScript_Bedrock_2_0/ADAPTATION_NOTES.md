@@ -95,20 +95,20 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 1. **Source feature**: `ChordEntity.performProjectileAttack` and `ChordProjectileEntity` movement, distance expiry, impact branches, gravity restoration, grounded offsets, and empty pickup behavior.
 2. **Source behavior**: source speed is `1.6f`, inaccuracy is `0.0f`, `initialPos` is the Chord position, and `setBaseDamageFromMob(2.0f)` is called. The projectile is transient, no-gravity in flight, discarded at 100 blocks, and queues 20-tick block-hit removal.
 3. **Source evidence**: `decompiled/net/thebrokenscript/entity/boss/ChordEntity.java`, `ChordProjectileEntity.java`, and `decompiled_brokencore/net/thebrokenscript/brokencore/api/entity/base/UwuableArrow.java`.
-4. **Bedrock limitation**: the repository does not contain `UwuableArrow#setBaseDamageFromMob`; the server API also does not expose the Java bounding-box interpolation used by `getY(1.0)` or the client renderer's grounded `Vec2` hook.
-5. **Replacement design**: a dedicated runtime owns normalized 1.6-block/tick movement, substepped block/entity collision, source branch order, gravity restoration event, 100-block expiry, and block countdown. The existing Bedrock 6 hit value remains under `CHORD_PROJECTILE_BEDROCK_ADAPTER`; exact face offsets remain in the pure model.
-6. **Player-visible difference**: launch height, entity bounding-box contact, and renderer application of grounded offsets are adapted; the missing BrokenCore formula is not guessed.
-7. **Parity class**: `VALIDATED_APPROXIMATION` with an explicit unresolved damage dependency.
+4. **Bedrock limitation**: the server API does not expose the Java bounding-box interpolation used by `getY(1.0)` or the client renderer's grounded `Vec2` hook.
+5. **Replacement design**: a dedicated runtime owns normalized 1.6-block/tick movement, substepped block/entity collision, source branch order, gravity restoration event, 100-block expiry, and block countdown. The pure model mirrors inherited vanilla `AbstractArrow#setBaseDamageFromMob(2.0f)` with the source difficulty-weighted triangular term; the runtime maps stable Bedrock `World.getDifficulty()` values to Java difficulty ids. Exact face offsets remain in the pure model.
+6. **Player-visible difference**: launch height, entity bounding-box contact, and renderer application of grounded offsets remain adapted; the inherited vanilla arrow damage calculation is now source-backed.
+7. **Parity class**: `VALIDATED_APPROXIMATION` for the gameplay/runtime slice; renderer and continuous-contact differences remain documented adapters.
 
 ## A-015 — Fractured/Jimmy attack and keyframe adapters
 
 1. **Source feature**: FracturedEntity, JimAttackSelectorGoal, the four Jimmy attacks, and RockEntity.
 2. **Source behavior**: Jimmy starts with a 100-tick attack delay, chooses among the four equal-weight attacks, emits Stomp/Slam/SingleStomp/Rock effects at source timings, and uses RockEntity's 15-damage AOE/owner exclusion/Elytra side effect.
 3. **Source evidence**: decompiled/net/thebrokenscript/entity/fractured/{FracturedEntity,JimAttackSelectorGoal,RockEntity}.java and decompiled/net/thebrokenscript/entity/fractured/attacks/*.java.
-4. **Bedrock limitation**: add-ons do not expose GeckoLib server bone transforms, the custom SUB_ANOM_2 damage source, or the source moonstone particle registration.
-5. **Replacement design**: the dedicated runtime owns the recovered state machine and impact constants. Player melee is the explicit six-hit progress adapter; keyframe instruction names are isolated behind KEYFRAME_ADAPTER_TICKS; Rock collision uses getAABB() and a substepped runtime query.
-6. **Player-visible difference**: exact attack keyframe timestamps, bone-origin positions, and the 400-particle block burst are not exact; attack timing, damage, cooldown, owner exclusion, and defeat progress are preserved.
-7. **Parity class**: VALIDATED_APPROXIMATION for the recovered gameplay slice; keyframe/bone/particle mechanisms remain engine-limited.
+4. **Bedrock limitation**: add-ons do not expose GeckoLib server bone transforms or the custom SUB_ANOM_2 damage source. A Bedrock custom particle emitter replaces Java's block-particle registration.
+5. **Replacement design**: the dedicated runtime owns the recovered state machine and impact constants. Player melee is the explicit six-hit progress adapter; keyframe instruction names are isolated behind KEYFRAME_ADAPTER_TICKS; Rock collision uses getAABB() and a substepped runtime query. Block impact invokes a custom Bedrock moon-stone emitter with the source count, offset ranges, upward velocity, and one-tick cleanup boundary.
+6. **Player-visible difference**: exact attack keyframe timestamps and bone-origin positions remain adapters; the 400-particle moon-stone burst preserves the source count/material/spatial plan, with Bedrock emitter lifetime and particle physics as the engine-specific presentation layer. Attack timing, damage, cooldown, owner exclusion, and defeat progress are preserved.
+7. **Parity class**: VALIDATED_APPROXIMATION for the recovered gameplay slice; keyframe/bone mechanisms remain engine-limited while the block-particle burst is source-backed through a Bedrock emitter.
 
 ## A-016 — Jimmy multipart hitbox and FracturedRoam switch adapter
 
@@ -117,5 +117,17 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 3. **Source evidence**: decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java; decompiled/net/thebrokenscript/entity/fractured/{FracturedPartEntity,FracturedSubEntity,Leg,FracturedRoamEntity}.java; decompiled/net/thebrokenscript/boss/fractured/JimArena.java.
 4. **Bedrock limitation**: Bedrock add-ons do not expose Java child multipart entities, parent/part identity, GeckoLib limb transforms, or the source's exact projectile sweep against moving part entities.
 5. **Replacement design**: fractured_multipart_model.js preserves the six logical part definitions, dimensions, offsets, yaw transform, AABBs, hit-plan ordering, and 103-tick state. The runtime applies a derived 105×102 root collision envelope, filters projectile centers against the six conceptual AABBs, defers setOnFire/addEffect side effects with system.run, and tags/ticks FracturedRoam until it can spawn the main Fractured entity.
-6. **Player-visible difference**: projectiles use conceptual part filtering rather than actual child entities, so continuous projectile contact and exact part identity are adapted. FracturedRoam promotion spawns the main entity directly; JimArena arena construction, camera/music choreography, and full underground/dig/despawn lifecycle remain pending.
-7. **Parity class**: VALIDATED_APPROXIMATION for the multipart gameplay contract; Java hierarchy, exact bone/render contact, and arena transport remain engine/deferred gaps.
+6. **Player-visible difference**: projectiles use conceptual part filtering rather than actual child entities, so continuous projectile contact and exact part identity are adapted. FracturedRoam promotion spawns the main entity directly; the JimArena participant/sound schedule and underground/dig/despawn lifecycle are adapted in Chunks 30–31, while bossbar, camera, and guaranteed looping-music control remain engine gaps.
+7. **Parity class**: VALIDATED_APPROXIMATION for the multipart gameplay contract; Java hierarchy, exact bone/render contact, and presentation transport remain engine/deferred gaps.
+
+
+## A-017 — Rock block-impact particle burst adapter
+
+1. **Source feature**: `RockEntity.onHitBlock`.
+2. **Source behavior**: after the superclass block-hit path, the source emits 400 `BlockParticleOption(BLOCK, MOON_STONE)` particles at independent offsets `x/z ∈ [-15, 15]`, `y ∈ [-7.5, 7.5]`, with upward velocity `(0, 2, 0)`, then queues discard one tick later.
+3. **Source evidence**: `decompiled/net/thebrokenscript/entity/fractured/RockEntity.java`.
+4. **Bedrock limitation**: `Dimension.spawnParticle` accepts a named emitter rather than Java's block-particle option and does not expose Java client particle lifetime/physics directly.
+5. **Replacement design**: `moon_stone_block_burst.particle.json` uses the existing moon-stone texture, emits exactly 400 particles, preserves the source offset ranges and upward initial velocity, and is invoked once at the Rock block-impact position. The existing one-tick grounded cleanup remains in the runtime.
+6. **Player-visible difference**: emitter lifetime and motion integration are Bedrock particle-system behavior rather than Java `TerrainParticle` behavior.
+7. **Parity class**: `VALIDATED_APPROXIMATION` with source count/material/spatial/timing parity.
+
