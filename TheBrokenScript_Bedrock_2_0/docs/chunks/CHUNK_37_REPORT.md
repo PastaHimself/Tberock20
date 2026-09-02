@@ -21,8 +21,8 @@ stops and clears those handles before removing the arena entities.
 - TDD GREEN: `node --test tests/fractured_runtime.test.mjs` — **5/5 passed**.
 - Bedrock API grounding: Microsoft Learn documents `Player.playSound()` handles
   and `SoundInstance.stop()` for the target API line.
-- Bedrock world/runtime smoke testing remains unavailable locally; GitHub
-  Actions is the authoritative pack/schema gate.
+- Bedrock world/runtime smoke testing remains unavailable locally.
+- GitHub Actions run 125 ([Bedrock Add-on Check](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983)): **success**; the validator, full add-on/resource checks, Bedrock beta type-check, JavaScript regressions, Blockception diagnostics, and packaging completed successfully.
 
 ## Parity
 

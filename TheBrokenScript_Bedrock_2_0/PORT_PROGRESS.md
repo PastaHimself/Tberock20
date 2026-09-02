@@ -188,7 +188,7 @@ Chunk 34 focused local validation: 53/53 deterministic Node regressions PASS; cu
 
 Chunk 35 focused local validation: 19/19 deterministic Node regressions PASS for the animation, attack, and dedicated Fractured runtime slice; changed animation model/runtime JavaScript `node --check` PASS; source event-tick, presentation-state, tracked-bone, locator-bound particle, and runtime bridge assertions PASS. Bedrock animation/entity/particle JSON parse and locator/timeline assertions PASS. Bedrock world/runtime smoke test unavailable locally.
 
-Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; changed runtime JavaScript `node --check` PASS; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions validation for the published commit pending.
+Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; changed runtime JavaScript `node --check` PASS; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions [run 125](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983) PASS.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
@@ -217,7 +217,7 @@ Chunk 36 adds the eight previously missing source particle textures and nine Bed
 
 ## Chunk 37 — Fractured audio lifecycle adapter
 
-Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Focused Fractured runtime regressions and changed-runtime syntax checks pass; Bedrock world/runtime smoke testing remains unavailable locally and GitHub Actions validation for the published commit is pending.
+Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Focused Fractured runtime regressions and changed-runtime syntax checks pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions [run 125](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983) PASS.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
