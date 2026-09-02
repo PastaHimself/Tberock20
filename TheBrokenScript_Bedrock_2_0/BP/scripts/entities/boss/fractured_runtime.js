@@ -250,6 +250,7 @@ function getFracturedState(entity) {
     attackTag: null,
   };
   fracturedStates.set(entity.id, state);
+  playFracturedSpawnSound(entity);
   return state;
 }
 
@@ -297,8 +298,18 @@ function getFracturedRoamLifecycleState(entity) {
   };
   roamLifecycleStates.set(entity.id, state);
   callEntity(entity, "addTag", ROAM_NO_AI_TAG);
+  playFracturedSpawnSound(entity);
   playFracturedPresentation(entity, state, false);
   return state;
+}
+
+function playFracturedSpawnSound(entity) {
+  try {
+    entity.dimension.playSound("thebrokenscript:jimmy.spawn", entity.location, {
+      volume: 1,
+      pitch: 1,
+    });
+  } catch {}
 }
 
 function playFracturedPresentation(entity, state, moving) {
@@ -570,8 +581,18 @@ function arenaHasLivingPlayers(arena) {
 
 function playArenaSound(arena, sound) {
   for (const player of arena.players.values()) {
-    try { player.playSound(sound, { volume: 1, pitch: 1 }); } catch {}
+    try {
+      const instance = player.playSound(sound, { volume: 1, pitch: 1 });
+      if (instance && typeof instance.stop === "function") arena.soundInstances.push(instance);
+    } catch {}
   }
+}
+
+function stopArenaSounds(arena) {
+  for (const instance of arena.soundInstances ?? []) {
+    try { instance.stop(); } catch {}
+  }
+  arena.soundInstances = [];
 }
 
 function spawnArenaSubAnomalies(arena) {
@@ -619,6 +640,7 @@ function startFracturedRoamArena(entity) {
     playerIds: new Set(players.map((player) => player.id)),
     players: new Map(players.map((player) => [player.id, player])),
     subAnomalies: [],
+    soundInstances: [],
     introTicks: ROAM_ARENA_SOURCE.startMusicTicks,
     musicScheduled: false,
     musicStarted: false,
@@ -626,9 +648,7 @@ function startFracturedRoamArena(entity) {
     subAnomalyRadius: ROAM_ARENA_SOURCE.subAnomalyRadius,
   };
   roamArenaStates.set(jimmy.id, arena);
-  for (const player of players) {
-    try { player.playSound(ROAM_ARENA_SOURCE.introSound, { volume: 1, pitch: 1 }); } catch {}
-  }
+  playArenaSound(arena, ROAM_ARENA_SOURCE.introSound);
   // Source: JimArena.START_MUSIC_TICKS = 340. The callback remains guarded by
   // arena identity because Java reset() can run before the delayed event.
   arena.musicScheduled = runAfter(() => {
@@ -639,12 +659,13 @@ function startFracturedRoamArena(entity) {
 
 function resetFracturedRoamArena(arena) {
   if (!arena) return;
+  stopArenaSounds(arena);
   safeRemove(arena.jimmy);
   for (const subAnomaly of arena.subAnomalies ?? []) safeRemove(subAnomaly);
   roamArenaStates.delete(arena.jimmy?.id);
   arena.players.clear();
-  // Java also stops all arena sounds and clears the bossbar. Those presentation
-  // services have no stable equivalent in the current Bedrock pack.
+  // The Java bossbar remains unsupported, but SoundInstance.stop preserves the
+  // source AudioFader cleanup for the intro and looping arena tracks.
 }
 
 function tickFracturedRoamArenas() {

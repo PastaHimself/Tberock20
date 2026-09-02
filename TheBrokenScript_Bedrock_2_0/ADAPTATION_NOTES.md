@@ -161,3 +161,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: particle_model.js is a pure catalog of all nine definitions and three event contracts. Each resource uses the documented Bedrock emitter lifetime/rate/shape, lifetime expression, initial speed, billboard, lighting, and dynamic-motion components. Source PNGs are copied without re-encoding. particle_runtime.js guards the named-effect bridge, and the known event handlers invoke it.
 6. **Player-visible difference**: emitter count/spread is encoded in the resource and Paper's double crossed quads/roll-dependent wave are approximated by one billboard with dynamic motion and drag. follows_particle and revuxor_particle retain their source textures but have no Java provider implementation in the extracted registry.
 7. **Parity class**: VALIDATED_APPROXIMATION for the catalog/resource/event slice; exact Java provider registration and custom renderer behavior remain engine-limited.
+
+## A-021 — Fractured audio lifecycle adapter
+
+1. **Source feature**: `BaseFracturedEntity.playSpawnSounds()`, `JimArena` intro/loop scheduling, and `AudioFader` reset cleanup.
+2. **Source behavior**: Fractured hosts play `jimmy.spawn`; JimArena plays `jimbob.intro`, starts `jimbob.loop` after 340 ticks, and stops active tracks on reset.
+3. **Source evidence**: `decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java`; `decompiled/net/thebrokenscript/boss/jimmy/JimArena.java`; `decompiled/net/thebrokenscript/boss/jimmy/AudioFader.java`.
+4. **Bedrock limitation**: Java's client-only `FancyAudio` and audio-fader implementation are unavailable; local attenuation and music packet ownership are not identical.
+5. **Replacement design**: `fractured_runtime.js` emits the namespaced spawn sound once per Fractured/Roam state, retains `Player.playSound()`'s `SoundInstance` handles for arena intro/loop tracks, and calls `SoundInstance.stop()` before reset clears the arena.
+6. **Player-visible difference**: sound ownership is server-scripted through Bedrock handles, and exact Java attenuation/fade behavior remains runtime-dependent.
+7. **Parity class**: `VALIDATED_APPROXIMATION` for the source cue and cleanup lifecycle; Java client transport remains engine-specific.
