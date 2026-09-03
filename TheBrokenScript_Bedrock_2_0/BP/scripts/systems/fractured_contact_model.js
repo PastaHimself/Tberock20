@@ -56,7 +56,7 @@ function sourceOffsetPosition(origin, offset, yawDegrees) {
  * Resolves the source contact bones for one attack event.
  *
  * @param {{
- *   eventName: string,
+ *   eventName?: string,
  *   origin?: { x: number, y: number, z: number },
  *   yawDegrees?: number,
  *   boneWorldPositions?: Record<string, { x: number, y: number, z: number }>,
