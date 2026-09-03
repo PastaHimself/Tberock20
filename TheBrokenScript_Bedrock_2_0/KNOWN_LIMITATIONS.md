@@ -28,4 +28,6 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 
 19. **NullBookStoryEvent uses a Bedrock book-component adapter** — Java's `WrittenBookContent` data component is not directly installable from Bedrock scripts. The port uses the supported `minecraft:book` `ItemBookComponent`, preserves Java coordinate conversion, clones copies per player, drops inventory leftovers, and uses bounded logged retries; exact Java component serialization remains an adapter detail.
 
+
+20. **Jukebox comparator output is clamped to Bedrock's record range** — Chunk 40 maps all twelve Java `JukeboxSong` definitions to native `minecraft:record` components and preserves source duration/sound links, but Java's comparator output 15 becomes Bedrock's documented maximum 13 (A-024).
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.

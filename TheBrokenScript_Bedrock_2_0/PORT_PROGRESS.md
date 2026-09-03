@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 39 — Custom status-effect adapter)
+Last updated: 2026-09-03 (Chunk 40 — Jukebox song record adapters)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-03 (Chunk 39 — Custom status-effect adapter)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 39 complete — Custom status-effect adapter**
+**Chunk 40 complete — Jukebox song record adapters**
 
-Chunk 39 ports the source `heart_corruption` and `why_cant_you_leave` contracts. The pure status model preserves source identifiers, categories, colors, duration, amplifier, visibility, and Eyes-particle metadata; the runtime refreshes finite expiries, enforces Heart Corruption's source `MAX_HEALTH -1` behavior through the documented health component, and retains the Why Can't You Leave presentation bridge. Native custom-effect registration and Java attribute modifiers remain explicit engine boundaries.
+Chunk 40 ports the twelve source `TBSSongs` registrations onto the existing Bedrock music items. Each item now carries a native `minecraft:record` component with source duration and sound-definition linkage, and all records are explicitly non-stackable. The Java comparator output of 15 is clamped to Bedrock's documented maximum signal 13; source song descriptions and audio assets remain preserved.
 
 ## Chunk state
 | Chunk | State |
@@ -63,6 +63,7 @@ Chunk 39 ports the source `heart_corruption` and `why_cant_you_leave` contracts.
 | 37 Fractured audio lifecycle adapter | **completed** (source Jimmy spawn cue; SoundInstance-owned JimArena intro/loop cleanup; focused regression) |
 | 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, Java coordinate encoding, injectable ItemBookComponent creation, independent per-player delivery, overflow drop, bounded retry, and persistence-key correction) |
 | 39 Custom status-effect adapter | **completed** (source effect metadata, finite expiry refresh, health-cap runtime adapter, Eyes-particle bridge, focused regressions) |
+| 40 Jukebox song record adapters | **completed** (12 source songs mapped to native record components, source durations/sound keys preserved, comparator signal clamped to 13, integration regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -98,6 +99,9 @@ BP/scripts/systems/{story_book_model,story_book_adapter,story_events,world_state
 
 ## Files changed (Chunk 39)
 BP/scripts/systems/{status_effect_model,status_effect_runtime,ported_features}.js · tests/status_effect_{model,runtime}.test.mjs · tests/remaining_ports.test.mjs · docs/chunks/CHUNK_39_{SPEC,REPORT}.md · status/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 40)
+BP/items/{attribute_mutilation,credits,instability,instability_music_box,instabilityv2,instabilityv3,lilly,lilly_v2,record_14,record_15,record_16,record_17}.json · BP/scripts/systems/music_disc_model.js · tests/music_disc_parity.test.mjs · docs/chunks/CHUNK_40_{SPEC,REPORT}.md · music/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -202,6 +206,7 @@ Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; chang
 Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/7 focused; 67/67 full Node suite); changed story, adapter, and state modules `node --check` PASS; source threshold/page/coordinate, ItemBookComponent/signing/distribution, overflow, retry, and persistence assertions PASS. GitHub Actions [run 128](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718374216) passed all repository-owned checks; its MCT bare-beta self-comparison false positive was fixed and verified by [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818), which passed the complete workflow. Bedrock world/runtime smoke test unavailable locally.
 
 Chunk 39 focused local validation: TDD red/green status-effect regressions PASS (6/6 focused); changed status model/runtime/ported_features JavaScript `node --check` PASS; legacy effect regression updated for the model-backed Eyes identifier; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the repaired published commit pending.
+Chunk 40 focused local validation: TDD red/green music-disc model regressions PASS (2/2 focused); all 12 item JSONs receive source-duration/sound-event record components and max stack size 1; Microsoft Learn and BedrockWiki `minecraft:record` contract verified; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions validation for the published commit pending.
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -238,6 +243,10 @@ Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1
 ## Chunk 39 — Custom status-effect adapter
 
 Chunk 39 adds a source-backed adapter for the two registered custom effects. Heart Corruption preserves the harmful metadata and applies the Java `MAX_HEALTH -1` contract by capping current health at one below the effective maximum while active; Why Can't You Leave preserves its 1000-tick source duration and emits the native Eyes particle bridge. Focused status regressions and changed-runtime syntax checks pass; the legacy effect assertion now accepts the model-backed identifier; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the repaired published commit is pending.
+
+## Chunk 40 — Jukebox song record adapters
+
+Chunk 40 adds native `minecraft:record` components to all twelve existing music items. The source durations and sound-definition keys are preserved, items are made non-stackable, and Java's comparator output of 15 is clamped to Bedrock's documented maximum 13. Focused model and item-link regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the published commit is pending.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.

@@ -198,3 +198,18 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 7. **Parity class**: `VALIDATED_APPROXIMATION`; source metadata and timing are preserved, while custom registry/modifier installation remains engine-limited.
 
+## A-024 — Jukebox song record adapter
+
+1. **Source feature**: the twelve `TBSSongs` registrations and their `data/thebrokenscript/jukebox_song/*.json` definitions.
+
+2. **Source behavior**: each song keeps its source sound event, duration, comparator output of 15, and human-facing description; the Java records are non-stackable music items.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/registry/TBSSongs.java`; `source_extracted/data/thebrokenscript/jukebox_song/*.json`; existing `RP/sound_definitions.json` and copied `.ogg` assets.
+
+4. **Bedrock limitation**: `minecraft:record.comparator_signal` is documented for values 1–13, so Java's 15 is clamped to 13. Bedrock's record component is used instead of Java's registered `JukeboxSong` holder.
+
+5. **Replacement design**: `music_disc_model.js` catalogs the twelve source contracts. Each existing Bedrock item receives `minecraft:record` with the source duration and matching custom sound-definition key, plus `minecraft:max_stack_size: 1`.
+
+6. **Player-visible difference**: comparator output is two points lower than Java's source value; sound playback uses Bedrock's native record component and existing resource-pack sound definitions.
+
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source song timing, descriptions, item identity, sound assets, and playback links are preserved, with the comparator range clamp documented.
