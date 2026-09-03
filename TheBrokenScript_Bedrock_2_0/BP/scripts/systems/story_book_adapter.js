@@ -5,11 +5,11 @@ import { nullBookPages } from "./story_book_model.js";
  * Keeping the constructor injectable lets the source-facing behavior be
  * tested without importing the Bedrock runtime module.
  */
-export function createSignedNullBook(ItemStackConstructor, clanVoidX, clanVoidZ) {
+export function createSignedNullBook(ItemStackConstructor, clanVoidX, clanVoidZ, includeCoordinates = true) {
   const item = new ItemStackConstructor("minecraft:writable_book", 1);
   const book = item.getComponent("minecraft:book");
   if (!book) return null;
-  book.setContents(nullBookPages(clanVoidX, clanVoidZ));
+  book.setContents(nullBookPages(clanVoidX, clanVoidZ, includeCoordinates));
   book.signBook("null", "null");
   return item;
 }

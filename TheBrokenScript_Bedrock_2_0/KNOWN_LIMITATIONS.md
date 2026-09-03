@@ -31,3 +31,5 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 
 20. **Jukebox comparator output is clamped to Bedrock's record range** — Chunk 40 maps all twelve Java `JukeboxSong` definitions to native `minecraft:record` components and preserves source duration/sound links, but Java's comparator output 15 becomes Bedrock's documented maximum 13 (A-024).
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.
+
+21. **Seven source-registered horror events use explicit presentation/structure adapters** — Chunk 42 adds null_book, null_interface_trigger, obfuscated_sign, noop, text, title_event, and aberration to the Bedrock event table and preserves their portable contracts. Java's three custom Null menus become in-game title notices, WindowTitleEvent cannot change the native desktop title, and the source obfuscatedsign/ciphersign NBT structures are not currently loaded as Bedrock assets, so that event places a local oak sign and reports the selected template. Exact RandomEvent weighting/config/day scheduling remains adapted (A-026).

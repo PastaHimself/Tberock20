@@ -1203,11 +1203,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js",
+                         "BP/scripts/systems/player_state.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "aberrationEnabled and source 1200-tick aberrationTimer persisted through player state (Chunk 42)"
                  },
                  {
                      "source_id":  "event.behind_you",
@@ -1848,11 +1850,12 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "registered source no-op is represented in the ambient table (Chunk 42)"
                  },
                  {
                      "source_id":  "event.null_book",
@@ -1863,11 +1866,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/story_book_adapter.js",
+                         "BP/scripts/systems/story_book_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source NullBookEvent is represented through the signed Null book adapter; optional coordinate page preserved (Chunk 42)"
                  },
                  {
                      "source_id":  "event.null_book_hint",
@@ -1908,11 +1913,12 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "uniform selection among NullInterface1/2/3 is preserved; Bedrock uses an in-game title fallback (Chunk 42)"
                  },
                  {
                      "source_id":  "event.null_invade_base",
@@ -2045,11 +2051,12 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source 70/30 structure choice preserved; source NBT placement uses a local oak-sign fallback (Chunk 42)"
                  },
                  {
                      "source_id":  "event.opengl_error",
@@ -2525,11 +2532,12 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source 16-message TextEvent pool preserved through Bedrock chat (Chunk 42)"
                  },
                  {
                      "source_id":  "event.title_event",
@@ -2540,11 +2548,12 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source 90/90/50 title branches preserved as in-game title fallbacks (Chunk 42)"
                  },
                  {
                      "source_id":  "event.txt",
@@ -13851,11 +13860,12 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                         "BP/scripts/systems/horror_events.js",
+                         "BP/scripts/systems/horror_event_model.js"
+                     ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "86 source-registered event IDs are represented in the ambient table; Java RandomEvent weighting/config/day scheduling and Java-only presentation/structure hooks remain adapted (Chunk 42)"
                  },
                  {
                      "source_id":  "registry.story_events",

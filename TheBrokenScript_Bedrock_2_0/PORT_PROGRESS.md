@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 41 — Fractured rendered-contact resolver)
+Last updated: 2026-09-03 (Chunk 42 — Source-registered horror event adapters)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-03 (Chunk 41 — Fractured rendered-contact resolver)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 41 complete — Fractured rendered-contact resolver**
+**Chunk 42 complete — Source-registered horror event adapters**
 
-Chunk 41 ports the source Fractured/Jimmy rendered-contact contract into a source-backed Bedrock resolver. ROCK, right_l_claw, left_l_claw, and right_f_tarsus are catalogued from the source animation/model bridge; callers may inject exact rendered world positions when a bridge is available. Without that engine bridge, SingleStomp preserves the recovered source stomp transform and claw/rock contacts use an explicit entity-anchor fallback.
+Chunk 42 ports the seven source-registered horror events that were still absent from the Bedrock ambient event table. The source message/title/interface/sign-selection contracts are preserved in a pure adapter model; the runtime reuses the signed Null book path, stores Aberration's 1200-tick player state, and uses explicit in-game/title/local-sign fallbacks where Bedrock cannot expose Java GUIs, desktop window titles, or source NBT structure placement.
 
 ## Chunk state
 | Chunk | State |
@@ -65,6 +65,7 @@ Chunk 41 ports the source Fractured/Jimmy rendered-contact contract into a sourc
 | 39 Custom status-effect adapter | **completed** (source effect metadata, finite expiry refresh, health-cap runtime adapter, Eyes-particle bridge, focused regressions) |
 | 40 Jukebox song record adapters | **completed** (12 source songs mapped to native record components, source durations/sound keys preserved, comparator signal clamped to 13, integration regressions) |
 | 41 Fractured rendered-contact resolver | **completed** (source bone contract, injectable world-position seam, source stomp transform fallback, explicit entity-anchor fallback, runtime wiring, focused regressions, GitHub Actions run 139) |
+| 42 Source-registered horror event adapters | **completed** (seven missing source registrations, source message/title/interface/sign contracts, Null book optional page, Aberration state, explicit Bedrock fallbacks, focused regressions, GitHub Actions run 143) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -105,6 +106,8 @@ BP/scripts/systems/{status_effect_model,status_effect_runtime,ported_features}.j
 BP/items/{attribute_mutilation,credits,instability,instability_music_box,instabilityv2,instabilityv3,lilly,lilly_v2,record_14,record_15,record_16,record_17}.json · BP/scripts/systems/music_disc_model.js · tests/music_disc_parity.test.mjs · docs/chunks/CHUNK_40_{SPEC,REPORT}.md · music/parity/adaptation/limitation/validation ledgers
 ## Files changed (Chunk 41)
 BP/scripts/systems/fractured_contact_model.js · BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_contact_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_41_{SPEC,REPORT}.md · Fractured parity/adaptation/limitation/validation ledgers
+## Files changed (Chunk 42)
+BP/scripts/systems/{horror_event_model,horror_events,story_book_model,story_book_adapter}.js · tests/{horror_event_model,story_events}.test.mjs · docs/chunks/CHUNK_42_{SPEC,REPORT}.md · horror-event/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -256,5 +259,9 @@ Chunk 40 adds native `minecraft:record` components to all twelve existing music 
 
 Chunk 41 adds a source-backed resolver for Fractured/Jimmy contact events. It preserves the four source-tracked bones used by `FracturedModel`, accepts exact rendered world positions through an injectable bridge seam, keeps the recovered `SingleStomp` offset as its source-preserving fallback, and makes the client-only claw/rock limitation explicit through entity-anchor fallback positions. The runtime routes stomp, slam, rock throw, and rock release origins through the resolver. Focused contact regressions pass; GitHub Actions [run 139](https://github.com/PastaHimself/tbs-2.0/actions/runs/33756631657) PASS. Bedrock world/runtime smoke testing remains unavailable locally.
 
+## Chunk 42 — Source-registered horror event adapters
+
+Chunk 42 adds the seven source registrations absent from the Bedrock horror-event table: null_book, null_interface_trigger, obfuscated_sign, noop, text, title_event, and aberration. The pure model preserves the source TextEvent pool, WindowTitleEvent's 90/90/50 branching, NullInterface's uniform three-menu selection, ObfuscatedSignEvent's 70/30 structure choice, and AberrationEvent's 1200-tick state. The runtime uses the existing Null book adapter with the source optional coordinate page and explicit title/local-sign fallbacks for unavailable Java presentation and NBT structure APIs. Focused local regressions pass; GitHub Actions [run 143](https://github.com/PastaHimself/tbs-2.0/actions/runs/33766550121) passed the complete workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** A live Bedrock render-bone bridge remains engine-limited; exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** The remaining horror-event engine gap is exact RandomEvent weighting/config/day scheduling; custom Null GUI screens, desktop window-title/packet hooks, and exact obfuscated/cipher NBT structure placement remain engine/deferred items alongside the broader uninspected source inventory.
