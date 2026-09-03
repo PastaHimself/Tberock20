@@ -63,7 +63,7 @@ function sourceOffsetPosition(origin, offset, yawDegrees) {
  * }} options
  */
 export function resolveFracturedContactPositions({
-  eventName,
+  eventName = "",
   origin = { x: 0, y: 0, z: 0 },
   yawDegrees = 0,
   boneWorldPositions = {},
