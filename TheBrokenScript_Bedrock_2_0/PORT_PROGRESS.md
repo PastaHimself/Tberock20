@@ -206,7 +206,7 @@ Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; chang
 Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/7 focused; 67/67 full Node suite); changed story, adapter, and state modules `node --check` PASS; source threshold/page/coordinate, ItemBookComponent/signing/distribution, overflow, retry, and persistence assertions PASS. GitHub Actions [run 128](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718374216) passed all repository-owned checks; its MCT bare-beta self-comparison false positive was fixed and verified by [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818), which passed the complete workflow. Bedrock world/runtime smoke test unavailable locally.
 
 Chunk 39 focused local validation: TDD red/green status-effect regressions PASS (6/6 focused); changed status model/runtime/ported_features JavaScript `node --check` PASS; legacy effect regression updated for the model-backed Eyes identifier; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the repaired published commit pending.
-Chunk 40 focused local validation: TDD red/green music-disc model regressions PASS (2/2 focused); all 12 item JSONs receive source-duration/sound-event record components and max stack size 1; Microsoft Learn and BedrockWiki `minecraft:record` contract verified; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions validation for the published commit pending.
+Chunk 40 focused local validation: TDD red/green music-disc model regressions PASS (2/2 focused); all 12 item JSONs receive source-duration/sound-event record components and max stack size 1; Microsoft Learn and BedrockWiki `minecraft:record` contract verified; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -246,7 +246,7 @@ Chunk 39 adds a source-backed adapter for the two registered custom effects. Hea
 
 ## Chunk 40 — Jukebox song record adapters
 
-Chunk 40 adds native `minecraft:record` components to all twelve existing music items. The source durations and sound-definition keys are preserved, items are made non-stackable, and Java's comparator output of 15 is clamped to Bedrock's documented maximum 13. Focused model and item-link regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the published commit is pending.
+Chunk 40 adds native `minecraft:record` components to all twelve existing music items. The source durations and sound-definition keys are preserved, items are made non-stackable, and Java's comparator output of 15 is clamped to Bedrock's documented maximum 13. Focused model and item-link regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
