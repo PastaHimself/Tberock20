@@ -69,6 +69,9 @@ test("book adapter builds signed pages and gives each player an independent stac
   assert.deepEqual(item.pages, nullBookPages(160, -1));
   assert.deepEqual(item.signature, { title: "null", author: "null" });
 
+  const onePageBook = createSignedNullBook(FakeItemStack, 160, -1, false);
+  assert.deepEqual(onePageBook.pages, [NULL_BOOK_PAGE1]);
+
   const players = [
     { added: [], addItem(stack) { this.added.push(stack); return undefined; } },
     { added: [], addItem(stack) { this.added.push(stack); return undefined; } },

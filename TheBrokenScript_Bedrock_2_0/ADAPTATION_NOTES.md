@@ -229,3 +229,19 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: a future render bridge can provide exact limb/rock origins without changing the gameplay adapter; current Bedrock-only execution preserves source stomp placement and keeps the other unavailable contacts deterministic at the boss anchor.
 
 7. **Parity class**: `VALIDATED_APPROXIMATION`; source event/bone ownership and fallback behavior are implemented and tested, while a live GeckoLib-equivalent render-bone bridge remains engine-limited.
+
+## A-026 — Source-registered horror event adapters
+
+1. **Source feature**: the seven registrations absent from the Bedrock event table — null_book, null_interface_trigger, obfuscated_sign, noop, text, title_event, and aberration.
+
+2. **Source behavior**: NullBookEvent creates a written book with the null page and a 50% optional Clan Void coordinate page; NullInterfaceTriggerEvent uniformly selects one of three named Null menus; ObfuscatedSignEvent selects obfuscatedsign 70% of the time and ciphersign otherwise; NoopEvent does nothing; TextEvent sends one of 16 source messages; WindowTitleEvent branches 90%/90%/50% between Null titles, ERR.INTEGRITY, <o>, or a clear title; AberrationEvent enables aberration and sets its timer to 1200 ticks.
+
+3. **Source evidence**: decompiled/net/thebrokenscript/registry/TBSEvents.java; decompiled/net/thebrokenscript/events/nullent/NullBookEvent.java; decompiled/net/thebrokenscript/events/nullent/interfaces/NullInterfaceTriggerEvent.java; decompiled/net/thebrokenscript/events/structures/ObfuscatedSignEvent.java; decompiled/net/thebrokenscript/events/NoopEvent.java; decompiled/net/thebrokenscript/events/misc/{TextEvent,WindowTitleEvent,AberrationEvent}.java; decompiled/net/thebrokenscript/registry/TBSLang.java.
+
+4. **Bedrock limitation**: the current Script API cannot open the Java custom Null menus, change the native desktop window title, or load these source NBT structures as runtime structure assets. The source RandomEvent engine's exact weighting/config/day schedule is also not exposed by the current runtime.
+
+5. **Replacement design**: horror_event_model.js keeps the recovered contracts testable. horror_events.js adds all seven IDs, reuses the existing Null book adapter, maps the three menus to titled in-game notices, uses a local oak-sign placement notice for the two unavailable structures, sends the source TextEvent pool through Bedrock chat, maps WindowTitleEvent to setTitle, and persists Aberration state through player_state.
+
+6. **Player-visible difference**: Null interfaces become title notices, native window-title changes become in-game titles, and obfuscated/cipher structures become a local oak-sign fallback with the selected source template named in the notice. Scheduler cadence/gating remains the existing Bedrock ambient approximation.
+
+7. **Parity class**: VALIDATED_APPROXIMATION; source registrations/contracts are represented and CI-validated, with Java-only presentation/structure/scheduling boundaries documented.
