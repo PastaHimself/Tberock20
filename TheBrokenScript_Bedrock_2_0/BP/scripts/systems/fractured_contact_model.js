@@ -19,7 +19,7 @@ const CONTACT_EVENTS = Object.freeze(Object.fromEntries(
         : Object.freeze([]),
     }),
   ]),
-)));
+));
 
 export const FRACTURED_CONTACT_EVENTS = CONTACT_EVENTS;
 
