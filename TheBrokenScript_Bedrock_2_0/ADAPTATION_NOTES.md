@@ -213,3 +213,19 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: comparator output is two points lower than Java's source value; sound playback uses Bedrock's native record component and existing resource-pack sound definitions.
 
 7. **Parity class**: `VALIDATED_APPROXIMATION`; source song timing, descriptions, item identity, sound assets, and playback links are preserved, with the comparator range clamp documented.
+
+## A-025 — Fractured rendered-contact spatial resolver
+
+1. **Source feature**: `FracturedModel` tracked bones and `FracturedEntity` custom instruction handlers for `SingleStomp`, `Slam`, `OffenseRockThrow`, and `DefensiveRockRelease`.
+
+2. **Source behavior**: the client model resolves world positions for `ROCK`, `right_l_claw`, `left_l_claw`, and `right_f_tarsus`. The server instruction handlers use those positions for rock spawn/drop and claw/stomp packet origins. The source stomp attack's `(210, 0, -1313) × 0.125` offset recovers to `(26.25, 0, -164.125)` before body-yaw rotation.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/client/model/entity/FracturedModel.java`; `decompiled/net/thebrokenscript/entity/fractured/FracturedEntity.java`; `decompiled/net/thebrokenscript/entity/fractured/attacks/StompAttack.java`; `BP/scripts/systems/fractured_animation_model.js`.
+
+4. **Bedrock limitation**: the current Bedrock Script API does not expose GeckoLib-style rendered bone matrices or a server packet path for client render-bone world positions.
+
+5. **Replacement design**: `fractured_contact_model.js` derives its event/bone catalog from the animation contract, accepts bridge-injected world positions for exact contact routing, preserves the recovered stomp offset as a deterministic fallback, and returns an explicit entity-anchor fallback for unavailable claw/rock bones. `fractured_runtime.js` routes stomp, slam, rock throw, and rock release origins through this resolver.
+
+6. **Player-visible difference**: a future render bridge can provide exact limb/rock origins without changing the gameplay adapter; current Bedrock-only execution preserves source stomp placement and keeps the other unavailable contacts deterministic at the boss anchor.
+
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source event/bone ownership and fallback behavior are implemented and tested, while a live GeckoLib-equivalent render-bone bridge remains engine-limited.

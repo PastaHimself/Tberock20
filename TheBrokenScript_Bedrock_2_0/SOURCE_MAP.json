@@ -419,34 +419,38 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "entity.fractured",
-                     "category":  "entity",
-                     "source_paths":  [
-                                          "lang key entity.thebrokenscript.fractured",
-                                          "TBSEntities registry"
-                                      ],
-                     "bedrock_identifier":  "thebrokenscript:fractured",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "entity.fractured",
+                     "category": "entity",
+                     "source_paths": [
+                         "lang key entity.thebrokenscript.fractured",
+                         "TBSEntities registry"
+                     ],
+                     "bedrock_identifier": "thebrokenscript:fractured",
+                     "bedrock_files": [
+                         "BP/entities/fractured.json",
+                         "RP/entity/fractured.entity.json",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Jimmy host and attack runtime shipped; rendered-contact routing uses the Chunk 41 resolver with explicit engine-limited fallbacks"
                  },
                  {
-                     "source_id":  "entity.fractured_roam",
-                     "category":  "entity",
-                     "source_paths":  [
-                                          "lang key entity.thebrokenscript.fractured_roam",
-                                          "TBSEntities registry"
-                                      ],
-                     "bedrock_identifier":  "thebrokenscript:fractured_roam",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "entity.fractured_roam",
+                     "category": "entity",
+                     "source_paths": [
+                         "lang key entity.thebrokenscript.fractured_roam",
+                         "TBSEntities registry"
+                     ],
+                     "bedrock_identifier": "thebrokenscript:fractured_roam",
+                     "bedrock_files": [
+                         "BP/entities/fractured_roam.json",
+                         "RP/entity/fractured_roam.entity.json",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Roam host/presentation lifecycle shipped; shared Fractured contact bridge remains engine-limited (Chunk 41)"
                  },
                  {
                      "source_id":  "entity.he",
@@ -934,19 +938,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "entity.rock",
-                     "category":  "entity",
-                     "source_paths":  [
-                                          "lang key entity.thebrokenscript.rock",
-                                          "TBSEntities registry"
-                                      ],
-                     "bedrock_identifier":  "thebrokenscript:rock",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "entity.rock",
+                     "category": "entity",
+                     "source_paths": [
+                         "lang key entity.thebrokenscript.rock",
+                         "TBSEntities registry"
+                     ],
+                     "bedrock_identifier": "thebrokenscript:rock",
+                     "bedrock_files": [
+                         "BP/entities/rock.json",
+                         "RP/entity/rock.entity.json",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Rock flight/impact adapter shipped; exact source render-bone spawn origin is bridge-injectable with entity-anchor fallback (Chunk 41)"
                  },
                  {
                      "source_id":  "entity.siluet",
@@ -11685,18 +11691,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "code.boss/jimmy",
-                     "category":  "code_package",
-                     "source_paths":  [
-                                          "net/thebrokenscript/boss/jimmy"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "code.boss/jimmy",
+                     "category": "code_package",
+                     "source_paths": [
+                         "net/thebrokenscript/boss/jimmy"
+                     ],
+                     "bedrock_identifier": "",
+                     "bedrock_files": [
+                         "BP/scripts/entities/boss/fractured_runtime.js",
+                         "BP/scripts/systems/fractured_attack_model.js",
+                         "BP/scripts/systems/fractured_animation_model.js",
+                         "BP/scripts/systems/fractured_contact_model.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Jimmy attack, animation, and rendered-contact contracts are source-backed adapters; live GeckoLib render-bone bridge remains engine-limited (Chunks 28, 33, 35, 41)"
                  },
                  {
                      "source_id":  "code.boss/kerfur",
@@ -12163,18 +12172,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "code.entity/fractured",
-                     "category":  "code_package",
-                     "source_paths":  [
-                                          "net/thebrokenscript/entity/fractured"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "code.entity/fractured",
+                     "category": "code_package",
+                     "source_paths": [
+                         "net/thebrokenscript/entity/fractured"
+                     ],
+                     "bedrock_identifier": "",
+                     "bedrock_files": [
+                         "BP/scripts/entities/boss/fractured_runtime.js",
+                         "BP/scripts/systems/fractured_multipart_model.js",
+                         "BP/scripts/systems/fractured_animation_model.js",
+                         "BP/scripts/systems/fractured_contact_model.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Fractured host/multipart/presentation/contact adapters shipped; exact child/render-bone transforms remain engine-limited (Chunks 29–31, 35, 41)"
                  },
                  {
                      "source_id":  "code.entity/integrity",
@@ -12345,18 +12357,20 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "code.entity/fractured/attacks",
-                     "category":  "code_package",
-                     "source_paths":  [
-                                          "net/thebrokenscript/entity/fractured/attacks"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "code.entity/fractured/attacks",
+                     "category": "code_package",
+                     "source_paths": [
+                         "net/thebrokenscript/entity/fractured/attacks"
+                     ],
+                     "bedrock_identifier": "",
+                     "bedrock_files": [
+                         "BP/scripts/systems/fractured_attack_model.js",
+                         "BP/scripts/systems/fractured_contact_model.js",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Source attack constants and contact event routing shipped; exact client render-bone packet origins remain bridge-injectable/deferred (Chunks 28, 33, 41)"
                  },
                  {
                      "source_id":  "code.entity/integrity/phase1",

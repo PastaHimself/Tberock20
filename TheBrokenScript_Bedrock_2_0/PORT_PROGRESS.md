@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 40 — Jukebox song record adapters)
+Last updated: 2026-09-03 (Chunk 41 — Fractured rendered-contact resolver)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-03 (Chunk 40 — Jukebox song record adapters)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 40 complete — Jukebox song record adapters**
+**Chunk 41 complete — Fractured rendered-contact resolver**
 
-Chunk 40 ports the twelve source `TBSSongs` registrations onto the existing Bedrock music items. Each item now carries a native `minecraft:record` component with source duration and sound-definition linkage, and all records are explicitly non-stackable. The Java comparator output of 15 is clamped to Bedrock's documented maximum signal 13; source song descriptions and audio assets remain preserved.
+Chunk 41 ports the source Fractured/Jimmy rendered-contact contract into a source-backed Bedrock resolver. ROCK, right_l_claw, left_l_claw, and right_f_tarsus are catalogued from the source animation/model bridge; callers may inject exact rendered world positions when a bridge is available. Without that engine bridge, SingleStomp preserves the recovered source stomp transform and claw/rock contacts use an explicit entity-anchor fallback.
 
 ## Chunk state
 | Chunk | State |
@@ -64,6 +64,7 @@ Chunk 40 ports the twelve source `TBSSongs` registrations onto the existing Bedr
 | 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, Java coordinate encoding, injectable ItemBookComponent creation, independent per-player delivery, overflow drop, bounded retry, and persistence-key correction) |
 | 39 Custom status-effect adapter | **completed** (source effect metadata, finite expiry refresh, health-cap runtime adapter, Eyes-particle bridge, focused regressions) |
 | 40 Jukebox song record adapters | **completed** (12 source songs mapped to native record components, source durations/sound keys preserved, comparator signal clamped to 13, integration regressions) |
+| 41 Fractured rendered-contact resolver | **completed** (source bone contract, injectable world-position seam, source stomp transform fallback, explicit entity-anchor fallback, runtime wiring, focused regressions, GitHub Actions run 139) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -102,6 +103,8 @@ BP/scripts/systems/{status_effect_model,status_effect_runtime,ported_features}.j
 
 ## Files changed (Chunk 40)
 BP/items/{attribute_mutilation,credits,instability,instability_music_box,instabilityv2,instabilityv3,lilly,lilly_v2,record_14,record_15,record_16,record_17}.json · BP/scripts/systems/music_disc_model.js · tests/music_disc_parity.test.mjs · docs/chunks/CHUNK_40_{SPEC,REPORT}.md · music/parity/adaptation/limitation/validation ledgers
+## Files changed (Chunk 41)
+BP/scripts/systems/fractured_contact_model.js · BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_contact_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_41_{SPEC,REPORT}.md · Fractured parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -207,6 +210,7 @@ Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/
 
 Chunk 39 focused local validation: TDD red/green status-effect regressions PASS (6/6 focused); changed status model/runtime/ported_features JavaScript `node --check` PASS; legacy effect regression updated for the model-backed Eyes identifier; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the repaired published commit pending.
 Chunk 40 focused local validation: TDD red/green music-disc model regressions PASS (2/2 focused); all 12 item JSONs receive source-duration/sound-event record components and max stack size 1; Microsoft Learn and BedrockWiki `minecraft:record` contract verified; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
+Chunk 41 focused local validation: TDD contact regressions PASS (4/4 focused; 12/12 full local Node suite); changed resolver/runtime JavaScript syntax and Bedrock beta type-check PASS; GitHub Actions [run 139](https://github.com/PastaHimself/tbs-2.0/actions/runs/33756631657) passed validators, regression tests, Blockception diagnostics, MCT validation, packaging, and report upload. Bedrock world/runtime smoke testing remains unavailable locally.
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -246,7 +250,11 @@ Chunk 39 adds a source-backed adapter for the two registered custom effects. Hea
 
 ## Chunk 40 — Jukebox song record adapters
 
-Chunk 40 adds native `minecraft:record` components to all twelve existing music items. The source durations and sound-definition keys are preserved, items are made non-stackable, and Java's comparator output of 15 is clamped to Bedrock's documented maximum 13. Focused model and item-link regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
+Chunk 40 adds native `minecraft:record` components to all twelve existing music items. The source durations and sound-definition keys are preserved, items are made non-stackable, and Java's comparator output of 15 is clamped to Bedrock's documented maximum 13. Focused model and item-link regressions pass; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
+
+## Chunk 41 — Fractured rendered-contact resolver
+
+Chunk 41 adds a source-backed resolver for Fractured/Jimmy contact events. It preserves the four source-tracked bones used by `FracturedModel`, accepts exact rendered world positions through an injectable bridge seam, keeps the recovered `SingleStomp` offset as its source-preserving fallback, and makes the client-only claw/rock limitation explicit through entity-anchor fallback positions. The runtime routes stomp, slam, rock throw, and rock release origins through the resolver. Focused contact regressions pass; GitHub Actions [run 139](https://github.com/PastaHimself/tbs-2.0/actions/runs/33756631657) PASS. Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Next chunk
-**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** A live Bedrock render-bone bridge remains engine-limited; exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.

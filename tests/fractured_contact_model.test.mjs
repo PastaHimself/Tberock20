@@ -46,3 +46,10 @@ test("uses an explicit entity-anchor fallback for unavailable claw and rock bone
     missingBones: ["ROCK"],
   });
 });
+
+test("rejects a missing contact event instead of indexing an undefined key", () => {
+  assert.throws(
+    () => resolveFracturedContactPositions(),
+    /Unknown Fractured contact event:/,
+  );
+});
