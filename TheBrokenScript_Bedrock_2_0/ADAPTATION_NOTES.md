@@ -269,3 +269,12 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 4. **Bedrock adaptation**: library_book_model.js preserves the ID/page contract; library_book_data.js embeds the 44 payloads; the book item uses ActionFormData with Previous/Next/Close controls and safe optional item-stack ID retention.
 5. **Player-visible difference**: Java's custom book texture, noisy glyph animation, rendered page layout, and animated special pages become a form with the source page text and author context. New selections use recovered IDs because the supplied source payload corpus contains 44 resources although the source random range reaches 250.
 6. **Parity class**: VALIDATED_APPROXIMATION; payload, selection, page, and navigation contracts are covered by local tests and repository CI.
+
+## A-029 — Null interface form adapters
+
+1. **Source feature**: NullInterfaceTriggerEvent and the NullInterfaceScreen, NullInterface2Screen, and NullInterface3Screen menu/screen pairs.
+2. **Source behavior**: The trigger randomly selects one of three Null events; each opens its named menu. Interface 1 renders “behind you,” interface 2 renders 25 “null” labels in a five-by-five grid, and interface 3 renders “help”; Escape closes the container.
+3. **Source evidence**: decompiled/net/thebrokenscript/events/nullent/interfaces/NullInterfaceTriggerEvent.java; NullInterface1Event.java; NullInterface2Event.java; NullInterface3Event.java; decompiled/net/thebrokenscript/client/gui/NullInterfaceScreen.java; NullInterface2Screen.java; NullInterface3Screen.java.
+4. **Bedrock adaptation**: null_interface_model.js preserves the three titles, text, and grid shape; ported_features.js shows the selected definition in ActionFormData; horror_events.js routes null_interface_trigger to the form adapter.
+5. **Player-visible difference**: The Java 176×166 textured container screens become supported forms. The exact texture, font metrics, label color, and container chrome are not available through this adapter.
+6. **Parity class**: VALIDATED_APPROXIMATION; source text/layout and event wiring are covered by local model regressions and repository CI.

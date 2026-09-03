@@ -8,7 +8,7 @@ export const SOURCE_REGISTERED_EVENT_ADAPTERS = Object.freeze({
   }),
   null_interface_trigger: Object.freeze({
     sourceType: "null_event",
-    bedrockAdapter: "null_interface_title_fallback",
+    bedrockAdapter: "null_interface_form_reader",
   }),
   obfuscated_sign: Object.freeze({
     sourceType: "tbs_event",

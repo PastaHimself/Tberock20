@@ -10693,11 +10693,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                          "BP/scripts/systems/null_interface_model.js",
+                                          "BP/scripts/systems/ported_features.js",
+                                          "BP/scripts/systems/horror_events.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 45 adapts NullInterfaceScreen to an ActionFormData form with the source NullInterface title and behind you text."
                  },
                  {
                      "source_id":  "gui.null_interface_2",
@@ -10708,11 +10710,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                          "BP/scripts/systems/null_interface_model.js",
+                                          "BP/scripts/systems/ported_features.js",
+                                          "BP/scripts/systems/horror_events.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 45 adapts NullInterface2Screen to an ActionFormData form preserving the source five-by-five null grid."
                  },
                  {
                      "source_id":  "gui.null_interface_3",
@@ -10723,11 +10727,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                          "BP/scripts/systems/null_interface_model.js",
+                                          "BP/scripts/systems/ported_features.js",
+                                          "BP/scripts/systems/horror_events.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 45 adapts NullInterface3Screen to an ActionFormData form with the source NullInterface3 title and help text."
                  },
                  {
                      "source_id":  "gui.polaroid_gui",
