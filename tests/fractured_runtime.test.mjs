@@ -67,6 +67,14 @@ test("Rock block impact is wired to the source-counted custom particle emitter",
   assert.equal(particle.particle_effect.components["minecraft:particle_initial_speed"], 2);
 });
 
+test("Fractured attack contacts route through the source-backed resolver", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /resolveFracturedContactPositions/);
+  assert.match(runtime, /contactPositionForEvent\(entity, "OffenseRockThrow"\)/);
+  assert.match(runtime, /contactPositionForEvent\(entity, "DefensiveRockRelease"\)/);
+  assert.match(runtime, /contactPositionsForEvent\(entity, "Slam"\)/);
+});
+
 test("Fractured audio retains SoundInstance handles and stops arena music on reset", async () => {
   const runtime = await readFile(runtimePath, "utf8");
   assert.match(runtime, /soundInstances: \[\]/);

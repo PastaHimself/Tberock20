@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 38 — NullBookStoryEvent written-book adapter)
+Last updated: 2026-09-03 (Chunk 41 — Fractured rendered-contact resolver)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-03 (Chunk 38 — NullBookStoryEvent written-book adapter)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 38 complete — NullBookStoryEvent written-book adapter**
+**Chunk 41 complete — Fractured rendered-contact resolver**
 
-Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the day-12-plus-1000 story threshold. Its pure model preserves the source null text, chunk-centered binary X/Z coordinates including the Java `Integer.MAX_VALUE` case, literal Y=201, and two-page layout; the injectable adapter builds/signs the Bedrock `ItemBookComponent` item, clones it per player, drops leftovers, and retries logged transient failures. The world-state initialization marker now checks the key it persists. Exact rendered bone world-position contact remains an explicit engine boundary.
+Chunk 41 ports the source Fractured/Jimmy rendered-contact contract into a source-backed Bedrock resolver. ROCK, right_l_claw, left_l_claw, and right_f_tarsus are catalogued from the source animation/model bridge; callers may inject exact rendered world positions when a bridge is available. Without that engine bridge, SingleStomp preserves the recovered source stomp transform and claw/rock contacts use an explicit entity-anchor fallback.
 
 ## Chunk state
 | Chunk | State |
@@ -62,6 +62,9 @@ Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the d
 | 36 Source particle resources and event bridge | **completed** (nine source definitions/resources; Null/Eyes/Curved event bridge; Paper/resource-only differences ledgered) |
 | 37 Fractured audio lifecycle adapter | **completed** (source Jimmy spawn cue; SoundInstance-owned JimArena intro/loop cleanup; focused regression) |
 | 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, Java coordinate encoding, injectable ItemBookComponent creation, independent per-player delivery, overflow drop, bounded retry, and persistence-key correction) |
+| 39 Custom status-effect adapter | **completed** (source effect metadata, finite expiry refresh, health-cap runtime adapter, Eyes-particle bridge, focused regressions) |
+| 40 Jukebox song record adapters | **completed** (12 source songs mapped to native record components, source durations/sound keys preserved, comparator signal clamped to 13, integration regressions) |
+| 41 Fractured rendered-contact resolver | **completed** (source bone contract, injectable world-position seam, source stomp transform fallback, explicit entity-anchor fallback, runtime wiring, focused regressions, GitHub Actions run 139) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -94,6 +97,14 @@ BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_runtime.test.mj
 
 ## Files changed (Chunk 38)
 BP/scripts/systems/{story_book_model,story_book_adapter,story_events,world_state}.js · tests/story_events.test.mjs · docs/chunks/CHUNK_38_{SPEC,REPORT}.md · SOURCE_MAP.json · story/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 39)
+BP/scripts/systems/{status_effect_model,status_effect_runtime,ported_features}.js · tests/status_effect_{model,runtime}.test.mjs · tests/remaining_ports.test.mjs · docs/chunks/CHUNK_39_{SPEC,REPORT}.md · status/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 40)
+BP/items/{attribute_mutilation,credits,instability,instability_music_box,instabilityv2,instabilityv3,lilly,lilly_v2,record_14,record_15,record_16,record_17}.json · BP/scripts/systems/music_disc_model.js · tests/music_disc_parity.test.mjs · docs/chunks/CHUNK_40_{SPEC,REPORT}.md · music/parity/adaptation/limitation/validation ledgers
+## Files changed (Chunk 41)
+BP/scripts/systems/fractured_contact_model.js · BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_contact_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_41_{SPEC,REPORT}.md · Fractured parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -197,6 +208,9 @@ Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; chang
 
 Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/7 focused; 67/67 full Node suite); changed story, adapter, and state modules `node --check` PASS; source threshold/page/coordinate, ItemBookComponent/signing/distribution, overflow, retry, and persistence assertions PASS. GitHub Actions [run 128](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718374216) passed all repository-owned checks; its MCT bare-beta self-comparison false positive was fixed and verified by [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818), which passed the complete workflow. Bedrock world/runtime smoke test unavailable locally.
 
+Chunk 39 focused local validation: TDD red/green status-effect regressions PASS (6/6 focused); changed status model/runtime/ported_features JavaScript `node --check` PASS; legacy effect regression updated for the model-backed Eyes identifier; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the repaired published commit pending.
+Chunk 40 focused local validation: TDD red/green music-disc model regressions PASS (2/2 focused); all 12 item JSONs receive source-duration/sound-event record components and max stack size 1; Microsoft Learn and BedrockWiki `minecraft:record` contract verified; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
+Chunk 41 focused local validation: TDD contact regressions PASS (4/4 focused; 12/12 full local Node suite); changed resolver/runtime JavaScript syntax and Bedrock beta type-check PASS; GitHub Actions [run 139](https://github.com/PastaHimself/tbs-2.0/actions/runs/33756631657) passed validators, regression tests, Blockception diagnostics, MCT validation, packaging, and report upload. Bedrock world/runtime smoke testing remains unavailable locally.
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
 - Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
@@ -230,5 +244,17 @@ Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Foc
 
 Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1000 threshold. The two pages preserve the source null text and chunk-centered binary Clan Void coordinates, including the Java Integer.MAX_VALUE conversion; the Bedrock book component signs independent per-player copies as `null`/`null`, drops inventory leftovers, and retries logged transient failures. The world-state initialization key is corrected to preserve the delivery gate. Focused and full Node regressions pass; run 128's sole failure was the external MCT bare-beta self-comparison filter, fixed by the narrow follow-up regression; [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818) passed final validator, type-check, diagnostics, Creator Tools, packaging, and artifact/report steps.
 
+## Chunk 39 — Custom status-effect adapter
+
+Chunk 39 adds a source-backed adapter for the two registered custom effects. Heart Corruption preserves the harmful metadata and applies the Java `MAX_HEALTH -1` contract by capping current health at one below the effective maximum while active; Why Can't You Leave preserves its 1000-tick source duration and emits the native Eyes particle bridge. Focused status regressions and changed-runtime syntax checks pass; the legacy effect assertion now accepts the model-backed identifier; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the repaired published commit is pending.
+
+## Chunk 40 — Jukebox song record adapters
+
+Chunk 40 adds native `minecraft:record` components to all twelve existing music items. The source durations and sound-definition keys are preserved, items are made non-stackable, and Java's comparator output of 15 is clamped to Bedrock's documented maximum 13. Focused model and item-link regressions pass; GitHub Actions [run 134](https://github.com/PastaHimself/tbs-2.0/actions/runs/33751515744) PASS.
+
+## Chunk 41 — Fractured rendered-contact resolver
+
+Chunk 41 adds a source-backed resolver for Fractured/Jimmy contact events. It preserves the four source-tracked bones used by `FracturedModel`, accepts exact rendered world positions through an injectable bridge seam, keeps the recovered `SingleStomp` offset as its source-preserving fallback, and makes the client-only claw/rock limitation explicit through entity-anchor fallback positions. The runtime routes stomp, slam, rock throw, and rock release origins through the resolver. Focused contact regressions pass; GitHub Actions [run 139](https://github.com/PastaHimself/tbs-2.0/actions/runs/33756631657) PASS. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** A live Bedrock render-bone bridge remains engine-limited; exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.

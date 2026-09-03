@@ -28,6 +28,7 @@ import {
   fracturedAnimationId,
   fracturedPresentationAnimationId,
 } from "../../systems/fractured_animation_model.js";
+import { resolveFracturedContactPositions } from "../../systems/fractured_contact_model.js";
 import {
   FRACTURED_ROAM_SOURCE,
   fracturedRoamArenaPlan,
@@ -830,23 +831,27 @@ function playerPulse(entity, center, plan, knockbackMode = "view") {
   }
 }
 
+function contactPositionsForEvent(entity, eventName) {
+  // Bedrock has no render-bone world-position API, so the resolver keeps the
+  // source stomp transform and makes the anchor fallback explicit for the
+  // other client-only bone packets.
+  return resolveFracturedContactPositions({
+    eventName,
+    origin: copyPosition(entity.location),
+    yawDegrees: getBodyYaw(entity),
+  }).positions;
+}
+
+function contactPositionForEvent(entity, eventName) {
+  return contactPositionsForEvent(entity, eventName)[0] ?? copyPosition(entity.location);
+}
+
 function rotatedStompPosition(entity) {
-  const offset = FRACTURED_SOURCE.stomp.offset;
-  let yawDegrees = 0;
-  try { yawDegrees = entity.getRotation().y; } catch {}
-  const yaw = (-yawDegrees * Math.PI) / 180 + Math.PI;
-  return {
-    x: entity.location.x + offset.x * Math.cos(yaw) - offset.z * Math.sin(yaw),
-    y: entity.location.y + offset.y,
-    z: entity.location.z + offset.x * Math.sin(yaw) + offset.z * Math.cos(yaw),
-  };
+  return contactPositionForEvent(entity, "SingleStomp");
 }
 
 function sameCenterClawPositions(entity) {
-  // The two Java slam packets carry the world positions of the two claw bones.
-  // With no script-visible Bedrock bone API, preserving the two-packet damage
-  // count at the entity anchor is the least speculative spatial adapter.
-  return [copyPosition(entity.location), copyPosition(entity.location)];
+  return contactPositionsForEvent(entity, "Slam");
 }
 
 function emitAttackEffect(entity, state, attack, target) {
@@ -876,13 +881,13 @@ function emitAttackEffect(entity, state, attack, target) {
     return;
   }
   if (attack === "moonRockToss") {
-    const origin = copyPosition(entity.location);
+    const origin = contactPositionForEvent(entity, "OffenseRockThrow");
     const targetPoint = targetPointAtHalfHeight(target);
     spawnRock(entity, origin, targetPoint, FRACTURED_SOURCE.rock.throwSpeed);
     return;
   }
   if (attack === "airLift") {
-    const origin = copyPosition(entity.location);
+    const origin = contactPositionForEvent(entity, "DefensiveRockRelease");
     const rock = spawnRock(entity, origin, null, 0);
     if (rock) {
       const rockState = getRockState(rock);

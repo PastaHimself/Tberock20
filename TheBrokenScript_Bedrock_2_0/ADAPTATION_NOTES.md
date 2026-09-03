@@ -181,3 +181,51 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: `story_book_model.js` preserves the threshold/page/binary-coordinate contract; `story_book_adapter.js` creates the writable book through an injected ItemStack constructor and distributes cloned copies, dropping a leftover stack when inventory insertion is full. `story_events.js` wires the real Bedrock constructor, logs failures, retries transient creation/delivery failures with a bounded `system.runTimeout` loop, and sets `nullBookGiven` only after all current players are delivered.
 6. **Player-visible difference**: the Bedrock adapter uses Script API book mutation/signing instead of Java's serialized data component; an inventory-full remainder appears as a dropped item at the player location, and transient failures are retried rather than silently discarded.
 7. **Parity class**: `VALIDATED_HIGH_PARITY` for source timing/content/metadata/delivery, with the book-component and inventory serialization differences documented above.
+
+## A-023 — Custom status-effect registry and modifier adapter
+
+1. **Source feature**: `TBSEffects`, `HeartCorruptionMobEffect`, `WhyCantYouLeaveMobEffect`, and `WhyCantYouLeaveEvent`.
+
+2. **Source behavior**: `heart_corruption` is harmful, magenta, applies the `MAX_HEALTH` ADD_VALUE modifier with value `-1.0`, and declares a tick hook without custom tick damage. `why_cant_you_leave` is neutral, black, visible, ambient, uses the Eyes particle, and is applied for 1000 ticks at amplifier 0.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/effects/HeartCorruptionMobEffect.java`; `decompiled/net/thebrokenscript/effects/WhyCantYouLeaveMobEffect.java`; `decompiled/net/thebrokenscript/events/WhyCantYouLeaveEvent.java`; `decompiled/net/thebrokenscript/registry/TBSEffects.java`.
+
+4. **Bedrock limitation**: the Script API cannot register a custom mob-effect id or install Java's attribute-modifier registry entry; health-component writes also require a runtime player component.
+
+5. **Replacement design**: `status_effect_model.js` is the source catalog and expiry model. `status_effect_runtime.js` caps current health at one below `effectiveMax` while Heart Corruption is active. `ported_features.js` refreshes finite dynamic-property expiries, reapplies the cap every 20 ticks, and emits the source Eyes particle for Why Can't You Leave.
+
+6. **Player-visible difference**: the Bedrock implementation is a finite script effect rather than a native status-effect registry entry; the custom potion icon and Java attribute-modifier identity remain unavailable.
+
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source metadata and timing are preserved, while custom registry/modifier installation remains engine-limited.
+
+## A-024 — Jukebox song record adapter
+
+1. **Source feature**: the twelve `TBSSongs` registrations and their `data/thebrokenscript/jukebox_song/*.json` definitions.
+
+2. **Source behavior**: each song keeps its source sound event, duration, comparator output of 15, and human-facing description; the Java records are non-stackable music items.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/registry/TBSSongs.java`; `source_extracted/data/thebrokenscript/jukebox_song/*.json`; existing `RP/sound_definitions.json` and copied `.ogg` assets.
+
+4. **Bedrock limitation**: `minecraft:record.comparator_signal` is documented for values 1–13, so Java's 15 is clamped to 13. Bedrock's record component is used instead of Java's registered `JukeboxSong` holder.
+
+5. **Replacement design**: `music_disc_model.js` catalogs the twelve source contracts. Each existing Bedrock item receives `minecraft:record` with the source duration and matching custom sound-definition key, plus `minecraft:max_stack_size: 1`.
+
+6. **Player-visible difference**: comparator output is two points lower than Java's source value; sound playback uses Bedrock's native record component and existing resource-pack sound definitions.
+
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source song timing, descriptions, item identity, sound assets, and playback links are preserved, with the comparator range clamp documented.
+
+## A-025 — Fractured rendered-contact spatial resolver
+
+1. **Source feature**: `FracturedModel` tracked bones and `FracturedEntity` custom instruction handlers for `SingleStomp`, `Slam`, `OffenseRockThrow`, and `DefensiveRockRelease`.
+
+2. **Source behavior**: the client model resolves world positions for `ROCK`, `right_l_claw`, `left_l_claw`, and `right_f_tarsus`. The server instruction handlers use those positions for rock spawn/drop and claw/stomp packet origins. The source stomp attack's `(210, 0, -1313) × 0.125` offset recovers to `(26.25, 0, -164.125)` before body-yaw rotation.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/client/model/entity/FracturedModel.java`; `decompiled/net/thebrokenscript/entity/fractured/FracturedEntity.java`; `decompiled/net/thebrokenscript/entity/fractured/attacks/StompAttack.java`; `BP/scripts/systems/fractured_animation_model.js`.
+
+4. **Bedrock limitation**: the current Bedrock Script API does not expose GeckoLib-style rendered bone matrices or a server packet path for client render-bone world positions.
+
+5. **Replacement design**: `fractured_contact_model.js` derives its event/bone catalog from the animation contract, accepts bridge-injected world positions for exact contact routing, preserves the recovered stomp offset as a deterministic fallback, and returns an explicit entity-anchor fallback for unavailable claw/rock bones. `fractured_runtime.js` routes stomp, slam, rock throw, and rock release origins through this resolver.
+
+6. **Player-visible difference**: a future render bridge can provide exact limb/rock origins without changing the gameplay adapter; current Bedrock-only execution preserves source stomp placement and keeps the other unavailable contacts deterministic at the boss anchor.
+
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source event/bone ownership and fallback behavior are implemented and tested, while a live GeckoLib-equivalent render-bone bridge remains engine-limited.

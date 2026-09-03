@@ -419,34 +419,38 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "entity.fractured",
-                     "category":  "entity",
-                     "source_paths":  [
-                                          "lang key entity.thebrokenscript.fractured",
-                                          "TBSEntities registry"
-                                      ],
-                     "bedrock_identifier":  "thebrokenscript:fractured",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "entity.fractured",
+                     "category": "entity",
+                     "source_paths": [
+                         "lang key entity.thebrokenscript.fractured",
+                         "TBSEntities registry"
+                     ],
+                     "bedrock_identifier": "thebrokenscript:fractured",
+                     "bedrock_files": [
+                         "BP/entities/fractured.json",
+                         "RP/entity/fractured.entity.json",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Jimmy host and attack runtime shipped; rendered-contact routing uses the Chunk 41 resolver with explicit engine-limited fallbacks"
                  },
                  {
-                     "source_id":  "entity.fractured_roam",
-                     "category":  "entity",
-                     "source_paths":  [
-                                          "lang key entity.thebrokenscript.fractured_roam",
-                                          "TBSEntities registry"
-                                      ],
-                     "bedrock_identifier":  "thebrokenscript:fractured_roam",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "entity.fractured_roam",
+                     "category": "entity",
+                     "source_paths": [
+                         "lang key entity.thebrokenscript.fractured_roam",
+                         "TBSEntities registry"
+                     ],
+                     "bedrock_identifier": "thebrokenscript:fractured_roam",
+                     "bedrock_files": [
+                         "BP/entities/fractured_roam.json",
+                         "RP/entity/fractured_roam.entity.json",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Roam host/presentation lifecycle shipped; shared Fractured contact bridge remains engine-limited (Chunk 41)"
                  },
                  {
                      "source_id":  "entity.he",
@@ -934,19 +938,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "entity.rock",
-                     "category":  "entity",
-                     "source_paths":  [
-                                          "lang key entity.thebrokenscript.rock",
-                                          "TBSEntities registry"
-                                      ],
-                     "bedrock_identifier":  "thebrokenscript:rock",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "entity.rock",
+                     "category": "entity",
+                     "source_paths": [
+                         "lang key entity.thebrokenscript.rock",
+                         "TBSEntities registry"
+                     ],
+                     "bedrock_identifier": "thebrokenscript:rock",
+                     "bedrock_files": [
+                         "BP/entities/rock.json",
+                         "RP/entity/rock.entity.json",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Rock flight/impact adapter shipped; exact source render-bone spawn origin is bridge-injectable with entity-anchor fallback (Chunk 41)"
                  },
                  {
                      "source_id":  "entity.siluet",
@@ -8541,13 +8547,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/attribute_mutilation.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:attribute_mutilation",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/attribute_mutilation.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 157s jimbob.full playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.credits",
@@ -8555,13 +8562,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/credits.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:credits",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/credits.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 165s credits playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.disc15.betray",
@@ -8569,13 +8577,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/disc15.betray.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:record_15",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/record_15.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 78s disc15_betray playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.disc16.youcant",
@@ -8583,13 +8592,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/disc16.youcant.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:record_16",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/record_16.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 98s disc16_youcant playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.disc17.silenced",
@@ -8597,13 +8607,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/disc17.silenced.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:record_17",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/record_17.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 63.5s disc17 playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.instability",
@@ -8611,13 +8622,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/instability.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:instability",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/instability.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 233.5s instability playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.instability_music_box",
@@ -8625,13 +8637,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/instability_music_box.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:instability_music_box",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/instability_music_box.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 179s instability_music_box playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.instability_v2",
@@ -8639,13 +8652,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/instability_v2.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:instabilityv2",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/instabilityv2.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 239s instability_v2 playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.instability_v3",
@@ -8653,13 +8667,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/instability_v3.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:instabilityv3",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/instabilityv3.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 278s instability_v3 playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.lilly_theme",
@@ -8667,13 +8682,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/lilly_theme.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:lilly",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/lilly.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 208s lilly_theme playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.lilly_theme_v2",
@@ -8681,13 +8697,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/lilly_theme_v2.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:lilly_v2",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/lilly_v2.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 204s lilly_theme_v2 playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "jukebox_song.record14",
@@ -8695,13 +8712,14 @@
                      "source_paths":  [
                                           "data/thebrokenscript/jukebox_song/record14.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:record_14",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/items/record_14.json",
+                                          "BP/scripts/systems/music_disc_model.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "minecraft:record preserves 61s record14 playback; source comparator 15 is clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "advancement.can_someone_hear_me",
@@ -10149,13 +10167,15 @@
                      "source_paths":  [
                                           "TBSEffects.heart_corruption"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:heart_corruption",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/scripts/systems/status_effect_model.js",
+                                          "BP/scripts/systems/status_effect_runtime.js",
+                                          "BP/scripts/systems/ported_features.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source metadata catalogued; active MAX_HEALTH -1 adapter caps current health at effective maximum minus one; native custom registry unavailable (Chunk 39)"
                  },
                  {
                      "source_id":  "effect.why_cant_you_leave",
@@ -10163,13 +10183,14 @@
                      "source_paths":  [
                                           "TBSEffects.why_cant_you_leave"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:why_cant_you_leave",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/scripts/systems/status_effect_model.js",
+                                          "BP/scripts/systems/ported_features.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source duration/metadata and Eyes-particle bridge preserved; native custom registry unavailable (Chunk 39)"
                  },
                  {
                      "source_id":  "particle.eyes",
@@ -11670,18 +11691,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "code.boss/jimmy",
-                     "category":  "code_package",
-                     "source_paths":  [
-                                          "net/thebrokenscript/boss/jimmy"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "code.boss/jimmy",
+                     "category": "code_package",
+                     "source_paths": [
+                         "net/thebrokenscript/boss/jimmy"
+                     ],
+                     "bedrock_identifier": "",
+                     "bedrock_files": [
+                         "BP/scripts/entities/boss/fractured_runtime.js",
+                         "BP/scripts/systems/fractured_attack_model.js",
+                         "BP/scripts/systems/fractured_animation_model.js",
+                         "BP/scripts/systems/fractured_contact_model.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Jimmy attack, animation, and rendered-contact contracts are source-backed adapters; live GeckoLib render-bone bridge remains engine-limited (Chunks 28, 33, 35, 41)"
                  },
                  {
                      "source_id":  "code.boss/kerfur",
@@ -12148,18 +12172,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "code.entity/fractured",
-                     "category":  "code_package",
-                     "source_paths":  [
-                                          "net/thebrokenscript/entity/fractured"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "code.entity/fractured",
+                     "category": "code_package",
+                     "source_paths": [
+                         "net/thebrokenscript/entity/fractured"
+                     ],
+                     "bedrock_identifier": "",
+                     "bedrock_files": [
+                         "BP/scripts/entities/boss/fractured_runtime.js",
+                         "BP/scripts/systems/fractured_multipart_model.js",
+                         "BP/scripts/systems/fractured_animation_model.js",
+                         "BP/scripts/systems/fractured_contact_model.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Fractured host/multipart/presentation/contact adapters shipped; exact child/render-bone transforms remain engine-limited (Chunks 29–31, 35, 41)"
                  },
                  {
                      "source_id":  "code.entity/integrity",
@@ -12330,18 +12357,20 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "code.entity/fractured/attacks",
-                     "category":  "code_package",
-                     "source_paths":  [
-                                          "net/thebrokenscript/entity/fractured/attacks"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "source_id": "code.entity/fractured/attacks",
+                     "category": "code_package",
+                     "source_paths": [
+                         "net/thebrokenscript/entity/fractured/attacks"
+                     ],
+                     "bedrock_identifier": "",
+                     "bedrock_files": [
+                         "BP/scripts/systems/fractured_attack_model.js",
+                         "BP/scripts/systems/fractured_contact_model.js",
+                         "BP/scripts/entities/boss/fractured_runtime.js"
+                     ],
+                     "status": "ported",
+                     "parity": "approximation",
+                     "notes": "Source attack constants and contact event routing shipped; exact client render-bone packet origins remain bridge-injectable/deferred (Chunks 28, 33, 41)"
                  },
                  {
                      "source_id":  "code.entity/integrity/phase1",
@@ -13855,11 +13884,23 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/scripts/systems/music_disc_model.js",
+                                          "BP/items/attribute_mutilation.json",
+                                          "BP/items/credits.json",
+                                          "BP/items/record_14.json",
+                                          "BP/items/record_15.json",
+                                          "BP/items/record_16.json",
+                                          "BP/items/record_17.json",
+                                          "BP/items/instability.json",
+                                          "BP/items/instability_music_box.json",
+                                          "BP/items/instabilityv2.json",
+                                          "BP/items/instabilityv3.json",
+                                          "BP/items/lilly.json",
+                                          "BP/items/lilly_v2.json"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "12 TBSSongs registrations mapped to native minecraft:record components; source durations and sound keys preserved; comparator 15 clamped to Bedrock maximum 13 (Chunk 40)"
                  },
                  {
                      "source_id":  "registry.packets",

@@ -11,6 +11,12 @@
       "minecraft:icon": "attribute_mutilation",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.attribute_mutilation"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:record": {
+        "comparator_signal": 13,
+        "duration": 157,
+        "sound_event": "jimbob.full"
       }
     }
   }
