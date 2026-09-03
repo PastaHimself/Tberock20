@@ -11,6 +11,12 @@ book as `null`/`null`, and distributes it to every online player's inventory.
 The earlier chat/title approximation was removed so the story stage has one
 player-visible delivery path, matching the source event.
 
+The adapter preserves the Java result for `Integer.MAX_VALUE` coordinates,
+clones the signed item per player, drops `addItem` leftovers at the player's
+location, and retries transient creation/delivery failures with bounded logging.
+The adjacent world-state initialization marker now checks `mv.dataVersion`, the
+key it persists, so the null-book gate and Clan Void coordinates survive reload.
+
 ## Source evidence
 
 - `decompiled/net/thebrokenscript/registry/TBSStoryEvents.java`
@@ -20,9 +26,11 @@ player-visible delivery path, matching the source event.
 ## Validation
 
 - TDD RED: the new story-book test failed before the model existed.
-- TDD GREEN: `node --test tests/story_events.test.mjs` — **4/4 passed**.
-- Full local suite: `node --test tests/*.test.mjs` — **64/64 passed**.
-- Changed story modules pass `node --check`.
+- TDD RED: the review follow-up test failed before the injectable adapter,
+  exact sentinel conversion, and persistence-key fix existed.
+- TDD GREEN: `node --test tests/story_events.test.mjs` — **7/7 passed**.
+- Full local suite: `node --test tests/*.test.mjs` — **67/67 passed**.
+- Changed story and state modules pass `node --check`.
 - Microsoft Learn documents `ItemStack`, `ItemStack.getComponent`,
   `ItemBookComponent.setContents`, and `ItemBookComponent.signBook` for the
   target `@minecraft/server` beta dependency.
@@ -32,6 +40,7 @@ player-visible delivery path, matching the source event.
 ## Parity
 
 The story threshold, source page content/layout, coordinate encoding, signed
-book metadata, and online-player delivery are now represented. Bedrock uses the
-supported book component API in place of Java's `WrittenBookContent` data
-component, and inventory overflow remains a container adapter detail.
+book metadata, reliable per-player delivery, and persistence gate are now
+represented. Bedrock uses the supported book component API in place of Java's
+`WrittenBookContent` data component; inventory overflow is surfaced as a dropped
+item, and transient failures use a bounded retry adapter.

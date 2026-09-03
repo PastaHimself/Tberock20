@@ -13837,11 +13837,13 @@
                      "bedrock_identifier":  "null_book_hint",
                      "bedrock_files":  [
                                            "BP/scripts/systems/story_events.js",
-                                           "BP/scripts/systems/story_book_model.js"
+                                           "BP/scripts/systems/story_book_model.js",
+                                           "BP/scripts/systems/story_book_adapter.js",
+                                           "BP/scripts/systems/world_state.js"
                                        ],
                      "status":  "ported",
                      "parity":  "high",
-                     "notes":  "all 4 registered story stages wired; null_book_hint creates a signed written book with chunk-centered binary clan-void coordinates (Chunk 38)"
+                     "notes":  "all 4 registered story stages wired; null_book_hint creates a signed written book with Java chunk-centered binary coordinates, bounded delivery retry, and persistent delivery gate (Chunk 38)"
                  },
                  {
                      "source_id":  "registry.music_songs",

@@ -13,7 +13,7 @@ Last updated: 2026-09-03 (Chunk 38 — NullBookStoryEvent written-book adapter)
 ## Current chunk
 **Chunk 38 complete — NullBookStoryEvent written-book adapter**
 
-Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the day-12-plus-1000 story threshold. Its pure model preserves the source null text, chunk-centered binary X/Z coordinates, literal Y=201, and two-page layout; the runtime uses the Bedrock `ItemBookComponent` to set pages, sign as `null`/`null`, and distribute the item to every online player. Exact rendered bone world-position contact remains an explicit engine boundary.
+Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the day-12-plus-1000 story threshold. Its pure model preserves the source null text, chunk-centered binary X/Z coordinates including the Java `Integer.MAX_VALUE` case, literal Y=201, and two-page layout; the injectable adapter builds/signs the Bedrock `ItemBookComponent` item, clones it per player, drops leftovers, and retries logged transient failures. The world-state initialization marker now checks the key it persists. Exact rendered bone world-position contact remains an explicit engine boundary.
 
 ## Chunk state
 | Chunk | State |
@@ -32,7 +32,7 @@ Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the d
 | 06 Stalking systems completion pass | **completed** (curved unseen-approach/transform, jon chatter NPC, sub_anomaly_1/2 corrupt-block rolls, obliteration pair w/ stare-kick, herobrine statue; CURVED/HEROBRINE/OBLIT/ANOMALY spawn rules; manifest switched to @minecraft/server beta channel) |
 | 07 Bosses (Integrity/Jimmy/Kerfur+fever/chord/tether/tentacle) | **completed** (16 entities; Arena hooks; source-backed Phase 3 ring/boundary slice; remaining lifecycle/cutscene differences recorded in the parity ledger) |
 | 08 Blocks (123 + 8 BE equivalents) | **completed** (123/123 blockstates → BP/blocks: ~60 cubes, 19 cross flora w/ geometry.tbs_cross, 16 void_template markers, jim_triggers/initiator/BEs; terrain_texture +13 keys; beta blockComponentRegistry ×12; physical_stacktrace/disruption/corrupt ledgers unblocked; tools/build_blocks.ps1) |
-| 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book signed written-book story adapter at day 12+1000 (Chunk 38)) |
+| 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book signed written-book story adapter at day 12+1000 with bounded delivery retry (Chunk 38)) |
 | 10 Dimensions (13) & portals | **completed** (12 dimension JSONs per TBSDimensions + NIGHTMARES set; dimensions.js runtime w/ beta createDimension fallback; follow → clan_void/null_torture teleport unblocked; portal_controller interact → clan_void Y:201) |
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 biomes + RP fog palettes; procedural Shaft/Hallway builders wired to null_structure interact; 305-NBT corpus + xcsf arena conversion ledgered as deferred tooling; 32 spawn modifiers confirmed covered by spawn_director rules) |
 | 12 Events & horror choreography (94) | **completed** (horror_events.js: 78-id gated weighted pool @200t, ~60 handlers incl. OS-fake titles A-004, place_* pranks w/ real blocks, fire() export; Arena suppression; manifest external revert re-corrected to beta) |
@@ -61,7 +61,7 @@ Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the d
 | 35 Fractured animation timeline and presentation bridge | **completed** (source keyframe names/seconds, deterministic 20 Hz event ticks, direct attack animation playback, locator-bound contact presentation, Roam state mapping, tracked-bone contract, and regressions) |
 | 36 Source particle resources and event bridge | **completed** (nine source definitions/resources; Null/Eyes/Curved event bridge; Paper/resource-only differences ledgered) |
 | 37 Fractured audio lifecycle adapter | **completed** (source Jimmy spawn cue; SoundInstance-owned JimArena intro/loop cleanup; focused regression) |
-| 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, chunk-centered binary coordinates, ItemBookComponent signing, and online-player distribution) |
+| 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, Java coordinate encoding, injectable ItemBookComponent creation, independent per-player delivery, overflow drop, bounded retry, and persistence-key correction) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -93,7 +93,7 @@ BP/scripts/systems/{particle_model,particle_runtime}.js · RP/particles/*.partic
 BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_37_{SPEC,REPORT}.md · audio/parity/validation ledgers
 
 ## Files changed (Chunk 38)
-BP/scripts/systems/{story_book_model,story_events}.js · tests/story_events.test.mjs · docs/chunks/CHUNK_38_{SPEC,REPORT}.md · SOURCE_MAP.json · story/parity/adaptation/limitation/validation ledgers
+BP/scripts/systems/{story_book_model,story_book_adapter,story_events,world_state}.js · tests/story_events.test.mjs · docs/chunks/CHUNK_38_{SPEC,REPORT}.md · SOURCE_MAP.json · story/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -195,7 +195,7 @@ Chunk 35 focused local validation: 19/19 deterministic Node regressions PASS for
 
 Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; changed runtime JavaScript `node --check` PASS; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions [run 125](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983) PASS.
 
-Chunk 38 focused local validation: TDD red/green story-book regressions PASS (4/4 focused; 64/64 full Node suite); changed story modules `node --check` PASS; source threshold/page/coordinate and Bedrock book-component/signing/distribution assertions PASS; Bedrock world/runtime smoke test unavailable locally; GitHub Actions validation for the published commit pending.
+Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/7 focused; 67/67 full Node suite); changed story, adapter, and state modules `node --check` PASS; source threshold/page/coordinate, ItemBookComponent/signing/distribution, overflow, retry, and persistence assertions PASS; Bedrock world/runtime smoke test unavailable locally; GitHub Actions validation for the published follow-up pending.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
@@ -228,7 +228,7 @@ Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Foc
 
 ## Chunk 38 — NullBookStoryEvent written-book adapter
 
-Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1000 threshold. The two pages preserve the source null text and chunk-centered binary Clan Void coordinates, and the Bedrock book component signs the item as `null`/`null` before distribution to all online players. Focused and full Node regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the published commit is pending.
+Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1000 threshold. The two pages preserve the source null text and chunk-centered binary Clan Void coordinates, including the Java Integer.MAX_VALUE conversion; the Bedrock book component signs independent per-player copies as `null`/`null`, drops inventory leftovers, and retries logged transient failures. The world-state initialization key is corrected to preserve the delivery gate. Focused and full Node regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the published follow-up is pending.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.

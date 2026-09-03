@@ -13,11 +13,11 @@ export const NULL_BOOK_PAGE1 =
 
 /**
  * Reproduces NullBookStoryEvent's chunk-centered binary coordinate encoding.
- * The Java source treats Integer.MAX_VALUE as an unset MapVariables value;
- * keeping that state readable avoids emitting a misleading coordinate.
+ * MapVariables values are Java ints, so Integer.MAX_VALUE follows the same
+ * source conversion as every other coordinate.
  */
 export function nullBookCoordinate(value) {
-  if (!Number.isInteger(value) || value >= INT_MAX) return "?";
+  if (!Number.isInteger(value)) return "?";
   const chunkCenter = Math.floor(value / 16) * 16 + 8;
   const binary = Math.abs(chunkCenter).toString(2);
   return chunkCenter < 0 ? `-${binary}` : binary;

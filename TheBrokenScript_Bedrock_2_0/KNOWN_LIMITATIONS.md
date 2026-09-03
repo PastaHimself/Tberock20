@@ -26,6 +26,6 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 
 18. **Java particle providers and custom render hooks are adapted** — Chunk 36 ships all nine declared particle resources and source textures, preserves the registered provider sizes/lifetimes/render-sheet choices, and moves source event counts/spread into Bedrock emitters because Dimension.spawnParticle accepts an effect id and origin. Paper's crossed-quad custom renderer is a billboard/dynamic-motion adapter, while follows_particle and revuxor_particle remain resource-only because no registered Java providers were found (A-020).
 
-19. **NullBookStoryEvent uses a Bedrock book-component adapter** — Java's `WrittenBookContent` data component is not directly installable from Bedrock scripts. The port uses the supported `minecraft:book` `ItemBookComponent` to set the source pages and sign the item; inventory overflow and exact Java component serialization remain adapter details.
+19. **NullBookStoryEvent uses a Bedrock book-component adapter** — Java's `WrittenBookContent` data component is not directly installable from Bedrock scripts. The port uses the supported `minecraft:book` `ItemBookComponent`, preserves Java coordinate conversion, clones copies per player, drops inventory leftovers, and uses bounded logged retries; exact Java component serialization remains an adapter detail.
 
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.

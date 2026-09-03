@@ -1,11 +1,18 @@
-import { world, ItemStack } from "@minecraft/server";
+import { world, system, ItemStack } from "@minecraft/server";
+import { logger } from "../core/logging.js";
 import * as storyTime from "../shared/story_time.js";
 import * as worldState from "./world_state.js";
 import * as playerState from "./player_state.js";
-import { nullBookPages } from "./story_book_model.js";
+import {
+    createSignedNullBook,
+    distributeNullBook,
+} from "./story_book_adapter.js";
 
 const DAY = 24000;
 const OFFSET = 1000;
+const MAX_NULL_BOOK_RETRIES = 20;
+const deliveredNullBookPlayers = new Set();
+let nullBookRetryScheduled = false;
 
 export function registerAll() {
     storyTime.registerThreshold(DAY * 5 + OFFSET, "txt_story_5", onTxtHint);
@@ -20,36 +27,73 @@ export function registerAll() {
     storyTime.registerThreshold(DAY * 12 + OFFSET, "null_book_hint", onNullBook);
 }
 
-function createNullBook(clanVoidX, clanVoidZ) {
+function scheduleNullBookRetry(attempt) {
+    if (attempt >= MAX_NULL_BOOK_RETRIES || nullBookRetryScheduled) return;
     try {
-        const item = new ItemStack("minecraft:writable_book", 1);
-        // ItemBookComponent is the Bedrock equivalent of Java's
-        // WrittenBookContent data component.
-        const book = item.getComponent("minecraft:book");
-        if (!book) return null;
-        book.setContents(nullBookPages(clanVoidX, clanVoidZ));
-        book.signBook("null", "null");
-        return item;
-    } catch {
-        return null;
+        if (typeof system.runTimeout !== "function") {
+            logger.error("null_book_hint cannot schedule a retry: runTimeout is unavailable");
+            return;
+        }
+        nullBookRetryScheduled = true;
+        system.runTimeout(() => {
+            nullBookRetryScheduled = false;
+            onNullBook(attempt + 1);
+        }, 1);
+    } catch (err) {
+        logger.error("null_book_hint retry scheduling failed", err);
     }
 }
 
-function onNullBook() {
+function onNullBook(attempt = 0) {
     if (worldState.get("nullBookGiven")) return;
-    const item = createNullBook(
-        worldState.get("clanVoidX"),
-        worldState.get("clanVoidZ"),
-    );
-    if (!item) return;
-    worldState.set("nullBookGiven", true);
-    for (const player of world.getAllPlayers()) {
-        try {
-            const inv = player.getComponent("minecraft:inventory");
-            const container = inv?.container;
-            if (container) container.addItem(item);
-        } catch {}
+    let item;
+    try {
+        item = createSignedNullBook(
+            ItemStack,
+            worldState.get("clanVoidX"),
+            worldState.get("clanVoidZ"),
+        );
+    } catch (err) {
+        logger.error("null_book_hint book creation failed", err);
+        scheduleNullBookRetry(attempt);
+        return;
     }
+    if (!item) {
+        logger.error("null_book_hint book component is unavailable");
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+
+    let players;
+    try {
+        players = world.getAllPlayers();
+    } catch (err) {
+        logger.error("null_book_hint player lookup failed", err);
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+    if (players.length === 0) {
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+
+    let pending = false;
+    for (const player of players) {
+        const playerKey = player.id ?? player;
+        if (deliveredNullBookPlayers.has(playerKey)) continue;
+        if (distributeNullBook(player, item)) {
+            deliveredNullBookPlayers.add(playerKey);
+        } else {
+            pending = true;
+            logger.warn(`null_book_hint delivery pending for player ${playerKey}`);
+        }
+    }
+    if (pending) {
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+    deliveredNullBookPlayers.clear();
+    worldState.set("nullBookGiven", true);
 }
 
 function onTxtHint() {

@@ -15,20 +15,26 @@ coordinates.
 - Page two renders `X`, `Y`, and `Z` labels plus `CV`; X/Z are computed as
   `Math.floorDiv(clanVoidCoordinate, 16) * 16 + 8` and encoded as signed binary,
   while Y is the literal `201`.
+- `Integer.MAX_VALUE` is still encoded through the source arithmetic; it is not
+  replaced with an invented placeholder.
 
 ## Bedrock adapter
 
-- Keep the story threshold in `story_events.js` and model the page contract in
-  the pure `story_book_model.js` module.
+- Keep the story threshold/retry lifecycle in `story_events.js`, model the page
+  contract in the pure `story_book_model.js` module, and isolate item creation
+  and delivery in the injectable `story_book_adapter.js` module.
 - Create `minecraft:writable_book`, populate its `minecraft:book`
   `ItemBookComponent` with `setContents`, and call `signBook("null", "null")`.
-- Add the resulting item to each online player's inventory, preserving the
-  existing `nullBookGiven` idempotency gate.
+- Give each online player an independent copy, drop any `addItem` remainder at
+  the player's location, and retry/log transient creation or delivery failures
+  without setting `nullBookGiven` prematurely.
+- Persist the world-state initialization marker under the same `mv.dataVersion`
+  key that the initializer writes.
 
 ## Non-goals
 
-Java data-component/NBT installation, exact Java inventory overflow behavior,
-and custom font glyph replacement remain outside this chunk.
+Java data-component/NBT installation, exact Java inventory serialization, and
+custom font glyph replacement remain outside this chunk.
 
 ## Acceptance
 
