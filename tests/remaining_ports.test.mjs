@@ -170,7 +170,7 @@ test("ported effects expose finite tick durations and the horror event applies l
   assert.match(source, /export function applyHeartCorruption\(/);
   assert.match(source, /export function applyWhyCantYouLeave\(/);
   assert.match(source, /EntityDamageCause\.magic/);
-  assert.match(source, /spawnParticle\("thebrokenscript:eyes"/);
+  assert.match(source, /spawnParticle\((?:"thebrokenscript:eyes"|SOURCE_STATUS_EFFECTS\.why_cant_you_leave\.particleEffect)/);
   assert.match(horror, /applyWhyCantYouLeave\(p, 1000\)/);
   const eyes = await readJsonOrNull(eyesPath);
   assert.equal(eyes?.particle_effect?.description?.identifier, "thebrokenscript:eyes");

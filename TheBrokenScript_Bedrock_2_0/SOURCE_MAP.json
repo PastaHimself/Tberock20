@@ -10149,13 +10149,15 @@
                      "source_paths":  [
                                           "TBSEffects.heart_corruption"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:heart_corruption",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/scripts/systems/status_effect_model.js",
+                                          "BP/scripts/systems/status_effect_runtime.js",
+                                          "BP/scripts/systems/ported_features.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source metadata catalogued; active MAX_HEALTH -1 adapter caps current health at effective maximum minus one; native custom registry unavailable (Chunk 39)"
                  },
                  {
                      "source_id":  "effect.why_cant_you_leave",
@@ -10163,13 +10165,14 @@
                      "source_paths":  [
                                           "TBSEffects.why_cant_you_leave"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:why_cant_you_leave",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "BP/scripts/systems/status_effect_model.js",
+                                          "BP/scripts/systems/ported_features.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source duration/metadata and Eyes-particle bridge preserved; native custom registry unavailable (Chunk 39)"
                  },
                  {
                      "source_id":  "particle.eyes",

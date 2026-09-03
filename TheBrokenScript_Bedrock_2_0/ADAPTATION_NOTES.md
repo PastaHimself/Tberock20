@@ -181,3 +181,20 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: `story_book_model.js` preserves the threshold/page/binary-coordinate contract; `story_book_adapter.js` creates the writable book through an injected ItemStack constructor and distributes cloned copies, dropping a leftover stack when inventory insertion is full. `story_events.js` wires the real Bedrock constructor, logs failures, retries transient creation/delivery failures with a bounded `system.runTimeout` loop, and sets `nullBookGiven` only after all current players are delivered.
 6. **Player-visible difference**: the Bedrock adapter uses Script API book mutation/signing instead of Java's serialized data component; an inventory-full remainder appears as a dropped item at the player location, and transient failures are retried rather than silently discarded.
 7. **Parity class**: `VALIDATED_HIGH_PARITY` for source timing/content/metadata/delivery, with the book-component and inventory serialization differences documented above.
+
+## A-023 — Custom status-effect registry and modifier adapter
+
+1. **Source feature**: `TBSEffects`, `HeartCorruptionMobEffect`, `WhyCantYouLeaveMobEffect`, and `WhyCantYouLeaveEvent`.
+
+2. **Source behavior**: `heart_corruption` is harmful, magenta, applies the `MAX_HEALTH` ADD_VALUE modifier with value `-1.0`, and declares a tick hook without custom tick damage. `why_cant_you_leave` is neutral, black, visible, ambient, uses the Eyes particle, and is applied for 1000 ticks at amplifier 0.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/effects/HeartCorruptionMobEffect.java`; `decompiled/net/thebrokenscript/effects/WhyCantYouLeaveMobEffect.java`; `decompiled/net/thebrokenscript/events/WhyCantYouLeaveEvent.java`; `decompiled/net/thebrokenscript/registry/TBSEffects.java`.
+
+4. **Bedrock limitation**: the Script API cannot register a custom mob-effect id or install Java's attribute-modifier registry entry; health-component writes also require a runtime player component.
+
+5. **Replacement design**: `status_effect_model.js` is the source catalog and expiry model. `status_effect_runtime.js` caps current health at one below `effectiveMax` while Heart Corruption is active. `ported_features.js` refreshes finite dynamic-property expiries, reapplies the cap every 20 ticks, and emits the source Eyes particle for Why Can't You Leave.
+
+6. **Player-visible difference**: the Bedrock implementation is a finite script effect rather than a native status-effect registry entry; the custom potion icon and Java attribute-modifier identity remain unavailable.
+
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source metadata and timing are preserved, while custom registry/modifier installation remains engine-limited.
+
