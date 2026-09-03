@@ -1,28 +1,37 @@
-# Chunk 38 — Custom status-effect runtime adapter
+# Chunk 38 — NullBookStoryEvent written-book adapter
 
-## Implementation
+## Result
 
-- Added the source metadata and expiry rules in BP/scripts/systems/status_effect_model.js.
-- Added a guarded health-component adapter in BP/scripts/systems/status_effect_runtime.js.
-- Updated ported_features.js to use EntityComponentTypes.Health, refresh effect expiries from their current active boundary, enforce the Heart Corruption cap, and use the model's Why Can't You Leave particle ID.
-- Updated the parity, limitation, progress, validation, and source-map ledgers.
+The story runtime now ports `NullBookStoryEvent` as a signed written book at
+the source day-12-plus-1000 threshold. The pure story-book model preserves the
+source null text, chunk-centered binary X/Z coordinates, literal Y=201, and
+two-page layout. The runtime fills the Bedrock `ItemBookComponent`, signs the
+book as `null`/`null`, and distributes it to every online player's inventory.
+
+The earlier chat/title approximation was removed so the story stage has one
+player-visible delivery path, matching the source event.
 
 ## Source evidence
 
-- decompiled/net/thebrokenscript/effects/HeartCorruptionMobEffect.java
-- decompiled/net/thebrokenscript/effects/WhyCantYouLeaveMobEffect.java
-- decompiled/net/thebrokenscript/registry/TBSEffects.java
-- decompiled/net/thebrokenscript/events/misc/WhyCantYouLeaveEvent.java
+- `decompiled/net/thebrokenscript/registry/TBSStoryEvents.java`
+- `decompiled/net/thebrokenscript/events/story/NullBookStoryEvent.java`
+- `TBSLang.NULL_BOOK_CONTENT` in the extracted language registry
 
 ## Validation
 
-- TDD RED: the focused tests failed before the new model and runtime modules existed.
-- TDD GREEN: 6/6 focused Node regressions passed.
-- The exact remote branch copy of ported_features.js passes node --check.
-- Microsoft Learn confirms stable EntityAttributeComponent.effectiveMax, currentValue, and setCurrentValue; the BedrockWiki/Microsoft index was also checked for the same API contract.
-- Bedrock world/runtime smoke testing remains unavailable locally.
-- GitHub Actions validation is pending for the new branch head.
+- TDD RED: the new story-book test failed before the model existed.
+- TDD GREEN: `node --test tests/story_events.test.mjs` — **4/4 passed**.
+- Full local suite: `node --test tests/*.test.mjs` — **64/64 passed**.
+- Changed story modules pass `node --check`.
+- Microsoft Learn documents `ItemStack`, `ItemStack.getComponent`,
+  `ItemBookComponent.setContents`, and `ItemBookComponent.signBook` for the
+  target `@minecraft/server` beta dependency.
+- Bedrock world/runtime smoke testing remains unavailable locally; GitHub
+  Actions is the authoritative pack/schema gate.
 
 ## Parity
 
-The source metadata and gameplay-facing health/particle behavior are now represented as a validated approximation. Bedrock still cannot install the custom effect registry entries, Java MAX_HEALTH attribute modifiers, or custom effect icons, and particle cadence is scripted rather than supplied by the Java effect renderer.
+The story threshold, source page content/layout, coordinate encoding, signed
+book metadata, and online-player delivery are now represented. Bedrock uses the
+supported book component API in place of Java's `WrittenBookContent` data
+component, and inventory overflow remains a container adapter detail.

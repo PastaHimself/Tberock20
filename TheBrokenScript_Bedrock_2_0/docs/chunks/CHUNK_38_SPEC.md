@@ -1,28 +1,40 @@
-# Chunk 38 — Custom status-effect runtime adapter
+# Chunk 38 — NullBookStoryEvent written-book adapter
 
 ## Goal
 
-Port the two recovered custom mob-effect contracts into the existing Bedrock runtime without pretending that Bedrock can register Java effect IDs or attribute modifiers.
+Port the source `null_book_hint` story stage as a real signed written book,
+including its source page layout and chunk-centered binary Clan Void
+coordinates.
 
 ## Source contract
 
-- Heart Corruption is harmful and magenta (0xFF00FF), adds -1.0 to MAX_HEALTH, and reports that it should apply an effect tick without implementing tick damage.
-- Why Can't You Leave is neutral and black (-16777216), lasts 1,000 ticks at amplifier 0 with ambient/visible flags, and uses the source EYES particle.
-- Reapplying a live script effect must not shorten its remaining duration.
+- `NullBookStoryEvent` fires at `Time.days(12) + 1000`.
+- It creates a two-page `WrittenBookContent` titled `null` and authored by
+  `null`, then gives the same book to every online player.
+- Page one is `TBSLang.NULL_BOOK_CONTENT`.
+- Page two renders `X`, `Y`, and `Z` labels plus `CV`; X/Z are computed as
+  `Math.floorDiv(clanVoidCoordinate, 16) * 16 + 8` and encoded as signed binary,
+  while Y is the literal `201`.
 
 ## Bedrock adapter
 
-- status_effect_model.js records the source metadata and deterministic expiry/health-cap rules.
-- status_effect_runtime.js uses minecraft:health's effectiveMax, currentValue, and setCurrentValue to emulate the active one-point cap.
-- ported_features.js refreshes dynamic-property expiries, enforces the cap during the effect window, and emits thebrokenscript:eyes for Why Can't You Leave.
+- Keep the story threshold in `story_events.js` and model the page contract in
+  the pure `story_book_model.js` module.
+- Create `minecraft:writable_book`, populate its `minecraft:book`
+  `ItemBookComponent` with `setContents`, and call `signBook("null", "null")`.
+- Add the resulting item to each online player's inventory, preserving the
+  existing `nullBookGiven` idempotency gate.
 
 ## Non-goals
 
-Custom mob-effect registration, Java attribute modifier installation, custom potion icons, and exact client effect-particle cadence remain engine-limited.
+Java data-component/NBT installation, exact Java inventory overflow behavior,
+and custom font glyph replacement remain outside this chunk.
 
 ## Acceptance
 
-- No unrelated magic damage is applied when Heart Corruption starts.
-- Active Heart Corruption clamps current health to one below effective maximum.
-- Why Can't You Leave keeps its source duration and particle identifier.
-- Focused model/runtime regressions and JavaScript syntax checks pass.
+- The day-12 threshold uses source event id `null_book_hint`.
+- Coordinate and page-model regressions cover positive, negative, and unset
+  coordinates.
+- Runtime assertions cover the Bedrock book component, signing, and player
+  distribution.
+- Focused and full Node suites pass.

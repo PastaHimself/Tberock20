@@ -2,6 +2,7 @@ import { world, ItemStack } from "@minecraft/server";
 import * as storyTime from "../shared/story_time.js";
 import * as worldState from "./world_state.js";
 import * as playerState from "./player_state.js";
+import { nullBookPages } from "./story_book_model.js";
 
 const DAY = 24000;
 const OFFSET = 1000;
@@ -15,35 +16,38 @@ export function registerAll() {
     for (const d of [24, 32, 38, 48]) {
         storyTime.registerThreshold(DAY * d + OFFSET, `moon_corruption_${d}`, onMoonCorruption);
     }
-    // NullBookStoryEvent: days(12)+1000 — gives every online player the "null" book
-    storyTime.registerThreshold(DAY * 12 + OFFSET, "null_book", onNullBook);
+    // NullBookStoryEvent: days(12)+1000 — gives every online player the signed "null" book.
+    storyTime.registerThreshold(DAY * 12 + OFFSET, "null_book_hint", onNullBook);
 }
 
-// NULL_BOOK_CONTENT lang line: event.$$.null_book.text
-const NULL_BOOK_PAGE1 =
-    "§0null.err.object.err.null.object.alone.3.not.behind.entitytype:player.receiveddata.invalid.reboot.failed.reset.playerdata:00F9219492D94210F812";
+function createNullBook(clanVoidX, clanVoidZ) {
+    try {
+        const item = new ItemStack("minecraft:writable_book", 1);
+        // ItemBookComponent is the Bedrock equivalent of Java's
+        // WrittenBookContent data component.
+        const book = item.getComponent("minecraft:book");
+        if (!book) return null;
+        book.setContents(nullBookPages(clanVoidX, clanVoidZ));
+        book.signBook("null", "null");
+        return item;
+    } catch {
+        return null;
+    }
+}
 
 function onNullBook() {
     if (worldState.get("nullBookGiven")) return;
+    const item = createNullBook(
+        worldState.get("clanVoidX"),
+        worldState.get("clanVoidZ"),
+    );
+    if (!item) return;
     worldState.set("nullBookGiven", true);
-    // clanVoid coords as binary pages (source builds from MapVariables clanVoidX/Z; INT_MAX = unset)
-    const cvx = worldState.get("clanVoidX");
-    const cvz = worldState.get("clanVoidZ");
-    const bin = (v) => {
-        if (v === undefined || v >= 2147483647) return "?";
-        return v < 0 ? "-" + Math.abs(v).toString(2) : v.toString(2);
-    };
-    const page2 = `X: ${bin(cvx)}  Y: 201  Z: ${bin(cvz)}  CV`;
     for (const player of world.getAllPlayers()) {
         try {
             const inv = player.getComponent("minecraft:inventory");
             const container = inv?.container;
-            if (container) container.addItem(new ItemStack("minecraft:writable_book", 1));
-        } catch {}
-        try {
-            player.sendMessage("§8[null] §0" + NULL_BOOK_PAGE1);
-            player.sendMessage("§8[null] §f" + page2);
-            player.onScreenDisplay.setTitle("§knull§r.book", { fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10 });
+            if (container) container.addItem(item);
         } catch {}
     }
 }

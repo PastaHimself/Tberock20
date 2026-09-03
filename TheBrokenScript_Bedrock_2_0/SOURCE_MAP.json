@@ -10150,10 +10150,14 @@
                                           "TBSEffects.heart_corruption"
                                       ],
                      "bedrock_identifier":  "thebrokenscript:heart_corruption",
-                     "bedrock_files":  ["TheBrokenScript_Bedrock_2_0/BP/scripts/systems/status_effect_model.js", "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/status_effect_runtime.js", "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js"],
+                     "bedrock_files":  [
+                                          "BP/scripts/systems/status_effect_model.js",
+                                          "BP/scripts/systems/status_effect_runtime.js",
+                                          "BP/scripts/systems/ported_features.js"
+                                      ],
                      "status":  "ported",
                      "parity":  "approximation",
-                     "notes":  "Chunk 38 preserves harmful/magenta metadata and emulates MAX_HEALTH -1 by capping current health at effective maximum minus one; custom registry and icon remain unavailable."
+                     "notes":  "source metadata catalogued; active MAX_HEALTH -1 adapter caps current health at effective maximum minus one; native custom registry unavailable (Chunk 39)"
                  },
                  {
                      "source_id":  "effect.why_cant_you_leave",
@@ -10162,10 +10166,13 @@
                                           "TBSEffects.why_cant_you_leave"
                                       ],
                      "bedrock_identifier":  "thebrokenscript:why_cant_you_leave",
-                     "bedrock_files":  ["TheBrokenScript_Bedrock_2_0/BP/scripts/systems/status_effect_model.js", "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js"],
+                     "bedrock_files":  [
+                                          "BP/scripts/systems/status_effect_model.js",
+                                          "BP/scripts/systems/ported_features.js"
+                                      ],
                      "status":  "ported",
                      "parity":  "approximation",
-                     "notes":  "Chunk 38 preserves neutral/black metadata, 1000-tick expiry, and the source thebrokenscript:eyes particle bridge; custom registry remains unavailable."
+                     "notes":  "source duration/metadata and Eyes-particle bridge preserved; native custom registry unavailable (Chunk 39)"
                  },
                  {
                      "source_id":  "particle.eyes",
@@ -13830,13 +13837,14 @@
                      "source_paths":  [
                                           "TBSStoryEvents (4 stages)"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "null_book_hint",
                      "bedrock_files":  [
-
+                                           "BP/scripts/systems/story_events.js",
+                                           "BP/scripts/systems/story_book_model.js"
                                        ],
-                     "status":  "in_progress",
-                     "parity":  "unknown",
-                     "notes":  "3/4 events wired (txt/coords/moon); null_book_story pending item system (Chunk 09/12)"
+                     "status":  "ported",
+                     "parity":  "high",
+                     "notes":  "all 4 registered story stages wired; null_book_hint creates a signed written book with chunk-centered binary clan-void coordinates (Chunk 38)"
                  },
                  {
                      "source_id":  "registry.music_songs",
