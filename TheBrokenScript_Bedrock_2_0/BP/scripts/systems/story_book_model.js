@@ -24,7 +24,7 @@ export function nullBookCoordinate(value) {
 }
 
 /** Returns the two pages written by NullBookStoryEvent. */
-export function nullBookPages(clanVoidX, clanVoidZ) {
+export function nullBookPages(clanVoidX, clanVoidZ, includeCoordinates = true) {
   const page2 = [
     "X:",
     nullBookCoordinate(clanVoidX),
@@ -37,5 +37,5 @@ export function nullBookPages(clanVoidX, clanVoidZ) {
     "",
     "CV",
   ].join("\n");
-  return [NULL_BOOK_PAGE1, page2];
+  return includeCoordinates ? [NULL_BOOK_PAGE1, page2] : [NULL_BOOK_PAGE1];
 }

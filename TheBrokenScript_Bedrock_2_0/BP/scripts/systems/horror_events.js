@@ -2,6 +2,16 @@ import { world, system, ItemStack } from "@minecraft/server";
 import * as worldState from "./world_state.js";
 import * as dimensions from "./dimensions.js";
 import * as progression from "./progression.js";
+import * as playerState from "./player_state.js";
+import { config } from "../core/config.js";
+import {
+  ABERRATION_TIMER_TICKS,
+  TEXT_EVENT_MESSAGES,
+  nullInterfaceOutcome,
+  obfuscatedSignOutcome,
+  titleEventOutcome,
+} from "./horror_event_model.js";
+import { createSignedNullBook, distributeNullBook } from "./story_book_adapter.js";
 import { logger } from "../core/logging.js";
 import { applyWhyCantYouLeave } from "./ported_features.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
@@ -67,6 +77,24 @@ const H = {
   sky_blue(p) { try { p.dimension.runCommand("weather clear 100"); } catch {} },
   gamma(p) { try { p.runCommand("effect @s night_vision 100 255 true"); } catch {} },
 
+  // source-registered NullEvent adapters
+  null_book(p) {
+    let item;
+    try {
+      item = createSignedNullBook(
+        ItemStack,
+        worldState.get("clanVoidX"),
+        worldState.get("clanVoidZ"),
+        Math.random() < 0.5,
+      );
+    } catch {}
+    if (item) distributeNullBook(p, item);
+  },
+  null_interface_trigger(p) {
+    const outcome = nullInterfaceOutcome(Math.floor(Math.random() * 3));
+    title(p, `§8${outcome.title}`, 40, "§7Null interface");
+  },
+
   // null-flavored
   null_title(p) { title(p, "§knull§r", 30); },
   null_particle(p) {
@@ -124,6 +152,31 @@ const H = {
   moon_glitch(p) { setFakeMoonTexture(); title(p, "§kthe moon flickers", 30); },
   reset_rotation(p) {
     try { p.teleport(p.location, { rotation: { x: 0, y: 0 } }); } catch {}
+  },
+
+  obfuscated_sign(p) {
+    if (config.get("world.disableRandomStructures")) return;
+    const structure = obfuscatedSignOutcome(Math.random());
+    placeAt(p, "minecraft:oak_sign");
+    actionBar(p, `§7${structure} sign attempted at the local base fallback.`);
+  },
+  noop() {},
+  text(p) {
+    const message = TEXT_EVENT_MESSAGES[Math.floor(Math.random() * TEXT_EVENT_MESSAGES.length)];
+    try { p.sendMessage(message); } catch { actionBar(p, message); }
+  },
+  title_event(p) {
+    const outcome = titleEventOutcome({
+      outerRoll: Math.random(),
+      innerRoll: Math.random(),
+      branchRoll: Math.random(),
+      nullTitleIndex: Math.floor(Math.random() * 16),
+    });
+    title(p, outcome.text, outcome.kind === "clear" ? 5 : 40);
+  },
+  aberration(p) {
+    playerState.set(p, "aberrationEnabled", true);
+    playerState.set(p, "aberrationTimer", ABERRATION_TIMER_TICKS);
   },
 
   // placement pranks
@@ -193,6 +246,8 @@ function giveItem(p, itemId, amount) {
 
 // event table: [id, gate] — gates: null (always after first join day), nullHere, moon
 const TABLE = [
+  ["null_book", "null"], ["null_interface_trigger", "null"],
+  ["obfuscated_sign", null], ["noop", null], ["text", null], ["title_event", null], ["aberration", null],
   ["heartbeat", null], ["play_sound", null], ["random_song", null], ["psst_event", null],
   ["breathe", null], ["cave", null], ["doors", null], ["door", null], ["coord", null], ["txt", null],
   ["opengl_error", "null"], ["nulled_gui", "null"], ["screen_dupe", "null"], ["fake_disconnect", "null"],
