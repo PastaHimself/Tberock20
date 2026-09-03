@@ -171,3 +171,14 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: `fractured_runtime.js` emits the namespaced spawn sound once per Fractured/Roam state, retains `Player.playSound()`'s `SoundInstance` handles for arena intro/loop tracks, and calls `SoundInstance.stop()` before reset clears the arena.
 6. **Player-visible difference**: sound ownership is server-scripted through Bedrock handles, and exact Java attenuation/fade behavior remains runtime-dependent.
 7. **Parity class**: `VALIDATED_APPROXIMATION` for the source cue and cleanup lifecycle; Java client transport remains engine-specific.
+
+
+## A-022 — Custom status-effect runtime adapter
+
+1. Source feature: HeartCorruptionMobEffect, WhyCantYouLeaveMobEffect, TBSEffects, and WhyCantYouLeaveEvent.
+2. Source behavior: Heart Corruption is harmful, magenta (0xFF00FF), applies a MAX_HEALTH additive modifier of -1.0, and reports that it should tick without defining tick damage. Why Can't You Leave is neutral, black (-16777216), applies for 1,000 ticks at amplifier 0 with ambient/visible flags, and uses the source EYES particle.
+3. Source evidence: decompiled/net/thebrokenscript/effects/HeartCorruptionMobEffect.java; decompiled/net/thebrokenscript/effects/WhyCantYouLeaveMobEffect.java; decompiled/net/thebrokenscript/registry/TBSEffects.java; decompiled/net/thebrokenscript/events/misc/WhyCantYouLeaveEvent.java.
+4. Bedrock limitation: custom mob-effect IDs and Java attribute modifiers cannot be registered by the current add-on API.
+5. Replacement design: status_effect_model.js preserves the source metadata and refresh rules. status_effect_runtime.js uses the documented minecraft:health component and setCurrentValue to enforce the one-point health cap while the dynamic expiry is active; the Why Can't You Leave path refreshes its expiry and emits thebrokenscript:eyes.
+6. Player-visible difference: Heart Corruption does not install a real max-health modifier or icon; the runtime clamps current health while active, and the source effect display is represented by the existing action bar. Why Can't You Leave particle cadence remains a Bedrock scripted approximation.
+7. Parity class: VALIDATED_APPROXIMATION; source metadata and gameplay-facing health/particle behavior are preserved, while custom registry/icon semantics remain engine-limited.

@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-02 (Chunk 37 — Fractured audio lifecycle adapter)
+Last updated: 2026-09-03 (Chunk 38 — Custom status-effect runtime adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-02 (Chunk 37 — Fractured audio lifecycle adapter)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 37 complete — Fractured audio lifecycle adapter**
+**Chunk 38 complete — custom status-effect runtime adapter**
 
-Chunk 37 ports the source `jimmy.spawn` cue and JimArena audio ownership. Fractured and FracturedRoam state creation emits the named spawn sound once; JimArena retains Bedrock `SoundInstance` handles for intro/loop tracks and stops them during reset. Exact rendered bone world-position contact remains an explicit engine boundary.
+Chunk 38 ports the recovered Heart Corruption and Why Can't You Leave effect contracts. Heart Corruption now caps active player health at one below the documented effective maximum without applying unrelated magic damage; Why Can't You Leave preserves its 1,000-tick refresh window and source thebrokenscript:eyes particle bridge. Bedrock's custom effect registry remains unavailable.
 ## Chunk state
 | Chunk | State |
 |---|---|
@@ -60,6 +60,7 @@ Chunk 37 ports the source `jimmy.spawn` cue and JimArena audio ownership. Fractu
 | 35 Fractured animation timeline and presentation bridge | **completed** (source keyframe names/seconds, deterministic 20 Hz event ticks, direct attack animation playback, locator-bound contact presentation, Roam state mapping, tracked-bone contract, and regressions) |
 | 36 Source particle resources and event bridge | **completed** (nine source definitions/resources; Null/Eyes/Curved event bridge; Paper/resource-only differences ledgered) |
 | 37 Fractured audio lifecycle adapter | **completed** (source Jimmy spawn cue; SoundInstance-owned JimArena intro/loop cleanup; focused regression) |
+| 38 Custom status effects | **completed** (source metadata model; Heart Corruption health-cap adapter; Why Can't You Leave expiry/particle adapter; focused regressions) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -218,6 +219,10 @@ Chunk 36 adds the eight previously missing source particle textures and nine Bed
 ## Chunk 37 — Fractured audio lifecycle adapter
 
 Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Focused Fractured runtime regressions and changed-runtime syntax checks pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions [run 125](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983) PASS.
+
+## Chunk 38 — Custom status-effect runtime adapter
+
+Chunk 38 adds a source-backed model for the two custom effects and replaces the old Heart Corruption magic-damage fallback with a minecraft:health component cap. Why Can't You Leave refreshes from its active expiry and uses the source thebrokenscript:eyes emitter. Six focused local regressions pass; Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
