@@ -171,3 +171,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: `fractured_runtime.js` emits the namespaced spawn sound once per Fractured/Roam state, retains `Player.playSound()`'s `SoundInstance` handles for arena intro/loop tracks, and calls `SoundInstance.stop()` before reset clears the arena.
 6. **Player-visible difference**: sound ownership is server-scripted through Bedrock handles, and exact Java attenuation/fade behavior remains runtime-dependent.
 7. **Parity class**: `VALIDATED_APPROXIMATION` for the source cue and cleanup lifecycle; Java client transport remains engine-specific.
+
+## A-022 — NullBookStoryEvent written-book adapter
+
+1. **Source feature**: `TBSStoryEvents.null_book_hint` and `NullBookStoryEvent`.
+2. **Source behavior**: at `Time.days(12) + 1000`, the event creates a two-page `WrittenBookContent` titled `null`, authored by `null`, with `TBSLang.NULL_BOOK_CONTENT` on page one and chunk-centered binary Clan Void coordinates on page two, then gives it to every online player.
+3. **Source evidence**: `decompiled/net/thebrokenscript/registry/TBSStoryEvents.java`; `decompiled/net/thebrokenscript/events/story/NullBookStoryEvent.java`; the extracted language registry.
+4. **Bedrock limitation**: Java's `WrittenBookContent` data component is not directly installable; the current Bedrock pack instead uses the supported `ItemBookComponent` API on a writable book.
+5. **Replacement design**: `story_book_model.js` preserves the threshold/page/binary-coordinate contract; `story_events.js` creates `minecraft:writable_book`, calls `getComponent("minecraft:book")`, `setContents`, and `signBook("null", "null")`, then adds the item to each online player's inventory.
+6. **Player-visible difference**: the Bedrock adapter uses Script API book mutation/signing instead of Java's serialized data component; container insertion remains the supported inventory bridge.
+7. **Parity class**: `VALIDATED_HIGH_PARITY` for source timing/content/metadata/delivery, with the book-component and inventory serialization differences documented above.

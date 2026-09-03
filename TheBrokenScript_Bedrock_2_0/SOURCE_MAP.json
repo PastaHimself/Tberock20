@@ -13834,13 +13834,14 @@
                      "source_paths":  [
                                           "TBSStoryEvents (4 stages)"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "null_book_hint",
                      "bedrock_files":  [
-
+                                           "BP/scripts/systems/story_events.js",
+                                           "BP/scripts/systems/story_book_model.js"
                                        ],
-                     "status":  "in_progress",
-                     "parity":  "unknown",
-                     "notes":  "3/4 events wired (txt/coords/moon); null_book_story pending item system (Chunk 09/12)"
+                     "status":  "ported",
+                     "parity":  "high",
+                     "notes":  "all 4 registered story stages wired; null_book_hint creates a signed written book with chunk-centered binary clan-void coordinates (Chunk 38)"
                  },
                  {
                      "source_id":  "registry.music_songs",

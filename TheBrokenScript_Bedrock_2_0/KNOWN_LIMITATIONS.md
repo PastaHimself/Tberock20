@@ -25,4 +25,7 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 17. **Java custom damage-type registration is unavailable** — Chunk 34 catalogs all 15 source definitions and preserves source ids in a same-tick attribution ledger while mapping calls to native Bedrock causes and optional damaging entities/projectiles. Custom death messages, exhaustion/scaling rules, and exact armor/effect/invulnerability/shield/totem bypass semantics cannot be installed through the current Script API (A-018).
 
 18. **Java particle providers and custom render hooks are adapted** — Chunk 36 ships all nine declared particle resources and source textures, preserves the registered provider sizes/lifetimes/render-sheet choices, and moves source event counts/spread into Bedrock emitters because Dimension.spawnParticle accepts an effect id and origin. Paper's crossed-quad custom renderer is a billboard/dynamic-motion adapter, while follows_particle and revuxor_particle remain resource-only because no registered Java providers were found (A-020).
+
+19. **NullBookStoryEvent uses a Bedrock book-component adapter** — Java's `WrittenBookContent` data component is not directly installable from Bedrock scripts. The port uses the supported `minecraft:book` `ItemBookComponent` to set the source pages and sign the item; inventory overflow and exact Java component serialization remain adapter details.
+
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.
