@@ -57,6 +57,8 @@
 | 2026-09-01 | 34 | Custom damage-source adapter: 53/53 deterministic Node regressions PASS; source catalog preserves all 15 resource definitions and TBSDamageTypes registry flags; damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS; BedrockWiki/Microsoft Learn attribution references checked; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
 | 2026-09-01 | 35 | Fractured animation timeline/presentation bridge: 18/18 deterministic Node regressions PASS; source attack keyframe seconds and BaseFractured presentation mappings verified; changed animation model/runtime JavaScript `node --check` PASS; tracked-bone contract and direct `playAnimation` bridge assertions PASS; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
 
+| 2026-09-03 | CI gate follow-up | GitHub Actions run 128 passed validator, add-on/resource checks, syntax, beta API type-check, JavaScript regressions, and Blockception diagnostics; its only failure was the MCT bare-beta self-comparison false positive for identical `2.11.0-beta` values. Narrow optional-suffix filter fix plus regression test published; final validation pending | PENDING (external-tool filter fix) |
+
 ## Pending validations (later chunks)
 
 - Minecraft runtime import tests once a Bedrock install is available.

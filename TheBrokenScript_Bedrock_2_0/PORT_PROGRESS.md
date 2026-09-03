@@ -195,7 +195,7 @@ Chunk 35 focused local validation: 19/19 deterministic Node regressions PASS for
 
 Chunk 37 focused local validation: 5/5 Fractured runtime regressions PASS; changed runtime JavaScript `node --check` PASS; Bedrock world/runtime smoke testing unavailable locally; GitHub Actions [run 125](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983) PASS.
 
-Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/7 focused; 67/67 full Node suite); changed story, adapter, and state modules `node --check` PASS; source threshold/page/coordinate, ItemBookComponent/signing/distribution, overflow, retry, and persistence assertions PASS; Bedrock world/runtime smoke test unavailable locally; GitHub Actions validation for the published follow-up pending.
+Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/7 focused; 67/67 full Node suite); changed story, adapter, and state modules `node --check` PASS; source threshold/page/coordinate, ItemBookComponent/signing/distribution, overflow, retry, and persistence assertions PASS. GitHub Actions run 128 passed repository-owned validation but exposed an external MCT self-comparison false positive for bare `2.11.0-beta`; the narrow optional-suffix filter/test fix is published in the follow-up and final validation is pending. Bedrock world/runtime smoke test unavailable locally.
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
@@ -228,7 +228,7 @@ Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Foc
 
 ## Chunk 38 — NullBookStoryEvent written-book adapter
 
-Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1000 threshold. The two pages preserve the source null text and chunk-centered binary Clan Void coordinates, including the Java Integer.MAX_VALUE conversion; the Bedrock book component signs independent per-player copies as `null`/`null`, drops inventory leftovers, and retries logged transient failures. The world-state initialization key is corrected to preserve the delivery gate. Focused and full Node regressions pass; Bedrock world/runtime smoke testing remains unavailable locally; GitHub Actions validation for the published follow-up is pending.
+Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1000 threshold. The two pages preserve the source null text and chunk-centered binary Clan Void coordinates, including the Java Integer.MAX_VALUE conversion; the Bedrock book component signs independent per-player copies as `null`/`null`, drops inventory leftovers, and retries logged transient failures. The world-state initialization key is corrected to preserve the delivery gate. Focused and full Node regressions pass; run 128's sole failure was the external MCT bare-beta self-comparison filter, which is covered by the narrow optional-suffix regression fix in the follow-up commit; final GitHub Actions validation is pending.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.

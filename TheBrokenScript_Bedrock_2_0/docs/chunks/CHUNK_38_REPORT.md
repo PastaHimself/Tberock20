@@ -44,3 +44,7 @@ book metadata, reliable per-player delivery, and persistence gate are now
 represented. Bedrock uses the supported book component API in place of Java's
 `WrittenBookContent` data component; inventory overflow is surfaced as a dropped
 item, and transient failures use a bounded retry adapter.
+
+## CI follow-up
+
+GitHub Actions run 128 passed repository-owned validation, syntax, beta API type-checking, JavaScript regressions, and Blockception diagnostics. Its only failure was Mojang Creator Tools reporting the identical bare beta version `2.11.0-beta` as “out of date” against `2.11.0-beta`; the existing self-comparison filter required a suffixed beta version and did not recognize this valid form. A focused regression and optional-suffix matcher fix were published in the follow-up commit; final CI validation is pending.

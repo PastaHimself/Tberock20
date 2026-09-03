@@ -32,7 +32,7 @@ function isSelfComparisonScriptModuleError(item) {
   if (!text.includes('@minecraft/server') || !text.includes('using an out of date beta version')) {
     return false;
   }
-  const versions = [...text.matchAll(/\d+\.\d+\.\d+-beta\.[0-9A-Za-z.-]+/g)]
+  const versions = [...text.matchAll(/\d+\.\d+\.\d+-beta(?:\.[0-9A-Za-z.-]+)?/g)]
     .map((match) => match[0]);
   return versions.length >= 2 && versions.at(-2) === versions.at(-1);
 }
