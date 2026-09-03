@@ -12,7 +12,7 @@
       "minecraft:display_name": {
         "value": "item.thebrokenscript.book"
       },
-      "thebrokenscript:library_book_use": true
+      "thebrokenscript:library_book_use": {}
     }
   }
 }
