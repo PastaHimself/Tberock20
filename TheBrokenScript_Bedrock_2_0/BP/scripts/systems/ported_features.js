@@ -1,8 +1,14 @@
-import { EntityDamageCause, GameMode, system, world } from "@minecraft/server";
+import { EntityComponentTypes, EntityDamageCause, GameMode, system, world } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { logger } from "../core/logging.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
+import {
+  SOURCE_STATUS_EFFECTS,
+  isStatusEffectActive,
+  refreshStatusEffectExpiry,
+} from "./status_effect_model.js";
+import { enforceHeartCorruptionHealthCap } from "./status_effect_runtime.js";
 import {
   HAND_CANNON_RANGE,
   circuitPaintingPlacement,
@@ -183,16 +189,13 @@ export function toggleDesync(player) {
 export function applyHeartCorruption(player, durationTicks = 200) {
   if (!isPlayer(player)) return false;
   const duration = finiteDuration(durationTicks);
-  const until = Math.max(
-    Number(player.getDynamicProperty(HEART_CORRUPTION_UNTIL) ?? 0),
-    system.currentTick + duration,
+  const until = refreshStatusEffectExpiry(
+    player.getDynamicProperty(HEART_CORRUPTION_UNTIL),
+    system.currentTick,
+    duration,
   );
   player.setDynamicProperty(HEART_CORRUPTION_UNTIL, until);
-  try {
-    player.applyDamage(1, {
-      cause: EntityDamageCause.magic,
-    });
-  } catch {}
+  enforceHeartCorruptionHealthCap(player, EntityComponentTypes.Health);
   player.onScreenDisplay.setTitle("§d❤ §5ERR.HEALTH", {
     fadeInDuration: 0,
     stayDuration: 30,
@@ -203,7 +206,11 @@ export function applyHeartCorruption(player, durationTicks = 200) {
 
 export function applyWhyCantYouLeave(player, durationTicks = 1000) {
   if (!isPlayer(player)) return false;
-  const until = system.currentTick + finiteDuration(durationTicks);
+  const until = refreshStatusEffectExpiry(
+    player.getDynamicProperty(WHY_LEAVE_UNTIL),
+    system.currentTick,
+    durationTicks,
+  );
   player.setDynamicProperty(WHY_LEAVE_UNTIL, until);
   player.onScreenDisplay.setTitle("§fwhy can't you leave?", {
     fadeInDuration: 0,
@@ -238,15 +245,16 @@ function placeCircuitPainting(player, block, face) {
 function tickPortedEffects() {
   for (const player of world.getAllPlayers()) {
     const heartUntil = Number(player.getDynamicProperty(HEART_CORRUPTION_UNTIL) ?? 0);
-    if (heartUntil > system.currentTick) {
+    if (isStatusEffectActive(heartUntil, system.currentTick)) {
+      enforceHeartCorruptionHealthCap(player, EntityComponentTypes.Health);
       try { player.onScreenDisplay.setActionBar("§d❤ §5ERR.HEALTH"); } catch {}
     }
 
     const leaveUntil = Number(player.getDynamicProperty(WHY_LEAVE_UNTIL) ?? 0);
-    if (leaveUntil > system.currentTick) {
+    if (isStatusEffectActive(leaveUntil, system.currentTick)) {
       try {
         const head = player.getHeadLocation();
-        player.dimension.spawnParticle("thebrokenscript:eyes", {
+        player.dimension.spawnParticle(SOURCE_STATUS_EFFECTS.why_cant_you_leave.particleEffect, {
           x: head.x + (Math.random() - 0.5) * 1.8,
           y: head.y + (Math.random() - 0.5) * 0.8,
           z: head.z + (Math.random() - 0.5) * 1.8,
