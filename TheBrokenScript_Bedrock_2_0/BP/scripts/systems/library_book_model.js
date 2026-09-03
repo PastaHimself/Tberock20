@@ -11,6 +11,7 @@ export function assignBookId(existingId, random = Math.random()) {
   return 1 + Math.floor(normalized * (MAX_BOOK_ID - 1));
 }
 
+/** @param {readonly (number|string)[]} availableIds */
 export function selectAvailableBookId(existingId, random, availableIds = []) {
   const available = availableIds.filter((id) => Number.isInteger(Number(id))).map(Number);
   const current = Number(existingId);

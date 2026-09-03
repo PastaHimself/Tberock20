@@ -56,5 +56,5 @@ test("the book item exposes the source use component", async () => {
     "../TheBrokenScript_Bedrock_2_0/BP/items/book.json",
     import.meta.url,
   ), "utf8"));
-  assert.equal(item["minecraft:item"].components["thebrokenscript:library_book_use"], true);
+  assert.deepEqual(item["minecraft:item"].components["thebrokenscript:library_book_use"], {});
 });
