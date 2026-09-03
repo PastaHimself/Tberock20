@@ -245,3 +245,18 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: Null interfaces become title notices, native window-title changes become in-game titles, and obfuscated/cipher structures become a local oak-sign fallback with the selected source template named in the notice. Scheduler cadence/gating remains the existing Bedrock ambient approximation.
 
 7. **Parity class**: VALIDATED_APPROXIMATION; source registrations/contracts are represented and CI-validated, with Java-only presentation/structure/scheduling boundaries documented.
+
+
+## A-027 — Source random-event engine scheduler
+
+1. **Source feature**: the brokencore EventEngine and TBS TBSEngineControl scheduler that gates random events by absolute world time, chooses one random player, filters disabled event IDs, applies persistent inverse occurrence weights, validates event eligibility, and rerolls invalid selections when configured.
+
+2. **Source behavior**: the TBS controller contributes evalCurve(gameTime / 24000) / 24000 - 2.9166666E-4, with a quadratic curve through day 55, a logarithmic continuation after day 55, and a cap of 7. The aggregate engine starts at zero probability because the default controller contributes the offsetting 2.9166666E-4. Registered event constructors currently provide weight 1; the tracker starts each event at count 1 and divides weight by the persisted occurrence count after each successful execution.
+
+3. **Source evidence**: decompiled/net/thebrokenscript/TBSEngineControl.java; decompiled_brokencore/net/thebrokenscript/brokencore/api/engine/EventEngine.java; decompiled_brokencore/net/thebrokenscript/brokencore/impl/event/engine/StatisticsEventPicker.java; decompiled_brokencore/net/thebrokenscript/brokencore/impl/event/engine/EventWeightTracker.java; decompiled_brokencore/net/thebrokenscript/brokencore/impl/config/EventsConfig.java; Microsoft Learn World.getAbsoluteTime() and Player.getGameMode() API contracts.
+
+4. **Bedrock adaptation**: event_scheduler_model.js keeps the probability and picker pure and deterministic under injected rolls. horror_events.js runs the scheduler every tick, chooses one player, uses the Bedrock world clock/game-mode methods when available, persists counts and disabled IDs with the existing world JSON state service, and reads the source defaults through config_defaults.js.
+
+5. **Player-visible difference**: Java SavedData and the Java configuration screen are represented by world-state JSON and config keys; the source custom menus, desktop title/packet hooks, and NBT structure placement remain the explicit Chunk 42 presentation/structure adapters. Runtime smoke testing in a Bedrock world is still pending.
+
+6. **Parity class**: VALIDATED_APPROXIMATION; source frequency, weighted selection, disabled filtering, rerolls, persistence, and API seams are implemented and covered by local tests and repository CI.

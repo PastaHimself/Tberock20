@@ -4,6 +4,11 @@ import * as dimensions from "./dimensions.js";
 import * as progression from "./progression.js";
 import * as playerState from "./player_state.js";
 import { config } from "../core/config.js";
+import * as state from "../core/state.js";
+import {
+  aggregateEventFrequency,
+  pickEvent,
+} from "./event_scheduler_model.js";
 import {
   ABERRATION_TIMER_TICKS,
   TEXT_EVENT_MESSAGES,
@@ -19,8 +24,9 @@ import { spawnSourceParticle } from "./particle_runtime.js";
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
 // 95 event classes in source (81 TBSEvents + 14 others). OS-level events
 // (jframe/window titles, BSOD, fake crash) approximate to titles per A-004.
-// Events fire from a weighted ambient pool every 200 ticks, gated on story
-// flags (isNullHere / hasMoonCorrupted / hasNullSpawned).
+// The source engine evaluates one random survival player every tick. Each
+// registered event has source weight 1, persistent inverse occurrence weighting,
+// disabled-id filtering, and optional rerolls for events that cannot execute.
 
 const SOUNDS = {
   heartbeat: "thebrokenscript:heartbeat",
@@ -271,27 +277,124 @@ const TABLE = [
   ["nullnullnull_advancement", "nullHere"], ["null_getting_achievement", "null"], ["can_someone_hear_me", "null"]
 ];
 
+const EVENT_DEFINITIONS = TABLE.map(([id, gate]) => ({
+  id,
+  gate,
+  weight: 1,
+}));
+
+const EVENT_WEIGHTS_STATE_KEY = "eventWeights";
+const DISABLED_EVENTS_STATE_KEY = "eventDisabledIds";
+
+function configBoolean(key, fallback) {
+  try { return Boolean(config.get(key)); } catch { return fallback; }
+}
+
+function readEventCounts() {
+  try {
+    const counts = state.getWorldJSON(EVENT_WEIGHTS_STATE_KEY, {});
+    return counts && typeof counts === "object" && !Array.isArray(counts) ? counts : {};
+  } catch { return {}; }
+}
+
+function writeEventCounts(counts) {
+  try { state.setWorldJSON(EVENT_WEIGHTS_STATE_KEY, counts); } catch (err) {
+    logger.warn("event weight persistence failed: " + (err?.message ?? err));
+  }
+}
+
+function normalizeEventId(value) {
+  const raw = String(value ?? "").trim();
+  return raw.includes(":") ? raw.slice(raw.lastIndexOf(":") + 1) : raw;
+}
+
+function validEventId(value) {
+  return /^[a-z0-9_.-]+(?::[a-z0-9_.-]+)?$/i.test(value);
+}
+
+function readDisabledEventIds() {
+  try {
+    const ids = state.getWorldJSON(DISABLED_EVENTS_STATE_KEY, []);
+    return Array.isArray(ids)
+      ? ids.filter(validEventId).map(normalizeEventId)
+      : [];
+  } catch { return []; }
+}
+
+export function setDisabledEvents(ids) {
+  const normalized = [...new Set(Array.isArray(ids) ? ids : [])]
+    .map((id) => String(id).trim())
+    .filter(validEventId)
+    .map(normalizeEventId);
+  try { state.setWorldJSON(DISABLED_EVENTS_STATE_KEY, normalized); } catch (err) {
+    logger.warn("event disabled-id persistence failed: " + (err?.message ?? err));
+  }
+  return normalized;
+}
+
+export function getDisabledEvents() {
+  return readDisabledEventIds();
+}
+
+function worldAbsoluteTime() {
+  try {
+    const getAbsoluteTime = world["getAbsoluteTime"];
+    if (typeof getAbsoluteTime === "function") return getAbsoluteTime.call(world);
+  } catch {}
+  return system.currentTick;
+}
+
+function playerCanExecute(player) {
+  const getGameMode = player?.["getGameMode"];
+  if (typeof getGameMode !== "function") return true;
+  try {
+    return String(getGameMode.call(player)).toLowerCase() === "survival";
+  } catch { return true; }
+}
+
+function eventsEnabledForPlayer(player) {
+  if (bossArenaActive()) return false;
+  try {
+    const dimensionId = String(player?.dimension?.id ?? "");
+    return !dimensionId.startsWith("thebrokenscript:");
+  } catch { return true; }
+}
+
 export function begin(scheduler) {
-  scheduler.every("tbs.horror_events", 200, tick);
+  // EventEngine.tick is a server-tick hook in Java; getAbsoluteTime() supplies
+  // the matching Bedrock world clock instead of sampling only every 200 ticks.
+  scheduler.every("tbs.horror_events", 1, tick);
 }
 
 function tick() {
-  const players = world.getAllPlayers();
+  if (!configBoolean("events.enableRandomEvents", true)) return;
+  let players;
+  try { players = world.getAllPlayers(); } catch { return; }
   if (players.length === 0) return;
-  if (bossArenaActive()) return;
 
-  const fired = new Set();
-  let attempts = 2;
-  while (attempts-- > 0) {
-    const [id, gate] = TABLE[Math.floor(Math.random() * TABLE.length)];
-    if (fired.has(id)) continue;
-    fired.add(id);
-    if (!eligible(gate)) continue;
-    const fn = H[id];
-    if (!fn) continue;
-    for (const p of players) {
-      try { fn(p); } catch (err) { /* per-player guard */ }
-    }
+  const player = players[Math.floor(Math.random() * players.length)];
+  if (!eventsEnabledForPlayer(player)) return;
+
+  const frequency = aggregateEventFrequency(worldAbsoluteTime());
+  if (!(frequency > 0) || Math.random() >= frequency) return;
+
+  const result = pickEvent(EVENT_DEFINITIONS, {
+    rolls: Array.from({ length: EVENT_DEFINITIONS.length + 1 }, () => Math.random()),
+    counts: readEventCounts(),
+    disabledEventIds: readDisabledEventIds(),
+    rerollEvents: configBoolean("events.rerollEvents", true),
+    canExecute: (event) => playerCanExecute(player) && eligible(event.gate),
+  });
+  if (!result.event) return;
+
+  writeEventCounts(result.counts);
+  if (configBoolean("events.eventDebug", false)) {
+    actionBar(player, "§8event: " + result.event.id);
+  }
+  const fn = H[result.event.id];
+  if (!fn) return;
+  try { fn(player); } catch (err) {
+    logger.warn("event '" + result.event.id + "' failed: " + (err?.message ?? err));
   }
 }
 

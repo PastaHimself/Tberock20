@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 42 — Source-registered horror event adapters)
+Last updated: 2026-09-03 (Chunk 43 — Source event engine contract)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-03 (Chunk 42 — Source-registered horror event adapters)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 42 complete — Source-registered horror event adapters**
+**Chunk 43 complete — Source event engine contract**
 
-Chunk 42 ports the seven source-registered horror events that were still absent from the Bedrock ambient event table. The source message/title/interface/sign-selection contracts are preserved in a pure adapter model; the runtime reuses the signed Null book path, stores Aberration's 1200-tick player state, and uses explicit in-game/title/local-sign fallbacks where Bedrock cannot expose Java GUIs, desktop window titles, or source NBT structure placement.
+Chunk 43 ports the source random-event engine contract around the existing event adapters. The Bedrock runtime now evaluates the source-backed absolute-time frequency curve, selects one random survival player per tick, applies disabled-id filtering and persistent inverse occurrence weights, rerolls invalid events when configured, and exposes the source defaults through the Bedrock config layer.
 
 ## Chunk state
 | Chunk | State |
@@ -66,6 +66,7 @@ Chunk 42 ports the seven source-registered horror events that were still absent 
 | 40 Jukebox song record adapters | **completed** (12 source songs mapped to native record components, source durations/sound keys preserved, comparator signal clamped to 13, integration regressions) |
 | 41 Fractured rendered-contact resolver | **completed** (source bone contract, injectable world-position seam, source stomp transform fallback, explicit entity-anchor fallback, runtime wiring, focused regressions, GitHub Actions run 139) |
 | 42 Source-registered horror event adapters | **completed** (seven missing source registrations, source message/title/interface/sign contracts, Null book optional page, Aberration state, explicit Bedrock fallbacks, focused regressions, GitHub Actions run 143) |
+| 43 Source event engine contract | **completed** (source frequency curve, one-player-per-tick scheduler, inverse occurrence weighting, disabled event ids, configured rerolls, persistent world state, Bedrock API clock/game-mode seams, focused regressions, GitHub Actions run 33770176189) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -108,6 +109,8 @@ BP/items/{attribute_mutilation,credits,instability,instability_music_box,instabi
 BP/scripts/systems/fractured_contact_model.js · BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_contact_model.test.mjs · tests/fractured_runtime.test.mjs · docs/chunks/CHUNK_41_{SPEC,REPORT}.md · Fractured parity/adaptation/limitation/validation ledgers
 ## Files changed (Chunk 42)
 BP/scripts/systems/{horror_event_model,horror_events,story_book_model,story_book_adapter}.js · tests/{horror_event_model,story_events}.test.mjs · docs/chunks/CHUNK_42_{SPEC,REPORT}.md · horror-event/parity/adaptation/limitation/validation ledgers
+## Files changed (Chunk 43)
+BP/scripts/systems/{event_scheduler_model,event_frequency,horror_events,config_defaults}.js · tests/event_scheduler_model.test.mjs · docs/chunks/CHUNK_43_{SPEC,REPORT}.md · event-engine/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -263,5 +266,9 @@ Chunk 41 adds a source-backed resolver for Fractured/Jimmy contact events. It pr
 
 Chunk 42 adds the seven source registrations absent from the Bedrock horror-event table: null_book, null_interface_trigger, obfuscated_sign, noop, text, title_event, and aberration. The pure model preserves the source TextEvent pool, WindowTitleEvent's 90/90/50 branching, NullInterface's uniform three-menu selection, ObfuscatedSignEvent's 70/30 structure choice, and AberrationEvent's 1200-tick state. The runtime uses the existing Null book adapter with the source optional coordinate page and explicit title/local-sign fallbacks for unavailable Java presentation and NBT structure APIs. Focused local regressions pass; GitHub Actions [run 143](https://github.com/PastaHimself/tbs-2.0/actions/runs/33766550121) passed the complete workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
+## Chunk 43 — Source event engine contract
+
+Chunk 43 adds the source-backed random-event scheduler contract. The pure model mirrors TBSEngineControl's 55-day frequency curve and the brokencore weighted picker; the runtime uses World.getAbsoluteTime() and Player.getGameMode() when available, persists occurrence counts and disabled IDs through world state, and exposes enableRandomEvents, rerollEvents, and eventDebug defaults. Focused local scheduler regressions and the full 15-test scratch suite pass; GitHub Actions [run 33770176189](https://github.com/PastaHimself/tbs-2.0/actions/runs/33770176189) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** The remaining horror-event engine gap is exact RandomEvent weighting/config/day scheduling; custom Null GUI screens, desktop window-title/packet hooks, and exact obfuscated/cipher NBT structure placement remain engine/deferred items alongside the broader uninspected source inventory.
+**Next source boundary.** Custom Null GUI screens, desktop window-title/packet hooks, exact obfuscated/cipher NBT structure placement, Java-native persistence/config UI, and the broader uninspected source inventory remain explicitly ledgered engine/deferred items.

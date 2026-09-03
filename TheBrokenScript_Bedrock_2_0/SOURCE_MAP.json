@@ -13856,16 +13856,20 @@
                      "category":  "event_engine",
                      "source_paths":  [
                                           "TBSEvents (~91 handler lambdas)",
-                                          "events/ subpackages"
+                                          "events/ subpackages",
+                                          "TBSEngineControl / brokencore EventEngine picker"
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
                          "BP/scripts/systems/horror_events.js",
-                         "BP/scripts/systems/horror_event_model.js"
+                         "BP/scripts/systems/horror_event_model.js",
+                         "BP/scripts/systems/event_scheduler_model.js",
+                         "BP/scripts/systems/event_frequency.js",
+                         "BP/scripts/systems/config_defaults.js"
                      ],
                      "status":  "ported",
                      "parity":  "approximation",
-                     "notes":  "86 source-registered event IDs are represented in the ambient table; Java RandomEvent weighting/config/day scheduling and Java-only presentation/structure hooks remain adapted (Chunk 42)"
+                     "notes":  "86 source-registered event IDs plus the source frequency/weighted-picker contract are represented; persistent inverse occurrence weights, disabled IDs, configured rerolls, and Bedrock clock/game-mode seams are adapted through the runtime state/config services (Chunk 43)"
                  },
                  {
                      "source_id":  "registry.story_events",
