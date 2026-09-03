@@ -260,3 +260,12 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Java SavedData and the Java configuration screen are represented by world-state JSON and config keys; the source custom menus, desktop title/packet hooks, and NBT structure placement remain the explicit Chunk 42 presentation/structure adapters. Runtime smoke testing in a Bedrock world is still pending.
 
 6. **Parity class**: VALIDATED_APPROXIMATION; source frequency, weighted selection, disabled filtering, rerolls, persistence, and API seams are implemented and covered by local tests and repository CI.
+
+## A-028 — Library Book reader adapter
+
+1. **Source feature**: LibraryBookItem, LibraryBookScreen, and the 44 recovered library_books JSON payloads.
+2. **Source behavior**: Each book item carries a random source ID in the 1..250 range; the screen loads library_books/<id>.json, displays author/pages one-based, and bounds navigation.
+3. **Source evidence**: decompiled/net/thebrokenscript/item/LibraryBookItem.java; decompiled/net/thebrokenscript/client/gui/LibraryBookScreen.java; source_extracted/assets/thebrokenscript/library_books/1.json through 44.json.
+4. **Bedrock adaptation**: library_book_model.js preserves the ID/page contract; library_book_data.js embeds the 44 payloads; the book item uses ActionFormData with Previous/Next/Close controls and safe optional item-stack ID retention.
+5. **Player-visible difference**: Java's custom book texture, noisy glyph animation, rendered page layout, and animated special pages become a form with the source page text and author context. New selections use recovered IDs because the supplied source payload corpus contains 44 resources although the source random range reaches 250.
+6. **Parity class**: VALIDATED_APPROXIMATION; payload, selection, page, and navigation contracts are covered by local tests and repository CI.

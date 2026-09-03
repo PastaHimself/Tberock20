@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 43 — Source event engine contract)
+Last updated: 2026-09-03 (Chunk 44 — Library Book reader adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,10 @@ Last updated: 2026-09-03 (Chunk 43 — Source event engine contract)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 43 complete — Source event engine contract**
 
-Chunk 43 ports the source random-event engine contract around the existing event adapters. The Bedrock runtime now evaluates the source-backed absolute-time frequency curve, selects one random survival player per tick, applies disabled-id filtering and persistent inverse occurrence weights, rerolls invalid events when configured, and exposes the source defaults through the Bedrock config layer.
+**Chunk 44 complete — Library Book reader adapter**
+
+Chunk 44 ports the source LibraryBookItem/LibraryBookScreen path. All 44 recovered library book JSON payloads are embedded in the runtime data module; the source 1..250 id range is preserved in the model, while new items select from the recovered payload set so Bedrock does not silently open an empty book for unavailable source ids. The Bedrock book item opens an ActionFormData reader with source page text, author/title context, bounded Previous/Next/Close pagination, optional per-stack id retention, and page-turn audio. Focused local model regressions pass; GitHub Actions [run 33773822475](https://github.com/PastaHimself/tbs-2.0/actions/runs/33773822475) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Chunk state
 | Chunk | State |
@@ -67,6 +68,7 @@ Chunk 43 ports the source random-event engine contract around the existing event
 | 41 Fractured rendered-contact resolver | **completed** (source bone contract, injectable world-position seam, source stomp transform fallback, explicit entity-anchor fallback, runtime wiring, focused regressions, GitHub Actions run 139) |
 | 42 Source-registered horror event adapters | **completed** (seven missing source registrations, source message/title/interface/sign contracts, Null book optional page, Aberration state, explicit Bedrock fallbacks, focused regressions, GitHub Actions run 143) |
 | 43 Source event engine contract | **completed** (source frequency curve, one-player-per-tick scheduler, inverse occurrence weighting, disabled event ids, configured rerolls, persistent world state, Bedrock API clock/game-mode seams, focused regressions, GitHub Actions run 33770176189) |
+| 44 Library Book reader adapter | **completed** (44 recovered source book payloads, source 1–250 id range, per-item id retention seam, one-based pages, bounded form pagination, focused regressions, GitHub Actions run 33773822475) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -111,6 +113,9 @@ BP/scripts/systems/fractured_contact_model.js · BP/scripts/entities/boss/fractu
 BP/scripts/systems/{horror_event_model,horror_events,story_book_model,story_book_adapter}.js · tests/{horror_event_model,story_events}.test.mjs · docs/chunks/CHUNK_42_{SPEC,REPORT}.md · horror-event/parity/adaptation/limitation/validation ledgers
 ## Files changed (Chunk 43)
 BP/scripts/systems/{event_scheduler_model,event_frequency,horror_events,config_defaults}.js · tests/event_scheduler_model.test.mjs · docs/chunks/CHUNK_43_{SPEC,REPORT}.md · event-engine/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 44)
+BP/scripts/systems/{library_book_model,library_book_data,ported_features}.js · BP/items/book.json · tests/library_book_model.test.mjs · docs/chunks/CHUNK_44_{SPEC,REPORT}.md · item/gui/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -270,5 +275,9 @@ Chunk 42 adds the seven source registrations absent from the Bedrock horror-even
 
 Chunk 43 adds the source-backed random-event scheduler contract. The pure model mirrors TBSEngineControl's 55-day frequency curve and the brokencore weighted picker; the runtime uses World.getAbsoluteTime() and Player.getGameMode() when available, persists occurrence counts and disabled IDs through world state, and exposes enableRandomEvents, rerollEvents, and eventDebug defaults. Focused local scheduler regressions and the full 15-test scratch suite pass; GitHub Actions [run 33770176189](https://github.com/PastaHimself/tbs-2.0/actions/runs/33770176189) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
+## Chunk 44 — Library Book reader adapter
+
+Chunk 44 ports the source LibraryBookItem/LibraryBookScreen path. All 44 recovered library book JSON payloads are embedded in the runtime data module; the source 1..250 id range is preserved in the model, while new items select from the recovered payload set so Bedrock does not silently open an empty book for unavailable source ids. The Bedrock book item opens an ActionFormData reader with source page text, author/title context, bounded Previous/Next/Close pagination, optional per-stack id retention, and page-turn audio. Focused local model regressions pass; GitHub Actions [run 33773822475](https://github.com/PastaHimself/tbs-2.0/actions/runs/33773822475) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** Custom Null GUI screens, desktop window-title/packet hooks, exact obfuscated/cipher NBT structure placement, Java-native persistence/config UI, and the broader uninspected source inventory remain explicitly ledgered engine/deferred items.
+**Next source boundary.** Remaining GUI screens (command block, Null interfaces, fake disconnect, torn paper), desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.

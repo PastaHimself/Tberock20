@@ -2729,11 +2729,14 @@
                                       ],
                      "bedrock_identifier":  "thebrokenscript:book",
                      "bedrock_files":  [
-
+                                          "BP/items/book.json",
+                                          "BP/scripts/systems/library_book_model.js",
+                                          "BP/scripts/systems/library_book_data.js",
+                                          "BP/scripts/systems/ported_features.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 44 embeds 44 recovered source payloads and adapts the book item to a paginated ActionFormData reader with optional per-stack id retention."
                  },
                  {
                      "source_id":  "item.border_block",
@@ -10658,11 +10661,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                          "BP/items/book.json",
+                                          "BP/scripts/systems/library_book_data.js",
+                                          "BP/scripts/systems/ported_features.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 44 adapts LibraryBookScreen to an ActionFormData reader over recovered payloads; Java custom presentation remains deferred."
                  },
                  {
                      "source_id":  "gui.nulled_gui",
