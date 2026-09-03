@@ -55,6 +55,9 @@
 | 2026-09-01 | 33 | Rock block-impact burst: 13 focused Jimmy model/runtime regressions PASS; changed attack model/runtime JavaScript node --check PASS; Rock entity and custom particle JSON parse PASS; GitHub Actions validation for the published commit pending; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
 
 | 2026-09-01 | 34 | Custom damage-source adapter: 53/53 deterministic Node regressions PASS; source catalog preserves all 15 resource definitions and TBSDamageTypes registry flags; damage model/runtime and boss runtime JavaScript node --check PASS; Rock entity and moon-stone particle JSON parse PASS; BedrockWiki/Microsoft Learn attribution references checked; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+| 2026-09-01 | 35 | Fractured animation timeline/presentation bridge: 18/18 deterministic Node regressions PASS; source attack keyframe seconds and BaseFractured presentation mappings verified; changed animation model/runtime JavaScript `node --check` PASS; tracked-bone contract and direct `playAnimation` bridge assertions PASS; Bedrock world/runtime smoke test unavailable locally | PASS (local code checks) |
+
+| 2026-09-03 | CI gate follow-up | GitHub Actions run 128 exposed the MCT bare-beta self-comparison false positive for identical `2.11.0-beta` values; the narrow optional-suffix filter fix and regression test were validated by [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818), including complete packaging and report steps | PASS (external-tool filter fix) |
 
 ## Pending validations (later chunks)
 
@@ -75,3 +78,7 @@
 - Static checks: `node --check` passed for `integrity_arena_model.js` and `boss_controller.js`; `integrity_arm.json` parsed successfully.
 - Coverage: inclusive 40–80 target selection, tick-33 target-block capture, tick-40 owned-arm spawn, tick-5 impact plan (15 damage, 1.5 horizontal / 2.6 upward impulse), owner-stuck propagation, and source timer/lifecycle discard thresholds.
 - GitHub Actions validation for the published commit is pending.
+
+| 2026-09-01 | 36 | Source particle resource/event bridge: 8/8 focused particle regressions plus 59 existing regressions PASS (67/67 total); nine particle JSON resources parsed locally; changed particle model/runtime JavaScript node --check PASS; Bedrock world/runtime smoke test unavailable locally; GitHub Actions [run 123](https://github.com/PastaHimself/tbs-2.0/actions/runs/33528304807) PASS | PASS (CI + local code checks) |
+| 2026-09-02 | 37 | Fractured audio lifecycle adapter: 5/5 focused runtime regressions PASS; changed fractured_runtime.js `node --check` PASS; source Jimmy spawn cue and SoundInstance stop cleanup verified; Bedrock world/runtime smoke test unavailable locally; GitHub Actions [run 125](https://github.com/PastaHimself/tbs-2.0/actions/runs/33642389983) PASS | PASS (CI + local code checks) |
+| 2026-09-03 | 38 | NullBookStoryEvent written-book adapter: 7/7 focused story regressions and 67/67 full Node regressions PASS; changed story, adapter, and state modules node --check PASS; source threshold/page/coordinate/book-component/signing/distribution/overflow/retry/persistence assertions PASS; Bedrock world/runtime smoke test unavailable locally; implementation and filter fix validated by GitHub Actions [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818) | PASS (CI + local code checks) |

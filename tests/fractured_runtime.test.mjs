@@ -43,7 +43,12 @@ test("runtime exposes one scheduler owner and one collision owner", async () => 
   assert.match(runtime, /EquipmentSlot\.Chest/);
   assert.match(runtime, /EntityDamageCause\.projectile/);
   assert.match(runtime, /fracturedRockImpactPlan/);
-  assert.match(runtime, /KEYFRAME_ADAPTER_TICKS/);
+  assert.match(runtime, /fracturedAnimationEventPlan/);
+  assert.match(runtime, /fracturedAnimationId/);
+  assert.match(runtime, /fracturedPresentationAnimationId/);
+  assert.match(runtime, /playFracturedPresentation/);
+  assert.match(runtime, /playAnimation/);
+  assert.doesNotMatch(runtime, /KEYFRAME_ADAPTER_TICKS/);
   assert.doesNotMatch(runtime, /\.applyKnockback\s*\([^)]*,[^)]*,[^)]*,[^)]*\)/);
 });
 
@@ -60,4 +65,16 @@ test("Rock block impact is wired to the source-counted custom particle emitter",
   ]);
   assert.deepEqual(particle.particle_effect.components["minecraft:emitter_shape_point"].direction, [0, 1, 0]);
   assert.equal(particle.particle_effect.components["minecraft:particle_initial_speed"], 2);
+});
+
+test("Fractured audio retains SoundInstance handles and stops arena music on reset", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /soundInstances: \[\]/);
+  assert.match(runtime, /const instance = player\.playSound\(sound/);
+  assert.match(runtime, /arena\.soundInstances\.push\(instance\)/);
+  assert.match(runtime, /function stopArenaSounds\(arena\)/);
+  assert.match(runtime, /instance\.stop\(\)/);
+  assert.match(runtime, /stopArenaSounds\(arena\)/);
+  assert.match(runtime, /ROAM_ARENA_SOURCE\.introSound/);
+  assert.match(runtime, /jimmy\.spawn/);
 });

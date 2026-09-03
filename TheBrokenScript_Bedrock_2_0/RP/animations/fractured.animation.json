@@ -101425,6 +101425,14 @@
             0
           ]
         }
+      },
+      "particle_effects": {
+        "0.68": [
+          {
+            "effect": "jimmy_contact_burst",
+            "locator": "right_f_tarsus_contact"
+          }
+        ]
       }
     },
     "animation.thebrokenscript.fractured.offenseslam": {
@@ -106936,6 +106944,18 @@
             0
           ]
         }
+      },
+      "particle_effects": {
+        "1.23": [
+          {
+            "effect": "jimmy_contact_burst",
+            "locator": "right_l_claw_contact"
+          },
+          {
+            "effect": "jimmy_contact_burst",
+            "locator": "left_l_claw_contact"
+          }
+        ]
       }
     },
     "animation.thebrokenscript.fractured.moonrocktoss": {
@@ -112930,6 +112950,20 @@
             ]
           }
         }
+      },
+      "particle_effects": {
+        "1.41": [
+          {
+            "effect": "jimmy_contact_burst",
+            "locator": "rock_contact"
+          }
+        ],
+        "5.24": [
+          {
+            "effect": "jimmy_contact_burst",
+            "locator": "rock_contact"
+          }
+        ]
       }
     },
     "animation.thebrokenscript.fractured.defenseairlift": {
@@ -116370,6 +116404,14 @@
             ]
           }
         }
+      },
+      "particle_effects": {
+        "2.27": [
+          {
+            "effect": "jimmy_contact_burst",
+            "locator": "rock_contact"
+          }
+        ]
       }
     },
     "animation.thebrokenscript.fractured.hidecommandblock": {

@@ -4,6 +4,7 @@ import * as dimensions from "./dimensions.js";
 import * as progression from "./progression.js";
 import { logger } from "../core/logging.js";
 import { applyWhyCantYouLeave } from "./ported_features.js";
+import { spawnSourceParticle } from "./particle_runtime.js";
 
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
 // 95 event classes in source (81 TBSEvents + 14 others). OS-level events
@@ -69,7 +70,7 @@ const H = {
   // null-flavored
   null_title(p) { title(p, "§knull§r", 30); },
   null_particle(p) {
-    try { p.dimension.spawnParticle("minecraft:basic_smoke_particle", { x: p.location.x, y: p.location.y + 2, z: p.location.z }); } catch {}
+    spawnSourceParticle(p, "null_particle");
     playNear(p, SOUNDS.glitch, 3, 1);
   },
   null_scare(p) {
@@ -104,7 +105,10 @@ const H = {
   hungry(p) { try { p.addEffect("hunger", 200, { amplifier: 1, showParticles: false }); } catch {} },
   paranoia(p) { title(p, "§7someone is watching.", 45); playNear(p, SOUNDS.heartbeat, 5, 1); },
   madness_1(p) { title(p, "§k▓ §rtext_madness §k▓", 30); playNear(p, SOUNDS.glitch, 4, 0.6); },
-  eyes(p) { title(p, "§4◉ ‸ ◉", 20); },
+  eyes(p) {
+    spawnSourceParticle(p, "eyes");
+    title(p, "§4◉ ‸ ◉", 20);
+  },
 
   // time/sky
   set_time(p) { try { p.dimension.runCommand("time set midnight"); } catch {} },

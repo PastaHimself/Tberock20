@@ -186,3 +186,19 @@ test('rejects initialization status 1 when the report has no blockers', () => {
     /exit 1; expected 0/,
   );
 });
+
+test('ignores the MCT self-comparison for a bare beta version', () => {
+  const result = classifyMctFindings({
+    projects: [{
+      name: 'fixture',
+      items: [{
+        type: 'error',
+        generatorId: 'SCRIPTMODULE',
+        message: 'For @minecraft/server, using an out of date beta version 2.11.0-beta compared to the current version: 2.11.0-beta',
+        path: '/behavior_packs/bp/manifest.json',
+      }],
+    }],
+  });
+  assert.deepEqual(result.blockers, []);
+  assert.equal(result.ignored.length, 1);
+});

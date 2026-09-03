@@ -1,4 +1,4 @@
-﻿import * as state from "../core/state.js";
+import * as state from "../core/state.js";
 
 export const INT_MAX = 2147483647;
 
@@ -66,7 +66,7 @@ const DEFAULTS = {
 };
 
 export function init() {
-    if (state.getWorld("mapVarsDataVersion", undefined) === undefined) {
+    if (state.getWorld("mv.dataVersion", undefined) === undefined) {
         for (const [key, value] of Object.entries(DEFAULTS)) {
             state.setWorld(`mv.${key}`, value);
         }

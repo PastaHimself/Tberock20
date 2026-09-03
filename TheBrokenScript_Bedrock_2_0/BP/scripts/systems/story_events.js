@@ -1,10 +1,18 @@
-import { world, ItemStack } from "@minecraft/server";
+import { world, system, ItemStack } from "@minecraft/server";
+import { logger } from "../core/logging.js";
 import * as storyTime from "../shared/story_time.js";
 import * as worldState from "./world_state.js";
 import * as playerState from "./player_state.js";
+import {
+    createSignedNullBook,
+    distributeNullBook,
+} from "./story_book_adapter.js";
 
 const DAY = 24000;
 const OFFSET = 1000;
+const MAX_NULL_BOOK_RETRIES = 20;
+const deliveredNullBookPlayers = new Set();
+let nullBookRetryScheduled = false;
 
 export function registerAll() {
     storyTime.registerThreshold(DAY * 5 + OFFSET, "txt_story_5", onTxtHint);
@@ -15,37 +23,77 @@ export function registerAll() {
     for (const d of [24, 32, 38, 48]) {
         storyTime.registerThreshold(DAY * d + OFFSET, `moon_corruption_${d}`, onMoonCorruption);
     }
-    // NullBookStoryEvent: days(12)+1000 — gives every online player the "null" book
-    storyTime.registerThreshold(DAY * 12 + OFFSET, "null_book", onNullBook);
+    // NullBookStoryEvent: days(12)+1000 — gives every online player the signed "null" book.
+    storyTime.registerThreshold(DAY * 12 + OFFSET, "null_book_hint", onNullBook);
 }
 
-// NULL_BOOK_CONTENT lang line: event.$$.null_book.text
-const NULL_BOOK_PAGE1 =
-    "§0null.err.object.err.null.object.alone.3.not.behind.entitytype:player.receiveddata.invalid.reboot.failed.reset.playerdata:00F9219492D94210F812";
-
-function onNullBook() {
-    if (worldState.get("nullBookGiven")) return;
-    worldState.set("nullBookGiven", true);
-    // clanVoid coords as binary pages (source builds from MapVariables clanVoidX/Z; INT_MAX = unset)
-    const cvx = worldState.get("clanVoidX");
-    const cvz = worldState.get("clanVoidZ");
-    const bin = (v) => {
-        if (v === undefined || v >= 2147483647) return "?";
-        return v < 0 ? "-" + Math.abs(v).toString(2) : v.toString(2);
-    };
-    const page2 = `X: ${bin(cvx)}  Y: 201  Z: ${bin(cvz)}  CV`;
-    for (const player of world.getAllPlayers()) {
-        try {
-            const inv = player.getComponent("minecraft:inventory");
-            const container = inv?.container;
-            if (container) container.addItem(new ItemStack("minecraft:writable_book", 1));
-        } catch {}
-        try {
-            player.sendMessage("§8[null] §0" + NULL_BOOK_PAGE1);
-            player.sendMessage("§8[null] §f" + page2);
-            player.onScreenDisplay.setTitle("§knull§r.book", { fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10 });
-        } catch {}
+function scheduleNullBookRetry(attempt) {
+    if (attempt >= MAX_NULL_BOOK_RETRIES || nullBookRetryScheduled) return;
+    try {
+        if (typeof system.runTimeout !== "function") {
+            logger.error("null_book_hint cannot schedule a retry: runTimeout is unavailable");
+            return;
+        }
+        nullBookRetryScheduled = true;
+        system.runTimeout(() => {
+            nullBookRetryScheduled = false;
+            onNullBook(attempt + 1);
+        }, 1);
+    } catch (err) {
+        logger.error("null_book_hint retry scheduling failed", err);
     }
+}
+
+function onNullBook(attempt = 0) {
+    if (worldState.get("nullBookGiven")) return;
+    let item;
+    try {
+        item = createSignedNullBook(
+            ItemStack,
+            worldState.get("clanVoidX"),
+            worldState.get("clanVoidZ"),
+        );
+    } catch (err) {
+        logger.error("null_book_hint book creation failed", err);
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+    if (!item) {
+        logger.error("null_book_hint book component is unavailable");
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+
+    let players;
+    try {
+        players = world.getAllPlayers();
+    } catch (err) {
+        logger.error("null_book_hint player lookup failed", err);
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+    if (players.length === 0) {
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+
+    let pending = false;
+    for (const player of players) {
+        const playerKey = player.id ?? player;
+        if (deliveredNullBookPlayers.has(playerKey)) continue;
+        if (distributeNullBook(player, item)) {
+            deliveredNullBookPlayers.add(playerKey);
+        } else {
+            pending = true;
+            logger.warn(`null_book_hint delivery pending for player ${playerKey}`);
+        }
+    }
+    if (pending) {
+        scheduleNullBookRetry(attempt);
+        return;
+    }
+    deliveredNullBookPlayers.clear();
+    worldState.set("nullBookGiven", true);
 }
 
 function onTxtHint() {

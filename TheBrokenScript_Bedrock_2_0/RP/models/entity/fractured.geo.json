@@ -3372,6 +3372,9 @@
                                                                    165.49535,
                                                                    -7.02669
                                                                ],
+                                                     "locators": {
+                                                         "right_l_claw_contact": [0, 0, 0]
+                                                     },
                                                      "cubes":  [
                                                                    {
                                                                        "origin":  [
@@ -5080,6 +5083,9 @@
                                                                    165.49535,
                                                                    -7.02669
                                                                ],
+                                                     "locators": {
+                                                         "left_l_claw_contact": [0, 0, 0]
+                                                     },
                                                      "cubes":  [
                                                                    {
                                                                        "origin":  [
@@ -5533,6 +5539,9 @@
                                                                    -593.5,
                                                                    -251.82507
                                                                ],
+                                                     "locators": {
+                                                         "rock_contact": [0, 0, 0]
+                                                     },
                                                      "cubes":  [
                                                                    {
                                                                        "origin":  [
@@ -11409,6 +11418,9 @@
                                                                       0,
                                                                       0
                                                                   ],
+                                                     "locators": {
+                                                         "right_f_tarsus_contact": [0, 0, 0]
+                                                     },
                                                      "cubes":  [
                                                                    {
                                                                        "origin":  [

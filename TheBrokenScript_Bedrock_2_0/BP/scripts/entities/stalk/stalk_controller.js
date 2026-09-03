@@ -5,6 +5,7 @@ import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
+import { spawnSourceParticle } from "../../systems/particle_runtime.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // curved: approach only when NOT in FOV cone (0.55), ≤10 → transform 100t → hostile,
@@ -123,7 +124,7 @@ function tickCurved(e) {
   const life = getNum(e, "life", CURVED_DESPAWN) - 1;
   setNum(e, "life", life);
   if (life <= 0) {
-    try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", { x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch {}
+    spawnSourceParticle(e, "curved_despawn");
     try { e.remove(); } catch {} deleteTimers(e);
   }
 }

@@ -141,3 +141,43 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Replacement design**: `damage_source_model.js` is a pure 15-entry catalog and plan builder. `damage_source_runtime.js` validates the custom id, sends the nearest native cause with entity/projectile attribution, and retains the custom source id in a same-tick runtime ledger. Recovered callsites now route Jimmy stomp, Rock, Integrity ball, Integrity shield bypass, void mass, Fever, and Chord damage through the adapter.
 7. **Player-visible difference**: custom source ids remain available to the port's same-tick logic, but Bedrock's native death text and armor/effect/shield/totem handling still follow the selected built-in cause.
 8. **Parity class**: `VALIDATED_APPROXIMATION` for source catalog and attribution; exact custom damage-type registration remains engine-unsupported.
+
+## A-019 — Fractured animation timeline and presentation bridge
+
+1. **Source feature**: `fractured.animation.json`, `FracturedModel`, and `BaseFracturedEntity`'s animation-controller mappings.
+2. **Source behavior**: `OffenseStompShockwave` fires `SingleStomp` at 0.68 seconds, `OffenseSlam` fires `Slam` at 1.23 seconds, `MoonRockToss` fires `OffenseRockGrab`/`OffenseRockThrow` at 1.41/5.24 seconds, and `DefenseAirLift` fires `DefensiveRockRelease` at 2.27 seconds. The controller maps RISING→Spawn, NORMAL idle/moving→Idle/Walk, DIGGING/DESPAWNING/SWITCHING→Flee, UNDERGROUND→Underground, and DEFEATED→Loss.
+3. **Source evidence**: `source_extracted/assets/thebrokenscript/animations/fractured.animation.json`; `decompiled/net/thebrokenscript/client/model/entity/FracturedModel.java`; `decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java`; `decompiled/net/thebrokenscript/entity/fractured/FracturedEntity.java`.
+4. **Bedrock limitation**: the Script API can start a named entity animation, but does not expose GeckoLib's server-side rendered-bone world transform or the Java animation controller implementation.
+5. **Replacement design**: `fractured_animation_model.js` preserves source clip names, lengths, instruction seconds, tracked-bone ownership, presentation mapping, and deterministic 20 Hz runtime ticks. `fractured_runtime.js` calls `playAnimation` when an attack or Roam presentation state changes and dispatches gameplay effects on the source-derived event tick. The geometry adds zero-offset locators to the tracked bones, the client entity binds a compact contact emitter, and the animation timeline fires it at each source contact event.
+6. **Player-visible difference**: attack and Roam clips now use the existing Bedrock resources and source timing, and visual contact follows the animated locators. Server-side damage/rock origins still use the documented spatial adapters rather than exact animated bone coordinates.
+7. **Parity class**: `VALIDATED_APPROXIMATION`; animation resource/timing/presentation mapping is source-backed, while exact rendered contact remains engine-limited.
+
+## A-020 — Source particle resource and provider adapter
+
+1. **Source feature**: the nine assets/thebrokenscript/particles/*.json definitions, the registered Java providers under net/thebrokenscript/client/particle, and the Null/Eyes/Curved sendParticles callsites.
+2. **Source behavior**: Eyes is size 0.4 for seven ticks; Fardaway and Null use the recovered 1..56 tick lifetime ranges; NullStructure is size 0.5 for 60 ticks; Paper is size 0.25 for 100..199 ticks with a custom crossed-quad flutter; ParticleOfCurved is size 10 for 5..24 ticks; Wretched is size 0.6 for 7..26 ticks.
+3. **Source evidence**: source_extracted/assets/thebrokenscript/particles/*.json; the decompiled provider classes; NullParticleEvent, EyesEvent, and CurvedEntity.
+4. **Bedrock limitation**: Dimension.spawnParticle accepts a named emitter and origin rather than Java's count/offset API, and Bedrock does not expose Java's custom particle renderer or provider registry.
+5. **Replacement design**: particle_model.js is a pure catalog of all nine definitions and three event contracts. Each resource uses the documented Bedrock emitter lifetime/rate/shape, lifetime expression, initial speed, billboard, lighting, and dynamic-motion components. Source PNGs are copied without re-encoding. particle_runtime.js guards the named-effect bridge, and the known event handlers invoke it.
+6. **Player-visible difference**: emitter count/spread is encoded in the resource and Paper's double crossed quads/roll-dependent wave are approximated by one billboard with dynamic motion and drag. follows_particle and revuxor_particle retain their source textures but have no Java provider implementation in the extracted registry.
+7. **Parity class**: VALIDATED_APPROXIMATION for the catalog/resource/event slice; exact Java provider registration and custom renderer behavior remain engine-limited.
+
+## A-021 — Fractured audio lifecycle adapter
+
+1. **Source feature**: `BaseFracturedEntity.playSpawnSounds()`, `JimArena` intro/loop scheduling, and `AudioFader` reset cleanup.
+2. **Source behavior**: Fractured hosts play `jimmy.spawn`; JimArena plays `jimbob.intro`, starts `jimbob.loop` after 340 ticks, and stops active tracks on reset.
+3. **Source evidence**: `decompiled/net/thebrokenscript/api/entity/BaseFracturedEntity.java`; `decompiled/net/thebrokenscript/boss/jimmy/JimArena.java`; `decompiled/net/thebrokenscript/boss/jimmy/AudioFader.java`.
+4. **Bedrock limitation**: Java's client-only `FancyAudio` and audio-fader implementation are unavailable; local attenuation and music packet ownership are not identical.
+5. **Replacement design**: `fractured_runtime.js` emits the namespaced spawn sound once per Fractured/Roam state, retains `Player.playSound()`'s `SoundInstance` handles for arena intro/loop tracks, and calls `SoundInstance.stop()` before reset clears the arena.
+6. **Player-visible difference**: sound ownership is server-scripted through Bedrock handles, and exact Java attenuation/fade behavior remains runtime-dependent.
+7. **Parity class**: `VALIDATED_APPROXIMATION` for the source cue and cleanup lifecycle; Java client transport remains engine-specific.
+
+## A-022 — NullBookStoryEvent written-book adapter
+
+1. **Source feature**: `TBSStoryEvents.null_book_hint` and `NullBookStoryEvent`.
+2. **Source behavior**: at `Time.days(12) + 1000`, the event creates a two-page `WrittenBookContent` titled `null`, authored by `null`, with `TBSLang.NULL_BOOK_CONTENT` on page one and chunk-centered binary Clan Void coordinates on page two, then gives it to every online player.
+3. **Source evidence**: `decompiled/net/thebrokenscript/registry/TBSStoryEvents.java`; `decompiled/net/thebrokenscript/events/story/NullBookStoryEvent.java`; the extracted language registry.
+4. **Bedrock limitation**: Java's `WrittenBookContent` data component is not directly installable; the current Bedrock pack instead uses the supported `ItemBookComponent` API on a writable book.
+5. **Replacement design**: `story_book_model.js` preserves the threshold/page/binary-coordinate contract; `story_book_adapter.js` creates the writable book through an injected ItemStack constructor and distributes cloned copies, dropping a leftover stack when inventory insertion is full. `story_events.js` wires the real Bedrock constructor, logs failures, retries transient creation/delivery failures with a bounded `system.runTimeout` loop, and sets `nullBookGiven` only after all current players are delivered.
+6. **Player-visible difference**: the Bedrock adapter uses Script API book mutation/signing instead of Java's serialized data component; an inventory-full remainder appears as a dropped item at the player location, and transient failures are retried rather than silently discarded.
+7. **Parity class**: `VALIDATED_HIGH_PARITY` for source timing/content/metadata/delivery, with the book-component and inventory serialization differences documented above.

@@ -1945,13 +1945,15 @@
                                           "lang key event.thebrokenscript.null_particle",
                                           "TBSEvents registry / events packages"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:null_particle",
                      "bedrock_files":  [
-
+                                           "BP/scripts/systems/horror_events.js",
+                                           "BP/scripts/systems/particle_runtime.js",
+                                           "RP/particles/null_particle.particle.json"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source sendParticles count/spread moved into named Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "event.null_scare",
@@ -10175,13 +10177,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/eyes.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:eyes",
                      "bedrock_files":  [
-
+                                           "RP/particles/eyes.particle.json",
+                                           "RP/textures/particle/eyes.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.fardaway",
@@ -10189,13 +10194,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/fardaway.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:fardaway",
                      "bedrock_files":  [
-
+                                           "RP/particles/fardaway.particle.json",
+                                           "RP/textures/particle/funny/fardaway.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.follows_particle",
@@ -10203,13 +10211,15 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/follows_particle.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:follows_particle",
                      "bedrock_files":  [
-
+                                           "RP/particles/follows_particle.particle.json",
+                                           "RP/textures/particle/follows_particle.png",
+                                           "BP/scripts/systems/particle_model.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source texture/resource translated; no registered Java provider found (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.null_particle",
@@ -10217,13 +10227,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/null_particle.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:null_particle",
                      "bedrock_files":  [
-
+                                           "RP/particles/null_particle.particle.json",
+                                           "RP/textures/particle/null_particle.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.null_structure_particle",
@@ -10231,13 +10244,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/null_structure_particle.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:null_structure_particle",
                      "bedrock_files":  [
-
+                                           "RP/particles/null_structure_particle.particle.json",
+                                           "RP/textures/particle/null_structure_particle.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.paper_particle",
@@ -10245,13 +10261,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/paper_particle.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:paper_particle",
                      "bedrock_files":  [
-
+                                           "RP/particles/paper_particle.particle.json",
+                                           "RP/textures/particle/paper_particle.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.particle_of_curved",
@@ -10259,13 +10278,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/particle_of_curved.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:particle_of_curved",
                      "bedrock_files":  [
-
+                                           "RP/particles/particle_of_curved.particle.json",
+                                           "RP/textures/particle/particle_of_curved.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.revuxor_particle",
@@ -10273,13 +10295,15 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/revuxor_particle.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:revuxor_particle",
                      "bedrock_files":  [
-
+                                           "RP/particles/revuxor_particle.particle.json",
+                                           "RP/textures/particle/revuxor_particle.png",
+                                           "BP/scripts/systems/particle_model.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source texture/resource translated; no registered Java provider found (Chunk 36)"
                  },
                  {
                      "source_id":  "particle.wretched_particle",
@@ -10287,13 +10311,16 @@
                      "source_paths":  [
                                           "assets/thebrokenscript/particles/wretched_particle.json"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "thebrokenscript:wretched_particle",
                      "bedrock_files":  [
-
+                                           "RP/particles/wretched_particle.particle.json",
+                                           "RP/textures/particle/wretched_particle.png",
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "source provider size/lifetime/render contract translated to Bedrock emitter (Chunk 36)"
                  },
                  {
                      "source_id":  "sound_definitions",
@@ -11762,11 +11789,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                           "BP/scripts/systems/particle_model.js",
+                                           "BP/scripts/systems/particle_runtime.js",
+                                           "RP/particles/*.particle.json"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "registered Java provider behavior translated through Bedrock emitters; Paper custom renderer adapted (Chunk 36)"
                  },
                  {
                      "source_id":  "code.client/registry",
@@ -13805,13 +13834,16 @@
                      "source_paths":  [
                                           "TBSStoryEvents (4 stages)"
                                       ],
-                     "bedrock_identifier":  "",
+                     "bedrock_identifier":  "null_book_hint",
                      "bedrock_files":  [
-
+                                           "BP/scripts/systems/story_events.js",
+                                           "BP/scripts/systems/story_book_model.js",
+                                           "BP/scripts/systems/story_book_adapter.js",
+                                           "BP/scripts/systems/world_state.js"
                                        ],
-                     "status":  "in_progress",
-                     "parity":  "unknown",
-                     "notes":  "3/4 events wired (txt/coords/moon); null_book_story pending item system (Chunk 09/12)"
+                     "status":  "ported",
+                     "parity":  "high",
+                     "notes":  "all 4 registered story stages wired; null_book_hint creates a signed written book with Java chunk-centered binary coordinates, bounded delivery retry, and persistent delivery gate (Chunk 38)"
                  },
                  {
                      "source_id":  "registry.music_songs",
