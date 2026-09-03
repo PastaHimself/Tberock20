@@ -108,7 +108,7 @@ test("wires all seven source registrations into the Bedrock event table", async 
     import.meta.url,
   ), "utf8");
   for (const id of SOURCE_REGISTERED_EVENT_IDS) {
-    assert.match(runtime, new RegExp(`\\\\b${id}\\\\(`));
+    assert.match(runtime, new RegExp(`\\b${id}\\(`));
     assert.match(runtime, new RegExp(`\\\\["${id}",`));
   }
   assert.match(runtime, /export const EVENT_COUNT = TABLE\.length/);
