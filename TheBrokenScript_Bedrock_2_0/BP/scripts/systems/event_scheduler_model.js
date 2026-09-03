@@ -75,7 +75,7 @@ export function pickEvent(events, {
   counts = {},
   disabledEventIds = [],
   rerollEvents = true,
-  canExecute = () => true,
+  canExecute = (_event) => true,
 } = {}) {
   const nextCounts = { ...counts };
   const maxAttempts = Math.max(1, events.length + 1);
