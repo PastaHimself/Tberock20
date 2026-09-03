@@ -4,6 +4,7 @@ import { logger } from "../core/logging.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
 import { pageAt, pageBack, pageForward, selectAvailableBookId } from "./library_book_model.js";
+import { nullInterfaceDefinition } from "./null_interface_model.js";
 import { getLibraryBook, LIBRARY_BOOK_IDS } from "./library_book_data.js";
 import {
   SOURCE_STATUS_EFFECTS,
@@ -141,6 +142,24 @@ export async function showLibraryBook(player, itemStack = undefined) {
     }
   } catch (err) {
     logger.error("ported_features: library book form failed", err);
+    return false;
+  }
+}
+
+
+export async function showNullInterface(player, index = 0) {
+  if (!isPlayer(player)) return false;
+
+  const view = nullInterfaceDefinition(index);
+  try {
+    await new ActionFormData()
+      .title(view.title)
+      .body(view.body)
+      .button("Close")
+      .show(player);
+    return true;
+  } catch (err) {
+    logger.error("ported_features: null interface form failed", err);
     return false;
   }
 }

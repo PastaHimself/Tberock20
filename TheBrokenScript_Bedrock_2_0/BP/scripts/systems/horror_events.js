@@ -12,13 +12,12 @@ import {
 import {
   ABERRATION_TIMER_TICKS,
   TEXT_EVENT_MESSAGES,
-  nullInterfaceOutcome,
   obfuscatedSignOutcome,
   titleEventOutcome,
 } from "./horror_event_model.js";
 import { createSignedNullBook, distributeNullBook } from "./story_book_adapter.js";
 import { logger } from "../core/logging.js";
-import { applyWhyCantYouLeave } from "./ported_features.js";
+import { applyWhyCantYouLeave, showNullInterface } from "./ported_features.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
 
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
@@ -97,8 +96,7 @@ const H = {
     if (item) distributeNullBook(p, item);
   },
   null_interface_trigger(p) {
-    const outcome = nullInterfaceOutcome(Math.floor(Math.random() * 3));
-    title(p, `§8${outcome.title}`, 40, "§7Null interface");
+    void showNullInterface(p, Math.floor(Math.random() * 3));
   },
 
   // null-flavored
