@@ -11,7 +11,8 @@
       "minecraft:icon": "book",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.book"
-      }
+      },
+      "thebrokenscript:library_book_use": true
     }
   }
 }

@@ -3,6 +3,8 @@ import { ActionFormData } from "@minecraft/server-ui";
 import { logger } from "../core/logging.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
+import { pageAt, pageBack, pageForward, selectAvailableBookId } from "./library_book_model.js";
+import { getLibraryBook, LIBRARY_BOOK_IDS } from "./library_book_data.js";
 import {
   SOURCE_STATUS_EFFECTS,
   isStatusEffectActive,
@@ -38,6 +40,13 @@ export function init(itemComponentRegistry) {
       });
     },
   });
+  itemComponentRegistry.registerCustomComponent("thebrokenscript:library_book_use", {
+    onUse(event) {
+      system.run(() => {
+        void showLibraryBook(event.source, event["itemStack"]);
+      });
+    },
+  });
   itemComponentRegistry.registerCustomComponent("thebrokenscript:portal_linker_use", {
     onUseOn(event) {
       system.run(() => usePortalLinker(event.source, event.block));
@@ -53,7 +62,7 @@ export function init(itemComponentRegistry) {
       system.run(() => placeCircuitPainting(event.source, event.block, event.blockFace));
     },
   });
-  logger.info("ported_features: 5 item components registered");
+  logger.info("ported_features: 6 item components registered");
 }
 
 export function begin(scheduler) {
@@ -85,6 +94,55 @@ export function fireHandCannon(player) {
     logger.error("ported_features: hand cannon raycast failed", err);
   }
   return true;
+}
+
+export async function showLibraryBook(player, itemStack = undefined) {
+  if (!isPlayer(player)) return false;
+
+  let storedId;
+  try { storedId = itemStack?.getDynamicProperty?.("tbs:library_book_id"); } catch {}
+  const bookId = selectAvailableBookId(storedId, Math.random(), LIBRARY_BOOK_IDS);
+  try { itemStack?.setDynamicProperty?.("tbs:library_book_id", bookId); } catch {}
+
+  const book = getLibraryBook(bookId);
+  const totalPages = Math.max(1, book.pages.length);
+  let currentPage = 0;
+
+  try {
+    while (true) {
+      const actions = [];
+      const form = new ActionFormData()
+        .title("Library Book " + bookId + (book.author ? " - " + book.author : ""))
+        .body(pageAt(book, currentPage + 1) || " ");
+
+      if (currentPage > 0) {
+        form.button("Previous");
+        actions.push("back");
+      }
+      if (currentPage < totalPages - 1) {
+        form.button("Next");
+        actions.push("forward");
+      }
+      form.button("Close");
+      actions.push("close");
+
+      const response = await form.show(player);
+      if (response.canceled || response.selection === undefined) return true;
+
+      const action = actions[response.selection];
+      if (action === "back") {
+        currentPage = pageBack(currentPage);
+      } else if (action === "forward") {
+        currentPage = pageForward(currentPage, totalPages);
+      } else {
+        return true;
+      }
+      try { player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.1 }); } catch {}
+    }
+  } catch (err) {
+    logger.error("ported_features: library book form failed", err);
+    return false;
+  }
 }
 
 export async function showPolaroid(player) {
