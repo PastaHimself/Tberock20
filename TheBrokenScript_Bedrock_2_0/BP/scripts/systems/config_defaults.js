@@ -1,6 +1,9 @@
 import { config } from "../core/config.js";
 
 config.registerDefaults({
+    "events.enableRandomEvents": { value: true, source: "EventsConfig enableRandomEvents=true" },
+    "events.rerollEvents": { value: true, source: "EventsConfig rerollEvents=true" },
+    "events.eventDebug": { value: false, source: "EventsConfig eventDebug=!isProduction (release=false)" },
     "world.removeDeepslate": { value: true, source: "WorldConfig removeDeepslate=true" },
     "world.allowOldWorldGen": { value: true, source: "WorldConfig allowOldWorldGen=true" },
     "world.disableVoidHoles": { value: false, source: "WorldConfig disableVoidHoles=false" },
