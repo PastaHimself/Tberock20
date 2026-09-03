@@ -8569,7 +8569,7 @@
                      "source_id":  "jukebox_song.disc15.betray",
                      "category":  "music",
                      "source_paths":  [
-                                          "data/thebrokenscript/jukebox_song/disc15/betray.json"
+                                          "data/thebrokenscript/jukebox_song/disc15.betray.json"
                                       ],
                      "bedrock_identifier":  "thebrokenscript:record_15",
                      "bedrock_files":  [
@@ -8584,7 +8584,7 @@
                      "source_id":  "jukebox_song.disc16.youcant",
                      "category":  "music",
                      "source_paths":  [
-                                          "data/thebrokenscript/jukebox_song/disc16/youcant.json"
+                                          "data/thebrokenscript/jukebox_song/disc16.youcant.json"
                                       ],
                      "bedrock_identifier":  "thebrokenscript:record_16",
                      "bedrock_files":  [
@@ -8599,7 +8599,7 @@
                      "source_id":  "jukebox_song.disc17.silenced",
                      "category":  "music",
                      "source_paths":  [
-                                          "data/thebrokenscript/jukebox_song/disc17/silenced.json"
+                                          "data/thebrokenscript/jukebox_song/disc17.silenced.json"
                                       ],
                      "bedrock_identifier":  "thebrokenscript:record_17",
                      "bedrock_files":  [
