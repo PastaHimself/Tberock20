@@ -10149,13 +10149,11 @@
                      "source_paths":  [
                                           "TBSEffects.heart_corruption"
                                       ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "bedrock_identifier":  "thebrokenscript:heart_corruption",
+                     "bedrock_files":  ["TheBrokenScript_Bedrock_2_0/BP/scripts/systems/status_effect_model.js", "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/status_effect_runtime.js", "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js"],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 38 preserves harmful/magenta metadata and emulates MAX_HEALTH -1 by capping current health at effective maximum minus one; custom registry and icon remain unavailable."
                  },
                  {
                      "source_id":  "effect.why_cant_you_leave",
@@ -10163,13 +10161,11 @@
                      "source_paths":  [
                                           "TBSEffects.why_cant_you_leave"
                                       ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "bedrock_identifier":  "thebrokenscript:why_cant_you_leave",
+                     "bedrock_files":  ["TheBrokenScript_Bedrock_2_0/BP/scripts/systems/status_effect_model.js", "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js"],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 38 preserves neutral/black metadata, 1000-tick expiry, and the source thebrokenscript:eyes particle bridge; custom registry remains unavailable."
                  },
                  {
                      "source_id":  "particle.eyes",
