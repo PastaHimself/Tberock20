@@ -10,6 +10,11 @@ import {
   sampleArenaOffset,
 } from "./integrity_arena_start_model.js";
 import { PHASE1_SOURCE } from "./integrity_arena_model.js";
+import {
+  PHASE1_TERRAIN_SOURCE,
+  createTerrainCorruptionQueue,
+  phase1TerrainTick,
+} from "./integrity_phase1_terrain_model.js";
 
 const ARENA_TOKEN_PROPERTY = "tbs:integrity_arena_token";
 const INTRO_UNTIL_PROPERTY = "tbs:integrity_intro_until";
@@ -71,6 +76,8 @@ export function startIntegrityArena(player, block) {
     phase1Entity: null,
     chords: [],
     chordsSpawned: false,
+    terrainQueue: [],
+    ticksSinceLastCorrupt: PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt,
     originalTimeOfDay: readTimeOfDay(),
   };
   bossHooks.setArenaState(true, false);
@@ -127,6 +134,17 @@ export function isIntegrityPhase1Invulnerable(entity) {
   return !arena.chordsSpawned || arena.chords.length > 0;
 }
 
+export function tickIntegrityArena() {
+  const arena = activeArena;
+  if (!arena || arena.phase !== ARENA_START_SOURCE.phase1) return;
+
+  const plan = phase1TerrainTick(arena, randomTerrainReplacement);
+  arena.terrainQueue = plan.terrainQueue;
+  arena.ticksSinceLastCorrupt = plan.ticksSinceLastCorrupt;
+  if (plan.action !== "corrupt") return;
+  applyTerrainCorruption(arena, plan.position, plan.replacementBlockId);
+}
+
 function prepareArena(token) {
   const arena = currentArena(token);
   if (!arena) return;
@@ -143,6 +161,8 @@ function startPhaseOne(token) {
   if (!dimension) return;
 
   arena.phase = ARENA_START_SOURCE.phase1;
+  arena.terrainQueue = createTerrainCorruptionQueue(arena.center);
+  arena.ticksSinceLastCorrupt = PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt;
   bossHooks.setArenaState(true, true);
   const location = {
     x: arena.center.x + 0.5,
@@ -170,6 +190,7 @@ function releasePhaseOneIntro(token) {
   setEntityProperty(arena.phase1Entity, INTRO_UNTIL_PROPERTY, undefined);
   setEntityProperty(arena.phase1Entity, "tbs:integrity_intro_complete", true);
   spawnPhaseOneChords(arena);
+  arena.terrainQueue.push(...createTerrainCorruptionQueue(arena.center));
 }
 
 function spawnPhaseOneChords(arena) {
@@ -251,6 +272,27 @@ function currentArena(token) {
 
 function getDimension(id) {
   try { return world.getDimension(id); } catch { return undefined; }
+}
+
+function randomTerrainReplacement() {
+  const ids = PHASE1_TERRAIN_SOURCE.replacementBlockIds;
+  return ids[Math.floor(Math.random() * ids.length)];
+}
+
+function applyTerrainCorruption(arena, position, replacementBlockId) {
+  const dimension = getDimension(arena.dimensionId);
+  if (!dimension || !position) return;
+
+  try {
+    const top = dimension.getTopmostBlock({ x: position.x, z: position.z });
+    const y = top?.location?.y;
+    if (typeof y !== "number") return;
+    const block = dimension.getBlock({ x: position.x, y, z: position.z });
+    if (!block || block.typeId === PHASE1_TERRAIN_SOURCE.protectedBlockId) return;
+    block.setType(replacementBlockId);
+  } catch (err) {
+    logger.error("integrity_arena: terrain corruption failed", err);
+  }
 }
 
 function surfaceYAt(dimension, x, z) {

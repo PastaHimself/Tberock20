@@ -28,6 +28,7 @@ import {
 import {
   isIntegrityPhase1Invulnerable,
   resetIntegrityArena,
+  tickIntegrityArena,
 } from "../../systems/integrity_arena_runtime.js";
 
 // ── boss death sequence (Chunk 14 presentation) ─────────────────────────────
@@ -327,6 +328,7 @@ export function begin(scheduler) {
 
 function onTick() {
   if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
+  tickIntegrityArena();
   const dims = [];
   const overworld = perf.dim("overworld");
   if (overworld) dims.push(overworld);
