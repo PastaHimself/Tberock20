@@ -22,7 +22,7 @@ The Java Stage2Generator is explicitly not executed. stage2.json remains a void 
 - Focused local suite: 5/5 passed.
 - Changed model/runtime JavaScript: node --check passed.
 - Microsoft Learn and BedrockWikiMcp verified every new Script API used by the adapter.
-- GitHub Actions run 33889515640 was inspected: all substantive validation, type-check, JavaScript tests, diagnostics, Creator Tools, and packaging passed; only artifact uploads failed because the repository quota was exhausted. Chunk 53 changes both upload steps to best-effort; PR CI for this branch is pending.
+- GitHub Actions [run 33906338464](https://github.com/PastaHimself/tbs-2.0/actions/runs/33906338464) passed validators, beta type-check, JavaScript tests, Blockception diagnostics, Creator Tools validation, and packaging. Both artifact steps logged the known exhausted-quota message but were best-effort and the job concluded success.
 - Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Remaining task

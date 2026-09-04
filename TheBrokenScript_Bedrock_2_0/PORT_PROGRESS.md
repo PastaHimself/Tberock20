@@ -12,9 +12,9 @@ Last updated: 2026-09-04 (Chunk 53 — Integrity Phase 2 Stage 2 runtime)
 
 ## Current chunk
 
-**Chunk 53 in progress — Integrity Phase 2 Stage 2 runtime**
+**Chunk 53 complete — Integrity Phase 2 Stage 2 runtime**
 
-Chunk 53 extends the active Phase 2 tick into Stage 2 floor runtime. The pure model preserves Floor 1–7 boundaries, one-shot per-floor spawning, the Floor 7 Integrity prerequisite, tether-gated placement, and the Phase2Floors Floor 6 → FLOOR_6_INTEG mapping. The Bedrock runtime scans loaded Stage2 blocks conservatively, spawns Tether/Integrity entities from the source floor roster, queries the target cell for live Tethers, and advances Integrity only after a safe position is found. Java Stage2Generator custom chunk generation remains explicitly blocked by the void dimension adapter; focused local validation is green and PR CI is pending.
+Chunk 53 extends the active Phase 2 tick into Stage 2 floor runtime. The pure model preserves Floor 1–7 boundaries, one-shot per-floor spawning, the Floor 7 Integrity prerequisite, tether-gated placement, and the Phase2Floors Floor 6 → FLOOR_6_INTEG mapping. The Bedrock runtime scans loaded Stage2 blocks conservatively, spawns Tether/Integrity entities from the source floor roster, queries the target cell for live Tethers, and advances Integrity only after a safe position is found. Java Stage2Generator custom chunk generation remains explicitly blocked by the void dimension adapter; focused local validation is green and GitHub Actions [run 33906338464](https://github.com/PastaHimself/tbs-2.0/actions/runs/33906338464) passed all substantive validator, beta type-check, JavaScript, Blockception, Creator Tools, and packaging gates. Artifact uploads remain best-effort and logged the known repository quota message without failing the job.
 
 ## Chunk state
 | Chunk | State |
@@ -75,7 +75,7 @@ Chunk 53 extends the active Phase 2 tick into Stage 2 floor runtime. The pure mo
 | 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
 | 49 Integrity Arena startup handoff | **completed** |
 | 50 Integrity Phase 1 terrain corruption | **completed** |\n| 51 Integrity Phase 2 transfer | **completed** |\n| 52 Integrity Phase 2 recovery routing | **completed** (PR #26 pending merge) |
-| 53 Integrity Phase 2 Stage 2 runtime | **in progress** (PR pending review) |
+| 53 Integrity Phase 2 Stage 2 runtime | **completed** (PR #27 pending review) |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -331,7 +331,7 @@ Chunk 51 continues the Integrity Arena lifecycle after Phase 1 Chords are defeat
 
 ## Chunk 53 — Integrity Phase 2 Stage 2 runtime
 
-Chunk 53 ports the remaining portable Integrity Phase 2 Stage 2 runtime after the Chunk 52 recovery handoff. The pure contract makes Stage2Floor entry idempotent, keeps the Stage2 dimension and loading gates, preserves the Floor 1–7 bands and Floor 7 Integrity prerequisite, and separates target-floor state from successfully placed Integrity state. The runtime uses the source cell/center/random-distance math, scans candidate blocks through supported Bedrock block reads, spawns the source Tether and Integrity Phase 2 entities, detects live Tethers in the target floor volume, rejects Integrity candidates near Tethers, and teleports Integrity to the selected floor. The Java Stage2Generator remains an explicit custom-generator boundary; stage2.json is still a void dimension and does not claim exact room/template generation. GitHub artifact uploads are now best-effort so exhausted repository quota does not fail substantive validation.
+Chunk 53 ports the remaining portable Integrity Phase 2 Stage 2 runtime after the Chunk 52 recovery handoff. The pure contract makes Stage2Floor entry idempotent, keeps the Stage2 dimension and loading gates, preserves the Floor 1–7 bands and Floor 7 Integrity prerequisite, and separates target-floor state from successfully placed Integrity state. The runtime uses the source cell/center/random-distance math, scans candidate blocks through supported Bedrock block reads, spawns the source Tether and Integrity Phase 2 entities, detects live Tethers in the target floor volume, rejects Integrity candidates near Tethers, and teleports Integrity to the selected floor. The Java Stage2Generator remains an explicit custom-generator boundary; stage2.json is still a void dimension and does not claim exact room/template generation. GitHub artifact uploads are now best-effort so exhausted repository quota does not fail substantive validation; PR #27 run 33906338464 passed all substantive gates.
 
 ## Files changed (Chunk 53)
 BP/scripts/systems/integrity_arena_model.js · BP/scripts/systems/integrity_arena_runtime.js · tests/integrity_phase2_stage2_model.test.mjs · .github/workflows/bedrock-addon-check.yml · docs/chunks/CHUNK_53_{SPEC,REPORT}.md · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md
