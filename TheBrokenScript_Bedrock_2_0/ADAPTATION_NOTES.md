@@ -312,3 +312,18 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase1.java; decompiled/net/thebrokenscript/boss/integrity/TerrainCorrupterKt.java; decompiled/net/thebrokenscript/boss/integrity/PartialBlockPos.java; decompiled/net/thebrokenscript/registry/TBSTags.java.
 4. **Bedrock adaptation**: integrity_phase1_terrain_model.js preserves the queue geometry, inclusion ratio, shuffle seam, and tick state. integrity_arena_runtime.js owns the live queue, resolves the topmost target with Dimension.getTopmostBlock, skips the protected command block, and applies the source replacement IDs through Block.setType from the existing boss tick.
 5. **Player-visible difference**: the four source replacement IDs are an explicit adapter for the Java registry tag; Java ChunkCarver, exact heightmap/registry behavior, and live Bedrock-world smoke testing remain unavailable.
+
+## A-034 — Integrity Phase 2 transfer adapter
+
+1. **Source feature**: Arena.nextPhase → Phase2.start and the Phase2.start 20-tick dimension handoff.
+
+2. **Source behavior**: Phase 1 ends after the tracked Chord roster has no living members. Arena cleans up Phase 1 and starts Phase 2. Phase2 clears custom sky/loading state, stops the prior music, starts the Phase 2 music track, waits 20 ticks, marks the roster fixed, and sends every participant to TBSDimensions.STAGE2.
+
+3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Arena.java; decompiled/net/thebrokenscript/boss/integrity/Phase1.java; decompiled/net/thebrokenscript/boss/integrity/Phase2.java; decompiled/net/thebrokenscript/handlers/dimensions/ArenaDimensionHandler.java; decompiled/net/thebrokenscript/boss/integrity/ArenaPhase.java.
+
+4. **Bedrock adaptation**: integrity_phase2_transfer_model.js preserves the completion predicate, 20-tick delay, Stage2 dimension id, and idempotent staging plan. integrity_arena_runtime.js detects the completed Chord roster, tears down Phase 1, clears custom sky, schedules the transfer, and calls Entity.teleport with TeleportOptions.dimension for the existing thebrokenscript:stage2 dimension.
+
+5. **Player-visible difference**: Java PlayerVariables and custom packet/music transport are represented by dynamic state and the existing Bedrock sound path. Stage2Generator/floor population, tether-gated floor movement, Phase 2 entity lifecycle, and live Bedrock-world smoke testing remain explicit future boundaries.
+
+6. **Parity class**: VALIDATED_APPROXIMATION; pure transfer regressions and repository CI gates cover the supported handoff.
+
