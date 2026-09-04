@@ -68,7 +68,9 @@ const H = {
     playNear(p, SOUNDS.glitch, 10, 0.0);
   },
   screen_dupe(p) { actionBar(p, "§7[screen duplicated]"); },
-  fake_disconnect(p) {\n    void showFakeDisconnect(p);\n  },
+  fake_disconnect(p) {
+    void showFakeDisconnect(p);
+  },
   close_menu(p) { title(p, " ", 5); },
   keep_playing(p) { title(p, "§fkeep playing.", 40); },
   why_cant_you_leave(p) { applyWhyCantYouLeave(p, 1000); },
