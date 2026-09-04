@@ -14,7 +14,10 @@ import {
   tornPaperBody,
   tornPaperDefinition,
 } from "./command_block_model.js";
-import { startIntegrityArena } from "./integrity_arena_runtime.js";
+import {
+  startIntegrityArena,
+  tickIntegrityArena,
+} from "./integrity_arena_runtime.js";
 import { getLibraryBook, LIBRARY_BOOK_IDS } from "./library_book_data.js";
 import {
   SOURCE_STATUS_EFFECTS,
@@ -85,6 +88,7 @@ export function init(itemComponentRegistry) {
 
 export function begin(scheduler) {
   scheduler.every("ported_features.effects", 20, tickPortedEffects);
+  scheduler.every("ported_features.integrity_arena", 1, tickIntegrityArena);
 }
 
 export function fireHandCannon(player) {

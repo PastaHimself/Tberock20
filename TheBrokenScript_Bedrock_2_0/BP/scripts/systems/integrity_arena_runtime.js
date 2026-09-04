@@ -9,7 +9,12 @@ import {
   shouldRestartArenaPhase,
   sampleArenaOffset,
 } from "./integrity_arena_start_model.js";
-import { PHASE1_SOURCE } from "./integrity_arena_model.js";
+import {
+  PHASE1_SOURCE,
+  phase2IntegrityFloorFromY,
+  phase2LowestPlayer,
+  phase2NeedsRecoveryTeleport,
+} from "./integrity_arena_model.js";
 import {
   PHASE1_TERRAIN_SOURCE,
   createTerrainCorruptionQueue,
@@ -83,6 +88,8 @@ export function startIntegrityArena(player, block) {
     phase1Entity: null,
     chords: [],
     phase2TransferScheduled: false,
+    phase2LowestPlayerId: null,
+    phase2IntegrityFloor: null,
     chordsSpawned: false,
     terrainQueue: [],
     ticksSinceLastCorrupt: PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt,
@@ -148,7 +155,12 @@ export function isIntegrityPhase1Invulnerable(entity) {
 
 export function tickIntegrityArena() {
   const arena = activeArena;
-  if (!arena || arena.phase !== ARENA_START_SOURCE.phase1) return;
+  if (!arena) return;
+  if (arena.phase === "phase2") {
+    tickPhaseTwo(arena);
+    return;
+  }
+  if (arena.phase !== ARENA_START_SOURCE.phase1) return;
 
   const liveChordCount = arena.chords.filter(isLivingEntity).length;
   const completion = phase1CompletionStep({
@@ -165,6 +177,31 @@ export function tickIntegrityArena() {
   arena.ticksSinceLastCorrupt = plan.ticksSinceLastCorrupt;
   if (plan.action !== "corrupt") return;
   applyTerrainCorruption(arena, plan.position, plan.replacementBlockId);
+}
+
+function tickPhaseTwo(arena) {
+  const participants = playersFor(arena.participantIds);
+  for (const player of participants) {
+    if (!phase2NeedsRecoveryTeleport(playerBlockY(player))) continue;
+    try {
+      player.teleport(PHASE2_SOURCE.recoveryTeleport, {
+        checkForBlocks: false,
+        keepVelocity: false,
+      });
+    } catch (err) {
+      logger.error("integrity_arena: Phase 2 recovery teleport failed", err);
+    }
+  }
+
+  const lowest = phase2LowestPlayer(
+    participants.map((player) => ({
+      id: player.id,
+      y: playerBlockY(player),
+    })),
+  );
+  arena.phase2LowestPlayerId = lowest?.id ?? null;
+  const floor = lowest ? phase2IntegrityFloorFromY(lowest.y) : null;
+  arena.phase2IntegrityFloor = floor?.id ?? null;
 }
 
 function beginPhaseTwoTransfer(arena) {
@@ -437,6 +474,15 @@ function runLater(callback, ticks) {
     system.runTimeout(callback, ticks);
   } catch {
     callback();
+  }
+}
+
+function playerBlockY(player) {
+  try {
+    const y = Number(player.location?.y);
+    return Number.isFinite(y) ? Math.floor(y) : Number.NaN;
+  } catch {
+    return Number.NaN;
   }
 }
 

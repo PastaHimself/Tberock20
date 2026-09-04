@@ -550,6 +550,16 @@ export function phase2EligibleForLowestPlayer(y) {
   return y > PHASE2_SOURCE.lowestPlayerMinYExclusive;
 }
 
+export function phase2LowestPlayer(players = []) {
+  let lowest = null;
+  for (const player of players) {
+    if (player?.id === undefined || !Number.isFinite(player.y)) continue;
+    if (!phase2EligibleForLowestPlayer(player.y)) continue;
+    if (lowest === null || player.y < lowest.y) lowest = player;
+  }
+  return lowest;
+}
+
 // Phase2.getEnded() returns the final field `ended`, which is never assigned true
 // in Phase2.java. Do not manufacture a health threshold for this phase.
 export function phase2Ended() {
