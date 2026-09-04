@@ -1512,19 +1512,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "event.fake_disconnect",
-                     "category":  "horror_event",
-                     "source_paths":  [
-                                          "lang key event.thebrokenscript.fake_disconnect",
-                                          "TBSEvents registry / events packages"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                   "source_id": "event.fake_disconnect",
+                   "category": "horror_event",
+                   "source_paths": [
+                     "lang key event.thebrokenscript.fake_disconnect",
+                     "TBSEvents registry / events packages"
+                   ],
+                   "bedrock_identifier": "",
+                   "bedrock_files": [
+                     "BP/scripts/systems/fake_disconnect_model.js",
+                     "BP/scripts/systems/ported_features.js",
+                     "BP/scripts/systems/horror_events.js"
+                   ],
+                   "status": "ported",
+                   "parity": "approximation",
+                   "notes": "Chunk 47 routes FakeDisconnectEvent to the ActionFormData reader and preserves source heading/title/action; Java panorama, forced close, sound/music lifecycle, and native disconnect remain adapted."
                  },
                  {
                      "source_id":  "event.false_villager",
@@ -10640,19 +10642,21 @@
                      "notes":  ""
                  },
                  {
-                     "source_id":  "gui.fake_disconnect",
-                     "category":  "gui",
-                     "source_paths":  [
-                                          "TBSMenus.fake_disconnect",
-                                          "client/gui/"
-                                      ],
-                     "bedrock_identifier":  "",
-                     "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                   "source_id": "gui.fake_disconnect",
+                   "category": "gui",
+                   "source_paths": [
+                     "TBSMenus.fake_disconnect",
+                     "client/gui/"
+                   ],
+                   "bedrock_identifier": "",
+                   "bedrock_files": [
+                     "BP/scripts/systems/fake_disconnect_model.js",
+                     "BP/scripts/systems/ported_features.js",
+                     "BP/scripts/systems/horror_events.js"
+                   ],
+                   "status": "ported",
+                   "parity": "approximation",
+                   "notes": "Chunk 47 adapts FakeDisconnectScreen to an ActionFormData reader preserving Connection Lost, Timed out, and Back to title screen; Java panorama and client transition remain deferred."
                  },
                  {
                      "source_id":  "gui.library_book_gui",

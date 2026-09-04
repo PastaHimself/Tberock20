@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 46 — NulledGui screen adapter)
+Last updated: 2026-09-04 (Chunk 47 — FakeDisconnect screen adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-04 (Chunk 46 — NulledGui screen adapter)
 
 ## Current chunk
 
-**Chunk 46 complete — NulledGui screen adapter**
+**Chunk 47 complete — FakeDisconnect screen adapter**
 
-Chunk 46 ports the source NulledGuiEvent/NulledGuiScreen path. The event now opens a supported ActionFormData reader titled NulledGui with the recovered “Good luck.” and “)=” messages, while preserving the source glitch sound cue. The Java fake-midnight client illusion remains explicitly adapted because Bedrock has no equivalent client-only time hook. Focused local model regressions pass; GitHub Actions [run 33836845836](https://github.com/PastaHimself/tbs-2.0/actions/runs/33836845836) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+Chunk 47 ports the source FakeDisconnectEvent/FakeDisconnectScreen path. The active `fake_disconnect` event now opens a supported ActionFormData reader with the source “Connection Lost” heading, “Timed out” body/title, and “Back to title screen” action. The Java panorama background, Esc lockout, forced 100-tick close, global sound-stop/music flag sequence, and live client disconnect transition remain explicitly adapted because they are client/server-native behavior unavailable through the current Bedrock form seam. Focused local model regressions pass; GitHub Actions [run 33838618989](https://github.com/PastaHimself/tbs-2.0/actions/runs/33838618989) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Chunk state
 | Chunk | State |
@@ -71,6 +71,7 @@ Chunk 46 ports the source NulledGuiEvent/NulledGuiScreen path. The event now ope
 | 44 Library Book reader adapter | **completed** (44 recovered source book payloads, source 1–250 id range, per-item id retention seam, one-based pages, bounded form pagination, focused regressions, GitHub Actions run 33773822475) |
 | 45 Null interface form adapters | **completed** (three source menus, exact text/grid contracts, active event-to-form wiring, focused regressions, GitHub Actions run 33782971528) |
 | 46 NulledGui screen adapter | **completed** (source title/messages, active event-to-form wiring, glitch cue, focused regressions, GitHub Actions run 33836845836) |
+| 47 FakeDisconnect screen adapter | **completed** (source heading/title/body/action, active event-to-form wiring, focused regressions, GitHub Actions run 33838618989) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -124,6 +125,9 @@ BP/scripts/systems/{null_interface_model,ported_features,horror_events,horror_ev
 
 ## Files changed (Chunk 46)
 BP/scripts/systems/{nulled_gui_model,ported_features,horror_events}.js · tests/nulled_gui_model.test.mjs · docs/chunks/CHUNK_46_{SPEC,REPORT}.md · GUI/event/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 47)
+BP/scripts/systems/{fake_disconnect_model,ported_features,horror_events}.js · tests/fake_disconnect_model.test.mjs · docs/chunks/CHUNK_47_{SPEC,REPORT}.md · GUI/event/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -295,5 +299,10 @@ Chunk 45 ports the source NullInterfaceTriggerEvent path. The three recovered Nu
 
 Chunk 46 ports the source NulledGuiEvent/NulledGuiScreen path. The event now opens a supported ActionFormData reader titled NulledGui with the recovered “Good luck.” and “)=” messages, while preserving the source glitch sound cue. The Java fake-midnight client illusion remains explicitly adapted because Bedrock has no equivalent client-only time hook. Focused local model regressions pass; GitHub Actions [run 33836845836](https://github.com/PastaHimself/tbs-2.0/actions/runs/33836845836) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
+
+## Chunk 47 — FakeDisconnect screen adapter
+
+Chunk 47 ports the source FakeDisconnectEvent/FakeDisconnectScreen path. The active `fake_disconnect` event now opens a supported ActionFormData reader with the source “Connection Lost” heading, “Timed out” body/title, and “Back to title screen” action. The Java panorama background, Esc lockout, forced 100-tick close, global sound-stop/music flag sequence, and live client disconnect transition remain explicitly adapted because they are client/server-native behavior unavailable through the current Bedrock form seam. Focused local model regressions pass; GitHub Actions [run 33838618989](https://github.com/PastaHimself/tbs-2.0/actions/runs/33838618989) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** Remaining FakeDisconnect, TornPaper, and command-block screens, desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.
+**Next source boundary.** Remaining TornPaper and command-block screens, desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.

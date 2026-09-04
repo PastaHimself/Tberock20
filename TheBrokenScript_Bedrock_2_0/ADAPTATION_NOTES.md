@@ -287,3 +287,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 4. **Bedrock adaptation**: nulled_gui_model.js preserves the source title/messages and stacked body; ported_features.js exposes showNulledGui through ActionFormData; horror_events.js routes nulled_gui to the form and existing glitch sound definition.
 5. **Player-visible difference**: The Java 176×166 textured container and client-only fake-midnight illusion become a supported form plus the source glitch cue. Exact texture, font metrics, native container chrome, and fake client time are unavailable in the server-side adapter.
 6. **Parity class**: VALIDATED_APPROXIMATION; source content, event wiring, and cue are covered by local model regressions and repository CI.
+
+## A-031 — FakeDisconnect form adapter
+
+1. **Source feature**: FakeDisconnectEvent, FakeDisconnectMenu, and FakeDisconnectScreen.
+2. **Source behavior**: The event opens FakeDisconnect with the Timed out title, stops existing sounds, sets a music flag, and schedules a 100-tick cleanup. The screen renders Connection Lost above Timed out over the title panorama and has a Back to title screen button; Escape is disabled.
+3. **Source evidence**: decompiled/net/thebrokenscript/events/nullent/FakeDisconnectEvent.java; decompiled/net/thebrokenscript/client/gui/FakeDisconnectScreen.java; decompiled/net/thebrokenscript/registry/TBSLang.java.
+4. **Bedrock adaptation**: fake_disconnect_model.js preserves heading/title/body/action and the 100-tick/escape/panorama source metadata; ported_features.js exposes showFakeDisconnect through ActionFormData; horror_events.js routes fake_disconnect to the form adapter.
+5. **Player-visible difference**: The Java panorama/custom disconnect screen becomes a supported form. The native client disconnect transition, Esc lockout, timed close, global sound-stop/music flag lifecycle, and exact button no-op behavior are not exposed by this server-side adapter.
+6. **Parity class**: VALIDATED_APPROXIMATION; source text/action and event wiring are covered by local model regressions and repository CI.
+

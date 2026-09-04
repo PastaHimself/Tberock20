@@ -41,3 +41,6 @@ All reachable Java behavior is either implemented, approximated with an explicit
 24. **Null interface menus use supported forms** — Chunk 45 preserves the three source titles, the “behind you” and “help” labels, and the 25-cell NullInterface2 grid while routing the random event to an ActionFormData reader. Java texture/container presentation, exact font placement, and live Bedrock-world smoke testing remain adapted (A-029).
 
 25. **NulledGui uses a supported form reader** — Chunk 46 preserves the source NulledGui title, Good luck. and )= messages, and the glitch cue while routing the event to ActionFormData. The Java texture/container, exact font placement, client-only fake-midnight state, and live Bedrock-world smoke testing remain adapted (A-030).
+
+26. **FakeDisconnect uses a supported form reader** — Chunk 47 preserves Connection Lost, Timed out, and Back to title screen while routing the event to ActionFormData. The Java panorama, Esc lockout, forced 100-tick close, sound/music state sequence, actual client disconnect, and live Bedrock-world smoke testing remain adapted (A-031).
+
