@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 50 — Integrity Phase 1 terrain corruption)
+Last updated: 2026-09-04 (Chunk 51 — Integrity Phase 2 transfer)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,7 +12,7 @@ Last updated: 2026-09-04 (Chunk 50 — Integrity Phase 1 terrain corruption)
 
 ## Current chunk
 
-**Chunk 50 complete — Integrity Phase 1 terrain corruption**
+**Chunk 51 complete — Integrity Phase 2 transfer**
 
 Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1 terrainQueue/tick and TerrainCorrupterKt contract. The pure model preserves the inclusive radius-100 disk, random.nextFloat() <= 0.3 queue inclusion, shuffled candidates, initial 20-tick cadence, one-position-per-20-ticks replacement, four source terrain_corrupt_replace IDs, and corrupted-command-block exclusion. The Bedrock runtime owns the live queue, resolves each X/Z through Dimension.getTopmostBlock, and applies replacements with Block.setType from the existing boss scheduler. ChunkCarver generation, exact registry-backed tag lookup, Phase 2/3 transfer, native packet/camera presentation, and Bedrock world/runtime smoke testing remain explicitly adapted or deferred. Focused terrain regressions pass; GitHub Actions [run 33882851212](https://github.com/PastaHimself/tbs-2.0/actions/runs/33882851212) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
 ## Chunk state
@@ -73,7 +73,7 @@ Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1
 | 47 FakeDisconnect screen adapter | **completed** (source heading/title/body/action, active event-to-form wiring, focused regressions, GitHub Actions run 33838618989) |
 | 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
 | 49 Integrity Arena startup handoff | **completed** |
-| 50 Integrity Phase 1 terrain corruption | **completed** |
+| 50 Integrity Phase 1 terrain corruption | **completed** |\n| 51 Integrity Phase 2 transfer | **completed** |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -323,6 +323,10 @@ Chunk 49 continues the command-block path into the recovered CorruptedCommandBlo
 ## Chunk 50 — Integrity Phase 1 terrain corruption
 
 Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1 terrainQueue/tick and TerrainCorrupterKt contract. The pure model preserves the inclusive radius-100 disk, random.nextFloat() <= 0.3 queue inclusion, shuffled candidates, initial 20-tick cadence, one-position-per-20-ticks replacement, four source terrain_corrupt_replace IDs, and corrupted-command-block exclusion. The Bedrock runtime owns the live queue, resolves each X/Z through Dimension.getTopmostBlock, and applies replacements with Block.setType from the existing boss scheduler. ChunkCarver generation, exact registry-backed tag lookup, Phase 2/3 transfer, native packet/camera presentation, and Bedrock world/runtime smoke testing remain explicitly adapted or deferred. Focused terrain regressions pass; GitHub Actions [run 33882851212](https://github.com/PastaHimself/tbs-2.0/actions/runs/33882851212) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
+## Chunk 51 — Integrity Phase 2 transfer
+
+Chunk 51 continues the Integrity Arena lifecycle after Phase 1 Chords are defeated. The recovered Arena/Phase2 contract is represented by a pure transfer model and runtime handoff: Phase 1 completes only after the source Chord roster has spawned and no tracked Chords remain living; the Phase 1 entity, Chords, terrain queue, and custom sky state are cleaned up; participants retain their roster and transfer after the source 20-tick delay to the existing thebrokenscript:stage2 dimension through Entity.teleport's dimension option. Stage 2 floor generation, tether-gated floor movement, Phase 2 entity lifecycle, and native packet/camera/music presentation remain separate or deferred boundaries. Focused transfer regressions pass; repository CI validation is running; Bedrock world/runtime smoke testing remains unavailable.
+
 ## Files changed (Chunk 50)
 BP/scripts/systems/integrity_phase1_terrain_model.js · BP/scripts/systems/integrity_arena_runtime.js · BP/scripts/entities/boss/boss_controller.js · tests/integrity_phase1_terrain_model.test.mjs · docs/chunks/CHUNK_50_{SPEC,REPORT}.md · SOURCE_MAP.json · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · PORT_PROGRESS.md
 ## Next chunk

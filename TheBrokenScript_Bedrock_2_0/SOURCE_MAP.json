@@ -532,7 +532,7 @@
       ],
       "status": "in_progress",
       "parity": "approximation",
-      "notes": "Chunk 49 starts Phase 1 through the supported command-block confirmation path, including the source intro gate, Chord roster, and source invulnerability predicate. Chunk 50 adds the source radius-100 terrain queue, 30% shuffled candidates, 20-tick replacement cadence, and protected command-block rule. Native crawl animation/no-AI state, ChunkCarver generation, and later Arena phase transfer remain adapted or deferred."
+      "notes": "Chunk 49 starts Phase 1 through the supported command-block confirmation path, including the source intro gate, Chord roster, and source invulnerability predicate. Chunk 50 adds the source radius-100 terrain queue, 30% shuffled candidates, 20-tick replacement cadence, and protected command-block rule. Native crawl animation/no-AI state, ChunkCarver generation, and Phase 2 transfer remains adapted or deferred."
     },
     {
       "source_id": "entity.integrity_phase_2",
@@ -542,10 +542,14 @@
         "TBSEntities registry"
       ],
       "bedrock_identifier": "thebrokenscript:integrity_phase_2",
-      "bedrock_files": [],
-      "status": "uninspected",
-      "parity": "unknown",
-      "notes": ""
+      "bedrock_files": [
+        "TheBrokenScript_Bedrock_2_0/BP/entities/integrity_phase_2.json",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase2_transfer_model.js"
+      ],
+      "status": "in_progress",
+      "parity": "approximation",
+      "notes": "Chunk 51 adds the source Chord-completion predicate and 20-tick transfer into the existing thebrokenscript:stage2 dimension. Phase 2 floor/entity lifecycle remains incomplete."
     },
     {
       "source_id": "entity.integrity_phase_3",
@@ -10340,10 +10344,13 @@
         "net/thebrokenscript/api/entity/ai/integrity/phase2"
       ],
       "bedrock_identifier": "",
-      "bedrock_files": [],
-      "status": "uninspected",
-      "parity": "unknown",
-      "notes": ""
+      "bedrock_files": [
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase2_transfer_model.js"
+      ],
+      "status": "in_progress",
+      "parity": "approximation",
+      "notes": "Chunk 51 preserves the Arena Phase 1 completion gate, Phase 1 cleanup, participant roster, and 20-tick Stage2 transfer. Phase2 floor spawning, tether gating, and entity goals remain incomplete."
     },
     {
       "source_id": "code.api/entity/ai/integrity/phase3",
@@ -10393,11 +10400,12 @@
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_start_model.js",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js",
-        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase1_terrain_model.js"
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase1_terrain_model.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase2_transfer_model.js"
       ],
       "status": "in_progress",
       "parity": "approximation",
-      "notes": "Chunks 49–50 add the CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start handoff, bounded center/roster/timing/intro/Chord gating, and the Phase 1 terrain queue/tick replacement adapter. Phase 2/3 transfer and Java-only packets remain deferred."
+      "notes": "Chunks 49–51 add the CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start handoff, Phase 1 terrain queue/tick, Chord-completion cleanup, and the 20-tick Phase 2 Stage2 transfer; Phase 2/3 gameplay and Java-only packets remain deferred."
     },
     {
       "source_id": "code.boss/jimmy",
@@ -11017,10 +11025,14 @@
         "net/thebrokenscript/entity/integrity/phase2"
       ],
       "bedrock_identifier": "",
-      "bedrock_files": [],
-      "status": "uninspected",
-      "parity": "unknown",
-      "notes": ""
+      "bedrock_files": [
+        "TheBrokenScript_Bedrock_2_0/BP/entities/integrity_phase_2.json",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase2_transfer_model.js"
+      ],
+      "status": "in_progress",
+      "parity": "approximation",
+      "notes": "Chunk 51 wires the Phase 2 dimension handoff after the source Chord roster ends. Phase2 entity lifecycle and Stage2 floor behavior remain deferred."
     },
     {
       "source_id": "code.entity/integrity/phase3",
@@ -12181,10 +12193,14 @@
         "net/thebrokenscript/world/dimension/boss/stage2"
       ],
       "bedrock_identifier": "",
-      "bedrock_files": [],
-      "status": "uninspected",
-      "parity": "unknown",
-      "notes": ""
+      "bedrock_files": [
+        "TheBrokenScript_Bedrock_2_0/BP/dimensions/stage2.json",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase2_transfer_model.js"
+      ],
+      "status": "in_progress",
+      "parity": "approximation",
+      "notes": "Chunk 51 reaches the existing void-backed Stage2 dimension through the supported Entity.teleport dimension option. Java Stage2Generator/floor templates and runtime population remain incomplete."
     },
     {
       "source_id": "code.world/dimension/boss/stage3",

@@ -15,11 +15,18 @@ import {
   createTerrainCorruptionQueue,
   phase1TerrainTick,
 } from "./integrity_phase1_terrain_model.js";
+import {
+  PHASE2_SOURCE,
+  phase1CompletionStep,
+  phase2TransferPlan,
+} from "./integrity_phase2_transfer_model.js";
 
 const ARENA_TOKEN_PROPERTY = "tbs:integrity_arena_token";
 const INTRO_UNTIL_PROPERTY = "tbs:integrity_intro_until";
 const CUSTOM_SKY_ENABLED_PROPERTY = "tbs:integrity_custom_sky_enabled";
 const CUSTOM_SKY_COLOR_PROPERTY = "tbs:integrity_custom_sky_color";
+const PHASE2_LOADING_PROPERTY = "tbs:integrity_phase2_loading";
+const PHASE2_FIX_POS_PROPERTY = "tbs:integrity_phase2_fix_pos";
 
 const PHASE1_ENTITY_ID = /** @type {any} */ ("thebrokenscript:integrity_phase_1");
 const CHORD_ENTITY_ID = /** @type {any} */ ("thebrokenscript:chord");
@@ -75,6 +82,7 @@ export function startIntegrityArena(player, block) {
     phase: null,
     phase1Entity: null,
     chords: [],
+    phase2TransferScheduled: false,
     chordsSpawned: false,
     terrainQueue: [],
     ticksSinceLastCorrupt: PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt,
@@ -98,7 +106,11 @@ export function resetIntegrityArena() {
 
   removeEntity(arena.phase1Entity);
   for (const chord of arena.chords) removeEntity(chord);
-  for (const player of playersFor(arena.participantIds)) clearCustomSky(player);
+  for (const player of playersFor(arena.participantIds)) {
+    clearCustomSky(player);
+    setEntityProperty(player, PHASE2_LOADING_PROPERTY, undefined);
+    setEntityProperty(player, PHASE2_FIX_POS_PROPERTY, undefined);
+  }
   if (Number.isFinite(arena.originalTimeOfDay)) {
     try { world.setTimeOfDay(arena.originalTimeOfDay); } catch {}
   }
@@ -138,11 +150,73 @@ export function tickIntegrityArena() {
   const arena = activeArena;
   if (!arena || arena.phase !== ARENA_START_SOURCE.phase1) return;
 
+  const liveChordCount = arena.chords.filter(isLivingEntity).length;
+  const completion = phase1CompletionStep({
+    chordsSpawned: arena.chordsSpawned,
+    livingChordCount: liveChordCount,
+  });
+  if (completion === "complete") {
+    beginPhaseTwoTransfer(arena);
+    return;
+  }
+
   const plan = phase1TerrainTick(arena, randomTerrainReplacement);
   arena.terrainQueue = plan.terrainQueue;
   arena.ticksSinceLastCorrupt = plan.ticksSinceLastCorrupt;
   if (plan.action !== "corrupt") return;
   applyTerrainCorruption(arena, plan.position, plan.replacementBlockId);
+}
+
+function beginPhaseTwoTransfer(arena) {
+  const plan = phase2TransferPlan({
+    phase: arena.phase,
+    participantIds: arena.participantIds,
+  });
+  if (plan.action !== "schedule_transfer") return;
+
+  arena.phase = "phase2_loading";
+  arena.phase2TransferScheduled = true;
+  removeEntity(arena.phase1Entity);
+  for (const chord of arena.chords) removeEntity(chord);
+  arena.phase1Entity = null;
+  arena.chords = [];
+  arena.chordsSpawned = false;
+  arena.terrainQueue = [];
+  arena.ticksSinceLastCorrupt = PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt;
+
+  const participants = playersFor(arena.participantIds);
+  for (const player of participants) {
+    clearCustomSky(player);
+    setEntityProperty(player, PHASE2_LOADING_PROPERTY, true);
+  }
+  bossHooks.setArenaState(true, false);
+  runLater(() => transferArenaPlayers(arena.token), plan.delayTicks);
+}
+
+function transferArenaPlayers(token) {
+  const arena = currentArena(token);
+  if (!arena || arena.phase !== "phase2_loading") return;
+
+  const destination = getDimension(PHASE2_SOURCE.destinationDimensionId);
+  if (!destination) {
+    logger.warn("integrity_arena: Phase 2 destination dimension unavailable");
+    return;
+  }
+
+  for (const player of playersFor(arena.participantIds)) {
+    setEntityProperty(player, PHASE2_FIX_POS_PROPERTY, true);
+    try {
+      player.teleport(player.location, {
+        dimension: destination,
+        checkForBlocks: false,
+        keepVelocity: false,
+      });
+      tryPlayAt(destination, player.location, "thebrokenscript:integrity.boss_p2", 10, 1);
+    } catch (err) {
+      logger.error("integrity_arena: Phase 2 player transfer failed", err);
+    }
+  }
+  arena.phase = "phase2";
 }
 
 function prepareArena(token) {
@@ -333,6 +407,16 @@ function setEntityProperty(entity, key, value) {
 function isValidEntity(entity) {
   if (!entity) return false;
   try { return entity.isValid !== false; } catch { return false; }
+}
+
+function isLivingEntity(entity) {
+  if (!isValidEntity(entity)) return false;
+  try {
+    const health = entity.getComponent("minecraft:health");
+    return health ? health.currentValue > 0 : true;
+  } catch {
+    return true;
+  }
 }
 
 function removeEntity(entity) {
