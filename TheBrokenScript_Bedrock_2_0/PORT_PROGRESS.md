@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 48 — TornPaper and command-block screen adapters)
+Last updated: 2026-09-04 (Chunk 49 — Integrity Arena startup handoff)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-04 (Chunk 48 — TornPaper and command-block screen adapte
 
 ## Current chunk
 
-**Chunk 48 complete — TornPaper and command-block screen adapters**
+**Chunk 49 complete — Integrity Arena startup handoff**
 
-Chunk 48 ports the source TornPaperItem/TornPaperScreen path and the CommandBlockGui/CommandBlockGuiConfirm screen pair. Torn Paper now opens a supported reader with the source chunk-centered X/Z coordinates and Y 216 note; corrupted command blocks now use a ModalFormData code editor and an ActionFormData confirmation reader preserving Input Code, Execute, both warning lines, and Yes. Source textures, Java client rotation/rendering, exact EditBox glitch presentation, packet transport, native window-title feedback, and Integrity Arena kickoff remain explicitly adapted where the Bedrock form/server seam cannot reproduce them. Focused local model regressions pass; GitHub Actions [run 33866668553](https://github.com/PastaHimself/tbs-2.0/actions/runs/33866668553) passed validators, beta type-check, JavaScript regressions, Blockception diagnostics, Creator Tools validation, and packaging; artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable locally.
+Chunk 49 continues the command-block path into the recovered CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start sequence. The pure startup model preserves the source [-20,20) rejection loop for accepted [-10,10] offsets, surface-height center selection, same-dimension 150-block participant capture, empty-arena restart branch, 40-tick pre-start step, 60-tick nested start delay, midnight/custom-sky values, and the 1080-tick Phase 1 intro. The Bedrock runtime now reaches the handoff from the confirmation Yes action, stages the supported Phase 1 entity, records an arena token and participant roster, spawns the source-sized Chord roster after the intro, and blocks Phase 1 damage while the source Chord predicate remains invulnerable. Global time and dynamic-property sky markers are explicit Bedrock approximations; custom crawl/no-AI animation, terrain corruption, Phase 2/3 transfer, and native packet/camera presentation remain deferred. Focused TDD startup regressions and static syntax checks pass; GitHub Actions [run 33877651299](https://github.com/PastaHimself/tbs-2.0/actions/runs/33877651299) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable.
 
 ## Chunk state
 | Chunk | State |
@@ -73,6 +73,7 @@ Chunk 48 ports the source TornPaperItem/TornPaperScreen path and the CommandBloc
 | 46 NulledGui screen adapter | **completed** (source title/messages, active event-to-form wiring, glitch cue, focused regressions, GitHub Actions run 33836845836) |
 | 47 FakeDisconnect screen adapter | **completed** (source heading/title/body/action, active event-to-form wiring, focused regressions, GitHub Actions run 33838618989) |
 | 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
+| 49 Integrity Arena startup handoff | **completed** |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -132,6 +133,9 @@ BP/scripts/systems/{fake_disconnect_model,ported_features,horror_events}.js · t
 
 ## Files changed (Chunk 48)
 BP/scripts/systems/{command_block_model,ported_features,custom_blocks}.js · BP/items/torn_paper.json · tests/command_block_model.test.mjs · docs/chunks/CHUNK_48_{SPEC,REPORT}.md · item/block/GUI/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 49)
+BP/scripts/systems/{integrity_arena_start_model,integrity_arena_runtime}.js · BP/scripts/entities/boss/boss_controller.js · BP/entities/integrity_phase_1.json · BP/scripts/systems/ported_features.js · tests/integrity_arena_start_model.test.mjs · docs/chunks/CHUNK_49_{SPEC,REPORT}.md · SOURCE_MAP.json · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · PORT_PROGRESS.md
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md

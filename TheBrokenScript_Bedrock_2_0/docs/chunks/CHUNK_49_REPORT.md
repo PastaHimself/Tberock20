@@ -18,7 +18,7 @@ Chunk 49 is implemented on the stacked branch. The corrupted-command-block confi
 - Recovered Arena.java, Phase1.java, IntegrityPhase1Entity.java, and CorruptedCommandBlockConfirmPacket.java were compared with the adapter.
 - Focused TDD startup model tests: 6/6 pass, including runtime wiring.
 - Changed runtime/model/controller JavaScript syntax checks pass locally.
-- Full repository CI validation will be recorded on the pull request; Bedrock world/runtime smoke testing remains unavailable.
+- GitHub Actions [run 33877651299](https://github.com/PastaHimself/tbs-2.0/actions/runs/33877651299) passed validator unit tests, complete add-on/resource/Jigsaw/structure checks, JavaScript syntax, beta type-check, JavaScript regressions, Blockception diagnostics, Creator Tools validation, and `.mcaddon` packaging; only artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable.
 
 ## Remaining differences
 
