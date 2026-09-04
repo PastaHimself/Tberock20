@@ -2021,11 +2021,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                          "BP/scripts/systems/nulled_gui_model.js",
+                                          "BP/scripts/systems/ported_features.js",
+                                          "BP/scripts/systems/horror_events.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 46 routes NulledGuiEvent to the ActionFormData NulledGui reader and preserves the source glitch cue; fake client midnight remains adapted."
                  },
                  {
                      "source_id":  "event.nullnullnull_advancement",
@@ -10678,11 +10680,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
+                                          "BP/scripts/systems/nulled_gui_model.js",
+                                          "BP/scripts/systems/ported_features.js",
+                                          "BP/scripts/systems/horror_events.js"
                                        ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 46 adapts NulledGuiScreen to an ActionFormData reader preserving the NulledGui title and Good luck./)= messages; Java texture and fake midnight remain deferred."
                  },
                  {
                      "source_id":  "gui.null_interface_1",

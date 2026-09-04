@@ -39,3 +39,5 @@ All reachable Java behavior is either implemented, approximated with an explicit
 23. **Library Book uses a supported form reader** — Chunk 44 embeds all 44 recovered library book payloads and preserves source page text, author, one-based navigation, and per-item-id intent where ItemStack dynamic properties are available. The Java custom book texture/noisy animation, special animated pages, exact 1..250 resource behavior, and live Bedrock-world smoke testing remain adapted (A-028).
 
 24. **Null interface menus use supported forms** — Chunk 45 preserves the three source titles, the “behind you” and “help” labels, and the 25-cell NullInterface2 grid while routing the random event to an ActionFormData reader. Java texture/container presentation, exact font placement, and live Bedrock-world smoke testing remain adapted (A-029).
+
+25. **NulledGui uses a supported form reader** — Chunk 46 preserves the source NulledGui title, Good luck. and )= messages, and the glitch cue while routing the event to ActionFormData. The Java texture/container, exact font placement, client-only fake-midnight state, and live Bedrock-world smoke testing remain adapted (A-030).

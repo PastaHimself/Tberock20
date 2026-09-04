@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 45 — Null interface form adapters)
+Last updated: 2026-09-04 (Chunk 46 — NulledGui screen adapter)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-03 (Chunk 45 — Null interface form adapters)
 
 ## Current chunk
 
-**Chunk 45 complete — Null interface form adapters**
+**Chunk 46 complete — NulledGui screen adapter**
 
-Chunk 45 ports the source NullInterfaceTriggerEvent path. The three recovered Null interface menus now have pure contracts and a Bedrock ActionFormData adapter: NullInterface displays “behind you,” NullInterface2 preserves its five-by-five “null” grid, and NullInterface3 displays “help.” The active horror event opens the selected form instead of only showing a title fallback; cancel/close remains safe. Focused local model regressions pass; GitHub Actions [run 33782971528](https://github.com/PastaHimself/tbs-2.0/actions/runs/33782971528) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+Chunk 46 ports the source NulledGuiEvent/NulledGuiScreen path. The event now opens a supported ActionFormData reader titled NulledGui with the recovered “Good luck.” and “)=” messages, while preserving the source glitch sound cue. The Java fake-midnight client illusion remains explicitly adapted because Bedrock has no equivalent client-only time hook. Focused local model regressions pass; GitHub Actions [run 33836845836](https://github.com/PastaHimself/tbs-2.0/actions/runs/33836845836) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Chunk state
 | Chunk | State |
@@ -70,6 +70,7 @@ Chunk 45 ports the source NullInterfaceTriggerEvent path. The three recovered Nu
 | 43 Source event engine contract | **completed** (source frequency curve, one-player-per-tick scheduler, inverse occurrence weighting, disabled event ids, configured rerolls, persistent world state, Bedrock API clock/game-mode seams, focused regressions, GitHub Actions run 33770176189) |
 | 44 Library Book reader adapter | **completed** (44 recovered source book payloads, source 1–250 id range, per-item id retention seam, one-based pages, bounded form pagination, focused regressions, GitHub Actions run 33773822475) |
 | 45 Null interface form adapters | **completed** (three source menus, exact text/grid contracts, active event-to-form wiring, focused regressions, GitHub Actions run 33782971528) |
+| 46 NulledGui screen adapter | **completed** (source title/messages, active event-to-form wiring, glitch cue, focused regressions, GitHub Actions run 33836845836) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -120,6 +121,9 @@ BP/scripts/systems/{library_book_model,library_book_data,ported_features}.js · 
 
 ## Files changed (Chunk 45)
 BP/scripts/systems/{null_interface_model,ported_features,horror_events,horror_event_model}.js · tests/null_interface_model.test.mjs · docs/chunks/CHUNK_45_{SPEC,REPORT}.md · GUI/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 46)
+BP/scripts/systems/{nulled_gui_model,ported_features,horror_events}.js · tests/nulled_gui_model.test.mjs · docs/chunks/CHUNK_46_{SPEC,REPORT}.md · GUI/event/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -287,5 +291,9 @@ Chunk 44 ports the source LibraryBookItem/LibraryBookScreen path. All 44 recover
 
 Chunk 45 ports the source NullInterfaceTriggerEvent path. The three recovered Null interface menus now have pure contracts and a Bedrock ActionFormData adapter: NullInterface displays “behind you,” NullInterface2 preserves its five-by-five “null” grid, and NullInterface3 displays “help.” The active horror event opens the selected form instead of only showing a title fallback; cancel/close remains safe. Focused local model regressions pass; GitHub Actions [run 33782971528](https://github.com/PastaHimself/tbs-2.0/actions/runs/33782971528) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
+## Chunk 46 — NulledGui screen adapter
+
+Chunk 46 ports the source NulledGuiEvent/NulledGuiScreen path. The event now opens a supported ActionFormData reader titled NulledGui with the recovered “Good luck.” and “)=” messages, while preserving the source glitch sound cue. The Java fake-midnight client illusion remains explicitly adapted because Bedrock has no equivalent client-only time hook. Focused local model regressions pass; GitHub Actions [run 33836845836](https://github.com/PastaHimself/tbs-2.0/actions/runs/33836845836) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** Remaining NulledGui, FakeDisconnect, TornPaper, and command-block screens, desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.
+**Next source boundary.** Remaining FakeDisconnect, TornPaper, and command-block screens, desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.

@@ -278,3 +278,12 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 4. **Bedrock adaptation**: null_interface_model.js preserves the three titles, text, and grid shape; ported_features.js shows the selected definition in ActionFormData; horror_events.js routes null_interface_trigger to the form adapter.
 5. **Player-visible difference**: The Java 176×166 textured container screens become supported forms. The exact texture, font metrics, label color, and container chrome are not available through this adapter.
 6. **Parity class**: VALIDATED_APPROXIMATION; source text/layout and event wiring are covered by local model regressions and repository CI.
+
+## A-030 — NulledGui screen adapter
+
+1. **Source feature**: NulledGuiEvent, NulledGuiMenu, and NulledGuiScreen.
+2. **Source behavior**: The event opens the NulledGui menu with the NulledGui title, renders Good luck. and )=, sets a client-side fake midnight state, and sends the glitch sound at the source cue.
+3. **Source evidence**: decompiled/net/thebrokenscript/events/nullent/NulledGuiEvent.java; decompiled/net/thebrokenscript/client/gui/NulledGuiScreen.java; decompiled/net/thebrokenscript/registry/TBSLang.java; source_extracted/assets/thebrokenscript/textures/screens/nulled_gui.png.
+4. **Bedrock adaptation**: nulled_gui_model.js preserves the source title/messages and stacked body; ported_features.js exposes showNulledGui through ActionFormData; horror_events.js routes nulled_gui to the form and existing glitch sound definition.
+5. **Player-visible difference**: The Java 176×166 textured container and client-only fake-midnight illusion become a supported form plus the source glitch cue. Exact texture, font metrics, native container chrome, and fake client time are unavailable in the server-side adapter.
+6. **Parity class**: VALIDATED_APPROXIMATION; source content, event wiring, and cue are covered by local model regressions and repository CI.
