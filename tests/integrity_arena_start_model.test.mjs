@@ -111,12 +111,12 @@ test("Yes now reaches the supported Arena start adapter and intro gate", async (
     readFile(new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js", import.meta.url), "utf8"),
   ]);
 
-  assert.match(features, /startIntegrityArena(player, block)/);
-  assert.match(runtime, /dimension.getTopmostBlock({ x, z })/);
-  assert.match(runtime, /PHASE1_ENTITY_ID = .*integrity_phase_1/);
-  assert.match(runtime, /runLater\(\(\) => prepareArena\(activeArena\?\.token\), plan\.schedule\.preStartDelayTicks\)/);
-  assert.match(runtime, /phase1IntroDelayTicks/);
-  assert.match(runtime, /tbs:integrity_intro_until/);
-  assert.match(boss, /isIntegrityPhase1Invulnerable/);
-  assert.match(boss, /introUntil.*tbs:integrity_intro_until/);
+  assert.ok(features.includes("startIntegrityArena(player, block)"));
+  assert.ok(runtime.includes("dimension.getTopmostBlock({ x, z })"));
+  assert.ok(runtime.includes("PHASE1_ENTITY_ID = /** @type {any} */ (\"thebrokenscript:integrity_phase_1\")"));
+  assert.ok(runtime.includes("runLater(() => prepareArena(activeArena?.token), plan.schedule.preStartDelayTicks)"));
+  assert.ok(runtime.includes("phase1IntroDelayTicks"));
+  assert.ok(runtime.includes("tbs:integrity_intro_until"));
+  assert.ok(boss.includes("isIntegrityPhase1Invulnerable"));
+  assert.ok(boss.includes("introUntil") && boss.includes("tbs:integrity_intro_until"));
 });
