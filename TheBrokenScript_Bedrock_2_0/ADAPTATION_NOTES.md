@@ -323,7 +323,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 4. **Bedrock adaptation**: integrity_phase2_transfer_model.js preserves the completion predicate, 20-tick delay, Stage2 dimension id, and idempotent staging plan. integrity_arena_runtime.js detects the completed Chord roster, tears down Phase 1, clears custom sky, schedules the transfer, and calls Entity.teleport with TeleportOptions.dimension for the existing thebrokenscript:stage2 dimension.
 
-5. **Player-visible difference**: Java PlayerVariables and custom packet/music transport are represented by dynamic state and the existing Bedrock sound path. Stage2Generator/floor population, tether-gated floor movement, Phase 2 entity lifecycle, and live Bedrock-world smoke testing remain explicit future boundaries.
+5. **Player-visible difference**: Java PlayerVariables and custom packet/music transport are represented by dynamic state and the existing Bedrock sound path. Stage2Generator custom room/template generation and live Bedrock-world smoke testing remain explicit future boundaries.
 
 6. **Parity class**: VALIDATED_APPROXIMATION; pure transfer regressions and repository CI gates cover the supported handoff.
 
@@ -337,6 +337,20 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 4. **Bedrock adaptation**: integrity_arena_model.js adds the pure lowest-player selector; integrity_arena_runtime.js runs the Phase 2 tick from the supported 1-tick scheduler, performs Entity.teleport for the recovered Y band, and records the participant id and mapped floor id for the next Stage2 placement slice.
 
-5. **Player-visible difference**: Floor spawning, safe-block scanning, Tether queries, random Integrity placement, Stage2Generator occupancy, and the Phase 2 entity lifecycle remain deferred. The tracked floor is runtime state only until those supported entity/placement adapters are ported.
+5. **Player-visible difference**: Stage2Generator occupancy/custom room placement, Java PlayerVariables, native packet/camera/music presentation, exact Java block predicates, and live Bedrock-world smoke testing remain adapted or unavailable; the supported Stage 2 entity/placement lifecycle is now active.
 
 6. **Parity class**: VALIDATED_APPROXIMATION; focused Y-boundary, threshold/tie, and Floor 6 mapping regressions cover the shipped contract.
+
+## A-036 — Integrity Phase 2 Stage 2 runtime adapter
+
+1. **Source feature**: Phase2.checkFloorSpawns, Stage2Util.spawnFloorEntities, Stage2Util.getRandomFloorPos/findSafeChunkPos, Phase2.hasTetherOnFloor, and Phase2.teleportIntegrityTo.
+
+2. **Source behavior**: For each Phase 2 participant in the Stage2 dimension whose loading flag is clear, map the block Y to Stage2Floor.FLOOR_1 through FLOOR_7, spawn each floor once, skip Floor 7 until the Integrity entity exists, and use the source 10-chunk cell/center math plus floor bounds to find a safe position. A floor is safe when it is not air/replaceable or is a barrier/mud standable exception and the next three blocks are replaceable. Phase2 maps the lowest participant through Phase2Floors, requires a live Tether in the target floor when that Stage2Floor spawns Tethers, rejects Integrity candidates within 50 blocks of a Tether, and teleports Integrity to the selected position. Floor 6 maps to FLOOR_6_INTEG for Integrity placement while Stage2Floor.fromY still resolves the spawn band to FLOOR_6.
+
+3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase2.java; decompiled/net/thebrokenscript/boss/integrity/Phase2Floors.java; decompiled/net/thebrokenscript/boss/integrity/Stage2Floor.java; decompiled/net/thebrokenscript/boss/integrity/Stage2Util.java; decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java.
+
+4. **Bedrock adaptation**: integrity_arena_model.js owns the source floor bands, idempotent floor-transition state, safe-scan contract, and tether/placement decisions. integrity_arena_runtime.js uses Entity.getDynamicProperty for the loading gate, Dimension.getBlock plus Block.isAir/Block.isLiquid for a conservative loaded-block scan, Dimension.spawnEntity for the Tether and Integrity Phase 2 roster, Dimension.getEntities with volume for floor Tether detection and maxDistance for the 50-block exclusion, and Entity.teleport for the successful Integrity transition. The one-tick scheduler from Chunk 52 remains the Phase 2 cadence.
+
+5. **Player-visible difference**: Bedrock has no direct equivalent for Java canBeReplaced or entityCanStandOnFace(UP); only air is accepted as replaceable clearance and loaded non-air, non-liquid blocks are treated as standable. The static void dimension cannot execute the Java Stage2Generator custom room/template/occupancy algorithm, so the adapter does not claim exact Stage 2 terrain generation and cannot spawn against unloaded structure blocks. Java RNG/finalized-spawn hooks and native packet/camera/music presentation remain adapted.
+
+6. **Parity class**: VALIDATED_APPROXIMATION; focused model regressions, syntax/type/pack validators, and repository CI cover the supported adapter while Bedrock world/runtime smoke testing remains unavailable.

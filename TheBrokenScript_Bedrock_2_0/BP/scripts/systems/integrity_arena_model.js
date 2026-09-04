@@ -53,6 +53,8 @@ export const PHASE2_SOURCE = Object.freeze({
   lowestPlayerMinYExclusive: 103,
 });
 
+export const STAGE2_DIMENSION_ID = "thebrokenscript:stage2";
+
 // Stage2Generator.java is a Java custom chunk generator. Bedrock's static
 // dimension JSON cannot execute this generator, so this is an audit model only.
 // Every structure id below is a source template reference; it is not a claim
@@ -532,6 +534,77 @@ export function stage2FindSafeSpawnY({
     }
   }
   return null;
+}
+
+export function phase2Stage2FloorStep({
+  phase = INTEGRITY_PHASE.PHASE_2,
+  spawnedFloorIds = [],
+  integrityPresent = false,
+  players = [],
+} = {}) {
+  const spawned = new Set(spawnedFloorIds);
+  const floorsToSpawn = [];
+  if (phase !== INTEGRITY_PHASE.PHASE_2) {
+    return {
+      floorsToSpawn,
+      nextSpawnedFloorIds: [...spawned],
+    };
+  }
+
+  for (const player of players) {
+    if (!player || player.id === undefined || player.dimensionId !== STAGE2_DIMENSION_ID) continue;
+    if (player.loadingPhase2 === true || !Number.isFinite(player.y)) continue;
+
+    const floor = stage2SpawnFloorFromY(player.y);
+    if (!floor) continue;
+    if (floor.id === "FLOOR_7" && integrityPresent !== true) continue;
+    if (spawned.has(floor.id)) continue;
+
+    spawned.add(floor.id);
+    floorsToSpawn.push({
+      floorId: floor.id,
+      playerId: player.id,
+      floor,
+    });
+  }
+
+  return {
+    floorsToSpawn,
+    nextSpawnedFloorIds: [...spawned],
+  };
+}
+
+function phase2IntegrityPlacementResult(action, targetFloor, requiresTether = false) {
+  return {
+    action,
+    targetFloorId: targetFloor?.id ?? null,
+    stage2FloorId: targetFloor?.stage2Floor ?? null,
+    requiresTether,
+  };
+}
+
+export function phase2IntegrityPlacementStep({
+  playerY,
+  integrityPresent = false,
+  currentFloorId = null,
+  hasTetherOnTargetFloor = false,
+} = {}) {
+  if (integrityPresent !== true || !Number.isFinite(playerY)) {
+    return phase2IntegrityPlacementResult("none", null);
+  }
+
+  const targetFloor = phase2IntegrityFloorFromY(playerY);
+  if (!targetFloor) return phase2IntegrityPlacementResult("none", null);
+
+  const stage2Floor = STAGE2_FLOORS.find((floor) => floor.id === targetFloor.stage2Floor);
+  const requiresTether = stage2Floor?.sourceSpawns.includes("TETHER") === true;
+  if (currentFloorId === targetFloor.id) {
+    return phase2IntegrityPlacementResult("already_placed", targetFloor, requiresTether);
+  }
+  if (requiresTether && hasTetherOnTargetFloor !== true) {
+    return phase2IntegrityPlacementResult("wait_for_tether", targetFloor, true);
+  }
+  return phase2IntegrityPlacementResult("place", targetFloor, requiresTether);
 }
 
 export function phase2IntegrityFloorFromY(y) {
