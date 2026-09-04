@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 51 — Integrity Phase 2 transfer)
+Last updated: 2026-09-04 (Chunk 52 — Integrity Phase 2 recovery routing)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,10 @@ Last updated: 2026-09-04 (Chunk 51 — Integrity Phase 2 transfer)
 
 ## Current chunk
 
-**Chunk 51 complete — Integrity Phase 2 transfer**
+**Chunk 52 complete — Integrity Phase 2 recovery routing**
 
-Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1 terrainQueue/tick and TerrainCorrupterKt contract. The pure model preserves the inclusive radius-100 disk, random.nextFloat() <= 0.3 queue inclusion, shuffled candidates, initial 20-tick cadence, one-position-per-20-ticks replacement, four source terrain_corrupt_replace IDs, and corrupted-command-block exclusion. The Bedrock runtime owns the live queue, resolves each X/Z through Dimension.getTopmostBlock, and applies replacements with Block.setType from the existing boss scheduler. ChunkCarver generation, exact registry-backed tag lookup, Phase 2/3 transfer, native packet/camera presentation, and Bedrock world/runtime smoke testing remain explicitly adapted or deferred. Focused terrain regressions pass; GitHub Actions [run 33882851212](https://github.com/PastaHimself/tbs-2.0/actions/runs/33882851212) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
+Chunk 52 activates the existing Integrity Arena tick from the ported-features scheduler after Phase 2 transfer. The pure model preserves the recovered inclusive recovery band Y 190–198, the lowest-player threshold Y > 103 with first-player tie behavior, and Phase2Floors mapping including Floor 6 → FLOOR_6_INTEG. The Bedrock runtime now performs the source recovery teleport to (85.5, 162.5, 87.5), records the lowest eligible participant and mapped Phase 2 floor, and keeps Stage2 entity spawning, tether-gated Integrity placement, and Java Stage2Generator placement explicitly deferred. Focused recovery regressions pass; GitHub Actions validation is running on PR #26.
+
 ## Chunk state
 | Chunk | State |
 |---|---|
@@ -73,7 +74,7 @@ Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1
 | 47 FakeDisconnect screen adapter | **completed** (source heading/title/body/action, active event-to-form wiring, focused regressions, GitHub Actions run 33838618989) |
 | 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
 | 49 Integrity Arena startup handoff | **completed** |
-| 50 Integrity Phase 1 terrain corruption | **completed** |\n| 51 Integrity Phase 2 transfer | **completed** |
+| 50 Integrity Phase 1 terrain corruption | **completed** |\n| 51 Integrity Phase 2 transfer | **completed** |\n| 52 Integrity Phase 2 recovery routing | **completed** (PR #26 pending merge) |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 

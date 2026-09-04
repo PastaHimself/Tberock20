@@ -327,3 +327,16 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 6. **Parity class**: VALIDATED_APPROXIMATION; pure transfer regressions and repository CI gates cover the supported handoff.
 
+## A-035 — Integrity Phase 2 recovery tick adapter
+
+1. **Source feature**: Phase2.tick recovery teleport, lowest-player selection, Phase2Floors.fromY, and the Phase 2 tick lifecycle.
+
+2. **Source behavior**: Each Phase 2 tick checks floor spawns, teleports participants whose block Y is in 190..198 to (85.5, 162.5, 87.5), chooses the lowest participant with block Y > 103 using first-item tie behavior, maps that player through Phase2Floors.fromY, and uses the resulting floor as the target for later tether-gated Integrity placement.
+
+3. **Source evidence**: decompiled/net/thebrokenscript/boss/integrity/Phase2.java; decompiled/net/thebrokenscript/boss/integrity/Phase2Floors.java; decompiled/net/thebrokenscript/boss/integrity/Stage2Floor.java.
+
+4. **Bedrock adaptation**: integrity_arena_model.js adds the pure lowest-player selector; integrity_arena_runtime.js runs the Phase 2 tick from the supported 1-tick scheduler, performs Entity.teleport for the recovered Y band, and records the participant id and mapped floor id for the next Stage2 placement slice.
+
+5. **Player-visible difference**: Floor spawning, safe-block scanning, Tether queries, random Integrity placement, Stage2Generator occupancy, and the Phase 2 entity lifecycle remain deferred. The tracked floor is runtime state only until those supported entity/placement adapters are ported.
+
+6. **Parity class**: VALIDATED_APPROXIMATION; focused Y-boundary, threshold/tie, and Floor 6 mapping regressions cover the shipped contract.
