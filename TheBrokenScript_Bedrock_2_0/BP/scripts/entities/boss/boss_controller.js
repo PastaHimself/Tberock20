@@ -25,6 +25,10 @@ import {
   voidTentacleScaleFromRoll,
   voidTentacleSweepPlan,
 } from "../../systems/integrity_arena_model.js";
+import {
+  isIntegrityPhase1Invulnerable,
+  resetIntegrityArena,
+} from "../../systems/integrity_arena_runtime.js";
 
 // ── boss death sequence (Chunk 14 presentation) ─────────────────────────────
 let deathHookInstalled = false;
@@ -41,7 +45,13 @@ function installDeathHook() {
         id === "thebrokenscript:the_obliteration_2";
       if (!isBoss) return;
       try { ev.deadEntity.dimension.playSound("thebrokenscript:integrity_dies", ev.deadEntity.location, { volume: 10, pitch: 1 }); } catch {}
-      if (id.startsWith("thebrokenscript:integrity")) bossHooks.setArenaState(false, false);
+      if (
+        id === "thebrokenscript:integrity_phase_1" ||
+        id === "thebrokenscript:integrity_phase_2" ||
+        id === "thebrokenscript:integrity_phase_3"
+      ) {
+        resetIntegrityArena();
+      }
     });
   } catch {}
 }
@@ -114,6 +124,10 @@ function installDamageHook() {
       const target = ev.hurtEntity;
       const cause = ev.damageSource?.cause;
       const damagingEntity = ev.damageSource?.damagingEntity;
+      if (target.typeId === "thebrokenscript:integrity_phase_1" && isIntegrityPhase1Invulnerable(target)) {
+        ev.cancel = true;
+        return;
+      }
       if (target.typeId === "thebrokenscript:void_tentacle" && !voidTentacleDamageAllowed(cause)) {
         ev.cancel = true;
         return;
@@ -364,6 +378,8 @@ function tickIntegrityEarly(e) {
   if (system.currentTick % 20 === 0 && e.typeId === "thebrokenscript:integrity_phase_1") {
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.08, z: e.location.z }); } catch {}
   }
+  const introUntil = callEntityMethod(e, "getDynamicProperty", "tbs:integrity_intro_until");
+  if (typeof introUntil === "number" && introUntil > system.currentTick) return;
   meleePulse(e, e.typeId === "thebrokenscript:integrity_phase_1" ? 50 : 25, 6);
 
   // Do not transition Integrity phases from health here. Java Arena/Phase logic

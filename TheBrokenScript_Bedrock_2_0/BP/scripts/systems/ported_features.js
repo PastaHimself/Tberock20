@@ -14,6 +14,7 @@ import {
   tornPaperBody,
   tornPaperDefinition,
 } from "./command_block_model.js";
+import { startIntegrityArena } from "./integrity_arena_runtime.js";
 import { getLibraryBook, LIBRARY_BOOK_IDS } from "./library_book_data.js";
 import {
   SOURCE_STATUS_EFFECTS,
@@ -288,7 +289,20 @@ export async function showCommandBlockConfirm(player, block) {
       .button(view.confirmButton)
       .show(player);
     if (!response.canceled && response.selection === 0) {
-      try { player.sendMessage("§7Integrity sequence requested."); } catch {}
+      try {
+        const result = startIntegrityArena(player, block);
+        if (result.kind === "started") {
+          player.sendMessage("§7Integrity sequence requested.");
+        } else if (result.kind === "restarted") {
+          player.sendMessage("§7Integrity phase restarted.");
+        } else if (result.kind === "restart_deferred") {
+          player.sendMessage("§cIntegrity phase restart is not available yet.");
+        } else {
+          player.sendMessage("§cIntegrity Arena could not start.");
+        }
+      } catch (err) {
+        logger.error("ported_features: Integrity Arena start failed", err);
+      }
     }
     return true;
   } catch (err) {
