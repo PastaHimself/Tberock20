@@ -17,7 +17,7 @@ import {
 } from "./horror_event_model.js";
 import { createSignedNullBook, distributeNullBook } from "./story_book_adapter.js";
 import { logger } from "../core/logging.js";
-import { applyWhyCantYouLeave, showNullInterface } from "./ported_features.js";
+import { applyWhyCantYouLeave, showNullInterface, showNulledGui } from "./ported_features.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
 
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
@@ -63,7 +63,10 @@ const H = {
 
   // visual overlays
   opengl_error(p) { title(p, "§4OpenGL Error 1282: GL_INVALID_OPERATION", 60); },
-  nulled_gui(p) { title(p, "§k███ §rGUI nulled §k███", 40); },
+  nulled_gui(p) {
+    void showNulledGui(p);
+    playNear(p, SOUNDS.glitch, 10, 0.0);
+  },
   screen_dupe(p) { actionBar(p, "§7[screen duplicated]"); },
   fake_disconnect(p) { title(p, "§cDisconnected", 50, "§7End of stream"); },
   close_menu(p) { title(p, " ", 5); },
