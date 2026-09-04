@@ -583,6 +583,14 @@ function phase2IntegrityPlacementResult(action, targetFloor, requiresTether = fa
   };
 }
 
+/**
+ * @param {{
+ *   playerY?: number;
+ *   integrityPresent?: boolean;
+ *   currentFloorId?: string | null;
+ *   hasTetherOnTargetFloor?: boolean;
+ * }} [options]
+ */
 export function phase2IntegrityPlacementStep({
   playerY,
   integrityPresent = false,

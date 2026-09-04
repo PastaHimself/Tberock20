@@ -406,7 +406,7 @@ function hasTetherOnFloor(dimension, player, floor) {
     });
     return entities.some(isLivingEntity);
   } catch (err) {
-    logger.warn("integrity_arena: Stage 2 Tether floor query failed", err);
+    logger.warn("integrity_arena: Stage 2 Tether floor query failed");
     return false;
   }
 }
@@ -421,7 +421,7 @@ function hasTetherNear(dimension, position) {
     });
     return entities.some(isValidEntity);
   } catch (err) {
-    logger.warn("integrity_arena: Stage 2 Tether proximity query failed", err);
+    logger.warn("integrity_arena: Stage 2 Tether proximity query failed");
     return false;
   }
 }
