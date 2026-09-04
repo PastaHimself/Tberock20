@@ -4761,11 +4761,13 @@
                                       ],
                      "bedrock_identifier":  "thebrokenscript:torn_paper",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "TheBrokenScript_Bedrock_2_0/BP/items/torn_paper.json",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/command_block_model.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 48 registers Torn Paper item use and preserves its title, chunk-centered coordinates, Y 216 body, and close action through a supported form reader."
                  },
                  {
                      "source_id":  "item.ud_oak_door",
@@ -5646,11 +5648,12 @@
                                       ],
                      "bedrock_identifier":  "thebrokenscript:command_block_giver",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "TheBrokenScript_Bedrock_2_0/BP/blocks/command_block_giver.json",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/custom_blocks.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 48 gives the corrupted command-block item and removes the giver block through a supported interaction adapter."
                  },
                  {
                      "source_id":  "block.concrete",
@@ -10620,11 +10623,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/command_block_model.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/custom_blocks.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 48 preserves Input Code, Execute, source glitch metadata, code validation order, and the command-block entry route through supported Bedrock forms."
                  },
                  {
                      "source_id":  "gui.command_confirm_gui",
@@ -10635,11 +10640,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/command_block_model.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/custom_blocks.js"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 48 preserves both warning lines and Yes, with codeApplied persisted before the supported confirmation form opens."
                  },
                  {
                    "source_id": "gui.fake_disconnect",
@@ -10767,11 +10774,13 @@
                                       ],
                      "bedrock_identifier":  "",
                      "bedrock_files":  [
-
-                                       ],
-                     "status":  "uninspected",
-                     "parity":  "unknown",
-                     "notes":  ""
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/command_block_model.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js",
+                                          "TheBrokenScript_Bedrock_2_0/BP/items/torn_paper.json"
+                                      ],
+                     "status":  "ported",
+                     "parity":  "approximation",
+                     "notes":  "Chunk 48 preserves Torn Paper title, chunk-centered coordinate math, Y 216, and close behavior through a supported reader form."
                  },
                  {
                      "source_id":  "gui.client_overlays",

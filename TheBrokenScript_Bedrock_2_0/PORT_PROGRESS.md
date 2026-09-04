@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 47 — FakeDisconnect screen adapter)
+Last updated: 2026-09-04 (Chunk 48 — TornPaper and command-block screen adapters)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-04 (Chunk 47 — FakeDisconnect screen adapter)
 
 ## Current chunk
 
-**Chunk 47 complete — FakeDisconnect screen adapter**
+**Chunk 48 complete — TornPaper and command-block screen adapters**
 
-Chunk 47 ports the source FakeDisconnectEvent/FakeDisconnectScreen path. The active `fake_disconnect` event now opens a supported ActionFormData reader with the source “Connection Lost” heading, “Timed out” body/title, and “Back to title screen” action. The Java panorama background, Esc lockout, forced 100-tick close, global sound-stop/music flag sequence, and live client disconnect transition remain explicitly adapted because they are client/server-native behavior unavailable through the current Bedrock form seam. Focused local model regressions pass; GitHub Actions [run 33838618989](https://github.com/PastaHimself/tbs-2.0/actions/runs/33838618989) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
+Chunk 48 ports the source TornPaperItem/TornPaperScreen path and the CommandBlockGui/CommandBlockGuiConfirm screen pair. Torn Paper now opens a supported reader with the source chunk-centered X/Z coordinates and Y 216 note; corrupted command blocks now use a ModalFormData code editor and an ActionFormData confirmation reader preserving Input Code, Execute, both warning lines, and Yes. Source textures, Java client rotation/rendering, exact EditBox glitch presentation, packet transport, native window-title feedback, and Integrity Arena kickoff remain explicitly adapted where the Bedrock form/server seam cannot reproduce them. Focused local model regressions pass; GitHub Actions [run 33866668553](https://github.com/PastaHimself/tbs-2.0/actions/runs/33866668553) passed validators, beta type-check, JavaScript regressions, Blockception diagnostics, Creator Tools validation, and packaging; artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Chunk state
 | Chunk | State |
@@ -72,8 +72,9 @@ Chunk 47 ports the source FakeDisconnectEvent/FakeDisconnectScreen path. The act
 | 45 Null interface form adapters | **completed** (three source menus, exact text/grid contracts, active event-to-form wiring, focused regressions, GitHub Actions run 33782971528) |
 | 46 NulledGui screen adapter | **completed** (source title/messages, active event-to-form wiring, glitch cue, focused regressions, GitHub Actions run 33836845836) |
 | 47 FakeDisconnect screen adapter | **completed** (source heading/title/body/action, active event-to-form wiring, focused regressions, GitHub Actions run 33838618989) |
+| 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
 
-No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
+No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
 ## Files created (Chunk 21)
 BP/scripts/systems/integrity_arena_model.js Phase 3 constants/state/cutscene model · BP/scripts/entities/boss/boss_controller.js source-backed ring spawn and boundary countdown · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_21_{SPEC,REPORT}.md
@@ -128,6 +129,9 @@ BP/scripts/systems/{nulled_gui_model,ported_features,horror_events}.js · tests/
 
 ## Files changed (Chunk 47)
 BP/scripts/systems/{fake_disconnect_model,ported_features,horror_events}.js · tests/fake_disconnect_model.test.mjs · docs/chunks/CHUNK_47_{SPEC,REPORT}.md · GUI/event/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 48)
+BP/scripts/systems/{command_block_model,ported_features,custom_blocks}.js · BP/items/torn_paper.json · tests/command_block_model.test.mjs · docs/chunks/CHUNK_48_{SPEC,REPORT}.md · item/block/GUI/parity/adaptation/limitation/validation ledgers
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -304,5 +308,9 @@ Chunk 46 ports the source NulledGuiEvent/NulledGuiScreen path. The event now ope
 
 Chunk 47 ports the source FakeDisconnectEvent/FakeDisconnectScreen path. The active `fake_disconnect` event now opens a supported ActionFormData reader with the source “Connection Lost” heading, “Timed out” body/title, and “Back to title screen” action. The Java panorama background, Esc lockout, forced 100-tick close, global sound-stop/music flag sequence, and live client disconnect transition remain explicitly adapted because they are client/server-native behavior unavailable through the current Bedrock form seam. Focused local model regressions pass; GitHub Actions [run 33838618989](https://github.com/PastaHimself/tbs-2.0/actions/runs/33838618989) passed the complete validator/package workflow. Bedrock world/runtime smoke testing remains unavailable locally.
 
+## Chunk 48 — TornPaper and command-block screen adapters
+
+Chunk 48 ports the source TornPaperItem/TornPaperScreen path and the CommandBlockGui/CommandBlockGuiConfirm screen pair. Torn Paper now opens a supported reader with the source chunk-centered X/Z coordinates and Y 216 note; corrupted command blocks now use a ModalFormData code editor and an ActionFormData confirmation reader preserving Input Code, Execute, both warning lines, and Yes. Source textures, Java client rotation/rendering, exact EditBox glitch presentation, packet transport, native window-title feedback, and Integrity Arena kickoff remain explicitly adapted where the Bedrock form/server seam cannot reproduce them. Focused local model regressions pass; GitHub Actions [run 33866668553](https://github.com/PastaHimself/tbs-2.0/actions/runs/33866668553) passed validators, beta type-check, JavaScript regressions, Blockception diagnostics, Creator Tools validation, and packaging; artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Next chunk
-**Next source boundary.** Remaining TornPaper and command-block screens, desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.
+**Next source boundary.** Remaining desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.
