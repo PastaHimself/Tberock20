@@ -14,7 +14,7 @@ Last updated: 2026-09-04 (Chunk 52 — Integrity Phase 2 recovery routing)
 
 **Chunk 52 complete — Integrity Phase 2 recovery routing**
 
-Chunk 52 activates the existing Integrity Arena tick from the ported-features scheduler after Phase 2 transfer. The pure model preserves the recovered inclusive recovery band Y 190–198, the lowest-player threshold Y > 103 with first-player tie behavior, and Phase2Floors mapping including Floor 6 → FLOOR_6_INTEG. The Bedrock runtime now performs the source recovery teleport to (85.5, 162.5, 87.5), records the lowest eligible participant and mapped Phase 2 floor, and keeps Stage2 entity spawning, tether-gated Integrity placement, and Java Stage2Generator placement explicitly deferred. Focused recovery regressions pass; GitHub Actions validation is running on PR #26.
+Chunk 52 activates the existing Integrity Arena tick from the ported-features scheduler after Phase 2 transfer. The pure model preserves the recovered inclusive recovery band Y 190–198, the lowest-player threshold Y > 103 with first-player tie behavior, and Phase2Floors mapping including Floor 6 → FLOOR_6_INTEG. The Bedrock runtime now performs the source recovery teleport to (85.5, 162.5, 87.5), records the lowest eligible participant and mapped Phase 2 floor, and keeps Stage2 entity spawning, tether-gated Integrity placement, and Java Stage2Generator placement explicitly deferred. Focused recovery regressions pass; GitHub Actions [run 33888992135](https://github.com/PastaHimself/tbs-2.0/actions/runs/33888992135) passed all substantive validator, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
 
 ## Chunk state
 | Chunk | State |
