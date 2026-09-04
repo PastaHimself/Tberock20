@@ -59,7 +59,7 @@ function installDeathHook() {
 // ── constants from decompiled sources ──────────────────────────────────────
 // Integrity phase advancement is owned by Arena/Phase source semantics, not HP
 // fractions. Source-backed arena constants/predicates live in integrity_arena_model.js;
-// automatic arena startup remains disabled until its Java callsite is recovered.
+// CorruptedCommandBlockConfirmPacket startup is now bridged through integrity_arena_runtime.js.
 // Phase 3 ring spawning and boundary countdown are wired below. The Java
 // participant roster/transfer and custom camera packets remain engine gaps.
 // Fractured, Rock, and FracturedRoam are owned by the dedicated source-specific runtime.
