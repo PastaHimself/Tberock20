@@ -6,6 +6,7 @@ import {
   arenaCenter,
   arenaParticipants,
   integrityArenaStartPlan,
+  shouldRestartArenaPhase,
   sampleArenaOffset,
 } from "./integrity_arena_start_model.js";
 import { PHASE1_SOURCE } from "./integrity_arena_model.js";
@@ -14,6 +15,9 @@ const ARENA_TOKEN_PROPERTY = "tbs:integrity_arena_token";
 const INTRO_UNTIL_PROPERTY = "tbs:integrity_intro_until";
 const CUSTOM_SKY_ENABLED_PROPERTY = "tbs:integrity_custom_sky_enabled";
 const CUSTOM_SKY_COLOR_PROPERTY = "tbs:integrity_custom_sky_color";
+
+const PHASE1_ENTITY_ID = /** @type {any} */ ("thebrokenscript:integrity_phase_1");
+const CHORD_ENTITY_ID = /** @type {any} */ ("thebrokenscript:chord");
 
 let tokenCounter = 0;
 let activeArena = null;
@@ -26,11 +30,7 @@ export function startIntegrityArena(player, block) {
   if (dimension.id !== "minecraft:overworld") return { kind: "invalid_dimension" };
 
   if (activeArena) {
-    const restartPlan = integrityArenaStartPlan({
-      existingArena: true,
-      livingPlayers: trackedLivingPlayers(),
-    });
-    if (restartPlan.action === "restart_phase") {
+    if (shouldRestartArenaPhase(true, trackedLivingPlayers())) {
       return restartIntegrityArenaPhase()
         ? { kind: "restarted" }
         : { kind: "restart_deferred" };
@@ -151,7 +151,7 @@ function startPhaseOne(token) {
   };
   let entity;
   try {
-    entity = dimension.spawnEntity("thebrokenscript:integrity_phase_1", location);
+    entity = dimension.spawnEntity(PHASE1_ENTITY_ID, location);
   } catch (err) {
     logger.error("integrity_arena: Phase 1 entity spawn failed", err);
     return;
@@ -182,7 +182,7 @@ function spawnPhaseOneChords(arena) {
     const angle = Math.random() * Math.PI * 2;
     const radius = Math.sqrt(Math.random()) * PHASE1_SOURCE.chordRadius;
     try {
-      const chord = dimension.spawnEntity("thebrokenscript:chord", {
+      const chord = dimension.spawnEntity(CHORD_ENTITY_ID, {
         x: arena.center.x + 0.5 + Math.cos(angle) * radius,
         y: arena.center.y,
         z: arena.center.z + 0.5 + Math.sin(angle) * radius,

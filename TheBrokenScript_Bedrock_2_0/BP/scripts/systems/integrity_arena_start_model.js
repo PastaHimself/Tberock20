@@ -70,6 +70,10 @@ export function arenaParticipants(
   });
 }
 
+export function shouldRestartArenaPhase(existingArena, livingPlayers) {
+  return Boolean(existingArena) && !sourceCheckLivingPlayers(livingPlayers);
+}
+
 export function integrityArenaStartPlan({
   existingArena,
   livingPlayers,
@@ -79,7 +83,7 @@ export function integrityArenaStartPlan({
   dimensionId,
   nearbyPlayers,
 }) {
-  if (existingArena && !sourceCheckLivingPlayers(livingPlayers)) {
+  if (shouldRestartArenaPhase(existingArena, livingPlayers)) {
     return { action: "restart_phase" };
   }
 

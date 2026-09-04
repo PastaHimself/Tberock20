@@ -113,8 +113,8 @@ test("Yes now reaches the supported Arena start adapter and intro gate", async (
 
   assert.match(features, /startIntegrityArena(player, block)/);
   assert.match(runtime, /dimension.getTopmostBlock({ x, z })/);
-  assert.match(runtime, /spawnEntity("thebrokenscript:integrity_phase_1"/);
-  assert.match(runtime, /runLater(() => prepareArena(activeArena?.token), plan.schedule.preStartDelayTicks)/);
+  assert.match(runtime, /PHASE1_ENTITY_ID = .*integrity_phase_1/);
+  assert.match(runtime, /runLater\(\(\) => prepareArena\(activeArena\?\.token\), plan\.schedule\.preStartDelayTicks\)/);
   assert.match(runtime, /phase1IntroDelayTicks/);
   assert.match(runtime, /tbs:integrity_intro_until/);
   assert.match(boss, /isIntegrityPhase1Invulnerable/);
