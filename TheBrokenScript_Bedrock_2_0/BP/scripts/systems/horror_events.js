@@ -17,7 +17,7 @@ import {
 } from "./horror_event_model.js";
 import { createSignedNullBook, distributeNullBook } from "./story_book_adapter.js";
 import { logger } from "../core/logging.js";
-import { applyWhyCantYouLeave, showNullInterface, showNulledGui } from "./ported_features.js";
+import { applyWhyCantYouLeave, showFakeDisconnect, showNullInterface, showNulledGui } from "./ported_features.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
 
 // ── Chunk 12: Events & horror choreography ──────────────────────────────────
@@ -68,7 +68,7 @@ const H = {
     playNear(p, SOUNDS.glitch, 10, 0.0);
   },
   screen_dupe(p) { actionBar(p, "§7[screen duplicated]"); },
-  fake_disconnect(p) { title(p, "§cDisconnected", 50, "§7End of stream"); },
+  fake_disconnect(p) {\n    void showFakeDisconnect(p);\n  },
   close_menu(p) { title(p, " ", 5); },
   keep_playing(p) { title(p, "§fkeep playing.", 40); },
   why_cant_you_leave(p) { applyWhyCantYouLeave(p, 1000); },

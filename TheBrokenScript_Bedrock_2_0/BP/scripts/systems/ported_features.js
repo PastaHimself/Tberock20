@@ -6,6 +6,7 @@ import * as worldState from "./world_state.js";
 import { pageAt, pageBack, pageForward, selectAvailableBookId } from "./library_book_model.js";
 import { nullInterfaceDefinition } from "./null_interface_model.js";
 import { nulledGuiBody, nulledGuiDefinition } from "./nulled_gui_model.js";
+import { fakeDisconnectDefinition } from "./fake_disconnect_model.js";
 import { getLibraryBook, LIBRARY_BOOK_IDS } from "./library_book_data.js";
 import {
   SOURCE_STATUS_EFFECTS,
@@ -179,6 +180,24 @@ export async function showNulledGui(player) {
     return true;
   } catch (err) {
     logger.error("ported_features: nulled gui form failed", err);
+    return false;
+  }
+}
+
+
+export async function showFakeDisconnect(player) {
+  if (!isPlayer(player)) return false;
+
+  const view = fakeDisconnectDefinition();
+  try {
+    await new ActionFormData()
+      .title(view.heading)
+      .body(view.body)
+      .button(view.button)
+      .show(player);
+    return true;
+  } catch (err) {
+    logger.error("ported_features: fake disconnect form failed", err);
     return false;
   }
 }
