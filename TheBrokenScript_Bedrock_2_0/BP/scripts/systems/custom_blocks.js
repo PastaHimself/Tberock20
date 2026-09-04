@@ -1,7 +1,9 @@
-import { world } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import { teleportLinkedPortal } from "./ported_features.js";
+import * as worldState from "./world_state.js";
+import { showCommandBlockConfirm, showCommandBlockGui } from "./ported_features.js";
 
 // Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -60,13 +62,23 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  // command / command_block_giver — interact prints corrupted command feedback
+  // command / command_block_giver — route to the source screen or giver behavior
   register("thebrokenscript:be_command", {
     onPlayerInteract(ev) {
-      const lines = ["/give @s minecraft:knowledge", "/tp @s into_the_void", "/ban @a[distance=..64]"];
-      const line = lines[Math.floor(Math.random() * lines.length)];
-      try { ev.player.onScreenDisplay.setTitle(`§7${line}`, { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
-      tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:glitch_sound_1", 2, 0.8);
+      const { block, player } = ev;
+      if (block.typeId === "thebrokenscript:command_block_giver") {
+        giveCorruptedCommandBlock(player, block);
+        return;
+      }
+      if (block.typeId === "thebrokenscript:command") {
+        system.run(() => {
+          if (worldState.get("codeApplied")) {
+            void showCommandBlockConfirm(player, block);
+          } else {
+            void showCommandBlockGui(player, block);
+          }
+        });
+      }
     }
   });
 
@@ -140,6 +152,19 @@ function makeJimTrigger() {
 function jimStage(block) {
   const match = /^thebrokenscript:jim_trigger_([1-4])$/.exec(block.typeId);
   return match ? Number(match[1]) : 0;
+}
+
+function giveCorruptedCommandBlock(player, block) {
+  try {
+    player.runCommand("give @s thebrokenscript:command 1");
+  } catch (err) {
+    logger.error("custom_blocks: failed to give corrupted command block", err);
+  }
+  try {
+    block.setType("minecraft:air");
+  } catch (err) {
+    logger.error("custom_blocks: failed to remove command block giver", err);
+  }
 }
 
 function distance(a, b) {

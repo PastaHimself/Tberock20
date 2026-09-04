@@ -1,5 +1,5 @@
 import { EntityComponentTypes, EntityDamageCause, GameMode, system, world } from "@minecraft/server";
-import { ActionFormData } from "@minecraft/server-ui";
+import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 import { logger } from "../core/logging.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
@@ -7,6 +7,13 @@ import { pageAt, pageBack, pageForward, selectAvailableBookId } from "./library_
 import { nullInterfaceDefinition } from "./null_interface_model.js";
 import { nulledGuiBody, nulledGuiDefinition } from "./nulled_gui_model.js";
 import { fakeDisconnectDefinition } from "./fake_disconnect_model.js";
+import {
+  commandBlockDefinition,
+  commandConfirmDefinition,
+  commandExecutionOutcome,
+  tornPaperBody,
+  tornPaperDefinition,
+} from "./command_block_model.js";
 import { getLibraryBook, LIBRARY_BOOK_IDS } from "./library_book_data.js";
 import {
   SOURCE_STATUS_EFFECTS,
@@ -50,6 +57,13 @@ export function init(itemComponentRegistry) {
       });
     },
   });
+  itemComponentRegistry.registerCustomComponent("thebrokenscript:torn_paper_use", {
+    onUse(event) {
+      system.run(() => {
+        void showTornPaper(event.source);
+      });
+    },
+  });
   itemComponentRegistry.registerCustomComponent("thebrokenscript:portal_linker_use", {
     onUseOn(event) {
       system.run(() => usePortalLinker(event.source, event.block));
@@ -65,7 +79,7 @@ export function init(itemComponentRegistry) {
       system.run(() => placeCircuitPainting(event.source, event.block, event.blockFace));
     },
   });
-  logger.info("ported_features: 6 item components registered");
+  logger.info("ported_features: 7 item components registered");
 }
 
 export function begin(scheduler) {
@@ -198,6 +212,87 @@ export async function showFakeDisconnect(player) {
     return true;
   } catch (err) {
     logger.error("ported_features: fake disconnect form failed", err);
+    return false;
+  }
+}
+
+export async function showTornPaper(player) {
+  if (!isPlayer(player)) return false;
+
+  const view = tornPaperDefinition();
+  const body = tornPaperBody(
+    worldState.get("woodenFloorX"),
+    worldState.get("woodenFloorZ"),
+  );
+  try {
+    player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.5 });
+  } catch {}
+  try {
+    await new ActionFormData()
+      .title(view.title)
+      .body(body)
+      .button(view.closeButton)
+      .show(player);
+    return true;
+  } catch (err) {
+    logger.error("ported_features: torn paper form failed", err);
+    return false;
+  }
+}
+
+export async function showCommandBlockGui(player, block) {
+  if (!isPlayer(player)) return false;
+
+  const view = commandBlockDefinition();
+  try {
+    const response = await new ModalFormData()
+      .title(view.title)
+      .textField(view.inputLabel, view.inputPlaceholder)
+      .submitButton(view.executeButton)
+      .show(player);
+    if (response.canceled) return true;
+
+    const outcome = commandExecutionOutcome({
+      input: response.formValues?.[0],
+      expectedCode: worldState.get("code"),
+      dimensionId: block?.dimension?.id ?? player.dimension?.id,
+      initiatorPresent: commandBlockHasInitiator(block),
+    });
+    if (outcome.kind === "invalid_code") {
+      try {
+        player.onScreenDisplay.setActionBar(outcome.replacement);
+      } catch {}
+      return true;
+    }
+    if (outcome.kind !== "confirm") {
+      try { player.sendMessage("§c" + outcome.message); } catch {}
+      return true;
+    }
+
+    worldState.set("codeApplied", true);
+    return await showCommandBlockConfirm(player, block);
+  } catch (err) {
+    logger.error("ported_features: command block form failed", err);
+    return false;
+  }
+}
+
+export async function showCommandBlockConfirm(player, block) {
+  if (!isPlayer(player)) return false;
+
+  const view = commandConfirmDefinition();
+  try {
+    const response = await new ActionFormData()
+      .title(view.headers[0])
+      .body(view.headers[1])
+      .button(view.confirmButton)
+      .show(player);
+    if (!response.canceled && response.selection === 0) {
+      try { player.sendMessage("§7Integrity sequence requested."); } catch {}
+    }
+    return true;
+  } catch (err) {
+    logger.error("ported_features: command confirm form failed", err);
     return false;
   }
 }
@@ -431,6 +526,21 @@ function consumeSelectedItem(player, expectedTypeId) {
     inventory.setItem(slot, item);
   } catch (err) {
     logger.error("ported_features: failed to consume placed painting", err);
+  }
+}
+
+function commandBlockHasInitiator(block) {
+  try {
+    if (!block) return false;
+    const location = block.location;
+    const below = block.dimension.getBlock({
+      x: Math.floor(location.x),
+      y: Math.floor(location.y) - 1,
+      z: Math.floor(location.z),
+    });
+    return below?.typeId === "thebrokenscript:initiator";
+  } catch {
+    return false;
   }
 }
 

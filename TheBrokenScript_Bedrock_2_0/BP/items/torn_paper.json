@@ -11,7 +11,8 @@
       "minecraft:icon": "torn_paper",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.torn_paper"
-      }
+      },
+      "thebrokenscript:torn_paper_use": {}
     }
   }
 }
