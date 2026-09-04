@@ -527,11 +527,12 @@
       "bedrock_files": [
         "TheBrokenScript_Bedrock_2_0/BP/entities/integrity_phase_1.json",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
-        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase1_terrain_model.js"
       ],
       "status": "in_progress",
       "parity": "approximation",
-      "notes": "Chunk 49 starts Phase 1 through the supported command-block confirmation path, including the source intro gate, Chord roster, and source invulnerability predicate. Native crawl animation/no-AI state, terrain corruption, and later Arena phase transfer remain adapted or deferred."
+      "notes": "Chunk 49 starts Phase 1 through the supported command-block confirmation path, including the source intro gate, Chord roster, and source invulnerability predicate. Chunk 50 adds the source radius-100 terrain queue, 30% shuffled candidates, 20-tick replacement cadence, and protected command-block rule. Native crawl animation/no-AI state, ChunkCarver generation, and later Arena phase transfer remain adapted or deferred."
     },
     {
       "source_id": "entity.integrity_phase_2",
@@ -4966,7 +4967,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "Chunks 48–49 preserve the source forms, validation order, codeApplied transition, and the supported Arena-start handoff."
+      "notes": "Chunks 48–50 preserve the source forms, validation order, codeApplied transition, supported Arena-start handoff, and Phase 1 terrain-corruption continuation."
     },
     {
       "source_id": "block.command_block_giver",
@@ -6491,7 +6492,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "The Java block-entity GUI path is represented by the supported Bedrock block component/forms; the confirmation now reaches the source-backed Arena start adapter."
+      "notes": "The Java block-entity GUI path is represented by the supported Bedrock block component/forms; the confirmation reaches the source-backed Arena start and Phase 1 terrain adapter."
     },
     {
       "source_id": "block_entity.exit",
@@ -10325,11 +10326,12 @@
       "bedrock_files": [
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_start_model.js",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
-        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase1_terrain_model.js"
       ],
       "status": "in_progress",
       "parity": "approximation",
-      "notes": "Chunk 49 preserves the Phase 1 intro delay, Chord spawn count/radius, and source invulnerability gate. The remaining Java goal/animation and terrain queue mechanisms are not yet complete."
+      "notes": "Chunk 49 preserves the Phase 1 intro delay, Chord spawn count/radius, and source invulnerability gate. Chunk 50 adds the source terrain queue and 20-tick replacement cadence; Java goal/animation and ChunkCarver mechanisms remain incomplete."
     },
     {
       "source_id": "code.api/entity/ai/integrity/phase2",
@@ -10390,11 +10392,12 @@
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_start_model.js",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
-        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase1_terrain_model.js"
       ],
       "status": "in_progress",
       "parity": "approximation",
-      "notes": "Chunk 49 adds the CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start handoff: bounded center selection, 150-block participant capture, 40+60 tick staging, Phase 1 entity spawn, 1080-tick intro, Chords, and source invulnerability. Phase 2/3 transfer and Java-only packets remain deferred."
+      "notes": "Chunks 49–50 add the CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start handoff, bounded center/roster/timing/intro/Chord gating, and the Phase 1 terrain queue/tick replacement adapter. Phase 2/3 transfer and Java-only packets remain deferred."
     },
     {
       "source_id": "code.boss/jimmy",
@@ -11000,11 +11003,12 @@
       "bedrock_files": [
         "TheBrokenScript_Bedrock_2_0/BP/entities/integrity_phase_1.json",
         "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
-        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js"
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/boss/boss_controller.js",
+        "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_phase1_terrain_model.js"
       ],
       "status": "in_progress",
       "parity": "approximation",
-      "notes": "Phase 1 now has a source-backed startup adapter with no-gravity entity setup, intro suppression, Chord spawn, and Chord-gated damage protection; full Java AI/terrain/render state remains incomplete."
+      "notes": "Phase 1 has a source-backed startup adapter with no-gravity entity setup, intro suppression, Chord spawn, Chord-gated damage protection, and the radius-100 terrain queue/tick replacement adapter; full Java AI/ChunkCarver/render state remains incomplete."
     },
     {
       "source_id": "code.entity/integrity/phase2",

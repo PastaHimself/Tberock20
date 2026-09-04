@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 49 — Integrity Arena startup handoff)
+Last updated: 2026-09-04 (Chunk 50 — Integrity Phase 1 terrain corruption)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,10 +12,9 @@ Last updated: 2026-09-04 (Chunk 49 — Integrity Arena startup handoff)
 
 ## Current chunk
 
-**Chunk 49 complete — Integrity Arena startup handoff**
+**Chunk 50 complete — Integrity Phase 1 terrain corruption**
 
-Chunk 49 continues the command-block path into the recovered CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start sequence. The pure startup model preserves the source [-20,20) rejection loop for accepted [-10,10] offsets, surface-height center selection, same-dimension 150-block participant capture, empty-arena restart branch, 40-tick pre-start step, 60-tick nested start delay, midnight/custom-sky values, and the 1080-tick Phase 1 intro. The Bedrock runtime now reaches the handoff from the confirmation Yes action, stages the supported Phase 1 entity, records an arena token and participant roster, spawns the source-sized Chord roster after the intro, and blocks Phase 1 damage while the source Chord predicate remains invulnerable. Global time and dynamic-property sky markers are explicit Bedrock approximations; custom crawl/no-AI animation, terrain corruption, Phase 2/3 transfer, and native packet/camera presentation remain deferred. Focused TDD startup regressions and static syntax checks pass; GitHub Actions [run 33877651299](https://github.com/PastaHimself/tbs-2.0/actions/runs/33877651299) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable.
-
+Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1 terrainQueue/tick and TerrainCorrupterKt contract. The pure model preserves the inclusive radius-100 disk, random.nextFloat() <= 0.3 queue inclusion, shuffled candidates, initial 20-tick cadence, one-position-per-20-ticks replacement, four source terrain_corrupt_replace IDs, and corrupted-command-block exclusion. The Bedrock runtime owns the live queue, resolves each X/Z through Dimension.getTopmostBlock, and applies replacements with Block.setType from the existing boss scheduler. ChunkCarver generation, exact registry-backed tag lookup, Phase 2/3 transfer, native packet/camera presentation, and Bedrock world/runtime smoke testing remain explicitly adapted or deferred. Focused terrain regressions pass; GitHub Actions [run 33882851212](https://github.com/PastaHimself/tbs-2.0/actions/runs/33882851212) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
 ## Chunk state
 | Chunk | State |
 |---|---|
@@ -74,6 +73,7 @@ Chunk 49 continues the command-block path into the recovered CorruptedCommandBlo
 | 47 FakeDisconnect screen adapter | **completed** (source heading/title/body/action, active event-to-form wiring, focused regressions, GitHub Actions run 33838618989) |
 | 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
 | 49 Integrity Arena startup handoff | **completed** |
+| 50 Integrity Phase 1 terrain corruption | **completed** |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -318,7 +318,12 @@ Chunk 48 ports the source TornPaperItem/TornPaperScreen path and the CommandBloc
 
 ## Chunk 49 — Integrity Arena startup handoff
 
-Chunk 49 continues the command-block path into the recovered CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start sequence. The pure startup model preserves the source [-20,20) rejection loop for accepted [-10,10] offsets, surface-height center selection, same-dimension 150-block participant capture, empty-arena restart branch, 40-tick pre-start step, 60-tick nested start delay, midnight/custom-sky values, and the 1080-tick Phase 1 intro. The Bedrock runtime now reaches the handoff from the confirmation Yes action, stages the supported Phase 1 entity, records an arena token and participant roster, spawns the source-sized Chord roster after the intro, and blocks Phase 1 damage while the source Chord predicate remains invulnerable. Global time and dynamic-property sky markers are explicit Bedrock approximations; custom crawl/no-AI animation, terrain corruption, Phase 2/3 transfer, and native packet/camera presentation remain deferred. Focused TDD startup regressions and static syntax checks pass; repository CI validation is pending; Bedrock world/runtime smoke testing remains unavailable.
+Chunk 49 continues the command-block path into the recovered CorruptedCommandBlockConfirmPacket → Arena.Companion.start → Phase1.start sequence. The pure startup model preserves the source [-20,20) rejection loop for accepted [-10,10] offsets, surface-height center selection, same-dimension 150-block participant capture, empty-arena restart branch, 40-tick pre-start step, 60-tick nested start delay, midnight/custom-sky values, and the 1080-tick Phase 1 intro. The Bedrock runtime now reaches the handoff from the confirmation Yes action, stages the supported Phase 1 entity, records an arena token and participant roster, spawns the source-sized Chord roster after the intro, and blocks Phase 1 damage while the source Chord predicate remains invulnerable. Global time and dynamic-property sky markers are explicit Bedrock approximations; custom crawl/no-AI animation, terrain corruption, Phase 2/3 transfer, and native packet/camera presentation remain deferred. Focused TDD startup regressions and static syntax checks pass; GitHub Actions [run 33877651299](https://github.com/PastaHimself/tbs-2.0/actions/runs/33877651299) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted. Bedrock world/runtime smoke testing remains unavailable.
 
+## Chunk 50 — Integrity Phase 1 terrain corruption
+
+Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1 terrainQueue/tick and TerrainCorrupterKt contract. The pure model preserves the inclusive radius-100 disk, random.nextFloat() <= 0.3 queue inclusion, shuffled candidates, initial 20-tick cadence, one-position-per-20-ticks replacement, four source terrain_corrupt_replace IDs, and corrupted-command-block exclusion. The Bedrock runtime owns the live queue, resolves each X/Z through Dimension.getTopmostBlock, and applies replacements with Block.setType from the existing boss scheduler. ChunkCarver generation, exact registry-backed tag lookup, Phase 2/3 transfer, native packet/camera presentation, and Bedrock world/runtime smoke testing remain explicitly adapted or deferred. Focused terrain regressions pass; GitHub Actions [run 33882851212](https://github.com/PastaHimself/tbs-2.0/actions/runs/33882851212) passed all substantive validation, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
+## Files changed (Chunk 50)
+BP/scripts/systems/integrity_phase1_terrain_model.js · BP/scripts/systems/integrity_arena_runtime.js · BP/scripts/entities/boss/boss_controller.js · tests/integrity_phase1_terrain_model.test.mjs · docs/chunks/CHUNK_50_{SPEC,REPORT}.md · SOURCE_MAP.json · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · PORT_PROGRESS.md
 ## Next chunk
 **Next source boundary.** Remaining desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.
