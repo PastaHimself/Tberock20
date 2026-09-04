@@ -44,6 +44,6 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 
 26. **FakeDisconnect uses a supported form reader** — Chunk 47 preserves Connection Lost, Timed out, and Back to title screen while routing the event to ActionFormData. The Java panorama, Esc lockout, forced 100-tick close, sound/music state sequence, actual client disconnect, and live Bedrock-world smoke testing remain adapted (A-031).
 
-27. **TornPaper and command-block screens use supported forms** — Chunk 48 preserves Torn Paper coordinates, Input Code/Execute, both warning lines, Yes, invalid-code/dimension/position order, command-block giver behavior, and the codeApplied transition. Java textures/rotation, EditBox glitch animation, packet/window-title behavior, native Integrity Arena kickoff, and live Bedrock-world smoke testing remain adapted (A-032).
+27. **TornPaper and command-block screens use supported forms** — Chunk 48 preserves Torn Paper coordinates, Input Code/Execute, both warning lines, Yes, invalid-code/dimension/position order, command-block giver behavior, and the codeApplied transition. Java textures/rotation, EditBox glitch animation, packet/window-title behavior, per-player fake time/custom sky, and later Arena transfer/camera packets remain adapted; Chunk 49 now ships the supported Phase 1 Arena-start handoff and live Bedrock-world smoke testing remains unavailable (A-032).
 
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.
