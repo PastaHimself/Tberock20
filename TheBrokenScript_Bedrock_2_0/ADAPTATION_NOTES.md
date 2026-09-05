@@ -354,3 +354,17 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Bedrock has no direct equivalent for Java canBeReplaced or entityCanStandOnFace(UP); only air is accepted as replaceable clearance and loaded non-air, non-liquid blocks are treated as standable. The static void dimension cannot execute the Java Stage2Generator custom room/template/occupancy algorithm, so the adapter does not claim exact Stage 2 terrain generation and cannot spawn against unloaded structure blocks. Java RNG/finalized-spawn hooks and native packet/camera/music presentation remain adapted.
 
 6. **Parity class**: VALIDATED_APPROXIMATION; focused model regressions, syntax/type/pack validators, and repository CI cover the supported adapter while Bedrock world/runtime smoke testing remains unavailable.
+
+## A-037 — Integrity Phase 2 Stage 2 runtime scaffold
+
+1. **Source feature**: Stage2Generator.buildSurface/genFloor/genBarrier and the Stage2Util spawn-scan dependency on generated floor blocks.
+
+2. **Source behavior**: The Java custom generator operates over a 10×10 chunk cell, places room/template families at Y 200/207/217/233 and field surface content at Y 252, adds floor layers at Y 199 and 160 with barrier blocks below, and adds barrier planes at Y 251, 232, 216, 206, 102, and 271. Stage2Util then searches those generated blocks using the floor-specific spawn Y values.
+
+3. **Source evidence**: decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java; decompiled/net/thebrokenscript/boss/integrity/Stage2Util.java; TheBrokenScript_Bedrock_2_0/STAGE2_GENERATOR_AUDIT.json.
+
+4. **Bedrock adaptation**: integrity_arena_model.js exposes stage2GeneratorRuntimeVolumes, preserving the source cell origin, seven Stage2Floor support surfaces at spawnY minus one, and the six recovered barrier layers. integrity_arena_runtime.js calls stable Dimension.fillBlocks with BlockVolume and an air-only BlockFilter, caches completed cell keys per arena, and leaves incomplete fills retryable after an unloaded-chunk error.
+
+5. **Player-visible difference**: This is a gameplay scaffold, not exact world generation. The 64 Java NBT templates, room variant selection, mirror/rotation, occupancy set, border wall material, tunnel placement, and nowhere Voronoi holes remain unavailable until the source templates are converted to validated Bedrock structure assets and a placement path is selected. Live Bedrock-world smoke testing remains unavailable.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the supported spawn-surface seam; Java custom-generator/template parity remains BLOCKED.
