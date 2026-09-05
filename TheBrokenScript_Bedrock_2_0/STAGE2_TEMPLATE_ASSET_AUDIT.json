@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
+  "runtimeStatus": "partial_validated_asset_catalog",
+  "validatedAssetCount": 1,
+  "deferredTemplateCount": 63,
+  "automaticRuntimePlacement": false,
+  "placementStrategy": {
+    "api": "Dimension.runCommand",
+    "commandShape": "structure load <namespace:stage2/template> <x y z> <rotation> none false true",
+    "includeEntities": false,
+    "includeBlocks": true,
+    "supportedMirror": "none",
+    "deferredJavaMirror": "front_back",
+    "reason": "Only the no-mirror path has a validated Bedrock asset and an API-verified command seam; the Phase 2 scheduler does not load templates automatically."
+  },
+  "templates": [
+    {
+      "id": "stone1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone1.nbt",
+      "sourceBlobSha": "2d8e2d3da26e07f4921764f9f6937cc46f359060",
+      "javaDataVersion": 3955,
+      "javaSize": [16, 1, 16],
+      "javaPaletteNames": ["minecraft:stone"],
+      "javaBlockCount": 256,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone1.mcstructure",
+      "bedrockSize": [16, 1, 16],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": ["minecraft:stone"],
+      "bedrockNonAirPrimaryBlocks": 256,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_default"
+    }
+  ]
+}

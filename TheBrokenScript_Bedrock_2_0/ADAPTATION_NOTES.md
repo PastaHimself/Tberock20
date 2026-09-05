@@ -368,3 +368,18 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: This is a gameplay scaffold, not exact world generation. The 64 Java NBT templates, room variant selection, mirror/rotation, occupancy set, border wall material, tunnel placement, and nowhere Voronoi holes remain unavailable until the source templates are converted to validated Bedrock structure assets and a placement path is selected. Live Bedrock-world smoke testing remains unavailable.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the supported spawn-surface seam; Java custom-generator/template parity remains BLOCKED.
+
+
+## A-038 — Integrity Phase 2 Stage 2 template asset foundation
+
+1. **Source feature**: Stage2Generator.genRoom/placeStructure default Floor 4 template selection and the source `stone1.nbt` structure asset.
+
+2. **Source behavior**: Every generated interior room selects `stone1` as the default Floor 4 layer at Y 233 after the Java variant logic resolves; the audited source template is 16×1×16, contains 256 `minecraft:stone` blocks, and has no entities or block entities. Java still applies per-room RNG, optional FRONT_BACK mirroring, rotation, bounding-box clipping, and occupancy tracking around the template placement.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java`; `TheBrokenScript_Bedrock_2_0/STAGE2_GENERATOR_AUDIT.json`; source blob `2d8e2d3da26e07f4921764f9f6937cc46f359060`.
+
+4. **Bedrock adaptation**: `BP/structures/thebrokenscript/stage2/stone1.mcstructure` is a validated little-endian Bedrock structure with format version 1, one primary layer, one `minecraft:stone` palette entry, and 256 non-air blocks. `integrity_arena_model.js` exposes `stage2TemplatePlacementPlan` and `stage2TemplateLoadCommand`; `integrity_arena_runtime.js` exposes `runStage2TemplateLoad` using stable `Dimension.runCommand`. The helper emits `structure load ... 90_degrees none false true`-style commands for validated no-mirror assets and is not automatically called by the Phase 2 tick.
+
+5. **Player-visible difference**: Only 1/64 source templates is currently available. The remaining palettes, entities, block entities, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, and nowhere/border generation remain deferred. Live Bedrock-world smoke testing remains unavailable.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone1 asset and command seam; Java Stage2Generator parity remains BLOCKED.
