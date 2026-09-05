@@ -492,6 +492,7 @@ export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
       ]),
       blockCount: 2304,
       entityCount: 0,
+      blockEntityCount: 0,
       placementY: 233,
       generationRole: "floor4_rare_variant_1",
       status: "validated_asset",
