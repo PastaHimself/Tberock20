@@ -383,3 +383,17 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Only 1/64 source templates is currently available. The remaining palettes, entities, block entities, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, and nowhere/border generation remain deferred. Live Bedrock-world smoke testing remains unavailable.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone1 asset and command seam; Java Stage2Generator parity remains BLOCKED.
+
+## A-039 — Integrity Phase 2 Stage 2 rare stone2 template asset
+
+1. **Source feature**: `Stage2Generator.genRoom` Floor 4 rare-variant branch and source `stone2.nbt`.
+
+2. **Source behavior**: The Java generator keeps `stone1` by default; when the Floor 4 special/rare branch selects variant 1 it places `stone2` at Y 233. The audited source is DataVersion 3955, size 16×9×16, with 2304 block cells, 256 `minecraft:stone` cells, 50 `thebrokenscript:block_is_missing_id` cells, 1998 `minecraft:air` cells, and no entities or block entities.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java`; `STAGE2_GENERATOR_AUDIT.json`; source blob `a61aabc79ec6bd18a3bdb325367d65055a108e9d`.
+
+4. **Bedrock adaptation**: `BP/structures/thebrokenscript/stage2/stone2.mcstructure` is a validated format-version 1 little-endian Bedrock structure with one primary layer and palette [`minecraft:stone`, `thebrokenscript:block_is_missing_id`, `minecraft:air`]; model metadata exposes `stage2TemplatePlacementPlan("stone2", ...)`, and the existing opt-in `Dimension.runCommand` seam emits the no-mirror load command. It is not automatically loaded by Phase 2.
+
+5. **Player-visible difference**: Only 2/64 source templates are validated; source room RNG/occupancy, Java FRONT_BACK mirror mapping, automatic template placement, remaining custom/entity/block-entity palettes, exact world generation, and live Bedrock smoke remain deferred.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the stone2 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
