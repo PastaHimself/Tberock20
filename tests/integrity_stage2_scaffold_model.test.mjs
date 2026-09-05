@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import * as integrityModel from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
@@ -27,4 +28,21 @@ test("Stage 2 runtime scaffold plan preserves the source cell and boundary layer
       { kind: "barrier", y: 271, blockId: "minecraft:barrier" },
     ],
   });
+});
+
+test("Stage 2 runtime uses the supported fill API and retries incomplete cells", async () => {
+  const runtime = await readFile(
+    new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js", import.meta.url),
+    "utf8",
+  );
+
+  for (const fragment of [
+    "BlockVolume",
+    "dimension.fillBlocks(",
+    'includeTypes: ["minecraft:air"]',
+    "stage2ScaffoldCells",
+    "ensureStage2RuntimeScaffold",
+  ]) {
+    assert.ok(runtime.includes(fragment), "runtime is missing " + fragment);
+  }
 });
