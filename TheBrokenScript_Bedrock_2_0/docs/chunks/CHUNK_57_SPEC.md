@@ -30,7 +30,7 @@ Validate the next isolated Stage 2 source template boundary: Floor 4 rare varian
 2. The model returns exact `stone3` metadata and maps Floor 4 rare variant 2 to `stone3`.
 3. The structure asset starts as a valid Bedrock compound, contains the expected dimensions/door-state strings, and is accepted by the repository structure validator.
 4. The placement plan and command seam preserve the validated no-mirror boundary.
-5. Repository syntax, beta type-check, validators, regression tests, diagnostics, Creator Tools validation, packaging, and upload steps pass.
+5. Repository syntax, beta type-check, validators, regression tests, diagnostics, Creator Tools validation, and packaging pass; artifact upload quota failures remain non-blocking.
 
 ## API evidence
 

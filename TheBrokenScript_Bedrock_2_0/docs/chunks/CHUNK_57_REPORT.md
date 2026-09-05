@@ -19,7 +19,7 @@ Chunk 57 validates Floor 4 rare variant 2 (`stone3`) as a Bedrock structure asse
 - Red commit: `97d891ed3f9bfede0b268e3c1383daa19191594a`; the focused stone3 test was added first and the first workflow run failed at the JavaScript regression step because the model/asset contract was absent.
 - Implementation commit: `74558bc8613bd7ccc417398570e27b370ef0fb89`; its CI run exposed the empty `structure.block_indices` NBT field name and the missing existing `stone2.blockEntityCount` metadata field.
 - Corrective commit: `0f5d3b0d12a978da166ed7d720b5a10ec8aa907e`.
-- GitHub Actions [run 33966171389](https://github.com/PastaHimself/tbs-2.0/actions/runs/33966171389) passed structure validation, JavaScript syntax, beta type-check, 233 JavaScript tests with 0 failures, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Creator Tools validation (0 blockers, 582 warnings, 25 known false-positive blockers ignored), `.mcaddon` packaging, and both upload steps.
+- GitHub Actions [run 33966171389](https://github.com/PastaHimself/tbs-2.0/actions/runs/33966171389) passed structure validation, JavaScript syntax, beta type-check, 233 JavaScript tests with 0 failures, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Creator Tools validation (0 blockers, 582 warnings, 25 known false-positive blockers ignored), `.mcaddon` packaging; artifact-upload attempts logged the exhausted repository quota and remained non-blocking.
 - BedrockWikiMcp and Microsoft Learn verification completed for the Bedrock door block states and `/structure load` syntax. No new Script API was added.
 - Bedrock world/runtime smoke testing remains unavailable locally.
 
