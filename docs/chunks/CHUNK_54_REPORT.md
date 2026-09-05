@@ -23,7 +23,7 @@ This is intentionally not an exact Java world-generation port. The source audit 
 - Changed model/runtime JavaScript: node --check passed.
 - Exact installed Bedrock beta type-check: passed.
 - BedrockWikiMcp and Microsoft Learn verified BlockVolume, Dimension.fillBlocks, BlockFillOptions.blockFilter, and BlockFilter.includeTypes.
-- GitHub Actions validation is pending for this branch.
+- GitHub Actions [run 33954460117](https://github.com/PastaHimself/tbs-2.0/actions/runs/33954460117) passed the repository validator, beta type-check, JavaScript regressions, Blockception diagnostics, Creator Tools validation, and packaging gates; artifact uploads were blocked by the repository artifact-storage quota.
 - Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Remaining task
