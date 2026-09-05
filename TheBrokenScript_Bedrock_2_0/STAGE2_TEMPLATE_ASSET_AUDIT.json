@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
   "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 1,
-  "deferredTemplateCount": 63,
+  "validatedAssetCount": 2,
+  "deferredTemplateCount": 62,
   "automaticRuntimePlacement": false,
   "placementStrategy": {
     "api": "Dimension.runCommand",
@@ -20,20 +20,68 @@
       "sourcePath": "source_extracted/data/thebrokenscript/structure/stone1.nbt",
       "sourceBlobSha": "2d8e2d3da26e07f4921764f9f6937cc46f359060",
       "javaDataVersion": 3955,
-      "javaSize": [16, 1, 16],
-      "javaPaletteNames": ["minecraft:stone"],
+      "javaSize": [
+        16,
+        1,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:stone"
+      ],
       "javaBlockCount": 256,
       "javaEntityCount": 0,
       "javaBlockEntityCount": 0,
       "bedrockPath": "BP/structures/thebrokenscript/stage2/stone1.mcstructure",
-      "bedrockSize": [16, 1, 16],
+      "bedrockSize": [
+        16,
+        1,
+        16
+      ],
       "bedrockFormatVersion": 1,
-      "bedrockBlockPalette": ["minecraft:stone"],
+      "bedrockBlockPalette": [
+        "minecraft:stone"
+      ],
       "bedrockNonAirPrimaryBlocks": 256,
       "bedrockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_default"
+    },
+    {
+      "id": "stone2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone2.nbt",
+      "sourceBlobSha": "a61aabc79ec6bd18a3bdb325367d65055a108e9d",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone2.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 306,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_1"
     }
   ]
 }
