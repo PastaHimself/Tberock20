@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-05 (Chunk 54 — Integrity Phase 2 Stage 2 runtime scaffold)
+Last updated: 2026-09-05 (Chunk 55 — Integrity Phase 2 Stage 2 template asset foundation)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-05 (Chunk 54 — Integrity Phase 2 Stage 2 runtime scaffol
 
 ## Current chunk
 
-**Chunk 54 implementation complete — Integrity Phase 2 Stage 2 runtime scaffold**
+**Chunk 55 implementation in review — Integrity Phase 2 Stage 2 template asset foundation**
 
-Chunk 54 adds the portable portion of the recovered Stage2Generator boundary. The pure model derives the existing 10×10 chunk cell and plans air-only support pads at the seven source spawn surfaces plus the recovered horizontal barrier layers. The runtime materializes each cell with the stable Dimension.fillBlocks + BlockVolume seam, filters fills to existing air, tracks completed cells per arena, and retries safely when a chunk is not currently writable. The Java room/template selection, 64 NBT template placements, occupancy set, borders, tunnels, and nowhere generation remain explicitly unavailable; GitHub Actions [run 33954460117](https://github.com/PastaHimself/tbs-2.0/actions/runs/33954460117) passed all substantive validator, beta type-check, JavaScript regression, Blockception diagnostics, Creator Tools validation, and packaging gates; artifact uploads remain best-effort because the repository artifact-storage quota is exhausted; Bedrock world/runtime smoke validation remains unavailable.
+Chunk 55 converts the first audited Stage 2 Java template, the default Floor 4 `stone1` room layer, into a validated Bedrock `.mcstructure` asset. The pure model records the source blob, 16×1×16 palette, Y 233 placement band, and a supported no-mirror structure-load plan. The runtime exposes an explicit `Dimension.runCommand` seam for that validated asset but does not automatically load it from the one-tick Phase 2 scheduler while 63 Java templates remain unconverted. Java Stage2Generator variant selection, FRONT_BACK mirroring, occupancy, borders, tunnels, and nowhere generation remain explicit follow-up work; the focused checks and asset validator pass, while GitHub Actions validation is pending for this branch.
 
 ## Chunk state
 | Chunk | State |
@@ -76,7 +76,8 @@ Chunk 54 adds the portable portion of the recovered Stage2Generator boundary. Th
 | 49 Integrity Arena startup handoff | **completed** |
 | 50 Integrity Phase 1 terrain corruption | **completed** |\n| 51 Integrity Phase 2 transfer | **completed** |\n| 52 Integrity Phase 2 recovery routing | **completed** (PR #26 merged externally) |
 | 53 Integrity Phase 2 Stage 2 runtime | **completed** (PR #27 merged externally) |
-| 54 Integrity Phase 2 Stage 2 runtime scaffold | **in review** |
+| 54 Integrity Phase 2 Stage 2 runtime scaffold | **completed** (PR #28 merged externally) |
+| 55 Integrity Phase 2 Stage 2 template asset foundation | **in review** |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -345,5 +346,12 @@ Chunk 54 adds a source-backed, air-only runtime scaffold for the Stage 2 cell. I
 ## Files changed (Chunk 54)
 BP/scripts/systems/integrity_arena_model.js · BP/scripts/systems/integrity_arena_runtime.js · tests/integrity_stage2_scaffold_model.test.mjs · docs/chunks/CHUNK_54_{SPEC,REPORT}.md · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md
 
+## Chunk 55 — Integrity Phase 2 Stage 2 template asset foundation
+
+Chunk 55 converts the source-audited `stone1` template into a Bedrock `.mcstructure` with the exact source dimensions, palette, block count, and Floor 4 placement Y. `stage2TemplatePlacementPlan` preserves the Java source identity and transform inputs; `stage2TemplateLoadCommand` emits a no-animation, no-entity `structure load` command only for the validated no-mirror path. `runStage2TemplateLoad` is an explicit runtime seam and is intentionally not called by the automatic Phase 2 scheduler until the remaining template families and Java transform mapping are validated.
+
+## Files changed (Chunk 55)
+BP/scripts/systems/integrity_arena_model.js · BP/scripts/systems/integrity_arena_runtime.js · BP/structures/thebrokenscript/stage2/stone1.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tests/integrity_stage2_template_asset_model.test.mjs · docs/chunks/CHUNK_55_{SPEC,REPORT}.md · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md
+
 ## Next chunk
-**Next source boundary.** Convert the 64 Java Stage 2 NBT templates into validated Bedrock structure assets and define a supported placement strategy, or continue with Java PlayerVariables/native packet-camera-music presentation. Live Bedrock-world smoke validation remains required.
+**Next source boundary.** Convert the remaining 63 Stage 2 Java NBT templates—including entity/block-entity palettes and source custom IDs—into validated Bedrock assets, then integrate deterministic room/surface/tunnel placement with occupancy and Java RNG/mirror semantics. Java PlayerVariables/native packet-camera-music presentation and live Bedrock-world smoke validation remain later boundaries.
