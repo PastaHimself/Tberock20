@@ -41,3 +41,39 @@ test("validated stone1 is present as a Bedrock mcstructure asset", async () => {
   assert.equal(asset[0], 10);
   assert.ok(asset.length > 100);
 });
+
+test("validated asset produces a safe direct structure-load command", () => {
+  const plan = integrityModel.stage2TemplatePlacementPlan(
+    "stone1",
+    { x: 32, y: 233, z: -48 },
+    { rotation: 90, mirror: "none" },
+  );
+
+  assert.equal(typeof integrityModel.stage2TemplateLoadCommand, "function");
+  assert.equal(
+    integrityModel.stage2TemplateLoadCommand(plan),
+    "structure load thebrokenscript:stage2/stone1 32 233 -48 90_degrees none false true",
+  );
+  assert.equal(
+    integrityModel.stage2TemplateLoadCommand({ ...plan, mirror: "front_back" }),
+    null,
+  );
+});
+
+test("runtime exposes an explicit, non-automatic structure load seam", async () => {
+  const runtime = await readFile(
+    new URL(
+      "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+
+  for (const fragment of [
+    "runStage2TemplateLoad",
+    "dimension.runCommand(command)",
+    "stage2TemplateLoadCommand",
+  ]) {
+    assert.ok(runtime.includes(fragment), "runtime is missing " + fragment);
+  }
+});
