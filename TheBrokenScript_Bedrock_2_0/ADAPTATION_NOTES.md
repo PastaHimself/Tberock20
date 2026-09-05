@@ -426,3 +426,17 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Only 4/64 source templates are currently available. The remaining palettes, block entities, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, automatic template placement, and live Bedrock smoke testing remain deferred. Java custom `Stage2Generator` chunk generation remains an explicit engine boundary.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone4 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
+
+## A-042 — Integrity Phase 2 Stage 2 rare stone5 template asset
+
+1. **Source feature**: `Stage2Generator.genRoom` Floor 4 rare-variant branch and source `stone5.nbt`.
+
+2. **Source behavior**: The Java generator keeps `stone1` by default; when the Floor 4 special/rare branch selects variant 4, `stage2GeneratorFloor4Structure(true, true, 4)` resolves to `stone5` at Y 233. The audited source is DataVersion 3955, size 16×3×16, with 768 block cells: 256 `minecraft:stone`, 489 `minecraft:air`, and 23 `thebrokenscript:it` cells. It has no entities or block entities.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/boss/integrity/Phase2.java`; `decompiled/net/thebrokenscript/boss/integrity/Phase2Floors.java`; `decompiled/net/thebrokenscript/boss/integrity/Stage2Floor.java`; `decompiled/net/thebrokenscript/boss/integrity/Stage2Util.java`; `decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java`; `STAGE2_GENERATOR_AUDIT.json`; source blob `e770282817af7b4fbb94d76151c925bbbf351b94`.
+
+4. **Bedrock adaptation**: `BP/structures/thebrokenscript/stage2/stone5.mcstructure` is a validated format-version 1 little-endian Bedrock structure with size 16×3×16, two block-index layers, palette [`minecraft:stone`, `thebrokenscript:block_is_missing_id`, `minecraft:air`], 512 non-air primary cells, and no entities. The source custom block has no exact Bedrock definition in the pack, so it uses the existing explicit missing-source-block surrogate established by stone2. `stage2TemplatePlacementPlan` records `includeEntities=false`; the existing opt-in `Dimension.runCommand` seam emits `structure load thebrokenscript:stage2/stone5 ... none false true`. The asset is not automatically loaded by the Phase 2 scheduler.
+
+5. **Player-visible difference**: Only 5/64 source templates are currently available. The remaining palettes, entities, block entities, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, automatic template placement, and live Bedrock smoke testing remain deferred. Java custom `Stage2Generator` chunk generation remains an explicit engine boundary.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone5 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
