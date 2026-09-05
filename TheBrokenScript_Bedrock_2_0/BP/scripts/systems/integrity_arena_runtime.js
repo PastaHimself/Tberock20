@@ -11,9 +11,20 @@ import {
 } from "./integrity_arena_start_model.js";
 import {
   PHASE1_SOURCE,
+  STAGE2_DIMENSION_ID,
+  STAGE2_FLOORS,
+  STAGE2_UTIL_SOURCE,
   phase2IntegrityFloorFromY,
+  phase2IntegrityPlacementStep,
   phase2LowestPlayer,
   phase2NeedsRecoveryTeleport,
+  phase2Stage2FloorStep,
+  stage2FindSafeSpawnY,
+  stage2IntegrityPositionAllowed,
+  stage2IsSpecialSpawnBand,
+  stage2IsValidFloor,
+  stage2SpawnAttemptCoordinates,
+  stage2SpawnCellChunksFromPlayerBlock,
 } from "./integrity_arena_model.js";
 import {
   PHASE1_TERRAIN_SOURCE,
@@ -35,6 +46,13 @@ const PHASE2_FIX_POS_PROPERTY = "tbs:integrity_phase2_fix_pos";
 
 const PHASE1_ENTITY_ID = /** @type {any} */ ("thebrokenscript:integrity_phase_1");
 const CHORD_ENTITY_ID = /** @type {any} */ ("thebrokenscript:chord");
+const TETHER_ENTITY_ID = /** @type {any} */ ("thebrokenscript:tether");
+const INTEGRITY_PHASE2_ENTITY_ID = /** @type {any} */ ("thebrokenscript:integrity_phase_2");
+
+// stage2.json uses a void generator with bounds 0..384. Java's dynamic
+// Stage2Generator remains unavailable; these bounds only clamp entity queries.
+const STAGE2_BUILD_MIN_Y = 0;
+const STAGE2_BUILD_MAX_Y_EXCLUSIVE = 384;
 
 let tokenCounter = 0;
 let activeArena = null;
@@ -89,7 +107,12 @@ export function startIntegrityArena(player, block) {
     chords: [],
     phase2TransferScheduled: false,
     phase2LowestPlayerId: null,
+    // phase2TargetFloor is the current lowest player's target; the existing
+    // phase2IntegrityFloor is only advanced after a successful teleport.
+    phase2TargetFloor: null,
     phase2IntegrityFloor: null,
+    spawnedFloors: new Set(),
+    integrityEntity: null,
     chordsSpawned: false,
     terrainQueue: [],
     ticksSinceLastCorrupt: PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt,
@@ -200,8 +223,264 @@ function tickPhaseTwo(arena) {
     })),
   );
   arena.phase2LowestPlayerId = lowest?.id ?? null;
-  const floor = lowest ? phase2IntegrityFloorFromY(lowest.y) : null;
-  arena.phase2IntegrityFloor = floor?.id ?? null;
+  const targetFloor = lowest ? phase2IntegrityFloorFromY(lowest.y) : null;
+  arena.phase2TargetFloor = targetFloor?.id ?? null;
+
+  const floorPlan = phase2Stage2FloorStep({
+    phase: "phase2",
+    spawnedFloorIds: [...(arena.spawnedFloors ?? [])],
+    integrityPresent: isValidEntity(arena.integrityEntity),
+    players: participants.map((player) => ({
+      id: player.id,
+      dimensionId: player.dimension?.id,
+      y: playerBlockY(player),
+      loadingPhase2: isPhaseTwoLoading(player),
+    })),
+  });
+  arena.spawnedFloors = new Set(floorPlan.nextSpawnedFloorIds);
+  for (const spawn of floorPlan.floorsToSpawn) {
+    const player = participants.find((candidate) => candidate.id === spawn.playerId);
+    if (!player) continue;
+    spawnStage2FloorEntities(arena, spawn.floor, player);
+  }
+
+  const lowestPlayer = lowest
+    ? participants.find((player) => player.id === lowest.id)
+    : undefined;
+  if (lowestPlayer) placeIntegrityForLowestPlayer(arena, lowestPlayer);
+}
+
+/**
+ * Bedrock has no direct Block.canBeReplaced or
+ * BlockState.entityCanStandOnFace(UP) equivalent. The adapter is deliberately
+ * conservative for clearance (air only) and rejects liquids; all other
+ * non-air, non-liquid blocks are treated as standable.
+ */
+function stage2BlockAt(dimension, location) {
+  try {
+    return dimension.getBlock(location);
+  } catch {
+    return undefined;
+  }
+}
+
+function stage2IsAir(dimension, location) {
+  const block = stage2BlockAt(dimension, location);
+  if (!block) return false;
+  try { return block.isAir === true; } catch { return false; }
+}
+
+function stage2IsValidFloorAt(dimension, x, y, z) {
+  const block = stage2BlockAt(dimension, { x, y, z });
+  if (!block) return false;
+  try {
+    const isAir = block.isAir === true;
+    const isLiquid = block.isLiquid === true;
+    return stage2IsValidFloor({
+      isAir,
+      canBeReplaced: isAir || isLiquid,
+      canStandOnUp: !isAir && !isLiquid,
+      isBarrier: block.typeId === "minecraft:barrier",
+      isMud: block.typeId === "minecraft:mud",
+    });
+  } catch {
+    return false;
+  }
+}
+
+function stage2FloorById(id) {
+  return STAGE2_FLOORS.find((floor) => floor.id === id) ?? null;
+}
+
+function findSafeStage2BlockPosition(dimension, player, floor, entityId) {
+  if (!dimension || !player || !floor) return null;
+  const cells = stage2SpawnCellChunksFromPlayerBlock(blockPosition(player));
+  const isTether = entityId === TETHER_ENTITY_ID;
+  const specialBand = stage2IsSpecialSpawnBand(floor.spawnY);
+
+  for (let attempt = 0; attempt < STAGE2_UTIL_SOURCE.defaultMaxAttempts; attempt += 1) {
+    const candidate = stage2SpawnAttemptCoordinates({
+      cellChunk: cells.cellChunk,
+      centerChunk: cells.centerChunk,
+      spawnY: floor.spawnY,
+      minBlockDistance: floor.boundsMinDistance,
+      isTether,
+      // Match Stage2Util's conditional RNG calls: non-Tether and special
+      // bands do not consume a random X-chunk offset.
+      randomChunkXOffset: specialBand || !isTether ? 0 : randomInt(0, 10),
+      randomChunkZOffset: randomInt(0, 10),
+      randomBlockXOffset: specialBand ? 0 : randomInt(0, 16),
+      randomBlockZOffset: randomInt(0, 16),
+    });
+    if (!candidate) continue;
+
+    const safeY = stage2FindSafeSpawnY({
+      spawnY: floor.spawnY,
+      maxScanDepth: STAGE2_UTIL_SOURCE.defaultScanDepth,
+      isValidFloor: (candidateY) => stage2IsValidFloorAt(
+        dimension,
+        candidate.blockX,
+        candidateY,
+        candidate.blockZ,
+      ),
+      areAboveBlocksReplaceable: (candidateY, offset) => stage2IsAir(
+        dimension,
+        {
+          x: candidate.blockX,
+          y: candidateY + offset,
+          z: candidate.blockZ,
+        },
+      ),
+    });
+    if (safeY !== null) {
+      return { x: candidate.blockX, y: safeY, z: candidate.blockZ };
+    }
+  }
+  return null;
+}
+
+function stage2FloorEntityLocation(blockPositionValue) {
+  return {
+    x: blockPositionValue.x + 0.5,
+    y: blockPositionValue.y,
+    z: blockPositionValue.z + 0.5,
+  };
+}
+
+function stage2BlockCenter(blockPositionValue) {
+  return {
+    x: blockPositionValue.x + 0.5,
+    y: blockPositionValue.y + 0.5,
+    z: blockPositionValue.z + 0.5,
+  };
+}
+
+function spawnStage2FloorEntities(arena, floor, player) {
+  if (!player || player.dimension?.id !== STAGE2_DIMENSION_ID) return;
+  const dimension = getDimension(STAGE2_DIMENSION_ID);
+  if (!dimension) return;
+
+  for (const spawnType of floor.sourceSpawns) {
+    const entityId = spawnType === "TETHER"
+      ? TETHER_ENTITY_ID
+      : spawnType === "INTEGRITY_PHASE_2"
+        ? INTEGRITY_PHASE2_ENTITY_ID
+        : null;
+    if (!entityId) continue;
+
+    const position = findSafeStage2BlockPosition(dimension, player, floor, entityId);
+    if (!position) continue;
+    try {
+      const entity = dimension.spawnEntity(entityId, stage2FloorEntityLocation(position));
+      setEntityProperty(entity, ARENA_TOKEN_PROPERTY, arena.token);
+      setEntityProperty(entity, "tbs:integrity_phase2_floor", floor.id);
+      if (entityId === INTEGRITY_PHASE2_ENTITY_ID) {
+        arena.integrityEntity = entity;
+      }
+    } catch (err) {
+      logger.error("integrity_arena: Stage 2 floor entity spawn failed", err);
+    }
+  }
+}
+
+function hasTetherOnFloor(dimension, player, floor) {
+  if (!dimension || !player || !floor) return false;
+  const { cellChunk } = stage2SpawnCellChunksFromPlayerBlock(blockPosition(player));
+  const minY = Math.max(floor.yMin, STAGE2_BUILD_MIN_Y);
+  const maxY = Math.min(floor.yMax + 1, STAGE2_BUILD_MAX_Y_EXCLUSIVE);
+  if (maxY <= minY) return false;
+
+  try {
+    const entities = dimension.getEntities({
+      type: TETHER_ENTITY_ID,
+      location: {
+        x: cellChunk.x * 16,
+        y: minY,
+        z: cellChunk.z * 16,
+      },
+      volume: {
+        x: STAGE2_UTIL_SOURCE.cellSizeBlocks,
+        y: maxY - minY,
+        z: STAGE2_UTIL_SOURCE.cellSizeBlocks,
+      },
+    });
+    return entities.some(isLivingEntity);
+  } catch (err) {
+    logger.warn("integrity_arena: Stage 2 Tether floor query failed");
+    return false;
+  }
+}
+
+function hasTetherNear(dimension, position) {
+  if (!dimension || !position) return false;
+  try {
+    const entities = dimension.getEntities({
+      type: TETHER_ENTITY_ID,
+      location: stage2BlockCenter(position),
+      maxDistance: STAGE2_UTIL_SOURCE.integrityTetherExclusionRadius,
+    });
+    return entities.some(isValidEntity);
+  } catch (err) {
+    logger.warn("integrity_arena: Stage 2 Tether proximity query failed");
+    return false;
+  }
+}
+
+function findRandomIntegrityStage2BlockPosition(dimension, player, floor) {
+  for (let attempt = 0; attempt < STAGE2_UTIL_SOURCE.defaultMaxAttempts; attempt += 1) {
+    const position = findSafeStage2BlockPosition(
+      dimension,
+      player,
+      floor,
+      INTEGRITY_PHASE2_ENTITY_ID,
+    );
+    if (!position) continue;
+    if (!stage2IntegrityPositionAllowed(hasTetherNear(dimension, position))) {
+      continue;
+    }
+    return position;
+  }
+  return null;
+}
+
+function placeIntegrityForLowestPlayer(arena, player) {
+  const integrity = arena.integrityEntity;
+  if (!isValidEntity(integrity)) return;
+
+  const playerY = playerBlockY(player);
+  let plan = phase2IntegrityPlacementStep({
+    playerY,
+    integrityPresent: true,
+    currentFloorId: arena.phase2IntegrityFloor,
+  });
+  if (plan.action === "none" || plan.action === "already_placed") return;
+
+  const dimension = getDimension(STAGE2_DIMENSION_ID);
+  if (!dimension) return;
+
+  if (plan.action === "wait_for_tether") {
+    const targetFloor = stage2FloorById(plan.stage2FloorId);
+    if (!hasTetherOnFloor(dimension, player, targetFloor)) return;
+    plan = phase2IntegrityPlacementStep({
+      playerY,
+      integrityPresent: true,
+      currentFloorId: arena.phase2IntegrityFloor,
+      hasTetherOnTargetFloor: true,
+    });
+  }
+  if (plan.action !== "place") return;
+
+  const position = findRandomIntegrityStage2BlockPosition(dimension, player, stage2FloorById(plan.stage2FloorId));
+  if (!position) return;
+  try {
+    integrity.teleport(stage2BlockCenter(position), {
+      checkForBlocks: false,
+      keepVelocity: false,
+    });
+    arena.phase2IntegrityFloor = plan.targetFloorId;
+  } catch (err) {
+    logger.error("integrity_arena: Integrity Phase 2 placement failed", err);
+  }
 }
 
 function beginPhaseTwoTransfer(arena) {
@@ -220,6 +499,10 @@ function beginPhaseTwoTransfer(arena) {
   arena.chordsSpawned = false;
   arena.terrainQueue = [];
   arena.ticksSinceLastCorrupt = PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt;
+  arena.spawnedFloors = new Set();
+  arena.integrityEntity = null;
+  arena.phase2TargetFloor = null;
+  arena.phase2IntegrityFloor = null;
 
   const participants = playersFor(arena.participantIds);
   for (const player of participants) {
@@ -324,6 +607,14 @@ function spawnPhaseOneChords(arena) {
     } catch (err) {
       logger.error("integrity_arena: Chord spawn failed", err);
     }
+  }
+}
+
+function isPhaseTwoLoading(player) {
+  try {
+    return player?.getDynamicProperty?.(PHASE2_LOADING_PROPERTY) === true;
+  } catch {
+    return false;
   }
 }
 

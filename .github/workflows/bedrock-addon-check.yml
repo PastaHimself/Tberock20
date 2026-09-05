@@ -176,6 +176,9 @@ jobs:
       - name: Upload The Broken Script 2.0 .mcaddon
         id: upload_addon
         if: success()
+        # Artifact storage quota can be exhausted after all substantive checks pass.
+        # Keep this upload best-effort so quota does not report a code failure.
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: The_Broken_Script_2_0-mcaddon
@@ -185,6 +188,9 @@ jobs:
 
       - name: Upload validation reports
         if: always()
+        # Reports remain available when quota permits, but quota exhaustion is not
+        # a substantive validation failure.
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: addon-validation-reports

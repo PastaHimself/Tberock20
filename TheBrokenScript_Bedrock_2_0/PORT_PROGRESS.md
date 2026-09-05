@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-04 (Chunk 52 — Integrity Phase 2 recovery routing)
+Last updated: 2026-09-04 (Chunk 53 — Integrity Phase 2 Stage 2 runtime)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-04 (Chunk 52 — Integrity Phase 2 recovery routing)
 
 ## Current chunk
 
-**Chunk 52 complete — Integrity Phase 2 recovery routing**
+**Chunk 53 complete — Integrity Phase 2 Stage 2 runtime**
 
-Chunk 52 activates the existing Integrity Arena tick from the ported-features scheduler after Phase 2 transfer. The pure model preserves the recovered inclusive recovery band Y 190–198, the lowest-player threshold Y > 103 with first-player tie behavior, and Phase2Floors mapping including Floor 6 → FLOOR_6_INTEG. The Bedrock runtime now performs the source recovery teleport to (85.5, 162.5, 87.5), records the lowest eligible participant and mapped Phase 2 floor, and keeps Stage2 entity spawning, tether-gated Integrity placement, and Java Stage2Generator placement explicitly deferred. Focused recovery regressions pass; GitHub Actions [run 33888992135](https://github.com/PastaHimself/tbs-2.0/actions/runs/33888992135) passed all substantive validator, type-check, regression, diagnostics, Creator Tools, and packaging gates; artifact uploads failed because the repository artifact storage quota is exhausted.
+Chunk 53 extends the active Phase 2 tick into Stage 2 floor runtime. The pure model preserves Floor 1–7 boundaries, one-shot per-floor spawning, the Floor 7 Integrity prerequisite, tether-gated placement, and the Phase2Floors Floor 6 → FLOOR_6_INTEG mapping. The Bedrock runtime scans loaded Stage2 blocks conservatively, spawns Tether/Integrity entities from the source floor roster, queries the target cell for live Tethers, and advances Integrity only after a safe position is found. Java Stage2Generator custom chunk generation remains explicitly blocked by the void dimension adapter; focused local validation is green and GitHub Actions [run 33906338464](https://github.com/PastaHimself/tbs-2.0/actions/runs/33906338464) passed all substantive validator, beta type-check, JavaScript, Blockception, Creator Tools, and packaging gates. Artifact uploads remain best-effort and logged the known repository quota message without failing the job.
 
 ## Chunk state
 | Chunk | State |
@@ -75,6 +75,7 @@ Chunk 52 activates the existing Integrity Arena tick from the ported-features sc
 | 48 TornPaper and command-block screen adapters | **completed** (source coordinates/text/actions, item/block form wiring, validation branches, focused regressions, GitHub Actions run 33866668553; artifact upload quota noted) |
 | 49 Integrity Arena startup handoff | **completed** |
 | 50 Integrity Phase 1 terrain corruption | **completed** |\n| 51 Integrity Phase 2 transfer | **completed** |\n| 52 Integrity Phase 2 recovery routing | **completed** (PR #26 pending merge) |
+| 53 Integrity Phase 2 Stage 2 runtime | **completed** (PR #27 pending review) |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -328,7 +329,12 @@ Chunk 50 continues the Integrity Arena startup handoff into the recovered Phase1
 
 Chunk 51 continues the Integrity Arena lifecycle after Phase 1 Chords are defeated. The recovered Arena/Phase2 contract is represented by a pure transfer model and runtime handoff: Phase 1 completes only after the source Chord roster has spawned and no tracked Chords remain living; the Phase 1 entity, Chords, terrain queue, and custom sky state are cleaned up; participants retain their roster and transfer after the source 20-tick delay to the existing thebrokenscript:stage2 dimension through Entity.teleport's dimension option. Stage 2 floor generation, tether-gated floor movement, Phase 2 entity lifecycle, and native packet/camera/music presentation remain separate or deferred boundaries. Focused transfer regressions pass; repository CI validation is running; Bedrock world/runtime smoke testing remains unavailable.
 
-## Files changed (Chunk 50)
-BP/scripts/systems/integrity_phase1_terrain_model.js · BP/scripts/systems/integrity_arena_runtime.js · BP/scripts/entities/boss/boss_controller.js · tests/integrity_phase1_terrain_model.test.mjs · docs/chunks/CHUNK_50_{SPEC,REPORT}.md · SOURCE_MAP.json · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · PORT_PROGRESS.md
+## Chunk 53 — Integrity Phase 2 Stage 2 runtime
+
+Chunk 53 ports the remaining portable Integrity Phase 2 Stage 2 runtime after the Chunk 52 recovery handoff. The pure contract makes Stage2Floor entry idempotent, keeps the Stage2 dimension and loading gates, preserves the Floor 1–7 bands and Floor 7 Integrity prerequisite, and separates target-floor state from successfully placed Integrity state. The runtime uses the source cell/center/random-distance math, scans candidate blocks through supported Bedrock block reads, spawns the source Tether and Integrity Phase 2 entities, detects live Tethers in the target floor volume, rejects Integrity candidates near Tethers, and teleports Integrity to the selected floor. The Java Stage2Generator remains an explicit custom-generator boundary; stage2.json is still a void dimension and does not claim exact room/template generation. GitHub artifact uploads are now best-effort so exhausted repository quota does not fail substantive validation; PR #27 run 33906338464 passed all substantive gates.
+
+## Files changed (Chunk 53)
+BP/scripts/systems/integrity_arena_model.js · BP/scripts/systems/integrity_arena_runtime.js · tests/integrity_phase2_stage2_model.test.mjs · .github/workflows/bedrock-addon-check.yml · docs/chunks/CHUNK_53_{SPEC,REPORT}.md · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md
+
 ## Next chunk
-**Next source boundary.** Remaining desktop/window/packet hooks, exact Java custom presentation, and uninspected source inventory categories remain explicitly ledgered engine/deferred items.
+**Next source boundary.** Stage2Generator exact custom chunk generation, Java PlayerVariables/packet/camera/music presentation, and live Bedrock-world smoke validation remain the next Integrity/engine boundary.
