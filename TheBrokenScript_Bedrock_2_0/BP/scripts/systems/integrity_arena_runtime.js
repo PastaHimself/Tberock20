@@ -1,4 +1,4 @@
-import { system, world } from "@minecraft/server";
+import { BlockVolume, system, world } from "@minecraft/server";
 import * as bossHooks from "./boss_hooks.js";
 import { logger } from "../core/logging.js";
 import {
@@ -25,6 +25,7 @@ import {
   stage2IsValidFloor,
   stage2SpawnAttemptCoordinates,
   stage2SpawnCellChunksFromPlayerBlock,
+  stage2GeneratorRuntimeVolumes,
 } from "./integrity_arena_model.js";
 import {
   PHASE1_TERRAIN_SOURCE,
@@ -112,6 +113,7 @@ export function startIntegrityArena(player, block) {
     phase2TargetFloor: null,
     phase2IntegrityFloor: null,
     spawnedFloors: new Set(),
+    stage2ScaffoldCells: new Set(),
     integrityEntity: null,
     chordsSpawned: false,
     terrainQueue: [],
@@ -288,6 +290,36 @@ function stage2IsValidFloorAt(dimension, x, y, z) {
   }
 }
 
+function ensureStage2RuntimeScaffold(arena, player) {
+  if (!arena || !player) return false;
+  const dimension = getDimension(STAGE2_DIMENSION_ID);
+  if (!dimension) return false;
+
+  const plan = stage2GeneratorRuntimeVolumes(blockPosition(player));
+  arena.stage2ScaffoldCells ??= new Set();
+  if (arena.stage2ScaffoldCells.has(plan.cellKey)) return true;
+
+  const maxX = plan.origin.x + STAGE2_UTIL_SOURCE.cellSizeBlocks - 1;
+  const maxZ = plan.origin.z + STAGE2_UTIL_SOURCE.cellSizeBlocks - 1;
+  try {
+    for (const volume of plan.volumes) {
+      dimension.fillBlocks(
+        new BlockVolume(
+          { x: plan.origin.x, y: volume.y, z: plan.origin.z },
+          { x: maxX, y: volume.y, z: maxZ },
+        ),
+        volume.blockId,
+        { blockFilter: { includeTypes: ["minecraft:air"] } },
+      );
+    }
+    arena.stage2ScaffoldCells.add(plan.cellKey);
+    return true;
+  } catch {
+    logger.warn("integrity_arena: Stage 2 runtime scaffold fill deferred");
+    return false;
+  }
+}
+
 function stage2FloorById(id) {
   return STAGE2_FLOORS.find((floor) => floor.id === id) ?? null;
 }
@@ -359,6 +391,7 @@ function spawnStage2FloorEntities(arena, floor, player) {
   if (!player || player.dimension?.id !== STAGE2_DIMENSION_ID) return;
   const dimension = getDimension(STAGE2_DIMENSION_ID);
   if (!dimension) return;
+  if (!ensureStage2RuntimeScaffold(arena, player)) return;
 
   for (const spawnType of floor.sourceSpawns) {
     const entityId = spawnType === "TETHER"
@@ -500,6 +533,7 @@ function beginPhaseTwoTransfer(arena) {
   arena.terrainQueue = [];
   arena.ticksSinceLastCorrupt = PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt;
   arena.spawnedFloors = new Set();
+  arena.stage2ScaffoldCells = new Set();
   arena.integrityEntity = null;
   arena.phase2TargetFloor = null;
   arena.phase2IntegrityFloor = null;

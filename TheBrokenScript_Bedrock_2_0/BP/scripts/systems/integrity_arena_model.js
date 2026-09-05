@@ -416,6 +416,49 @@ export function stage2GeneratorDecorationPlan(chunkWorldX, chunkWorldZ) {
   };
 }
 
+// Bedrock runtime scaffold contract. These air-only support pads preserve the
+// Stage2Util spawn scan when the Java custom ChunkGenerator cannot run. They are
+// deliberately not a claim that the 64 Java NBT templates were reproduced.
+export const STAGE2_RUNTIME_SCAFFOLD_SOURCE = Object.freeze({
+  supportLayers: Object.freeze([
+    Object.freeze({ floorId: "FLOOR_1", y: 253, blockId: "minecraft:grass_block" }),
+    Object.freeze({ floorId: "FLOOR_2", y: 234, blockId: "minecraft:stone" }),
+    Object.freeze({ floorId: "FLOOR_3", y: 218, blockId: "minecraft:oak_planks" }),
+    Object.freeze({ floorId: "FLOOR_4", y: 208, blockId: "minecraft:cobblestone" }),
+    Object.freeze({ floorId: "FLOOR_5", y: 202, blockId: "minecraft:cobblestone" }),
+    Object.freeze({ floorId: "FLOOR_6", y: 162, blockId: "minecraft:stone" }),
+    Object.freeze({ floorId: "FLOOR_7", y: 103, blockId: "minecraft:bedrock" }),
+  ]),
+  barrierLayers: STAGE2_GENERATOR_SOURCE.barrierLayers,
+  fillOnlyAir: true,
+});
+
+export function stage2GeneratorRuntimeVolumes(playerBlock) {
+  const { cellChunk } = stage2SpawnCellChunksFromPlayerBlock(playerBlock);
+  const origin = {
+    x: cellChunk.x * 16,
+    z: cellChunk.z * 16,
+  };
+  const volumes = [
+    ...STAGE2_RUNTIME_SCAFFOLD_SOURCE.supportLayers.map((layer) => ({
+      kind: "floor",
+      floorId: layer.floorId,
+      y: layer.y,
+      blockId: layer.blockId,
+    })),
+    ...STAGE2_RUNTIME_SCAFFOLD_SOURCE.barrierLayers.map((y) => ({
+      kind: "barrier",
+      y,
+      blockId: "minecraft:barrier",
+    })),
+  ];
+  return {
+    cellKey: `${cellChunk.x}:${cellChunk.z}`,
+    origin,
+    volumes,
+  };
+}
+
 // Stage2Util.java spawn math. These helpers accept plain data so the exact Java
 // rules can be tested without importing @minecraft/server.
 export const STAGE2_UTIL_SOURCE = Object.freeze({

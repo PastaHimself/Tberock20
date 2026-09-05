@@ -6,6 +6,11 @@ Component-level detail lives in `SOURCE_MAP.json` (912 rows, one per `SOURCE_INV
 Status values: `uninspected` → `analyzed` → `in_progress` → `ported` → `validated`, or `blocked`.
 Parity: `full` / `high` / `approximation` / `unsupported` / `unknown`.
 
+
+## Chunk 54 update
+
+The Stage 2 boss adapter now has a portable runtime scaffold: stage2GeneratorRuntimeVolumes preserves the source 10×10 chunk cell and floor/barrier Y layers, while ensureStage2RuntimeScaffold applies air-only Dimension.fillBlocks operations once per cell before floor entities spawn. This improves the supported Phase 2 floor lifecycle in the void dimension without changing the explicit status of Java room/template/occupancy generation.
+
 | Source Feature | Source Evidence | Bedrock Implementation | Status | Parity | Validation | Notes |
 |---|---|---|---|---|---|---|
 | Mod bootstrap/lifecycle | TheBrokenScript.class, TBSEngineControl | Chunk 01 bootstrap.ts → src/main.js + core modules | ported (foundation) | full (infrastructure) | validate_pack.ps1 PASS; runtime test pending Minecraft install | |
