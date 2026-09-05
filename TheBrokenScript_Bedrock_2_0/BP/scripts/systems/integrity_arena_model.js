@@ -459,6 +459,68 @@ export function stage2GeneratorRuntimeVolumes(playerBlock) {
   };
 }
 
+// Stage2Generator.java template catalog. The Java generator always places
+// the default Floor 4 stone1 template at Y 233. This is the first source
+// template converted to a validated Bedrock .mcstructure asset; the remaining
+// 63 templates stay explicitly deferred until their palettes/entities/block
+// entities are converted and smoke-tested.
+export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
+  namespace: "thebrokenscript",
+  assetPath: "stage2",
+  supportedTemplates: Object.freeze({
+    stone1: Object.freeze({
+      sourcePath: "source_extracted/data/thebrokenscript/structure/stone1.nbt",
+      sourceBlobSha: "2d8e2d3da26e07f4921764f9f6937cc46f359060",
+      size: Object.freeze([16, 1, 16]),
+      paletteNames: Object.freeze(["minecraft:stone"]),
+      blockCount: 256,
+      entityCount: 0,
+      blockEntityCount: 0,
+      placementY: 233,
+      generationRole: "floor4_default",
+      status: "validated_asset",
+    }),
+  }),
+  deferredTemplateCount: 63,
+});
+
+function normalizeStage2TemplateRotation(rotation) {
+  const normalized = Number(rotation ?? 0);
+  if (![0, 90, 180, 270].includes(normalized)) {
+    throw new RangeError("Stage 2 template rotation must be 0, 90, 180, or 270 degrees");
+  }
+  return normalized;
+}
+
+function normalizeStage2TemplateMirror(mirror) {
+  const normalized = String(mirror ?? "none");
+  if (!["none", "front_back"].includes(normalized)) {
+    throw new RangeError("Stage 2 template mirror must be none or front_back");
+  }
+  return normalized;
+}
+
+export function stage2TemplatePlacementPlan(templateId, origin, options = {}) {
+  const template = STAGE2_TEMPLATE_SOURCE.supportedTemplates[templateId];
+  if (!template) return null;
+  const rotation = normalizeStage2TemplateRotation(options.rotation);
+  const mirror = normalizeStage2TemplateMirror(options.mirror);
+  return {
+    templateId,
+    sourcePath: template.sourcePath,
+    sourceBlobSha: template.sourceBlobSha,
+    assetId: `${STAGE2_TEMPLATE_SOURCE.namespace}:${STAGE2_TEMPLATE_SOURCE.assetPath}/${templateId}`,
+    origin: { x: origin.x, y: origin.y, z: origin.z },
+    size: [...template.size],
+    placementY: template.placementY,
+    rotation,
+    mirror,
+    includeEntities: template.entityCount > 0,
+    includeBlocks: true,
+    status: template.status,
+  };
+}
+
 // Stage2Util.java spawn math. These helpers accept plain data so the exact Java
 // rules can be tested without importing @minecraft/server.
 export const STAGE2_UTIL_SOURCE = Object.freeze({
