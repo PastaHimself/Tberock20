@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
   "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 4,
-  "deferredTemplateCount": 60,
+  "validatedAssetCount": 5,
+  "deferredTemplateCount": 59,
   "automaticRuntimePlacement": false,
   "placementStrategy": {
     "api": "Dimension.runCommand",
@@ -172,6 +172,42 @@
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_3"
+    },
+    {
+      "id": "stone5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone5.nbt",
+      "sourceBlobSha": "e770282817af7b4fbb94d76151c925bbbf351b94",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        3,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id"
+      ],
+      "javaBlockCount": 768,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone5.mcstructure",
+      "bedrockSize": [
+        16,
+        3,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 512,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_4"
     }
   ]
 }
