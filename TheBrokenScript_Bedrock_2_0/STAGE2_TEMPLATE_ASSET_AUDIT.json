@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
   "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 2,
-  "deferredTemplateCount": 62,
+  "validatedAssetCount": 3,
+  "deferredTemplateCount": 61,
   "automaticRuntimePlacement": false,
   "placementStrategy": {
     "api": "Dimension.runCommand",
@@ -82,6 +82,43 @@
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_1"
+    },
+    {
+      "id": "stone3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone3.nbt",
+      "sourceBlobSha": "45381d498f95f558e296b8aae40bb9183f13032e",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        4,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:oak_door",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 1024,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone3.mcstructure",
+      "bedrockSize": [
+        16,
+        4,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "minecraft:air",
+        "minecraft:oak_door"
+      ],
+      "bedrockPaletteStateCount": 14,
+      "bedrockNonAirPrimaryBlocks": 300,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_2"
     }
   ]
 }

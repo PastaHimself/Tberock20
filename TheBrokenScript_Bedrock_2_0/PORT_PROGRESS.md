@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-05 (Chunk 56 — Integrity Phase 2 Stage 2 stone2 template asset)
+Last updated: 2026-09-05 (Chunk 57 — Integrity Phase 2 Stage 2 stone3 template asset)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-05 (Chunk 56 — Integrity Phase 2 Stage 2 stone2 template
 
 ## Current chunk
 
-**Chunk 56 implementation in review — Integrity Phase 2 Stage 2 stone2 template asset**
+**Chunk 57 ready for review — Integrity Phase 2 Stage 2 stone3 template asset**
 
-Chunk 56 validates the first rare Floor 4 Stage 2 variant, `stone2`, as a Bedrock `.mcstructure` asset. The source contract is 16×9×16 with 2304 cells: 256 `minecraft:stone`, 50 `thebrokenscript:block_is_missing_id`, and 1998 `minecraft:air`, with no entities or block entities. The pure plan now exposes the source-backed variant and no-mirror structure-load command; validated assets are 2/64 and 62 remain deferred. Java Stage2Generator room RNG, FRONT_BACK mirroring, occupancy, borders/tunnels/nowhere generation, automatic scheduler placement, and live Bedrock smoke testing remain explicit boundaries; GitHub Actions [run 33962536401](https://github.com/PastaHimself/tbs-2.0/actions/runs/33962536401) passed all substantive validation, beta type-check, JavaScript syntax/regression tests, Blockception diagnostics, Creator Tools validation, and packaging; both artifact uploads remained best-effort and logged the exhausted repository quota.
+Chunk 57 validates the second rare Floor 4 Stage 2 variant, `stone3`, as a Bedrock `.mcstructure` asset. The source contract is 16×4×16 with 1024 cells: 256 `minecraft:stone`, 724 `minecraft:air`, and 44 oak-door cells across 12 door states; there are no entities or block entities. The pure plan maps rare variant 2 to `stone3`; validated assets are 3/64 and 61 remain deferred. The implementation preserves the Floor 1–7 bands and Floor 6 → `FLOOR_6_INTEG` mapping already ported in the Integrity Phase 2 runtime, while Java Stage2Generator room RNG, FRONT_BACK mirroring, occupancy, borders/tunnels/nowhere generation, automatic scheduler placement, and live Bedrock smoke testing remain explicit boundaries. GitHub Actions [run 33966171389](https://github.com/PastaHimself/tbs-2.0/actions/runs/33966171389) passed all substantive validation, 233 JavaScript tests, beta type-check, Blockception diagnostics, Creator Tools validation, packaging; artifact-upload attempts logged the exhausted repository quota but remained non-blocking.
 
 ## Chunk state
 | Chunk | State |
@@ -78,7 +78,8 @@ Chunk 56 validates the first rare Floor 4 Stage 2 variant, `stone2`, as a Bedroc
 | 53 Integrity Phase 2 Stage 2 runtime | **completed** (PR #27 merged externally) |
 | 54 Integrity Phase 2 Stage 2 runtime scaffold | **completed** (PR #28 merged externally) |
 | 55 Integrity Phase 2 Stage 2 template asset foundation | **completed** |
-| 56 Integrity Phase 2 Stage 2 stone2 template asset | **in review** |
+| 56 Integrity Phase 2 Stage 2 stone2 template asset | **completed** |
+| 57 Integrity Phase 2 Stage 2 stone3 template asset | **ready for review** |
 
 No code or pack-validation blocker is open; the GitHub artifact upload quota failure is recorded in VALIDATION_LOG.md. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -361,5 +362,16 @@ Chunk 56 validates the first rare Floor 4 `stone2` variant against the audited J
 ## Files changed (Chunk 56)
 BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/stage2/stone2.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tests/integrity_stage2_stone2_asset_model.test.mjs · docs/chunks/CHUNK_56_{SPEC,REPORT}.md · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md
 
+## Chunk 57 — Integrity Phase 2 Stage 2 stone3 template asset
+
+Chunk 57 validates Floor 4 rare variant 2, `stone3`, against the audited Java structure source and adds its Bedrock `.mcstructure` asset. The source contract is Java DataVersion 3955, size 16×4×16 with 1024 cells: 256 `minecraft:stone`, 724 `minecraft:air`, and 44 oak-door cells represented by 12 door block states (14 palette states including stone and air); entities and block entities are absent. The asset uses Bedrock format 1, two block-index layers, Bedrock door states, and the source ZYX cell order. Java `powered=false` has no Bedrock oak-door state and is intentionally omitted.
+
+The catalog is now 3/64 validated assets with 61 deferred. `stage2GeneratorFloor4Structure(true, true, 2)` maps to `stone3`, while automatic Phase 2 template loading remains disabled. The Java custom `Stage2Generator` still cannot be reproduced exactly by static Bedrock dimension JSON; room RNG, FRONT_BACK mirroring, occupancy, border/tunnel/nowhere generation, and live Bedrock smoke testing remain explicit boundaries.
+
+The first implementation CI run exposed two defects: the generated NBT used an empty field name instead of `structure.block_indices`, and the model edit dropped `stone2.blockEntityCount`. Both were corrected in `0f5d3b0d12a978da166ed7d720b5a10ec8aa907e`; GitHub Actions [run 33966171389](https://github.com/PastaHimself/tbs-2.0/actions/runs/33966171389) passed all substantive validation, 233 JavaScript tests, beta type-check, diagnostics, Creator Tools validation, packaging; artifact-upload attempts logged the exhausted repository quota but remained non-blocking.
+
+## Files changed (Chunk 57)
+BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/stage2/stone3.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tests/integrity_stage2_stone3_asset_model.test.mjs · docs/chunks/CHUNK_57_{SPEC,REPORT}.md · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md
+
 ## Next chunk
-**Next source boundary.** Convert the remaining 62 Stage 2 Java NBT templates—including entity/block-entity palettes and source custom IDs—into validated Bedrock assets, then integrate deterministic room/surface/tunnel placement with occupancy and Java RNG/mirror semantics. Java PlayerVariables/native packet-camera-music presentation and live Bedrock-world smoke validation remain later boundaries.
+**Next source boundary.** Convert the remaining 61 Stage 2 Java NBT templates—including entity/block-entity palettes and source custom IDs—into validated Bedrock assets, then integrate deterministic room/surface/tunnel placement with Java room variants, rotation/mirror semantics, occupancy, borders, tunnels, and nowhere generation. The existing portable Phase 2 floor/entity/tether contracts remain covered; Java PlayerVariables/native packet-camera-music presentation and live Bedrock-world smoke validation remain later boundaries.

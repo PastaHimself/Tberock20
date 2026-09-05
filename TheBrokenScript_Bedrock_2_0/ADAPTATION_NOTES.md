@@ -397,3 +397,17 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Only 2/64 source templates are validated; source room RNG/occupancy, Java FRONT_BACK mirror mapping, automatic template placement, remaining custom/entity/block-entity palettes, exact world generation, and live Bedrock smoke remain deferred.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the stone2 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
+
+## A-040 — Integrity Phase 2 Stage 2 rare stone3 template asset
+
+1. **Source feature**: `Stage2Generator.genRoom` Floor 4 rare-variant branch and source `stone3.nbt`.
+
+2. **Source behavior**: The Java generator keeps `stone1` by default; when the Floor 4 special/rare branch selects variant 2, `stage2GeneratorFloor4Structure(true, true, 2)` resolves to `stone3` at Y 233. The audited source is DataVersion 3955, size 16×4×16, with 1024 block cells: 256 `minecraft:stone`, 724 `minecraft:air`, and 44 oak-door cells across 12 door block states. It has no entities or block entities. Java door states include facing, left/right hinge, lower/upper half, powered false, and open false.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/boss/integrity/Stage2Floor.java`; `decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java`; `STAGE2_GENERATOR_AUDIT.json`; source blob `45381d498f95f558e296b8aae40bb9183f13032e`.
+
+4. **Bedrock adaptation**: `BP/structures/thebrokenscript/stage2/stone3.mcstructure` is a validated format-version 1 little-endian Bedrock structure with size 16×4×16, two block-index layers, Bedrock palette [`minecraft:stone`, `minecraft:air`, `minecraft:oak_door`], and 14 palette states. The door states use `minecraft:cardinal_direction`, `door_hinge_bit`, `open_bit`, and `upper_block_bit`; the Java powered flag is omitted because Bedrock oak doors expose no powered state. `stage2TemplatePlacementPlan` and the existing opt-in `Dimension.runCommand` seam preserve the no-mirror load boundary. It is not automatically loaded by Phase 2.
+
+5. **Player-visible difference**: Only 3/64 source templates are currently available. The remaining palettes, entities, block entities, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, automatic template placement, and live Bedrock smoke testing remain deferred.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone3 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
