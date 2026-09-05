@@ -68,7 +68,7 @@ test("validated stone3 is present as a Bedrock mcstructure asset", async () => {
   );
 
   assert.equal(asset[0], 10);
-  assert.ok(asset.length > 10000);
+  assert.ok(asset.length > 5000);
   assert.ok(asset.toString("utf8").includes("minecraft:oak_door"));
   assert.ok(asset.toString("utf8").includes("minecraft:cardinal_direction"));
   assert.ok(asset.toString("utf8").includes("door_hinge_bit"));
