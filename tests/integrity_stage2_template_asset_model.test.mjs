@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import * as integrityModel from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
@@ -27,4 +28,16 @@ test("Stage 2 placement plan exposes the validated Java stone1 template", () => 
       status: "validated_asset",
     },
   );
+});
+
+test("validated stone1 is present as a Bedrock mcstructure asset", async () => {
+  const asset = await readFile(
+    new URL(
+      "../TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2/stone1.mcstructure",
+      import.meta.url,
+    ),
+  );
+
+  assert.equal(asset[0], 10);
+  assert.ok(asset.length > 100);
 });
