@@ -521,6 +521,25 @@ export function stage2TemplatePlacementPlan(templateId, origin, options = {}) {
   };
 }
 
+export function stage2TemplateLoadCommand(plan) {
+  if (!plan || plan.status !== "validated_asset" || plan.mirror !== "none") return null;
+  if (!Number.isFinite(plan.origin?.x) || !Number.isFinite(plan.origin?.y) || !Number.isFinite(plan.origin?.z)) {
+    return null;
+  }
+  return [
+    "structure",
+    "load",
+    plan.assetId,
+    plan.origin.x,
+    plan.origin.y,
+    plan.origin.z,
+    `${plan.rotation}_degrees`,
+    "none",
+    String(plan.includeEntities),
+    String(plan.includeBlocks),
+  ].join(" ");
+}
+
 // Stage2Util.java spawn math. These helpers accept plain data so the exact Java
 // rules can be tested without importing @minecraft/server.
 export const STAGE2_UTIL_SOURCE = Object.freeze({

@@ -26,6 +26,7 @@ import {
   stage2SpawnAttemptCoordinates,
   stage2SpawnCellChunksFromPlayerBlock,
   stage2GeneratorRuntimeVolumes,
+  stage2TemplateLoadCommand,
 } from "./integrity_arena_model.js";
 import {
   PHASE1_TERRAIN_SOURCE,
@@ -286,6 +287,22 @@ function stage2IsValidFloorAt(dimension, x, y, z) {
       isMud: block.typeId === "minecraft:mud",
     });
   } catch {
+    return false;
+  }
+}
+
+// Explicit opt-in seam for validated .mcstructure assets. The Stage 2 tick does
+// not call this automatically while the remaining Java templates are deferred.
+// Dimension.runCommand must be invoked from normal runtime execution, not a
+// restricted-execution callback; failures remain retryable for the caller.
+export function runStage2TemplateLoad(dimension, plan) {
+  const command = stage2TemplateLoadCommand(plan);
+  if (!dimension || !command || typeof dimension.runCommand !== "function") return false;
+  try {
+    dimension.runCommand(command);
+    return true;
+  } catch {
+    logger.warn("integrity_arena: Stage 2 template load deferred");
     return false;
   }
 }
