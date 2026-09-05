@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
   "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 3,
-  "deferredTemplateCount": 61,
+  "validatedAssetCount": 4,
+  "deferredTemplateCount": 60,
   "automaticRuntimePlacement": false,
   "placementStrategy": {
     "api": "Dimension.runCommand",
-    "commandShape": "structure load <namespace:stage2/template> <x y z> <rotation> none false true",
-    "includeEntities": false,
+    "commandShape": "structure load <namespace:stage2/template> <x y z> <rotation> none <includeEntities> true",
+    "includeEntities": "template-dependent",
     "includeBlocks": true,
     "supportedMirror": "none",
     "deferredJavaMirror": "front_back",
-    "reason": "Only the no-mirror path has a validated Bedrock asset and an API-verified command seam; the Phase 2 scheduler does not load templates automatically."
+    "reason": "Only the no-mirror path has a validated Bedrock asset and an API-verified command seam; the Phase 2 scheduler does not load templates automatically. Entity-bearing templates pass includeEntities=true."
   },
   "templates": [
     {
@@ -119,6 +119,59 @@
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_2"
+    },
+    {
+      "id": "stone4",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone4.nbt",
+      "sourceBlobSha": "d43f4146ebe57edb8dbfb3a2b25d8b616fb39137",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        3,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:rail",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 768,
+      "javaEntityCount": 1,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone4.mcstructure",
+      "bedrockSize": [
+        16,
+        3,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "minecraft:air",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail"
+      ],
+      "bedrockPaletteStateCount": 8,
+      "bedrockRailDirections": [
+        0,
+        1,
+        6,
+        7,
+        8,
+        9
+      ],
+      "bedrockNonAirPrimaryBlocks": 295,
+      "bedrockEntityCount": 1,
+      "bedrockEntityTypes": [
+        "minecraft:minecart"
+      ],
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_3"
     }
   ]
 }
