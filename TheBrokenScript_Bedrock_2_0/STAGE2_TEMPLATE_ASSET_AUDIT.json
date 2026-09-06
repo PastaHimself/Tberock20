@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
   "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 9,
-  "deferredTemplateCount": 55,
+  "validatedAssetCount": 10,
+  "deferredTemplateCount": 54,
   "automaticRuntimePlacement": false,
   "placementStrategy": {
     "api": "Dimension.runCommand",
@@ -348,6 +348,40 @@
       "status": "validated_asset",
       "placementY": 207,
       "generationRole": "floor2_variant_2"
+    },
+    {
+      "id": "clandimensionroom3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom3.nbt",
+      "sourceBlobSha": "37d9f55b6fc9ac6c6f41979380e398cfdbf56ead",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom3.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 855,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_3_4"
     }
   ]
 }

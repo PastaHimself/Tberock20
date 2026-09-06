@@ -487,3 +487,8 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 Java `Stage2Generator.java` selects `clandimensionroom2` for Floor 2 variant 2 and places it at Y=207. The Bedrock adaptation converts the source Java NBT into an uncompressed little-endian `.mcstructure`, catalogs its source blob SHA and geometry, and exposes the validated `structure load` seam. `Dimension.runCommand` remains the existing stable API adapter; no new `@minecraft/server` API is introduced.
 
+
+### Chunk 64 adaptation note — Floor 2 variants 3 and 4
+
+Java `Stage2Generator.java` selects `clandimensionroom3` for Floor 2 variants 3 and 4 and places the template at Y=207. The Bedrock adaptation converts the source Java NBT into an uncompressed little-endian `.mcstructure`, catalogs its source blob SHA and geometry, and exposes the validated `structure load` seam. `Dimension.runCommand` remains the existing stable API adapter; no new `@minecraft/server` API is introduced. Java custom chunk generation remains explicitly documented as an engine boundary.
+
