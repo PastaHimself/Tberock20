@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_column",
-  "render_type": "minecraft:solid",
-  "textures": {
-    "end": "thebrokenscript:block/mono_planks",
-    "side": "thebrokenscript:block/mono_library"
-  }
-}

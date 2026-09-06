@@ -1,7 +1,0 @@
-{
-  "death_message_type": "default",
-  "effects": "hurt",
-  "exhaustion": 0.1,
-  "message_id": "thebrokenscript.jimmy_stomp",
-  "scaling": "always"
-}
