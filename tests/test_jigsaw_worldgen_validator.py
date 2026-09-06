@@ -47,7 +47,7 @@ def build_valid_pack(root: Path) -> Path:
                     {
                         "element": {
                             "element_type": "minecraft:single_pool_element",
-                            "location": "thebrokenscript:shaft/shaft_root",
+                            "location": "thebrokenscript/shaft/shaft_root",
                             "processors": "thebrokenscript:shaft",
                             "projection": "rigid",
                         },
@@ -103,6 +103,18 @@ class JigsawWorldgenValidatorTests(unittest.TestCase):
             result = module.validate_pack(bp)
             self.assertTrue(result.ok, result.errors)
             self.assertEqual(4, result.files_checked)
+
+    def test_namespaced_location_is_rejected_as_an_asset_path(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bp = build_valid_pack(Path(temp))
+            path = bp / "worldgen/template_pools/shaft/root.json"
+            data = json.loads(path.read_text(encoding="utf-8"))
+            data["minecraft:template_pool"]["elements"][0]["element"]["location"] = (
+                "thebrokenscript:shaft/shaft_root"
+            )
+            write_json(path, data)
+            result = module.validate_pack(bp)
+            self.assertTrue(any("invalid asset path location" in error for error in result.errors))
 
     def test_missing_structure_template_is_reported(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, BinaryIO, Iterable
 
 IDENTIFIER_RE = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
+ASSET_PATH_RE = re.compile(r"^[a-z0-9_.-]+(?:/[a-z0-9_.-]+)*$")
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BP_ROOT = REPO_ROOT / "TheBrokenScript_Bedrock_2_0/BP"
 SINGLE_POOL_TYPES = {
@@ -154,6 +155,12 @@ def _as_identifier(value: Any) -> str | None:
     return value if isinstance(value, str) and IDENTIFIER_RE.fullmatch(value) else None
 
 
+def _is_asset_path(value: Any) -> bool:
+    if not isinstance(value, str) or not ASSET_PATH_RE.fullmatch(value):
+        return False
+    return all(part not in {".", ".."} for part in value.split("/"))
+
+
 def extract_connectors(path: Path, template_id: str) -> tuple[Connector, ...]:
     root = load_java_nbt(path)
     palette = root.get("palette")
@@ -258,10 +265,10 @@ def _load_pools(bp_root: Path, errors: list[str]) -> dict[str, PoolInfo]:
 
 
 def _template_path(bp_root: Path, template_id: str) -> Path | None:
-    if not IDENTIFIER_RE.fullmatch(template_id):
+    if not _is_asset_path(template_id):
         return None
-    namespace, relative = template_id.split(":", 1)
-    nbt = bp_root / "structures" / namespace / f"{relative}.nbt"
+    base = bp_root / "structures" / template_id
+    nbt = Path(f"{base}.nbt")
     if nbt.is_file():
         return nbt
     return None

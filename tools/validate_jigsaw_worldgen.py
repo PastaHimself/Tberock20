@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 IDENTIFIER_RE = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
+ASSET_PATH_RE = re.compile(r"^[a-z0-9_.-]+(?:/[a-z0-9_.-]+)*$")
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BP_ROOT = REPO_ROOT / "TheBrokenScript_Bedrock_2_0/BP"
 
@@ -93,10 +94,15 @@ def _component_identifier(
     return identifier
 
 
-def _structure_template_candidates(bp_root: Path, identifier: str) -> tuple[Path, Path]:
-    namespace, relative = identifier.split(":", 1)
-    base = bp_root / "structures" / namespace / relative
-    return base.with_suffix(".nbt"), base.with_suffix(".mcstructure")
+def _is_asset_path(value: Any) -> bool:
+    if not isinstance(value, str) or not ASSET_PATH_RE.fullmatch(value):
+        return False
+    return all(part not in {".", ".."} for part in value.split("/"))
+
+
+def _structure_template_candidates(bp_root: Path, asset_path: str) -> tuple[Path, Path]:
+    base = bp_root / "structures" / asset_path
+    return Path(f"{base}.nbt"), Path(f"{base}.mcstructure")
 
 
 def _validate_projection(path: Path, projection: Any, errors: list[str]) -> None:
@@ -134,8 +140,8 @@ def _validate_pool_element(
     element_type = element.get("element_type")
     if element_type in SINGLE_POOL_TYPES:
         location = element.get("location")
-        if not isinstance(location, str) or not IDENTIFIER_RE.fullmatch(location):
-            errors.append(f"{path}: {element_type} has invalid location {location!r}")
+        if not _is_asset_path(location):
+            errors.append(f"{path}: {element_type} has invalid asset path location {location!r}")
         else:
             candidates = _structure_template_candidates(bp_root, location)
             if not any(candidate.is_file() for candidate in candidates):

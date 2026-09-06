@@ -1,9 +1,9 @@
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
 
-// TBSDimensions.java port — 12 custom dimensions + nightmare set.
-// Dimension definitions are static pack content; stable Script API resolves them
-// through world.getDimension(). Preview-only dynamic-dimension creation is not used.
+// TBSDimensions.java port — logical realm IDs retained for callers.
+// Current Bedrock behavior packs can only provide overworld, nether and the_end
+// dimension data, so unsupported custom realm IDs must not be passed to the engine.
 export const ALL = [
   "clan_void", "null_torture", "the_moon", "nowhere", "limbo", "nothing",
   "protected_void", "library", "concrete", "lucid", "stage2", "void_shadow"
@@ -11,14 +11,40 @@ export const ALL = [
 
 export const NIGHTMARES = ["library", "concrete", "limbo", "nothing"];
 
+const SUPPORTED_DIMENSIONS = new Set(["overworld", "nether", "the_end"]);
 const handles = new Map();
+const warnedUnsupported = new Set();
 
-function fullId(id) {
-  return id.startsWith("thebrokenscript:") ? id : `thebrokenscript:${id}`;
+function normalizeId(id) {
+  if (typeof id !== "string") return "";
+  const value = id.trim();
+  if (value.startsWith("minecraft:")) return value.slice("minecraft:".length);
+  if (value.startsWith("thebrokenscript:")) return value.slice("thebrokenscript:".length);
+  return value;
+}
+
+function logicalId(key) {
+  return `thebrokenscript:${key}`;
 }
 
 export function get(id) {
-  const key = id.replace("thebrokenscript:", "");
+  const key = normalizeId(id);
+  if (!key) {
+    logger.error("dimensions: cannot resolve an empty dimension identifier");
+    return undefined;
+  }
+
+  if (!SUPPORTED_DIMENSIONS.has(key)) {
+    const requested = logicalId(key);
+    if (!warnedUnsupported.has(requested)) {
+      warnedUnsupported.add(requested);
+      logger.warn(
+        `dimensions: '${requested}' is unavailable; Bedrock behavior-pack dimension data only supports overworld, nether and the_end`
+      );
+    }
+    return undefined;
+  }
+
   if (handles.has(key)) {
     const handle = handles.get(key);
     try {
@@ -27,11 +53,11 @@ export function get(id) {
   }
 
   try {
-    const dimension = world.getDimension(fullId(key));
+    const dimension = world.getDimension(key);
     handles.set(key, dimension);
     return dimension;
   } catch (error) {
-    logger.error(`dimensions: cannot resolve '${key}' from static dimension definitions`, error);
+    logger.error(`dimensions: cannot resolve supported dimension '${key}'`, error);
     return undefined;
   }
 }

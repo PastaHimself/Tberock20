@@ -80,7 +80,7 @@ class ShaftSourceParityTests(unittest.TestCase):
         )["minecraft:jigsaw"]
 
         self.assertEqual("thebrokenscript:shaft_root", root_pool["description"]["identifier"])
-        self.assertEqual("thebrokenscript:shaft/shaft_root", root_pool["elements"][0]["element"]["location"])
+        self.assertEqual("thebrokenscript/shaft/shaft_root", root_pool["elements"][0]["element"]["location"])
         self.assertEqual("thebrokenscript:shaft_root", structure["start_pool"])
         self.assertEqual("thebrokenscript:shaft_root", structure["start_jigsaw_name"])
 
