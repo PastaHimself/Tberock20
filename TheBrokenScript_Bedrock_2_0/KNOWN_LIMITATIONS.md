@@ -57,3 +57,8 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 33. **The stone7 asset is a validated approximation, not automatic Stage 2 runtime parity** — Chunk 61 converts source stone7.nbt into a validated format-version 1 Bedrock structure and extends the source-backed catalog/placement command seam. The Phase 2 scheduler still does not load templates automatically; Java custom Stage2Generator RNG, occupancy, FRONT_BACK mirror behavior, and exact chunk generation remain engine boundaries. The Bedrock /structure load command uses the verified no-mirror, block-only path (includeEntities=false, includeBlocks=true).
 34. **The clandimensionroom1 asset is not automatic Stage 2 generation** — Chunk 62 converts the audited Floor 2 variant 1 source template into a validated format-version 1 Bedrock structure and extends the source-backed placement seam to Y 207. The Phase 2 scheduler still does not load templates automatically; the Java custom Stage2Generator RNG, occupancy, FRONT_BACK mirror behavior, and exact chunk generation remain engine boundaries.
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.
+
+### Chunk 63 limitation update — Stage 2 custom generator boundary
+
+The `clandimensionroom2` asset is validated as a reusable Bedrock structure, but Bedrock static dimension JSON still cannot host Java's custom `Stage2Generator` codec or reproduce its automatic chunk-generation lifecycle. The port therefore keeps the source selector and placement contract explicit without claiming automatic Stage 2 world generation parity.
+

@@ -482,3 +482,8 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Only 8/64 source templates are currently available. The remaining 56 templates, automatic scheduler placement, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, and live Bedrock smoke testing remain deferred. Java custom Stage2Generator chunk generation remains an explicit engine boundary.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the converted clandimensionroom1 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
+
+### Chunk 63 adaptation note — Floor 2 variant 2
+
+Java `Stage2Generator.java` selects `clandimensionroom2` for Floor 2 variant 2 and places it at Y=207. The Bedrock adaptation converts the source Java NBT into an uncompressed little-endian `.mcstructure`, catalogs its source blob SHA and geometry, and exposes the validated `structure load` seam. `Dimension.runCommand` remains the existing stable API adapter; no new `@minecraft/server` API is introduced.
+

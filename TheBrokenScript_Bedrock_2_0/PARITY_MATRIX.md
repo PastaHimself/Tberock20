@@ -90,3 +90,8 @@ The Stage 2 asset catalog now validates the source Floor 2 variant 1, `clandimen
 | books/book0.book, sites/rblog/file.bin | misc binaries | parse book format Chunk 12; bin external-only | uninspected | unknown | — | |
 
 Chunk-level completion updates this table; SOURCE_MAP.json carries the 912-row component detail.
+
+### Chunk 63 parity update — Integrity Stage 2 template asset
+
+The source-backed `clandimensionroom2` Floor 2 variant is now represented by a validated `BP/structures/thebrokenscript/stage2/clandimensionroom2.mcstructure` asset and catalog entry. The model preserves the Java variant-2 selector, Y=207 placement, no-mirror boundary, and `/structure load` command seam. This improves template-asset parity only; automatic Java custom-chunk-generator placement, exact generator RNG/occupancy/rotation/mirror behavior, and Bedrock world/runtime smoke validation remain pending or engine-limited.
+
