@@ -10,8 +10,9 @@ export const ALL = [
 ];
 
 export const NIGHTMARES = ["library", "concrete", "limbo", "nothing"];
+export const SUPPORTED = ["overworld", "nether", "the_end"];
 
-const SUPPORTED_DIMENSIONS = new Set(["overworld", "nether", "the_end"]);
+const SUPPORTED_DIMENSIONS = new Set(SUPPORTED);
 const handles = new Map();
 const warnedUnsupported = new Set();
 
@@ -25,6 +26,10 @@ function normalizeId(id) {
 
 function logicalId(key) {
   return `thebrokenscript:${key}`;
+}
+
+export function isSupported(id) {
+  return SUPPORTED_DIMENSIONS.has(normalizeId(id));
 }
 
 export function get(id) {
