@@ -436,3 +436,12 @@ BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/sta
 - Java custom `Stage2Generator` chunk placement remains documented as unavailable in static Bedrock dimension JSON; this chunk validates the reusable template asset and command seam only.
 - Next source boundary: Floor 2 `clandimensionroom3` / `clandimensionroom5` selection and conversion, then the remaining Stage 2 template corpus.
 
+
+## Chunk 64 — Integrity Phase 2 Stage 2 clandimensionroom3 asset
+
+- Completed the source-backed Floor 2 variants 3 and 4 asset boundary from `Stage2Generator.java`: `clandimensionroom3` at Y=207.
+- Added a validated Bedrock `.mcstructure` with size 16×9×16, 855 cobblestone blocks, 1,449 air blocks, and no entities.
+- Added the model/audit contract: 10 validated Stage 2 templates and 54 explicitly deferred templates.
+- Java custom `Stage2Generator` chunk placement remains documented as unavailable in static Bedrock dimension JSON; this chunk validates the reusable template asset and command seam only.
+- Next source boundary: Floor 2 variant 5 special/ordinary selection (`clandimensionroom2` / `clandimensionroom5`), then the remaining Stage 2 template corpus.
+

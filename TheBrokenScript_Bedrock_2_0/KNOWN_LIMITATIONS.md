@@ -62,3 +62,8 @@ All reachable Java behavior is either implemented, approximated with an explicit
 
 The `clandimensionroom2` asset is validated as a reusable Bedrock structure, but Bedrock static dimension JSON still cannot host Java's custom `Stage2Generator` codec or reproduce its automatic chunk-generation lifecycle. The port therefore keeps the source selector and placement contract explicit without claiming automatic Stage 2 world generation parity.
 
+
+### Chunk 64 limitation update — Stage 2 custom generator boundary
+
+The `clandimensionroom3` asset is validated as a reusable Bedrock structure for Java Floor 2 variants 3 and 4, but Bedrock static dimension JSON still cannot host Java's custom `Stage2Generator` codec or reproduce its automatic chunk-generation lifecycle. The port therefore keeps both source selectors and the placement contract explicit without claiming automatic Stage 2 world generation parity.
+
