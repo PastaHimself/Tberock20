@@ -460,9 +460,9 @@ export function stage2GeneratorRuntimeVolumes(playerBlock) {
 }
 
 // Stage2Generator.java template catalog. The Java generator always places
-// the default Floor 4 stone1 template at Y 233 and can select stone2/stone3/stone4/stone5/stone6 as
-// its first five rare Floor 4 variants. These are the first six source templates
-// converted to validated Bedrock .mcstructure assets; the remaining 58 templates
+// the default Floor 4 stone1 template at Y 233 and can select stone2/stone3/stone4/stone5/stone6/stone7 as
+// its first six rare Floor 4 variants. These are the first seven source templates
+// converted to validated Bedrock .mcstructure assets; the remaining 57 templates
 // stay explicitly deferred until their palettes/entities/block entities are
 // converted and smoke-tested.
 export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
@@ -555,8 +555,25 @@ export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
       generationRole: "floor4_rare_variant_5",
       status: "validated_asset",
     }),
+    stone7: Object.freeze({
+      sourcePath: "source_extracted/data/thebrokenscript/structure/stone7.nbt",
+      sourceBlobSha: "2446bc420007c6daa7e78a1cf6edcecac2ffbdc8",
+      size: Object.freeze([16, 3, 16]),
+      paletteNames: Object.freeze([
+        "minecraft:air",
+        "minecraft:smooth_stone",
+        "minecraft:stone",
+      ]),
+      blockCount: 768,
+      nonAirBlockCount: 288,
+      entityCount: 0,
+      blockEntityCount: 0,
+      placementY: 233,
+      generationRole: "floor4_rare_variant_6",
+      status: "validated_asset",
+    }),
   }),
-  deferredTemplateCount: 58,
+  deferredTemplateCount: 57,
 });
 
 function normalizeStage2TemplateRotation(rotation) {
