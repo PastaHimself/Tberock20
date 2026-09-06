@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-06 (Chunk 61 — Integrity Phase 2 Stage 2 stone7 template asset)
+Last updated: 2026-09-06 (Chunk 62 — Integrity Phase 2 Stage 2 clandimensionroom1 template asset)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,10 @@ Last updated: 2026-09-06 (Chunk 61 — Integrity Phase 2 Stage 2 stone7 template
 
 ## Current chunk
 
-**Chunk 61 ready for review — Integrity Phase 2 Stage 2 stone7 template asset**
+**Chunk 62 ready for review — Integrity Phase 2 Stage 2 clandimensionroom1 template asset**
 
-Chunk 61 validates the sixth rare Floor 4 Stage 2 variant, stone7, as a Bedrock .mcstructure asset. The Java source contract is DataVersion 3955, size 16×3×16 with 768 cells: 256 minecraft:stone, 32 minecraft:smooth_stone, 480 minecraft:air, and no entities or block entities. The Bedrock asset preserves the source dimensions and block layout with a two-layer block-index structure, records Y 233, and emits structure load ... none false true because it is block-only. The model maps rare variant 6 to stone7; no new @minecraft/server API is introduced. Validated assets are now 7/64 and 57 remain deferred. The Floor 1–7 boundaries and Floor 6 → FLOOR_6_INTEG mapping remain unchanged; Java Stage2Generator custom chunk generation, automatic placement, exact rotation/mirror/occupancy, and live Bedrock smoke testing remain explicit boundaries. GitHub Actions [run 34013925068](https://github.com/PastaHimself/Tberock20/actions/runs/34013925068) passed 67 Python validator tests, complete add-on validation, resource identifier links, Jigsaw JSON and NBT connector checks, all Bedrock structures including stone7.mcstructure, JavaScript syntax, beta type-check, 245/245 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 exact known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally.
+Chunk 62 validates the source-backed Floor 2 variant 1, `clandimensionroom1`, as a Bedrock .mcstructure asset. The Java source contract is DataVersion 3955, size 16×9×16 with 2,304 cells: 750 minecraft:cobblestone and 1,554 minecraft:air, with no entities or block entities. The Bedrock asset preserves the source dimensions and ZYX block-index layout with two layers, records Floor 2 placement Y 207, and emits structure load ... none false true because it is block-only. The model maps stage2GeneratorFloor2Structure(1, false) to clandimensionroom1; no new @minecraft/server API is introduced. Validated assets are now 8/64 and 56 remain deferred. The Floor 1–7 boundaries and Floor 6 → FLOOR_6_INTEG mapping remain unchanged; Java Stage2Generator custom chunk generation, automatic placement, exact rotation/mirror/occupancy, and live Bedrock smoke testing remain explicit boundaries. GitHub Actions [run 34015384648](https://github.com/PastaHimself/Tberock20/actions/runs/34015384648) passed 67 Python validator tests, complete add-on validation, resource identifier links, Jigsaw JSON and NBT connector checks, all 8 Bedrock structures including clandimensionroom1.mcstructure, JavaScript syntax, beta type-check, 248/248 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 exact known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally.
+
 ## Chunk state
 | Chunk | State |
 |---|---|
@@ -82,9 +83,10 @@ Chunk 61 validates the sixth rare Floor 4 Stage 2 variant, stone7, as a Bedrock 
 | 58 Integrity Phase 2 Stage 2 stone4 template asset | **completed** |
 | 59 Integrity Phase 2 Stage 2 stone5 template asset | **completed** |
 | 60 Integrity Phase 2 Stage 2 stone6 template asset | **completed** |
-| 61 Integrity Phase 2 Stage 2 stone7 template asset | **ready for review** |
+| 61 Integrity Phase 2 Stage 2 stone7 template asset | **completed** (PR #35 merged externally) |
+| 62 Integrity Phase 2 Stage 2 clandimensionroom1 template asset | **ready for review** |
 
-No code or pack-validation blocker is open; Chunk 61 implementation passed GitHub Actions [run 34013925068](https://github.com/PastaHimself/Tberock20/actions/runs/34013925068) passed 67 Python validator tests, complete add-on validation, resource identifier links, Jigsaw JSON and NBT connector checks, all Bedrock structures including stone7.mcstructure, JavaScript syntax, beta type-check, 245/245 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 exact known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally. Remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
+No code or pack-validation blocker is open; Chunk 62 implementation passed GitHub Actions [run 34015384648](https://github.com/PastaHimself/Tberock20/actions/runs/34015384648) after a focused red run and two serializer corrections. The final run passed validator unit tests, complete add-on validation, resource identifier links, Jigsaw definitions/connectors, all 8 Bedrock structures, JavaScript syntax, beta type-check, 248/248 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 exact known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally.
 
 ## Files created (Chunk 21)
 BP/scripts/systems/integrity_arena_model.js Phase 3 constants/state/cutscene model · BP/scripts/entities/boss/boss_controller.js source-backed ring spawn and boundary countdown · tests/integrity_arena_model.test.mjs regressions · docs/chunks/CHUNK_21_{SPEC,REPORT}.md
@@ -412,6 +414,16 @@ GitHub Actions [run 33980738760](https://github.com/PastaHimself/tbs-2.0/actions
 ## Files changed (Chunk 61)
 
 BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/stage2/stone7.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tests/integrity_stage2_stone7_asset_model.test.mjs · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · docs/chunks/CHUNK_61_{SPEC,REPORT}.md
+## Chunk 62 — Integrity Phase 2 Stage 2 clandimensionroom1 template asset
+
+Chunk 62 converts the audited Java Floor 2 variant 1 template `clandimensionroom1.nbt` into a validated Bedrock `.mcstructure`. The source blob is DataVersion 3955, 16×9×16, with 750 `minecraft:cobblestone` cells, 1,554 `minecraft:air` cells, no entities, and no block entities. The source-backed model records the 207 placement band, preserves the Floor 2 variant mapping, and extends the validated catalog to 8/64.
+
+The first implementation run exposed malformed palette-list NBT terminators; the corrected asset passes the repository validator and preserves two block-index layers, the cobblestone/air palette, 750 non-air primary blocks, and no block-position data. The final GitHub Actions run is [34015384648](https://github.com/PastaHimself/Tberock20/actions/runs/34015384648). Automatic scheduler placement, exact Java Stage2Generator RNG/occupancy/rotation/mirror/border/tunnel/nowhere generation, the remaining 56 templates, and live Bedrock-world smoke testing remain deferred.
+
+## Files changed (Chunk 62)
+
+BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/stage2/clandimensionroom1.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tests/integrity_stage2_clandimensionroom1_asset_model.test.mjs · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · docs/chunks/CHUNK_62_{SPEC,REPORT}.md
+
 ## Next chunk
 
-**Next source boundary.** Validate the remaining 57 deferred Stage 2 Java NBT templates, beginning with the next source-backed asset family. Automatic placement, exact Java Stage2Generator room RNG/rotation/mirror/occupancy/border/tunnel/nowhere generation, native packet/camera/music presentation, and live Bedrock-world smoke validation remain later boundaries.
+**Next source boundary.** Validate the remaining 56 deferred Stage 2 Java NBT templates, beginning with the next source-backed asset family. Automatic placement, exact Java Stage2Generator room RNG/rotation/mirror/occupancy/border/tunnel/nowhere generation, native packet/camera/music presentation, and live Bedrock-world smoke validation remain later boundaries.

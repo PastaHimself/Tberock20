@@ -468,3 +468,17 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Player-visible difference**: Only 7/64 source templates are currently available. The remaining 57 templates, automatic scheduler placement, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, and live Bedrock smoke testing remain deferred. Java custom Stage2Generator chunk generation remains an explicit engine boundary.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone7 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
+
+## A-045 — Integrity Phase 2 Stage 2 Floor 2 clandimensionroom1 template asset
+
+1. **Source feature**: Stage2Generator.genRoom Floor 2 branch, variant 1, and source `clandimensionroom1.nbt`.
+
+2. **Source behavior**: The Java generator resolves `stage2GeneratorFloor2Structure(1, false)` to `clandimensionroom1` and places the template at Y 207. The audited source is DataVersion 3955, size 16×9×16, with 2,304 block cells: 750 `minecraft:cobblestone` and 1,554 `minecraft:air`; entities and block entities are absent.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/boss/integrity/Phase2.java`; `decompiled/net/thebrokenscript/boss/integrity/Phase2Floors.java`; `decompiled/net/thebrokenscript/boss/integrity/Stage2Floor.java`; `decompiled/net/thebrokenscript/boss/integrity/Stage2Util.java`; `decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java`; `TheBrokenScript_Bedrock_2_0/STAGE2_GENERATOR_AUDIT.json`; source blob `4f30ee7f5f37cfff08ee6e4728fe27e5f62becc2`.
+
+4. **Bedrock adaptation**: `BP/structures/thebrokenscript/stage2/clandimensionroom1.mcstructure` is a validated format-version 1 little-endian Bedrock structure with size 16×9×16, two block-index layers, palette [`minecraft:cobblestone`, `minecraft:air`], 750 non-air primary cells, and no entities or block entities. `stage2TemplatePlacementPlan` records Floor 2 Y 207 and `includeEntities=false`; `stage2TemplateLoadCommand` emits `structure load thebrokenscript:stage2/clandimensionroom1 ... none false true`. The asset is not automatically loaded by the Phase 2 scheduler.
+
+5. **Player-visible difference**: Only 8/64 source templates are currently available. The remaining 56 templates, automatic scheduler placement, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, and live Bedrock smoke testing remain deferred. Java custom Stage2Generator chunk generation remains an explicit engine boundary.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the converted clandimensionroom1 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
