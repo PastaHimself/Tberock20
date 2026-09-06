@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 1,
+  "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
+  "runtimeStatus": "partial_validated_asset_catalog",
+  "validatedAssetCount": 11,
+  "deferredTemplateCount": 53,
+  "automaticRuntimePlacement": false,
+  "placementStrategy": {
+    "api": "Dimension.runCommand",
+    "commandShape": "structure load <namespace:stage2/template> <x y z> <rotation> none <includeEntities> true",
+    "includeEntities": "template-dependent",
+    "includeBlocks": true,
+    "supportedMirror": "none",
+    "deferredJavaMirror": "front_back",
+    "reason": "Only the no-mirror path has a validated Bedrock asset and an API-verified command seam; the Phase 2 scheduler does not load templates automatically. Entity-bearing templates pass includeEntities=true."
+  },
+  "templates": [
+    {
+      "id": "stone1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone1.nbt",
+      "sourceBlobSha": "2d8e2d3da26e07f4921764f9f6937cc46f359060",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        1,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 256,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone1.mcstructure",
+      "bedrockSize": [
+        16,
+        1,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone"
+      ],
+      "bedrockNonAirPrimaryBlocks": 256,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_default"
+    },
+    {
+      "id": "stone2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone2.nbt",
+      "sourceBlobSha": "a61aabc79ec6bd18a3bdb325367d65055a108e9d",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone2.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 306,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_1"
+    },
+    {
+      "id": "stone3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone3.nbt",
+      "sourceBlobSha": "45381d498f95f558e296b8aae40bb9183f13032e",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        4,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:oak_door",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 1024,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone3.mcstructure",
+      "bedrockSize": [
+        16,
+        4,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "minecraft:air",
+        "minecraft:oak_door"
+      ],
+      "bedrockPaletteStateCount": 14,
+      "bedrockNonAirPrimaryBlocks": 300,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_2"
+    },
+    {
+      "id": "stone4",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone4.nbt",
+      "sourceBlobSha": "d43f4146ebe57edb8dbfb3a2b25d8b616fb39137",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        3,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:rail",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 768,
+      "javaEntityCount": 1,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone4.mcstructure",
+      "bedrockSize": [
+        16,
+        3,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "minecraft:air",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail",
+        "minecraft:rail"
+      ],
+      "bedrockPaletteStateCount": 8,
+      "bedrockRailDirections": [
+        0,
+        1,
+        6,
+        7,
+        8,
+        9
+      ],
+      "bedrockNonAirPrimaryBlocks": 295,
+      "bedrockEntityCount": 1,
+      "bedrockEntityTypes": [
+        "minecraft:minecart"
+      ],
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_3"
+    },
+    {
+      "id": "stone5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone5.nbt",
+      "sourceBlobSha": "e770282817af7b4fbb94d76151c925bbbf351b94",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        3,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id"
+      ],
+      "javaBlockCount": 768,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone5.mcstructure",
+      "bedrockSize": [
+        16,
+        3,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "thebrokenscript:block_is_missing_id",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 512,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_4"
+    },
+    {
+      "id": "stone6",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone6.nbt",
+      "sourceBlobSha": "1b15f9ac3f6b35506b25361694b87c7ca8dd6231",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        4,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 1024,
+      "javaEntityCount": 15,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone6.mcstructure",
+      "bedrockSize": [
+        16,
+        4,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 256,
+      "bedrockEntityCount": 15,
+      "bedrockEntityTypes": [
+        "minecraft:armor_stand"
+      ],
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_5"
+    },
+    {
+      "id": "stone7",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/stone7.nbt",
+      "sourceBlobSha": "2446bc420007c6daa7e78a1cf6edcecac2ffbdc8",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        3,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:smooth_stone",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 768,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/stone7.mcstructure",
+      "bedrockSize": [
+        16,
+        3,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:stone",
+        "minecraft:smooth_stone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 288,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 233,
+      "generationRole": "floor4_rare_variant_6"
+    },
+    {
+      "id": "clandimensionroom1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom1.nbt",
+      "sourceBlobSha": "4f30ee7f5f37cfff08ee6e4728fe27e5f62becc2",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom1.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 750,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_1"
+    },
+    {
+      "id": "clandimensionroom2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom2.nbt",
+      "sourceBlobSha": "d555dff8e0c3d45d9509e9b281323d1042e54063",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom2.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 799,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_2"
+    },
+    {
+      "id": "clandimensionroom3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom3.nbt",
+      "sourceBlobSha": "37d9f55b6fc9ac6c6f41979380e398cfdbf56ead",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom3.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 855,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_3_4"
+    },
+    {
+      "id": "clandimensionroom5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom5.nbt",
+      "sourceBlobSha": "8757e559d147f81f9dae6f8301d59af47027ca23",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom5.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockNonAirPrimaryBlocks": 792,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_5_ordinary"
+    }
+  ]
+}

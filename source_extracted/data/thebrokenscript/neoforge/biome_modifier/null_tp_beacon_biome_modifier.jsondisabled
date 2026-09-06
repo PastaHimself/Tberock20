@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:any"
+  },
+  "spawners": [{
+    "type": "thebrokenscript:null_tp_beacon",
+    "weight": 2,
+    "minCount": 1,
+    "maxCount": 1
+  }]
+}

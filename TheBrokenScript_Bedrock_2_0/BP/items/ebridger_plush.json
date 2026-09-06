@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:ebridger_plush",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "ebridger_plush",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.ebridger_plush"
+      }
+    }
+  }
+}

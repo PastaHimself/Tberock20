@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:revuxorfish",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "revuxorfish",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.revuxorfish"
+      }
+    }
+  }
+}

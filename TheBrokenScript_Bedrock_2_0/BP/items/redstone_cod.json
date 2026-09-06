@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:redstone_cod",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "redstone_cod",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.redstone_cod"
+      }
+    }
+  }
+}

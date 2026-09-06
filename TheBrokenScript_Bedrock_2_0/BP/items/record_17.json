@@ -1,0 +1,23 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:record_17",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "record_17",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.record_17"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:record": {
+        "comparator_signal": 13,
+        "duration": 63.5,
+        "sound_event": "disc17"
+      }
+    }
+  }
+}

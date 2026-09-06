@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:void_mass",
+    "thebrokenscript:integ_bypass",
+    "thebrokenscript:hand_cannon_damage"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:portal_extender", "weight": 1 }
+      ]
+    }
+  ]
+}

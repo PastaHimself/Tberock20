@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "thebrokenscript:block/void_bloom",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "thebrokenscript:block/void_bloom",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "thebrokenscript:block/void_bloom",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "thebrokenscript:block/void_bloom",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "thebrokenscript:block/void_bloom"
+    },
+    "facing=west": {
+      "model": "thebrokenscript:block/void_bloom",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

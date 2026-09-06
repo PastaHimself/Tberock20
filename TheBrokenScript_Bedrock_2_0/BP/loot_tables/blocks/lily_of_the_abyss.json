@@ -1,0 +1,10 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:lily_of_the_abyss", "weight": 1 }
+      ]
+    }
+  ]
+}

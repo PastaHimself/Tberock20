@@ -1,0 +1,10 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:void_shroom", "weight": 1 }
+      ]
+    }
+  ]
+}

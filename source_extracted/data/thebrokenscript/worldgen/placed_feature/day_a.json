@@ -1,0 +1,29 @@
+{
+    "feature": "thebrokenscript:day_a",
+    "placement": [
+        {
+            "type": "minecraft:in_square"
+        },
+        {
+            "type": "minecraft:height_range",
+            "height": {
+                "type": "minecraft:constant",
+                "value": {
+                    "above_bottom": 316
+                }
+            }
+        },
+        {
+            "type": "minecraft:random_offset",
+            "xz_spread": 4,
+            "y_spread": {
+                "type": "minecraft:constant",
+                "value": 0
+            }
+        },
+        {
+            "type": "minecraft:rarity_filter",
+            "chance": 2
+        }
+    ]
+}

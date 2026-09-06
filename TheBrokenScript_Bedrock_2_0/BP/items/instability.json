@@ -1,0 +1,23 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:instability",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "instability",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.instability"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:record": {
+        "comparator_signal": 13,
+        "duration": 233.5,
+        "sound_event": "instability"
+      }
+    }
+  }
+}

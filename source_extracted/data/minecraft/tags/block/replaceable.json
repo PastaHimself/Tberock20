@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:all_dead",
+    "thebrokenscript:void_grass",
+    "thebrokenscript:void_bush"
+  ]
+}

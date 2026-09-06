@@ -1,0 +1,100 @@
+[
+  {
+    "flipbook_texture": "textures/blocks/command_block",
+    "atlas_tile": "command_block",
+    "ticks_per_frame": 1,
+    "blend_frames": true,
+    "frames": [
+      {
+        "index": 0,
+        "time": 36
+      },
+      {
+        "index": 0,
+        "time": 4
+      },
+      {
+        "index": 1,
+        "time": 36
+      },
+      {
+        "index": 1,
+        "time": 4
+      },
+      {
+        "index": 4,
+        "time": 36
+      },
+      {
+        "index": 4,
+        "time": 4
+      },
+      {
+        "index": 3,
+        "time": 36
+      },
+      {
+        "index": 3,
+        "time": 4
+      }
+    ]
+  },
+  {
+    "flipbook_texture": "textures/blocks/necrosis",
+    "atlas_tile": "necrosis",
+    "ticks_per_frame": 3,
+    "blend_frames": true
+  },
+  {
+    "flipbook_texture": "textures/blocks/noise",
+    "atlas_tile": "noise",
+    "ticks_per_frame": 2,
+    "blend_frames": false,
+    "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ]
+  },
+  {
+    "flipbook_texture": "textures/blocks/void_goop_flow",
+    "atlas_tile": "void_goop_flow",
+    "ticks_per_frame": 2,
+    "blend_frames": true
+  },
+  {
+    "flipbook_texture": "textures/blocks/void_goop_still",
+    "atlas_tile": "void_goop_still",
+    "ticks_per_frame": 6,
+    "blend_frames": true
+  }
+]

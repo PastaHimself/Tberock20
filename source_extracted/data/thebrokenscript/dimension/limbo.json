@@ -1,0 +1,10 @@
+{
+    "type": "thebrokenscript:limbo",
+    "generator": {
+        "type": "thebrokenscript:limbo",
+        "biome_source": {
+            "type": "minecraft:fixed",
+            "biome": "thebrokenscript:limbo"
+        }
+    }
+}

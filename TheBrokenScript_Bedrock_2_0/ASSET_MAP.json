@@ -1,0 +1,117 @@
+{
+  "summary": {
+    "total_source_asset_files_analyzed": 1600,
+    "directly_reusable_in_bedrock_rp": ["geometry (77)", "animations (36)", "sounds/music (191 ogg)", "textures (502 png)", "particles (9 json definitions need format check)"],
+    "requires_conversion": ["Java block/item models (388 json) -> blocks.json + texture atlas registrations"],
+    "engine_inapplicable": ["Java GLSL shader pipeline (89 files)", "custom font glyph pipeline", "Java core/post shader VFX"]
+  },
+  "families": [
+    {
+      "asset_family": "entity_geometry_bedrock_native",
+      "source_paths": ["assets/thebrokenscript/geo/**/*.json"],
+      "count": 77,
+      "includes_subfolder": "geo/plush (26), geo/fractured (5)",
+      "format": "Bedrock geometry format_version 1.12.0 (GeckoLib-authored)",
+      "disposition": "REUSE_AS_IS in RP/models/entity/",
+      "status": "mapped"
+    },
+    {
+      "asset_family": "entity_animations_bedrock_native",
+      "source_paths": ["assets/thebrokenscript/animations/*.json"],
+      "count": 36,
+      "format": "Bedrock animation format_version 1.8.0",
+      "disposition": "REUSE_AS_IS in RP/animations/",
+      "status": "mapped"
+    },
+    {
+      "asset_family": "sounds_and_music",
+      "source_paths": ["assets/thebrokenscript/sounds/**"],
+      "count": 191,
+      "subfolders": ["ambience(13)","boss(3)","chords(12)","curved(15)","e(6)","fever(5)","funny(1)","integrity(8)","jimmy(10)","jon(2)","lucid_blocks_easteregg(1)","music(4)","null(1)","oblit(1)","plush(14)","sfx(4)","tekkit(11)"],
+      "definition_file": "assets/thebrokenscript/sounds.json",
+      "disposition": "COPY_AS_IS + port sounds.json keys into RP sound_definitions.json",
+      "status": "mapped"
+    },
+    {
+      "asset_family": "textures",
+      "source_paths": ["assets/thebrokenscript/textures/**"],
+      "count": 502,
+      "subfolders": ["block(106+vein 5)","entities(72)","item(57)","plush(39)","gui(121)","particle(17)","environment(4)","cape(3)","moonevent(11 animated)","mob_effect(2)","painting(1)","screens(62)","skins(1)","font(1)"],
+      "disposition": "COPY_AS_IS; register via terrain_texture.json / item_texture.json / flipbook_textures.json",
+      "status": "mapped"
+    },
+    {
+      "asset_family": "java_block_item_models",
+      "source_paths": ["assets/thebrokenscript/models/block/**","assets/thebrokenscript/models/item/**"],
+      "count": 388,
+      "disposition": "CONVERT: map to Bedrock block geometry/custom blocks or flat item textures; preserve silhouette/materials",
+      "status": "conversion_planned_chunk03"
+    },
+    {
+      "asset_family": "particle_definitions_java",
+      "source_paths": ["assets/thebrokenscript/particles/*.json"],
+      "count": 9,
+      "disposition": "TRANSLATE schema differences into Bedrock particle JSON. Chunk 20 ports eyes with its original texture; the other definitions remain individually deferred until a gameplay caller needs them.",
+      "status": "partial_port_chunk20"
+    },
+    {
+      "asset_family": "gui_and_screen_textures",
+      "source_paths": ["assets/thebrokenscript/textures/gui/**","assets/thebrokenscript/textures/screens/**"],
+      "count": 183,
+      "subfolders": ["bossbar(8)","menu(64)","menu/backgrounds(63 by entity theme)","playercorruption(15)","very_serious(7)"],
+      "disposition": "Reuse where a Bedrock UI equivalent exists. Chunk 20 uses the source Polaroid screen in an ActionFormData flow; arbitrary Java screen transforms remain limited.",
+      "status": "partial_support"
+    },
+    {
+      "asset_family": "java_shader_pipeline",
+      "source_paths": ["assets/thebrokenscript/shaders/**"],
+      "count": 89,
+      "formats": [".fsh(31)",".vsh(15)",".glsl(4)","core(27)","post(12)","program(38 incl dream/,fever/)","sodium(8)"],
+      "disposition": "ENGINE_INAPPLICABLE: no Java GLSL pipeline in Bedrock. Approximate visible results via fog/camera/particles/title overlays where possible; else ENGINE_UNSUPPORTED",
+      "status": "engine_inapplicable"
+    },
+    {
+      "asset_family": "custom_font",
+      "source_paths": ["assets/thebrokenscript/font/**","assets/thebrokenscript/textures/font/**"],
+      "count": 3,
+      "disposition": "Limited Bedrock font customization; document gap in KNOWN_LIMITATIONS",
+      "status": "partial_support"
+    },
+    {
+      "asset_family": "library_books_content",
+      "source_paths": ["assets/thebrokenscript/library_books/**"],
+      "count": 44,
+      "disposition": "Port text content into writable-book UI flows or sign/form presentation in Library dimension",
+      "status": "conversion_planned"
+    },
+    {
+      "asset_family": "embedded_nostalgia_packs",
+      "source_paths": ["nostalgia/**","nostalgia_gen/**"],
+      "count": 2,
+      "disposition": "Keep optional/deferred; broad vanilla sound/model overrides can conflict with the main RP and the later multipart upload does not expose a complete outer archive.",
+      "status": "deferred_incomplete_source"
+    },
+    {
+      "asset_family": "supplied_vhs_bedrock_pack",
+      "source_paths": ["VHS_filter_2.1(1).mcpack"],
+      "count": 1,
+      "includes": "JSON UI HUD overlay, 11 base UI textures, four eight-texture severity subpacks, atmosphere/color-grading/lighting/shadow settings",
+      "disposition": "MERGED into the main RP in Chunk 20 after replacing the invalid cross-namespace HUD modification with $additional_screen_content and lowering UI layers to the audited range.",
+      "status": "ported_chunk20"
+    },
+    {
+      "asset_family": "misc_binary",
+      "source_paths": ["books/book0.book","sites/rblog/file.bin (85MB, header F8 F1 2D 67)","important.txt ASCII art","logo.png","assets/circuit/texts/manifesto.txt"],
+      "count": 5,
+      "disposition": "book0: parse format in Chunk 12; rblog bin: opaque non-Minecraft payload, external preservation only; manifesto/portable text reuse",
+      "status": "analysis_planned"
+    },
+    {
+      "asset_family": "vanilla_overrides",
+      "source_paths": ["assets/minecraft/lang/en_us.json","assets/minecraft/models/item/fire.json","assets/minecraft/models/item/totem_of_undying.json","assets/minecraft/textures/environment/*","assets/minecraft/texts/splashes.txt"],
+      "count": 8,
+      "disposition": "Environment overrides (sun/clouds/end_sky) partially reproducible client-side; splashes/menu text ENGINE-limited",
+      "status": "partial_support"
+    }
+  ]
+}

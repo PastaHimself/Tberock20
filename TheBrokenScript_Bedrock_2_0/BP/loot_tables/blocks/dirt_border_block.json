@@ -1,0 +1,10 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:dirt_border_block", "weight": 1 }
+      ]
+    }
+  ]
+}

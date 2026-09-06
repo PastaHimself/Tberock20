@@ -1,0 +1,26 @@
+// 1.21.1	2026-08-21T11:06:49.04041724	VanillaTagGenerator
+5db5d13ade5b3da1920a9c77664da7c49ed0943d data/minecraft/tags/block/climbable.json
+10561e8d05fe9f00695c8be14f50c81c8ad00a36 data/minecraft/tags/block/doors.json
+dd2bf7f9a86a22656dd39e3572c19b8eb75b79cd data/minecraft/tags/block/fences.json
+6f75778848a67a282086033e64954e7f2ddf13b3 data/minecraft/tags/block/flower_pots.json
+6035f42a528af930ec3b59a0963160f87cb1b356 data/minecraft/tags/block/flowers.json
+b2b432b808317a7f26fa176cb6d053adbd6a3260 data/minecraft/tags/block/logs.json
+a498286fd03279b796dc02c854685b4bffce5720 data/minecraft/tags/block/mineable/axe.json
+82f1ca32ad7a44fb653ac581ae3dde90e1c50cee data/minecraft/tags/block/mineable/pickaxe.json
+08229a334f37c4f513cc900d5ed4179caa9915c2 data/minecraft/tags/block/needs_diamond_tool.json
+ec3889023827771a8adec59a652a2155b8aafaed data/minecraft/tags/block/planks.json
+7cb1546ed59509c18677a9687ed6c42ddd032e0b data/minecraft/tags/block/replaceable.json
+134191b2d12d3d67f2ca88c0d375bd613c9d3fcd data/minecraft/tags/block/slabs.json
+6035f42a528af930ec3b59a0963160f87cb1b356 data/minecraft/tags/block/small_flowers.json
+7764dfca934148eead3f65cb69dfa6ed929d4047 data/minecraft/tags/block/stairs.json
+5c6d8f13e7f80db13198f6e0c70af6660e9904c6 data/minecraft/tags/block/trapdoors.json
+f9d99ddd4cb71bd70561b3eaf25a02205e9d98fb data/minecraft/tags/block/walls.json
+5d325e8279778436070ad6e79351be96cde6f288 data/minecraft/tags/block/wooden_doors.json
+cc3cad3dec2c89f93ab950f0dc00b4e55423bb37 data/minecraft/tags/block/wooden_slabs.json
+df4ba737f9a13812aaffeb3423fc37627f61b2b0 data/minecraft/tags/block/wooden_stairs.json
+5c6d8f13e7f80db13198f6e0c70af6660e9904c6 data/minecraft/tags/block/wooden_trapdoors.json
+1b8f860b7df2a0fa511db60ad88496582670d767 data/minecraft/tags/damage_type/bypasses_armor.json
+1b8f860b7df2a0fa511db60ad88496582670d767 data/minecraft/tags/damage_type/bypasses_effects.json
+6c24c12e109b566a2e3855b5fc83f11314973c04 data/minecraft/tags/damage_type/bypasses_invulnerability.json
+bc9af91f39da93815d8a3e7a71a8397a9113a7b9 data/minecraft/tags/damage_type/bypasses_shield.json
+c0f4398f5e75fb5af821c48f315461696ed47e46 data/minecraft/tags/damage_type/no_knockback.json

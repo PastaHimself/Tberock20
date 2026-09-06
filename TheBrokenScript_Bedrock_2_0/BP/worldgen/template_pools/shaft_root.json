@@ -1,0 +1,18 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:template_pool": {
+    "description": {
+      "identifier": "thebrokenscript:shaft_root"
+    },
+    "elements": [
+      {
+        "element": {
+          "element_type": "minecraft:single_pool_element",
+          "location": "thebrokenscript:shaft/shaft_root",
+          "projection": "rigid"
+        },
+        "weight": 1
+      }
+    ]
+  }
+}

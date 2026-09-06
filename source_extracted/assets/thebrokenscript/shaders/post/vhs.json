@@ -1,0 +1,34 @@
+{
+  "targets": [
+    { "name": "swap0" },
+    { "name": "swap1" }
+  ],
+  "passes": [
+    {
+      "name": "thebrokenscript:vhs1",
+      "intarget": "minecraft:main",
+      "outtarget": "swap0"
+    },
+    {
+      "name": "thebrokenscript:vhs2",
+      "intarget": "swap0",
+      "outtarget": "swap1"
+    },
+    {
+      "name": "thebrokenscript:aberration",
+      "intarget": "swap1",
+      "outtarget": "swap0",
+      "uniforms": [
+        {
+          "name": "Intensity",
+          "values": [0.003]
+        }
+      ]
+    },
+    {
+      "name": "thebrokenscript:crt",
+      "intarget": "swap0",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

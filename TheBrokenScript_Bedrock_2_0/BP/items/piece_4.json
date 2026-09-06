@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:piece_4",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "piece_4",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.piece_4"
+      }
+    }
+  }
+}

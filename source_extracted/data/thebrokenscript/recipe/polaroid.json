@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "thebrokenscript:piece_1"
+    },
+    {
+      "item": "thebrokenscript:piece_2"
+    },
+    {
+      "item": "thebrokenscript:piece_3"
+    },
+    {
+      "item": "thebrokenscript:piece_4"
+    },
+    {
+      "item": "thebrokenscript:piece_5"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "thebrokenscript:polaroid"
+  }
+}

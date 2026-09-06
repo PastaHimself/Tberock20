@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "minecraft:fire"
+    }
+  },
+  "pattern": [
+    "F F",
+    "F F"
+  ],
+  "result": {
+    "id": "minecraft:chainmail_boots"
+  }
+}

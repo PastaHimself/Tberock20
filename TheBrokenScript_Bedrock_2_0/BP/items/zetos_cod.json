@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:zetos_cod",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "zetos_cod",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.zetos_cod"
+      }
+    }
+  }
+}

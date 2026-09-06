@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:protected_void_wall",
+    "thebrokenscript:moon_stone_brick_wall",
+    "thebrokenscript:polished_moon_stone_wall"
+  ]
+}

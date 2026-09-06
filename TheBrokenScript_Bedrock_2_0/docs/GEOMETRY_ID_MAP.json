@@ -1,0 +1,313 @@
+{
+    "note":  "original -\u003e bedrock geometry identifiers; geometry.unknown rewritten uniquely",
+    "mappings":  {
+                     "geometry.tbs_brokenendoverhaul":  {
+                                                            "file":  "brokenendoverhaul.geo.json",
+                                                            "original":  "geometry.unknown"
+                                                        },
+                     "geometry.tbs_brokenendoverhaul_uwu":  {
+                                                                "file":  "brokenendoverhaul_uwu.geo.json",
+                                                                "original":  "geometry.unknown"
+                                                            },
+                     "geometry.chord":  {
+                                            "file":  "chord.geo.json",
+                                            "original":  "geometry.chord"
+                                        },
+                     "geometry.tbs_chord_projectile":  {
+                                                           "file":  "chord_projectile.geo.json",
+                                                           "original":  "geometry.unknown"
+                                                       },
+                     "geometry.circuitv4":  {
+                                                "file":  "circy.geo.json",
+                                                "original":  "geometry.circuitv4"
+                                            },
+                     "geometry.curved":  {
+                                             "file":  "curved.geo.json",
+                                             "original":  "geometry.curved"
+                                         },
+                     "geometry.tbs_curved_uwu":  {
+                                                     "file":  "curved_uwu.geo.json",
+                                                     "original":  "geometry.curved"
+                                                 },
+                     "geometry.tbs_deprivation":  {
+                                                      "file":  "deprivation.geo.json",
+                                                      "original":  "geometry.unknown"
+                                                  },
+                     "geometry.tbs_deprivation_uwu":  {
+                                                          "file":  "deprivation_uwu.geo.json",
+                                                          "original":  "geometry.unknown"
+                                                      },
+                     "geometry.tbs_desintegration":  {
+                                                         "file":  "desintegration.geo.json",
+                                                         "original":  "geometry.unknown"
+                                                     },
+                     "geometry.r2":  {
+                                         "file":  "error5v2.geo.json",
+                                         "original":  "geometry.r2"
+                                     },
+                     "geometry.tbs_fever":  {
+                                                "file":  "fever.geo.json",
+                                                "original":  "geometry.unknown"
+                                            },
+                     "geometry.tbs_hetzer":  {
+                                                 "file":  "hetzer.geo.json",
+                                                 "original":  "geometry.unknown"
+                                             },
+                     "geometry.tbs_hetzerfixed":  {
+                                                      "file":  "hetzerfixed.geo.json",
+                                                      "original":  "geometry.unknown"
+                                                  },
+                     "geometry.tbs_hetzerfixed_uwu":  {
+                                                          "file":  "hetzerfixed_uwu.geo.json",
+                                                          "original":  "geometry.unknown"
+                                                      },
+                     "geometry.tbs_hetzer_uwu":  {
+                                                     "file":  "hetzer_uwu.geo.json",
+                                                     "original":  "geometry.unknown"
+                                                 },
+                     "geometry.tbs_integrity":  {
+                                                    "file":  "integrity.geo.json",
+                                                    "original":  "geometry.unknown"
+                                                },
+                     "geometry.tbs_integritywip":  {
+                                                       "file":  "integritywip.geo.json",
+                                                       "original":  "geometry.unknown"
+                                                   },
+                     "geometry.tbs_integritywip_uwu":  {
+                                                           "file":  "integritywip_uwu.geo.json",
+                                                           "original":  "geometry.unknown"
+                                                       },
+                     "geometry.Integrity_hallucination":  {
+                                                              "file":  "integrity_curious.geo.json",
+                                                              "original":  "geometry.Integrity_hallucination"
+                                                          },
+                     "geometry.Integrityphase1":  {
+                                                      "file":  "integrity_phase1.geo.json",
+                                                      "original":  "geometry.Integrityphase1"
+                                                  },
+                     "geometry.integrityphase2":  {
+                                                      "file":  "integrity_phase2.geo.json",
+                                                      "original":  "geometry.integrityphase2"
+                                                  },
+                     "geometry.Integrityphase3":  {
+                                                      "file":  "integrity_phase3.geo.json",
+                                                      "original":  "geometry.Integrityphase3"
+                                                  },
+                     "geometry.tbs_integrity_uwu":  {
+                                                        "file":  "integrity_uwu.geo.json",
+                                                        "original":  "geometry.unknown"
+                                                    },
+                     "geometry.tbs_ip3_ground_arm":  {
+                                                         "file":  "ip3_ground_arm.geo.json",
+                                                         "original":  "geometry.Integrityphase3"
+                                                     },
+                     "geometry.tbs_jon":  {
+                                              "file":  "jon.geo.json",
+                                              "original":  "geometry.unknown"
+                                          },
+                     "geometry.murderfur":  {
+                                                "file":  "murderfur.geo.json",
+                                                "original":  "geometry.murderfur"
+                                            },
+                     "geometry.notexture":  {
+                                                "file":  "notexture.geo.json",
+                                                "original":  "geometry.notexture"
+                                            },
+                     "geometry.tbs_notexture_uwu":  {
+                                                        "file":  "notexture_uwu.geo.json",
+                                                        "original":  "geometry.unknown"
+                                                    },
+                     "geometry.nothing_watcher":  {
+                                                      "file":  "nothing_watcher.geo.json",
+                                                      "original":  "geometry.nothing_watcher"
+                                                  },
+                     "geometry.invertedpyramid":  {
+                                                      "file":  "obliteration2.geo.json",
+                                                      "original":  "geometry.invertedpyramid"
+                                                  },
+                     "geometry.tbs_ram2die":  {
+                                                  "file":  "ram2die.geo.json",
+                                                  "original":  "geometry.unknown"
+                                              },
+                     "geometry.tbs_ram2die_uwu":  {
+                                                      "file":  "ram2die_uwu.geo.json",
+                                                      "original":  "geometry.unknown"
+                                                  },
+                     "geometry.tbs_revuxor":  {
+                                                  "file":  "revuxor.geo.json",
+                                                  "original":  "geometry.unknown"
+                                              },
+                     "geometry.tbs_revuxor_uwu":  {
+                                                      "file":  "revuxor_uwu.geo.json",
+                                                      "original":  "geometry.unknown"
+                                                  },
+                     "geometry.tbs_boulder_converted":  {
+                                                          "file":  "rock.geo.json",
+                                                          "original":  "geometry.BOULDER - Converted"
+                                                      },
+                     "geometry.sa2":  {
+                                          "file":  "sub_anom_2.geo.json",
+                                          "original":  "geometry.sa2"
+                                      },
+                     "geometry.tbs_tbe_ambush":  {
+                                                     "file":  "tbe_ambush.geo.json",
+                                                     "original":  "geometry.unknown"
+                                                 },
+                     "geometry.tbe":  {
+                                          "file":  "tbe_overhaul_v3.geo.json",
+                                          "original":  "geometry.tbe"
+                                      },
+                     "geometry.tbs_tbe_overhaul_v4":  {
+                                                          "file":  "tbe_overhaul_v4.geo.json",
+                                                          "original":  "geometry.tbe"
+                                                      },
+                     "geometry.void_tether":  {
+                                                  "file":  "tether.geo.json",
+                                                  "original":  "geometry.void_tether"
+                                              },
+                     "geometry.tbs_thebrokenend":  {
+                                                       "file":  "thebrokenend.geo.json",
+                                                       "original":  "geometry.unknown"
+                                                   },
+                     "geometry.tbs_thebrokenend_uwu":  {
+                                                           "file":  "thebrokenend_uwu.geo.json",
+                                                           "original":  "geometry.unknown"
+                                                       },
+                     "geometry.tbs_max_revive":  {
+                                                 "file":  "triangle.geo.json",
+                                                 "original":  "geometry.Max revive"
+                                             },
+                     "geometry.tbs_triangle_uwu":  {
+                                                       "file":  "triangle_uwu.geo.json",
+                                                       "original":  "geometry.unknown"
+                                                   },
+                     "geometry.tbs_void_tentacle":  {
+                                                        "file":  "void_tentacle.geo.json",
+                                                        "original":  "geometry.unknown"
+                                                    },
+                     "geometry.fractured":  {
+                                                "file":  "fractured.geo.json",
+                                                "original":  "geometry.fractured"
+                                            },
+                     "geometry.tbs_fractured_back_leg_lower":  {
+                                                                   "file":  "fractured_back_leg_lower.geo.json",
+                                                                   "original":  "geometry.fractured"
+                                                               },
+                     "geometry.tbs_fractured_back_leg_middle_lower":  {
+                                                                          "file":  "fractured_back_leg_middle_lower.geo.json",
+                                                                          "original":  "geometry.fractured"
+                                                                      },
+                     "geometry.tbs_fractured_back_leg_middle_upper":  {
+                                                                          "file":  "fractured_back_leg_middle_upper.geo.json",
+                                                                          "original":  "geometry.fractured"
+                                                                      },
+                     "geometry.tbs_fractured_back_leg_upper":  {
+                                                                   "file":  "fractured_back_leg_upper.geo.json",
+                                                                   "original":  "geometry.fractured"
+                                                               },
+                     "geometry.plush_base":  {
+                                                 "file":  "bennie.geo.json",
+                                                 "original":  "geometry.plush_base"
+                                             },
+                     "geometry.tbs_berry":  {
+                                                "file":  "berry.geo.json",
+                                                "original":  "geometry.plush_base"
+                                            },
+                     "geometry.tbs_dominik":  {
+                                                  "file":  "dominik.geo.json",
+                                                  "original":  "geometry.plush_base"
+                                              },
+                     "geometry.tbs_ebridger":  {
+                                                   "file":  "ebridger.geo.json",
+                                                   "original":  "geometry.plush_base"
+                                               },
+                     "geometry.tbs_elderly":  {
+                                                  "file":  "elderly.geo.json",
+                                                  "original":  "geometry.plush_base"
+                                              },
+                     "geometry.tbs_eldritch":  {
+                                                   "file":  "eldritch.geo.json",
+                                                   "original":  "geometry.plush_base"
+                                               },
+                     "geometry.tbs_eyae":  {
+                                               "file":  "eyae.geo.json",
+                                               "original":  "geometry.plush_base"
+                                           },
+                     "geometry.tbs_garreth":  {
+                                                  "file":  "garreth.geo.json",
+                                                  "original":  "geometry.plush_base"
+                                              },
+                     "geometry.tbs_hermit":  {
+                                                 "file":  "hermit.geo.json",
+                                                 "original":  "geometry.plush_base"
+                                             },
+                     "geometry.tbs_jd":  {
+                                             "file":  "jd.geo.json",
+                                             "original":  "geometry.plush_base"
+                                         },
+                     "geometry.tbs_lost":  {
+                                               "file":  "lost.geo.json",
+                                               "original":  "geometry.plush_base"
+                                           },
+                     "geometry.tbs_lovemist":  {
+                                                   "file":  "lovemist.geo.json",
+                                                   "original":  "geometry.plush_base"
+                                               },
+                     "geometry.tbs_mc":  {
+                                             "file":  "mc.geo.json",
+                                             "original":  "geometry.plush_base"
+                                         },
+                     "geometry.tbs_moji":  {
+                                               "file":  "moji.geo.json",
+                                               "original":  "geometry.plush_base"
+                                           },
+                     "geometry.tbs_nahbro":  {
+                                                 "file":  "nahbro.geo.json",
+                                                 "original":  "geometry.plush_base"
+                                             },
+                     "geometry.tbs_pyrit":  {
+                                                "file":  "pyrit.geo.json",
+                                                "original":  "geometry.plush_base"
+                                            },
+                     "geometry.tbs_raevant":  {
+                                                  "file":  "raevant.geo.json",
+                                                  "original":  "geometry.plush_base"
+                                              },
+                     "geometry.plush_rdh - Converted":  {
+                                                            "file":  "rdh.geo.json",
+                                                            "original":  "geometry.plush_rdh - Converted"
+                                                        },
+                     "geometry.tbs_redstone":  {
+                                                   "file":  "redstone.geo.json",
+                                                   "original":  "geometry.plush_base"
+                                               },
+                     "geometry.tbs_shadow":  {
+                                                 "file":  "shadow.geo.json",
+                                                 "original":  "geometry.plush_base"
+                                             },
+                     "geometry.tbs_skie":  {
+                                               "file":  "skie.geo.json",
+                                               "original":  "geometry.plush_base"
+                                           },
+                     "geometry.tbs_stevelocks":  {
+                                                     "file":  "stevelocks.geo.json",
+                                                     "original":  "geometry.plush_base"
+                                                 },
+                     "geometry.tbs_tekkit":  {
+                                                 "file":  "tekkit.geo.json",
+                                                 "original":  "geometry.plush_base"
+                                             },
+                     "geometry.tbs_wendigo":  {
+                                                  "file":  "wendigo.geo.json",
+                                                  "original":  "geometry.plush_base"
+                                              },
+                     "geometry.tbs_yharim":  {
+                                                 "file":  "yharim.geo.json",
+                                                 "original":  "geometry.plush_base"
+                                             },
+                     "geometry.tbs_zetos":  {
+                                                "file":  "zetos.geo.json",
+                                                "original":  "geometry.plush_base"
+                                            }
+                 }
+}

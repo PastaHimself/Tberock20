@@ -1,0 +1,14 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:any"
+  },
+  "spawners": [
+    {
+      "type": "thebrokenscript:the_broken_end_ambush",
+      "maxCount": 1,
+      "minCount": 1,
+      "weight": 5
+    }
+  ]
+}

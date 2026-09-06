@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "thebrokenscript:block/teeth_end",
+    "side": "thebrokenscript:block/teeth"
+  }
+}

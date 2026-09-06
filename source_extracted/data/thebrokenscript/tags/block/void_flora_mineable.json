@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:void_sprout",
+    "thebrokenscript:void_bud",
+    "thebrokenscript:void_budding",
+    "thebrokenscript:void_bloom",
+    "thebrokenscript:void_blossom",
+    "thebrokenscript:void_vine",
+    "thebrokenscript:void_grass"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:lost_plush",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "lost_plush",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.lost_plush"
+      }
+    }
+  }
+}

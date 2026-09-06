@@ -1,0 +1,10 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "thebrokenscript:red_ceiling_tile", "weight": 1 }
+      ]
+    }
+  ]
+}

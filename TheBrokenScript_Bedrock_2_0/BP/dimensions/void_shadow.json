@@ -1,0 +1,17 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:dimension": {
+    "description": {
+      "identifier": "thebrokenscript:void_shadow"
+    },
+    "components": {
+      "minecraft:dimension_bounds": {
+        "min": 0,
+        "max": 384
+      },
+      "minecraft:generation": {
+        "generator_type": "void"
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "criteria": {
+    "craft_polaroid": {
+      "conditions": {
+        "recipe_id": "thebrokenscript:polaroid"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "background": "minecraft:textures/block/stone.png",
+    "description": {
+      "translate": "advancement.thebrokenscript.polaroid_craft.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "thebrokenscript:polaroid"
+    },
+    "title": {
+      "translate": "advancement.thebrokenscript.polaroid_craft.title"
+    }
+  },
+  "requirements": [
+    [
+      "craft_polaroid"
+    ]
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "bbb",
+    "b4b",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "thebrokenscript:moon_stone_bricks"
+    },
+    "4": {
+      "item": "thebrokenscript:all_dead"
+    }
+  },
+  "result": {
+    "id": "thebrokenscript:corrupted_moon_stone_bricks",
+    "count": 8
+  }
+}

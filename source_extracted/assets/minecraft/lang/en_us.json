@@ -1,0 +1,13 @@
+{
+  "selectWorld.gameMode.spectator.info": "You can look but don't touch.",
+  "selectWorld.gameMode.spectator.line1": "You can look but don't touch",
+  "selectWorld.gameMode.spectator.line2": "",
+  "selectWorld.gameMode.survival": "Go away",
+  "selectWorld.gameMode.survival.info": "This place is not for you.",
+  "selectWorld.gameMode.survival.line1": "There is nothing to look for",
+  "selectWorld.gameMode.survival.line2": "Here I am.",
+  "subtitles.entity.sheep.death": "303 dies",
+  "title.singleplayer": "[SINGLEPLAYER.force_activate]",
+  "soundCategory.master": "ERROR.you_cant",
+  "item.minecraft.fire": "Fire"
+}

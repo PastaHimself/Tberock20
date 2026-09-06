@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=double": {
+      "model": "thebrokenscript:block/smooth_stone_vertical_slab_double"
+    },
+    "type=left": {
+      "model": "thebrokenscript:block/smooth_stone_vertical_slab_right"
+    },
+    "type=right": {
+      "model": "thebrokenscript:block/smooth_stone_vertical_slab"
+    }
+  }
+}

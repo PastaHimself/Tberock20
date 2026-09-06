@@ -1,0 +1,14 @@
+{
+    "_comment": "I hate these tags. -Redstone",
+    "replace": false,
+    "values": [
+        "#c:glass_blocks",
+        "#c:glass_panes",
+        "#minecraft:doors",
+        "#minecraft:fence_gates",
+        "#minecraft:fences",
+        "#minecraft:slabs",
+        "#minecraft:stairs",
+        "#minecraft:trapdoors"
+    ]
+}

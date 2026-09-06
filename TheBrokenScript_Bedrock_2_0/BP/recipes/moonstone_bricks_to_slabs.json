@@ -1,0 +1,26 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "thebrokenscript:moonstone_bricks_to_slabs"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "sss"
+    ],
+    "key": {
+      "s": {
+        "item": "thebrokenscript:moon_stone_bricks"
+      }
+    },
+    "result": {
+      "item": "thebrokenscript:moon_stone_brick_slab",
+      "count": 6
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    }
+  }
+}

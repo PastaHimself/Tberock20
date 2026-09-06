@@ -1,0 +1,20 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:client_entity": {
+    "description": {
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "geometry": {
+        "default": "geometry.tbs_humanoid"
+      },
+      "render_controllers": [
+        "controller.render.single_textured"
+      ],
+      "identifier": "thebrokenscript:xxram_2die",
+      "textures": {
+        "default": "textures/entities/xxram2diexx"
+      }
+    }
+  }
+}
