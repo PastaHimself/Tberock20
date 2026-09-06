@@ -75,3 +75,9 @@ The `clandimensionroom5` asset is validated for Java Floor 2 variant 5’s ordin
 ### Chunk 66 limitation update — Floor 1 variant 1 asset
 
 The `clanvoidnew1` asset is validated as a reusable Bedrock structure for Java Floor 1 variant 1, while the Floor 1 variants 2..7 remain deferred. Bedrock static dimension JSON still cannot host Java's custom `Stage2Generator` codec or reproduce its automatic chunk-generation lifecycle, so this asset and selector remain an explicit placement contract rather than automatic Stage 2 generation.
+
+### Chunk 67 limitation update — complete Stage 2 assets with runtime adapter
+
+All 64 audited Stage 2 Java templates are now converted to validated Bedrock `.mcstructure` assets, and the Phase 2 runtime automatically queues the source-shaped surface, room, and tunnel placements for each entered 10×10 cell through `world.structureManager.place`, with `Dimension.runCommand` as a compatibility fallback. Java AIR/STRUCTURE_VOID cells are represented as Bedrock `-1` no-op indices so the source floor and barrier layers survive placement. This closes the asset and runtime-placement portion of the Stage 2 port, but it does not make Bedrock static dimension JSON execute the Java `Stage2Generator` custom chunk generator.
+
+The remaining difference is exact generation parity: the adapter uses deterministic per-cell selections rather than the Java server-seed `RandomSource`, does not have Java's bounded `occupiedChunks` set, cannot reproduce the exact R3 border-wall material or `genNowhere` Voronoi post-processing, and has no local live Bedrock-world smoke test. Those are explicit engine/device boundaries, not unconverted Stage 2 templates.

@@ -140,6 +140,73 @@ test("Stage 2 safe scanning returns the block above the first valid floor", () =
   assert.equal(blockedY, null);
 });
 
+test("Stage 2 runtime maps every generated floor band to its source template family", () => {
+  assert.equal(typeof integrityModel.stage2GeneratorTemplateForFloor, "function");
+  assert.equal(integrityModel.stage2GeneratorTemplateForFloor("FLOOR_1"), "fieldbase");
+  assert.equal(
+    integrityModel.stage2GeneratorTemplateForFloor("FLOOR_1", { surfaceRare: true }),
+    "fieldbase2",
+  );
+  assert.equal(
+    integrityModel.stage2GeneratorTemplateForFloor("FLOOR_2", {
+      floor4Special: true,
+      floor4RareVariant: true,
+      floor4Variant: 6,
+    }),
+    "stone7",
+  );
+  assert.equal(
+    integrityModel.stage2GeneratorTemplateForFloor("FLOOR_3", {
+      floor3Variant: 35,
+      floor3RandomExtra: true,
+    }),
+    "tek_woodfloor28",
+  );
+  assert.equal(
+    integrityModel.stage2GeneratorTemplateForFloor("FLOOR_4", {
+      floor2Variant: 5,
+      floor2Special: false,
+    }),
+    "clandimensionroom5",
+  );
+  assert.equal(
+    integrityModel.stage2GeneratorTemplateForFloor("FLOOR_5", { floor1Variant: 7 }),
+    "clanvoidnew7",
+  );
+  assert.equal(
+    integrityModel.stage2GeneratorTemplateForFloor("FLOOR_6", { tunnelVariant: 10 }),
+    "bedrockhallway10",
+  );
+  assert.equal(integrityModel.stage2GeneratorTemplateForFloor("FLOOR_7"), null);
+});
+
+test("Stage 2 floor placement plans keep the selected floor height and origin", () => {
+  assert.equal(typeof integrityModel.stage2TemplatePlacementPlanForFloor, "function");
+  const plan = integrityModel.stage2TemplatePlacementPlanForFloor(
+    "stone1",
+    "FLOOR_2",
+    { x: 16, z: 32 },
+    { rotation: 90, mirror: "front_back" },
+  );
+
+  assert.deepEqual(
+    {
+      assetId: plan.assetId,
+      origin: plan.origin,
+      placementY: plan.placementY,
+      rotation: plan.rotation,
+      mirror: plan.mirror,
+    },
+    {
+      assetId: "thebrokenscript:stage2/stone1",
+      origin: { x: 16, y: 233, z: 32 },
+      placementY: 233,
+      rotation: 90,
+      mirror: "front_back",
+    },
+  );
+});
+
 test("Stage 2 runtime wires the supported block, entity, and placement seams", async () => {
   const runtime = await readFile(
     new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js", import.meta.url),
@@ -156,5 +223,77 @@ test("Stage 2 runtime wires the supported block, entity, and placement seams", a
     "stage2IntegrityPositionAllowed",
   ]) {
     assert.ok(runtime.includes(fragment), "runtime is missing " + fragment);
+  }
+});
+
+test("Stage 2 runtime places each generated template through StructureManager", async () => {
+  const runtime = await readFile(
+    new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js", import.meta.url),
+    "utf8",
+  );
+
+  for (const fragment of [
+    "stage2GeneratorTemplateForFloor",
+    "stage2TemplatePlacementPlan",
+    "world.structureManager",
+    "structureManager.place(",
+    "stage2PlacedTemplateKeys",
+    "runStage2TemplateLoad(dimension, plan)",
+    "includeEntities: plan.includeEntities",
+  ]) {
+    assert.ok(runtime.includes(fragment), "runtime is missing " + fragment);
+  }
+});
+
+test("the Stage 2 catalog covers every audited source template", async () => {
+  const audit = JSON.parse(
+    await readFile(
+      new URL(
+        "../TheBrokenScript_Bedrock_2_0/STAGE2_GENERATOR_AUDIT.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  const assetAudit = JSON.parse(
+    await readFile(
+      new URL(
+        "../TheBrokenScript_Bedrock_2_0/STAGE2_TEMPLATE_ASSET_AUDIT.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  const ids = audit.templates.map(({ id }) => id);
+  const supported = integrityModel.STAGE2_TEMPLATE_SOURCE.supportedTemplates;
+  const assetAuditById = new Map(
+    assetAudit.templates.map((entry) => [entry.id, entry]),
+  );
+
+  assert.equal(integrityModel.STAGE2_TEMPLATE_SOURCE.deferredTemplateCount, 0);
+  assert.deepEqual(Object.keys(supported).sort(), [...ids].sort());
+  assert.equal(assetAudit.validatedAssetCount, ids.length);
+  assert.equal(assetAudit.deferredTemplateCount, 0);
+
+  for (const id of ids) {
+    const auditEntry = audit.templates.find((entry) => entry.id === id);
+    const catalogEntry = supported[id];
+    const assetAuditEntry = assetAuditById.get(id);
+    assert.ok(assetAuditEntry, `${id} is missing from the asset audit`);
+    const asset = await readFile(
+      new URL(
+        `../TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2/${id}.mcstructure`,
+        import.meta.url,
+      ),
+    );
+    assert.ok(asset.length > 100, `${id} asset is empty`);
+    assert.equal(catalogEntry.status, "validated_asset");
+    assert.equal(catalogEntry.sourceBlobSha, auditEntry.gitBlobSha);
+    assert.deepEqual(catalogEntry.size, auditEntry.size);
+    assert.equal(catalogEntry.blockCount, auditEntry.blockCount);
+    assert.equal(catalogEntry.entityCount, auditEntry.entityCount);
+    assert.equal(catalogEntry.blockEntityCount, auditEntry.blockEntityCount);
+    assert.equal(catalogEntry.generationRole, assetAuditEntry.generationRole);
+    assert.equal(catalogEntry.placementY, assetAuditEntry.placementY);
   }
 });

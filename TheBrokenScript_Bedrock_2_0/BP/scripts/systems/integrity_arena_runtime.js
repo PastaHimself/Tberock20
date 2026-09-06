@@ -1,4 +1,10 @@
-import { BlockVolume, system, world } from "@minecraft/server";
+import {
+  BlockVolume,
+  StructureMirrorAxis,
+  StructureRotation,
+  system,
+  world,
+} from "@minecraft/server";
 import * as bossHooks from "./boss_hooks.js";
 import { logger } from "../core/logging.js";
 import {
@@ -13,6 +19,7 @@ import {
   PHASE1_SOURCE,
   STAGE2_DIMENSION_ID,
   STAGE2_FLOORS,
+  STAGE2_GENERATOR_SOURCE,
   STAGE2_UTIL_SOURCE,
   phase2IntegrityFloorFromY,
   phase2IntegrityPlacementStep,
@@ -25,7 +32,9 @@ import {
   stage2IsValidFloor,
   stage2SpawnAttemptCoordinates,
   stage2SpawnCellChunksFromPlayerBlock,
+  stage2GeneratorTemplateForFloor,
   stage2GeneratorRuntimeVolumes,
+  stage2TemplatePlacementPlanForFloor,
   stage2TemplateLoadCommand,
 } from "./integrity_arena_model.js";
 import {
@@ -115,6 +124,7 @@ export function startIntegrityArena(player, block) {
     phase2IntegrityFloor: null,
     spawnedFloors: new Set(),
     stage2ScaffoldCells: new Set(),
+    stage2PlacedTemplateKeys: new Set(),
     integrityEntity: null,
     chordsSpawned: false,
     terrainQueue: [],
@@ -206,6 +216,7 @@ export function tickIntegrityArena() {
 }
 
 function tickPhaseTwo(arena) {
+  processStage2TemplateQueue(arena);
   const participants = playersFor(arena.participantIds);
   for (const player of participants) {
     if (!phase2NeedsRecoveryTeleport(playerBlockY(player))) continue;
@@ -291,13 +302,238 @@ function stage2IsValidFloorAt(dimension, x, y, z) {
   }
 }
 
-// Explicit opt-in seam for validated .mcstructure assets. The Stage 2 tick does
-// not call this automatically while the remaining Java templates are deferred.
-// Dimension.runCommand must be invoked from normal runtime execution, not a
-// restricted-execution callback; failures remain retryable for the caller.
+function stage2StructureRotation(degrees) {
+  switch (degrees) {
+    case 90: return StructureRotation.Rotate90;
+    case 180: return StructureRotation.Rotate180;
+    case 270: return StructureRotation.Rotate270;
+    default: return StructureRotation.None;
+  }
+}
+
+function stage2StructureMirror(mirror) {
+  // Java Mirror.FRONT_BACK flips the front/back (Z) axis. Bedrock's
+  // StructureMirrorAxis uses the corresponding `Z` value.
+  return mirror === "front_back" ? StructureMirrorAxis.Z : StructureMirrorAxis.None;
+}
+
+const STAGE2_INTERIOR_CHUNK_MIN = 1;
+const STAGE2_INTERIOR_CHUNK_MAX_EXCLUSIVE = 10;
+const STAGE2_ROOM_FLOOR_IDS = Object.freeze([
+  "FLOOR_5",
+  "FLOOR_4",
+  "FLOOR_3",
+  "FLOOR_2",
+]);
+const STAGE2_STRUCTURE_QUEUE_BUDGET = 16;
+
+function stage2PlacementSeed(token, x, z, salt) {
+  let hash = 2166136261;
+  for (const character of `${token}:${x}:${z}:${salt}`) {
+    hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
+  }
+  return hash >>> 0;
+}
+
+function stage2PlacementRandom(seed) {
+  let state = seed >>> 0;
+  const next = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+  return {
+    next,
+    int(minInclusive, maxExclusive) {
+      return minInclusive + Math.floor(next() * (maxExclusive - minInclusive));
+    },
+  };
+}
+
+function stage2PlacementTransform(random) {
+  // Stage2Generator consumes the mirror bit before the rotation enum.
+  return {
+    mirror: random.next() < 0.5 ? "front_back" : "none",
+    rotation: [0, 90, 180, 270][random.int(0, 4)],
+  };
+}
+
+function stage2RoomSelection(arena, chunkX, chunkZ) {
+  const random = stage2PlacementRandom(
+    stage2PlacementSeed(arena.token, chunkX, chunkZ, "room"),
+  );
+  const transform = stage2PlacementTransform(random);
+  const floor1Variant = random.int(1, 8);
+  const floor2Variant = random.int(1, 6);
+  const floor3Variant = random.int(1, 38);
+  const floor4Variant = random.int(1, 7);
+  const floor3RandomExtra = random.next() >= 0.9875;
+  const floor4Special = random.next() <= 0.95;
+  return {
+    ...transform,
+    floor1Variant,
+    floor2Variant,
+    floor3Variant,
+    floor4Variant,
+    floor3RandomExtra,
+    floor2Special: floor4Special,
+    floor4Special,
+    floor4RareVariant: floor4Special && random.next() < 0.05,
+  };
+}
+
+function stage2SurfaceSelection(arena, chunkX, chunkZ) {
+  const random = stage2PlacementRandom(
+    stage2PlacementSeed(arena.token, chunkX, chunkZ, "surface"),
+  );
+  const transform = stage2PlacementTransform(random);
+  return {
+    ...transform,
+    surfaceRare: random.next() >= STAGE2_GENERATOR_SOURCE.surfacePlacement.primaryProbability,
+  };
+}
+
+function stage2TunnelTemplate(arena, chunkX, chunkZ) {
+  const random = stage2PlacementRandom(
+    stage2PlacementSeed(arena.token, chunkX, chunkZ, "tunnel"),
+  );
+  const primary = random.next() < STAGE2_GENERATOR_SOURCE.tunnel.primaryProbability;
+  return primary ? "bedrockhallway1" : `bedrockhallway${random.int(2, 11)}`;
+}
+
+function stage2TemplateQueueKey(cellKey, plan) {
+  return [
+    cellKey,
+    plan.templateId,
+    plan.origin.x,
+    plan.origin.y,
+    plan.origin.z,
+    plan.rotation,
+    plan.mirror,
+  ].join(":");
+}
+
+function stage2PlanForTemplate(templateId, floorId, origin, transform) {
+  return stage2TemplatePlacementPlanForFloor(
+    templateId,
+    floorId,
+    origin,
+    transform,
+  );
+}
+
+function buildStage2GeneratorCellQueue(arena, scaffoldPlan) {
+  const queue = [];
+  const addPlan = (plan) => {
+    if (!plan) return;
+    queue.push({
+      key: stage2TemplateQueueKey(scaffoldPlan.cellKey, plan),
+      plan,
+    });
+  };
+
+  for (
+    let relativeChunkX = STAGE2_INTERIOR_CHUNK_MIN;
+    relativeChunkX < STAGE2_INTERIOR_CHUNK_MAX_EXCLUSIVE;
+    relativeChunkX += 1
+  ) {
+    for (
+      let relativeChunkZ = STAGE2_INTERIOR_CHUNK_MIN;
+      relativeChunkZ < STAGE2_INTERIOR_CHUNK_MAX_EXCLUSIVE;
+      relativeChunkZ += 1
+    ) {
+      const origin = {
+        x: scaffoldPlan.origin.x + relativeChunkX * 16,
+        z: scaffoldPlan.origin.z + relativeChunkZ * 16,
+      };
+      const surfaceSelection = stage2SurfaceSelection(arena, origin.x, origin.z);
+      addPlan(stage2PlanForTemplate(
+        stage2GeneratorTemplateForFloor("FLOOR_1", surfaceSelection),
+        "FLOOR_1",
+        origin,
+        surfaceSelection,
+      ));
+
+      const roomSelection = stage2RoomSelection(arena, origin.x, origin.z);
+      for (const floorId of STAGE2_ROOM_FLOOR_IDS) {
+        addPlan(stage2PlanForTemplate(
+          stage2GeneratorTemplateForFloor(floorId, roomSelection),
+          floorId,
+          origin,
+          roomSelection,
+        ));
+      }
+    }
+  }
+
+  const tunnelX = scaffoldPlan.origin.x + 80;
+  for (
+    let relativeChunkZ = STAGE2_INTERIOR_CHUNK_MIN;
+    relativeChunkZ < STAGE2_INTERIOR_CHUNK_MAX_EXCLUSIVE;
+    relativeChunkZ += 1
+  ) {
+    const tunnelZ = scaffoldPlan.origin.z + relativeChunkZ * 16;
+    addPlan(stage2PlanForTemplate(
+      stage2TunnelTemplate(arena, tunnelX, tunnelZ),
+      "FLOOR_6",
+      { x: tunnelX, z: tunnelZ },
+      { rotation: 0, mirror: "none" },
+    ));
+  }
+  return queue;
+}
+
+function queueStage2GeneratorCell(arena, scaffoldPlan) {
+  arena.stage2QueuedGeneratorCells ??= new Set();
+  arena.stage2PendingTemplatePlans ??= [];
+  if (arena.stage2QueuedGeneratorCells.has(scaffoldPlan.cellKey)) return;
+
+  arena.stage2PendingTemplatePlans.push(
+    ...buildStage2GeneratorCellQueue(arena, scaffoldPlan),
+  );
+  arena.stage2QueuedGeneratorCells.add(scaffoldPlan.cellKey);
+}
+
+function processStage2TemplateQueue(arena) {
+  const dimension = getDimension(STAGE2_DIMENSION_ID);
+  const queue = arena?.stage2PendingTemplatePlans;
+  if (!dimension || !Array.isArray(queue) || queue.length === 0) return;
+
+  arena.stage2PlacedTemplateKeys ??= new Set();
+  for (let processed = 0; processed < STAGE2_STRUCTURE_QUEUE_BUDGET && queue.length > 0; processed += 1) {
+    const entry = queue.shift();
+    if (!entry || arena.stage2PlacedTemplateKeys.has(entry.key)) continue;
+    if (runStage2TemplateLoad(dimension, entry.plan)) {
+      arena.stage2PlacedTemplateKeys.add(entry.key);
+    } else {
+      queue.push(entry);
+    }
+  }
+}
+
+// StructureManager.place is the primary runtime path. The command remains a
+// compatibility fallback for older preview builds where the manager is not
+// exposed, and both paths stay retryable when a structure or chunk is missing.
 export function runStage2TemplateLoad(dimension, plan) {
+  if (!dimension || !plan || plan.status !== "validated_asset") return false;
+
+  let structureManager;
+  try { structureManager = world.structureManager; } catch {}
+  if (structureManager && typeof structureManager.place === "function") {
+    try {
+      structureManager.place(plan.assetId, dimension, plan.origin, {
+        includeBlocks: plan.includeBlocks,
+        includeEntities: plan.includeEntities,
+        mirror: stage2StructureMirror(plan.mirror),
+        rotation: stage2StructureRotation(plan.rotation),
+      });
+      return true;
+    } catch {
+      logger.warn("integrity_arena: Stage 2 StructureManager placement deferred");
+    }
+  }
+
   const command = stage2TemplateLoadCommand(plan);
-  if (!dimension || !command || typeof dimension.runCommand !== "function") return false;
+  if (!command || typeof dimension.runCommand !== "function") return false;
   try {
     dimension.runCommand(command);
     return true;
@@ -314,27 +550,29 @@ function ensureStage2RuntimeScaffold(arena, player) {
 
   const plan = stage2GeneratorRuntimeVolumes(blockPosition(player));
   arena.stage2ScaffoldCells ??= new Set();
-  if (arena.stage2ScaffoldCells.has(plan.cellKey)) return true;
-
-  const maxX = plan.origin.x + STAGE2_UTIL_SOURCE.cellSizeBlocks - 1;
-  const maxZ = plan.origin.z + STAGE2_UTIL_SOURCE.cellSizeBlocks - 1;
-  try {
-    for (const volume of plan.volumes) {
-      dimension.fillBlocks(
-        new BlockVolume(
-          { x: plan.origin.x, y: volume.y, z: plan.origin.z },
-          { x: maxX, y: volume.y, z: maxZ },
-        ),
-        volume.blockId,
-        { blockFilter: { includeTypes: ["minecraft:air"] } },
-      );
+  if (!arena.stage2ScaffoldCells.has(plan.cellKey)) {
+    const maxX = plan.origin.x + STAGE2_UTIL_SOURCE.cellSizeBlocks - 1;
+    const maxZ = plan.origin.z + STAGE2_UTIL_SOURCE.cellSizeBlocks - 1;
+    try {
+      for (const volume of plan.volumes) {
+        dimension.fillBlocks(
+          new BlockVolume(
+            { x: plan.origin.x, y: volume.y, z: plan.origin.z },
+            { x: maxX, y: volume.y, z: maxZ },
+          ),
+          volume.blockId,
+          { blockFilter: { includeTypes: ["minecraft:air"] } },
+        );
+      }
+      arena.stage2ScaffoldCells.add(plan.cellKey);
+    } catch {
+      logger.warn("integrity_arena: Stage 2 runtime scaffold fill deferred");
+      return false;
     }
-    arena.stage2ScaffoldCells.add(plan.cellKey);
-    return true;
-  } catch {
-    logger.warn("integrity_arena: Stage 2 runtime scaffold fill deferred");
-    return false;
   }
+
+  queueStage2GeneratorCell(arena, plan);
+  return true;
 }
 
 function stage2FloorById(id) {
@@ -551,6 +789,9 @@ function beginPhaseTwoTransfer(arena) {
   arena.ticksSinceLastCorrupt = PHASE1_TERRAIN_SOURCE.initialTicksSinceLastCorrupt;
   arena.spawnedFloors = new Set();
   arena.stage2ScaffoldCells = new Set();
+  arena.stage2QueuedGeneratorCells = new Set();
+  arena.stage2PendingTemplatePlans = [];
+  arena.stage2PlacedTemplateKeys = new Set();
   arena.integrityEntity = null;
   arena.phase2TargetFloor = null;
   arena.phase2IntegrityFloor = null;

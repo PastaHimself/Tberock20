@@ -56,11 +56,11 @@ test("validated asset produces a safe direct structure-load command", () => {
   );
   assert.equal(
     integrityModel.stage2TemplateLoadCommand({ ...plan, mirror: "front_back" }),
-    null,
+    "structure load thebrokenscript:stage2/stone1 32 233 -48 90_degrees z false true",
   );
 });
 
-test("runtime exposes an explicit, non-automatic structure load seam", async () => {
+test("runtime exposes StructureManager placement with a command fallback", async () => {
   const runtime = await readFile(
     new URL(
       "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_runtime.js",
@@ -71,6 +71,8 @@ test("runtime exposes an explicit, non-automatic structure load seam", async () 
 
   for (const fragment of [
     "runStage2TemplateLoad",
+    "world.structureManager",
+    "structureManager.place(",
     "dimension.runCommand(command)",
     "stage2TemplateLoadCommand",
   ]) {

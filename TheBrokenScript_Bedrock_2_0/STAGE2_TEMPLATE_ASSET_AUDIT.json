@@ -1,20 +1,566 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
-  "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 12,
-  "deferredTemplateCount": 52,
-  "automaticRuntimePlacement": false,
+  "runtimeStatus": "validated_asset_catalog_with_runtime_placement",
+  "validatedAssetCount": 64,
+  "deferredTemplateCount": 0,
+  "automaticRuntimePlacement": true,
   "placementStrategy": {
-    "api": "Dimension.runCommand",
-    "commandShape": "structure load <namespace:stage2/template> <x y z> <rotation> none <includeEntities> true",
+    "api": "world.structureManager.place",
+    "fallbackApi": "Dimension.runCommand",
+    "scope": "one 10x10 chunk cell per entered Stage2 cell",
+    "queueBudgetPerTick": 16,
+    "commandShape": "structure load <namespace:stage2/template> <x y z> <rotation> <mirror> <includeEntities> true",
     "includeEntities": "template-dependent",
     "includeBlocks": true,
-    "supportedMirror": "none",
-    "deferredJavaMirror": "front_back",
-    "reason": "Only the no-mirror path has a validated Bedrock asset and an API-verified command seam; the Phase 2 scheduler does not load templates automatically. Entity-bearing templates pass includeEntities=true."
+    "supportedMirror": "none,front_back",
+    "bedrockMirrorAxis": "front_back -> Z",
+    "sourceGeneratorBoundary": "static Bedrock dimension JSON still cannot host Java Stage2Generator as a custom chunk generator",
+    "reason": "All 64 source templates are converted to validated Bedrock format-version 1 assets. The runtime queues source-like surface, room, and tunnel placements through StructureManager with deterministic per-cell selections and retries failed calls."
   },
   "templates": [
+    {
+      "id": "bedrockhallway1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway1.nbt",
+      "sourceBlobSha": "e56700411058fa096327a1b34395f71b7e67facf",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway1.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 1175,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_default"
+    },
+    {
+      "id": "bedrockhallway10",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway10.nbt",
+      "sourceBlobSha": "a3a3c9f854814a67482007916f92d79a9f15e0e2",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway10.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_10"
+    },
+    {
+      "id": "bedrockhallway2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway2.nbt",
+      "sourceBlobSha": "f4a2c158eef58058b8a8788fd364731b076f3e52",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway2.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_2"
+    },
+    {
+      "id": "bedrockhallway3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway3.nbt",
+      "sourceBlobSha": "b2421e252b0048bd9a67ef72bc59f664dec34039",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway3.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_3"
+    },
+    {
+      "id": "bedrockhallway4",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway4.nbt",
+      "sourceBlobSha": "003448b554ab85f9de7af6b6da0d5aef16dcb2f8",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway4.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_4"
+    },
+    {
+      "id": "bedrockhallway5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway5.nbt",
+      "sourceBlobSha": "c82e0beb4a65611802a6eb26efd361b53c9e79f3",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway5.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_5"
+    },
+    {
+      "id": "bedrockhallway6",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway6.nbt",
+      "sourceBlobSha": "9827db33b319859c58523adaa83c73cc65640fef",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway6.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_6"
+    },
+    {
+      "id": "bedrockhallway7",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway7.nbt",
+      "sourceBlobSha": "80dab3d3661e70d062ed8b062cd46b6eccf8be23",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway7.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_7"
+    },
+    {
+      "id": "bedrockhallway8",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway8.nbt",
+      "sourceBlobSha": "484c3b4ec818f1b655fd41b3b53b4ed884888155",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway8.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_8"
+    },
+    {
+      "id": "bedrockhallway9",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/bedrockhallway9.nbt",
+      "sourceBlobSha": "a3a3c9f854814a67482007916f92d79a9f15e0e2",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        11,
+        10,
+        25
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:oak_sign"
+      ],
+      "javaBlockCount": 2750,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/bedrockhallway9.mcstructure",
+      "bedrockSize": [
+        11,
+        10,
+        25
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:lava",
+        "minecraft:air",
+        "minecraft:standing_sign"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 1176,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 160,
+      "generationRole": "tunnel_variant_9"
+    },
+    {
+      "id": "clandimensionroom1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom1.nbt",
+      "sourceBlobSha": "4f30ee7f5f37cfff08ee6e4728fe27e5f62becc2",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom1.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 750,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_1"
+    },
+    {
+      "id": "clandimensionroom2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom2.nbt",
+      "sourceBlobSha": "d555dff8e0c3d45d9509e9b281323d1042e54063",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom2.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 799,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_2"
+    },
+    {
+      "id": "clandimensionroom3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom3.nbt",
+      "sourceBlobSha": "37d9f55b6fc9ac6c6f41979380e398cfdbf56ead",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom3.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 855,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_3_4"
+    },
+    {
+      "id": "clandimensionroom5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom5.nbt",
+      "sourceBlobSha": "8757e559d147f81f9dae6f8301d59af47027ca23",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom5.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:cobblestone",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 792,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 207,
+      "generationRole": "floor2_variant_5_ordinary"
+    },
     {
       "id": "clanvoidnew1",
       "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew1.nbt",
@@ -49,13 +595,434 @@
         "minecraft:cobblestone",
         "minecraft:glass",
         "minecraft:air",
-        "minecraft:wall_torch"
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch"
       ],
+      "bedrockPaletteStateCount": 9,
       "bedrockNonAirPrimaryBlocks": 748,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 200,
       "generationRole": "floor1_variant_1"
+    },
+    {
+      "id": "clanvoidnew2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew2.nbt",
+      "sourceBlobSha": "df00ef5ed37b1d2d6071df9f1fc3f34c2a7712b1",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:oak_door",
+        "minecraft:oak_wall_sign",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 8,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew2.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:air",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign"
+      ],
+      "bedrockPaletteStateCount": 29,
+      "bedrockNonAirPrimaryBlocks": 772,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 8,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_2"
+    },
+    {
+      "id": "clanvoidnew3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew3.nbt",
+      "sourceBlobSha": "270b92bb4674824b49854ff77074cebb25cdab1a",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:smooth_stone_slab",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew3.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:smooth_stone_slab"
+      ],
+      "bedrockPaletteStateCount": 10,
+      "bedrockNonAirPrimaryBlocks": 812,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_3"
+    },
+    {
+      "id": "clanvoidnew4",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew4.nbt",
+      "sourceBlobSha": "f8b93694e203dc63717d1e55b26043d6a11f969f",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:chest",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 32,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew4.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:chest",
+        "minecraft:chest"
+      ],
+      "bedrockPaletteStateCount": 11,
+      "bedrockNonAirPrimaryBlocks": 780,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 32,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_4"
+    },
+    {
+      "id": "clanvoidnew5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew5.nbt",
+      "sourceBlobSha": "115b15d2ec2ee9bd1ec4c5c5e03d015a5ce4f546",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:glass",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 8,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew5.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:furnace",
+        "minecraft:furnace",
+        "minecraft:furnace",
+        "minecraft:furnace"
+      ],
+      "bedrockPaletteStateCount": 14,
+      "bedrockNonAirPrimaryBlocks": 760,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 8,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_5"
+    },
+    {
+      "id": "clanvoidnew6",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew6.nbt",
+      "sourceBlobSha": "d8e1fe6fbc5e4e91af0611ca6a8dec6a2509c213",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:chest",
+        "minecraft:cobblestone",
+        "minecraft:cobblestone_wall",
+        "minecraft:glass",
+        "minecraft:jukebox",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 12,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew6.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:cobblestone_wall",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:chest",
+        "minecraft:chest",
+        "minecraft:jukebox",
+        "minecraft:chest",
+        "minecraft:chest"
+      ],
+      "bedrockPaletteStateCount": 15,
+      "bedrockNonAirPrimaryBlocks": 776,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 12,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_6"
+    },
+    {
+      "id": "clanvoidnew7",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew7.nbt",
+      "sourceBlobSha": "3f2e9f531528079abda22a2d061c2e521261c9ea",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:glass",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew7.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch",
+        "minecraft:torch"
+      ],
+      "bedrockPaletteStateCount": 10,
+      "bedrockNonAirPrimaryBlocks": 796,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_7"
+    },
+    {
+      "id": "fieldbase",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/fieldbase.nbt",
+      "sourceBlobSha": "c5c561db0aadfe0bcfc518adcc4ce29d413c648f",
+      "javaDataVersion": 3465,
+      "javaSize": [
+        16,
+        9,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:grass",
+        "minecraft:grass_block"
+      ],
+      "javaBlockCount": 2304,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/fieldbase.mcstructure",
+      "bedrockSize": [
+        16,
+        9,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:grass_block",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 768,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 252,
+      "generationRole": "surface_default"
+    },
+    {
+      "id": "fieldbase2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/fieldbase2.nbt",
+      "sourceBlobSha": "cb5f55cfc7098ac18c3ae58c67e72736b33d6330",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        4,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:azure_bluet",
+        "minecraft:bedrock",
+        "minecraft:cornflower",
+        "minecraft:dandelion",
+        "minecraft:grass_block",
+        "minecraft:oxeye_daisy",
+        "minecraft:poppy",
+        "minecraft:short_grass"
+      ],
+      "javaBlockCount": 1024,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/fieldbase2.mcstructure",
+      "bedrockSize": [
+        16,
+        4,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:bedrock",
+        "minecraft:grass_block",
+        "minecraft:air",
+        "minecraft:short_grass",
+        "minecraft:cornflower",
+        "minecraft:oxeye_daisy",
+        "minecraft:dandelion",
+        "minecraft:poppy",
+        "minecraft:azure_bluet"
+      ],
+      "bedrockPaletteStateCount": 9,
+      "bedrockNonAirPrimaryBlocks": 629,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 252,
+      "generationRole": "surface_rare"
     },
     {
       "id": "stone1",
@@ -81,10 +1048,13 @@
       ],
       "bedrockFormatVersion": 1,
       "bedrockBlockPalette": [
-        "minecraft:stone"
+        "minecraft:stone",
+        "minecraft:air"
       ],
+      "bedrockPaletteStateCount": 2,
       "bedrockNonAirPrimaryBlocks": 256,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_default"
@@ -119,8 +1089,10 @@
         "thebrokenscript:block_is_missing_id",
         "minecraft:air"
       ],
+      "bedrockPaletteStateCount": 3,
       "bedrockNonAirPrimaryBlocks": 306,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_1"
@@ -153,11 +1125,23 @@
       "bedrockBlockPalette": [
         "minecraft:stone",
         "minecraft:air",
-        "minecraft:oak_door"
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door"
       ],
       "bedrockPaletteStateCount": 14,
       "bedrockNonAirPrimaryBlocks": 300,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_2"
@@ -198,22 +1182,15 @@
         "minecraft:rail"
       ],
       "bedrockPaletteStateCount": 8,
-      "bedrockRailDirections": [
-        0,
-        1,
-        6,
-        7,
-        8,
-        9
-      ],
       "bedrockNonAirPrimaryBlocks": 295,
       "bedrockEntityCount": 1,
-      "bedrockEntityTypes": [
-        "minecraft:minecart"
-      ],
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
-      "generationRole": "floor4_rare_variant_3"
+      "generationRole": "floor4_rare_variant_3",
+      "bedrockEntityTypes": [
+        "minecraft:minecart"
+      ]
     },
     {
       "id": "stone5",
@@ -228,7 +1205,7 @@
       "javaPaletteNames": [
         "minecraft:air",
         "minecraft:stone",
-        "thebrokenscript:block_is_missing_id"
+        "thebrokenscript:it"
       ],
       "javaBlockCount": 768,
       "javaEntityCount": 0,
@@ -242,11 +1219,13 @@
       "bedrockFormatVersion": 1,
       "bedrockBlockPalette": [
         "minecraft:stone",
-        "thebrokenscript:block_is_missing_id",
-        "minecraft:air"
+        "minecraft:air",
+        "thebrokenscript:block_is_missing_id"
       ],
-      "bedrockNonAirPrimaryBlocks": 512,
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 279,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_4"
@@ -279,14 +1258,30 @@
         "minecraft:stone",
         "minecraft:air"
       ],
+      "bedrockPaletteStateCount": 2,
       "bedrockNonAirPrimaryBlocks": 256,
       "bedrockEntityCount": 15,
-      "bedrockEntityTypes": [
-        "minecraft:armor_stand"
-      ],
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
-      "generationRole": "floor4_rare_variant_5"
+      "generationRole": "floor4_rare_variant_5",
+      "bedrockEntityTypes": [
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand",
+        "minecraft:armor_stand"
+      ]
     },
     {
       "id": "stone7",
@@ -318,146 +1313,1653 @@
         "minecraft:smooth_stone",
         "minecraft:air"
       ],
+      "bedrockPaletteStateCount": 3,
       "bedrockNonAirPrimaryBlocks": 288,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
       "placementY": 233,
       "generationRole": "floor4_rare_variant_6"
     },
     {
-      "id": "clandimensionroom1",
-      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom1.nbt",
-      "sourceBlobSha": "4f30ee7f5f37cfff08ee6e4728fe27e5f62becc2",
+      "id": "tek_woodfloor1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor1.nbt",
+      "sourceBlobSha": "2f7e6f65b7c17f7b709df731c8855f8d15c68d2b",
       "javaDataVersion": 3955,
       "javaSize": [
         16,
-        9,
+        15,
         16
       ],
       "javaPaletteNames": [
         "minecraft:air",
-        "minecraft:cobblestone"
+        "minecraft:bedrock",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:oak_door",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs"
       ],
-      "javaBlockCount": 2304,
+      "javaBlockCount": 3840,
       "javaEntityCount": 0,
       "javaBlockEntityCount": 0,
-      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom1.mcstructure",
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor1.mcstructure",
       "bedrockSize": [
         16,
-        9,
+        15,
         16
       ],
       "bedrockFormatVersion": 1,
       "bedrockBlockPalette": [
-        "minecraft:cobblestone",
-        "minecraft:air"
+        "minecraft:oak_planks",
+        "minecraft:bedrock",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:air",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs"
       ],
-      "bedrockNonAirPrimaryBlocks": 750,
+      "bedrockPaletteStateCount": 29,
+      "bedrockNonAirPrimaryBlocks": 1832,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
-      "placementY": 207,
-      "generationRole": "floor2_variant_1"
+      "placementY": 217,
+      "generationRole": "floor3_variant_10_extra"
     },
     {
-      "id": "clandimensionroom2",
-      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom2.nbt",
-      "sourceBlobSha": "d555dff8e0c3d45d9509e9b281323d1042e54063",
+      "id": "tek_woodfloor10",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor10.nbt",
+      "sourceBlobSha": "9c16337ea4520da0c9a5c2dd060030cf61fa45fe",
       "javaDataVersion": 3955,
       "javaSize": [
         16,
-        9,
+        15,
         16
       ],
       "javaPaletteNames": [
         "minecraft:air",
-        "minecraft:cobblestone"
+        "minecraft:bookshelf",
+        "minecraft:oak_planks",
+        "minecraft:redstone_torch"
       ],
-      "javaBlockCount": 2304,
-      "javaEntityCount": 0,
-      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom2.mcstructure",
-      "bedrockSize": [
-        16,
-        9,
-        16
-      ],
-      "bedrockFormatVersion": 1,
-      "bedrockBlockPalette": [
-        "minecraft:cobblestone",
-        "minecraft:air"
-      ],
-      "bedrockNonAirPrimaryBlocks": 799,
-      "bedrockEntityCount": 0,
-      "status": "validated_asset",
-      "placementY": 207,
-      "generationRole": "floor2_variant_2"
-    },
-    {
-      "id": "clandimensionroom3",
-      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom3.nbt",
-      "sourceBlobSha": "37d9f55b6fc9ac6c6f41979380e398cfdbf56ead",
-      "javaDataVersion": 3955,
-      "javaSize": [
-        16,
-        9,
-        16
-      ],
-      "javaPaletteNames": [
-        "minecraft:air",
-        "minecraft:cobblestone"
-      ],
-      "javaBlockCount": 2304,
+      "javaBlockCount": 3840,
       "javaEntityCount": 0,
       "javaBlockEntityCount": 0,
-      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom3.mcstructure",
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor10.mcstructure",
       "bedrockSize": [
         16,
-        9,
+        15,
         16
       ],
       "bedrockFormatVersion": 1,
       "bedrockBlockPalette": [
-        "minecraft:cobblestone",
-        "minecraft:air"
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:redstone_torch"
       ],
-      "bedrockNonAirPrimaryBlocks": 855,
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 625,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
-      "placementY": 207,
-      "generationRole": "floor2_variant_3_4"
+      "placementY": 217,
+      "generationRole": "floor3_variant_18_extra"
     },
     {
-      "id": "clandimensionroom5",
-      "sourcePath": "source_extracted/data/thebrokenscript/structure/clandimensionroom5.nbt",
-      "sourceBlobSha": "8757e559d147f81f9dae6f8301d59af47027ca23",
+      "id": "tek_woodfloor12",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor12.nbt",
+      "sourceBlobSha": "1c2d8e08d529ddc49cd3a1147ffa2a5c70debca6",
       "javaDataVersion": 3955,
       "javaSize": [
         16,
-        9,
+        15,
         16
       ],
       "javaPaletteNames": [
         "minecraft:air",
-        "minecraft:cobblestone"
+        "minecraft:bookshelf",
+        "minecraft:oak_planks"
       ],
-      "javaBlockCount": 2304,
+      "javaBlockCount": 3840,
       "javaEntityCount": 0,
       "javaBlockEntityCount": 0,
-      "bedrockPath": "BP/structures/thebrokenscript/stage2/clandimensionroom5.mcstructure",
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor12.mcstructure",
       "bedrockSize": [
         16,
-        9,
+        15,
         16
       ],
       "bedrockFormatVersion": 1,
       "bedrockBlockPalette": [
-        "minecraft:cobblestone",
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
         "minecraft:air"
       ],
-      "bedrockNonAirPrimaryBlocks": 792,
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 624,
       "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
       "status": "validated_asset",
-      "placementY": 207,
-      "generationRole": "floor2_variant_5_ordinary"
+      "placementY": 217,
+      "generationRole": "floor3_variant_20_extra"
+    },
+    {
+      "id": "tek_woodfloor13",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor13.nbt",
+      "sourceBlobSha": "ba7ad8e439893ee9680f27fae652d876a53b3353",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_fence",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor13.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence"
+      ],
+      "bedrockPaletteStateCount": 6,
+      "bedrockNonAirPrimaryBlocks": 922,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_21_extra"
+    },
+    {
+      "id": "tek_woodfloor14",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor14.nbt",
+      "sourceBlobSha": "13c191c701ac42015a1a01719c2d666d2c91653b",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_fence",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor14.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence"
+      ],
+      "bedrockPaletteStateCount": 11,
+      "bedrockNonAirPrimaryBlocks": 698,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_22_extra"
+    },
+    {
+      "id": "tek_woodfloor15",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor15.nbt",
+      "sourceBlobSha": "282d634ae4f3d7d28ace7d34be49f9d8bef73b51",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_fence",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor15.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence"
+      ],
+      "bedrockPaletteStateCount": 11,
+      "bedrockNonAirPrimaryBlocks": 698,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_23_extra"
+    },
+    {
+      "id": "tek_woodfloor16",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor16.nbt",
+      "sourceBlobSha": "a2378805e1a2c20de957183a65ac0f1c3f31b4bb",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_fence",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor16.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence"
+      ],
+      "bedrockPaletteStateCount": 11,
+      "bedrockNonAirPrimaryBlocks": 698,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_24_extra"
+    },
+    {
+      "id": "tek_woodfloor17",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor17.nbt",
+      "sourceBlobSha": "ef132ea33b05db543bf87c94a2fb43af7ae1081c",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:dirt",
+        "minecraft:ladder",
+        "minecraft:oak_planks",
+        "thebrokenscript:limbo"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor17.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:dirt",
+        "minecraft:bookshelf",
+        "thebrokenscript:limbo",
+        "minecraft:air",
+        "minecraft:ladder",
+        "minecraft:ladder",
+        "minecraft:ladder",
+        "minecraft:ladder"
+      ],
+      "bedrockPaletteStateCount": 9,
+      "bedrockNonAirPrimaryBlocks": 956,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_25_extra"
+    },
+    {
+      "id": "tek_woodfloor18",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor18.nbt",
+      "sourceBlobSha": "bac42312adb55fa15d176f87763ad7245ba71893",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:chest",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "minecraft:redstone_wall_torch"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor18.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:air",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:chest"
+      ],
+      "bedrockPaletteStateCount": 16,
+      "bedrockNonAirPrimaryBlocks": 1101,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_26_extra"
+    },
+    {
+      "id": "tek_woodfloor2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor2.nbt",
+      "sourceBlobSha": "3c1ec5797fcdfb97824a45e4c4df5222487f3a08",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor2.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 960,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_11_extra"
+    },
+    {
+      "id": "tek_woodfloor20",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor20.nbt",
+      "sourceBlobSha": "73944fa55f81408266eace6aeec6d056e33b3a0b",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:lectern",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "minecraft:redstone_wall_torch"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 1,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor20.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:redstone_torch",
+        "minecraft:lectern"
+      ],
+      "bedrockPaletteStateCount": 7,
+      "bedrockNonAirPrimaryBlocks": 1090,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 1,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_27_extra"
+    },
+    {
+      "id": "tek_woodfloor21",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor21.nbt",
+      "sourceBlobSha": "913d0f068d7986e72723f2ab86cc5e3aa11e2484",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_wall_torch"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor21.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch"
+      ],
+      "bedrockPaletteStateCount": 8,
+      "bedrockNonAirPrimaryBlocks": 684,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_28_extra"
+    },
+    {
+      "id": "tek_woodfloor22",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor22.nbt",
+      "sourceBlobSha": "be71828a93ed8b6d3fdf3e4ab25a4d95a5850b1d",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_wall_torch"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor22.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch"
+      ],
+      "bedrockPaletteStateCount": 8,
+      "bedrockNonAirPrimaryBlocks": 683,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_29_extra"
+    },
+    {
+      "id": "tek_woodfloor23",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor23.nbt",
+      "sourceBlobSha": "4655d4de9ea88e1e2c8b93be5e7247829a4cd5f9",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_wall_torch"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor23.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch",
+        "minecraft:redstone_torch"
+      ],
+      "bedrockPaletteStateCount": 8,
+      "bedrockNonAirPrimaryBlocks": 689,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_30_extra"
+    },
+    {
+      "id": "tek_woodfloor24",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor24.nbt",
+      "sourceBlobSha": "6e5837391181d39024040a3738f3bc3365f45c31",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_fence",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "minecraft:potted_dead_bush",
+        "minecraft:redstone_wall_torch"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor24.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:redstone_torch",
+        "minecraft:potted_dead_bush",
+        "minecraft:oak_fence",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_fence",
+        "minecraft:redstone_torch",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs"
+      ],
+      "bedrockPaletteStateCount": 20,
+      "bedrockNonAirPrimaryBlocks": 1413,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_31_extra"
+    },
+    {
+      "id": "tek_woodfloor25",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor25.nbt",
+      "sourceBlobSha": "9743e41ee5aafbba52a60903816b552d14aacfe1",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:chest",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "thebrokenscript:null"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 3,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor25.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:crafting_table",
+        "thebrokenscript:null_structure",
+        "minecraft:air",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:chest",
+        "minecraft:furnace"
+      ],
+      "bedrockPaletteStateCount": 11,
+      "bedrockNonAirPrimaryBlocks": 694,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 3,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_32_extra"
+    },
+    {
+      "id": "tek_woodfloor26",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor26.nbt",
+      "sourceBlobSha": "05e00d871583f2514c55ee035bc737bc0017f502",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:chest",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "thebrokenscript:null"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 3,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor26.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "thebrokenscript:null_structure",
+        "minecraft:crafting_table",
+        "minecraft:air",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:chest",
+        "minecraft:furnace"
+      ],
+      "bedrockPaletteStateCount": 11,
+      "bedrockNonAirPrimaryBlocks": 694,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 3,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_33_extra"
+    },
+    {
+      "id": "tek_woodfloor27",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor27.nbt",
+      "sourceBlobSha": "ffb7ed1c9b8244761af76893f911c1c1579e6902",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "minecraft:oak_wall_sign"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 52,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor27.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign"
+      ],
+      "bedrockPaletteStateCount": 13,
+      "bedrockNonAirPrimaryBlocks": 859,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 52,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_34_extra"
+    },
+    {
+      "id": "tek_woodfloor28",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor28.nbt",
+      "sourceBlobSha": "03e83002f3d3b51bad0f5fabf363fcde71760c5c",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bedrock",
+        "minecraft:bookshelf",
+        "minecraft:chest",
+        "minecraft:dirt",
+        "minecraft:glass",
+        "minecraft:oak_door",
+        "minecraft:oak_planks",
+        "minecraft:oak_wall_sign",
+        "minecraft:potted_dead_bush",
+        "thebrokenscript:exit",
+        "thebrokenscript:null",
+        "thebrokenscript:ud_oak_door"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 57,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor28.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:dirt",
+        "thebrokenscript:null_structure",
+        "minecraft:bedrock",
+        "minecraft:wooden_door",
+        "minecraft:air",
+        "minecraft:wooden_door",
+        "thebrokenscript:ud_oak_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:potted_dead_bush",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wall_sign",
+        "thebrokenscript:exit",
+        "minecraft:chest"
+      ],
+      "bedrockPaletteStateCount": 24,
+      "bedrockNonAirPrimaryBlocks": 1943,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 57,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_35_extra"
+    },
+    {
+      "id": "tek_woodfloor3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor3.nbt",
+      "sourceBlobSha": "c603eac65fe207f3e9b7c40a7e99cd66aa560ac8",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:dirt",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor3.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:dirt",
+        "minecraft:bookshelf",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 635,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_12_extra"
+    },
+    {
+      "id": "tek_woodfloor4",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor4.nbt",
+      "sourceBlobSha": "af65f6aead0d6a42b53e6a5944385afdc389c8af",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        16,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:oak_planks",
+        "minecraft:oak_stairs",
+        "minecraft:stone"
+      ],
+      "javaBlockCount": 4096,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor4.mcstructure",
+      "bedrockSize": [
+        16,
+        16,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:stone",
+        "minecraft:air",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs",
+        "minecraft:oak_stairs"
+      ],
+      "bedrockPaletteStateCount": 6,
+      "bedrockNonAirPrimaryBlocks": 3416,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_13_extra"
+    },
+    {
+      "id": "tek_woodfloor6",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor6.nbt",
+      "sourceBlobSha": "aa69f906304c06a5db25b7596eeae9c9dd4c5bc7",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:chest",
+        "minecraft:oak_planks",
+        "minecraft:oak_slab",
+        "minecraft:oak_wall_sign"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 7,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor6.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:oak_slab",
+        "minecraft:oak_slab",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign",
+        "minecraft:chest",
+        "minecraft:wall_sign",
+        "minecraft:wall_sign"
+      ],
+      "bedrockPaletteStateCount": 10,
+      "bedrockNonAirPrimaryBlocks": 1139,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 7,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_14_extra"
+    },
+    {
+      "id": "tek_woodfloor7",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor7.nbt",
+      "sourceBlobSha": "160620307f732cb014510192fb5c9d64cae45361",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor7.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 707,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_15_extra"
+    },
+    {
+      "id": "tek_woodfloor8",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor8.nbt",
+      "sourceBlobSha": "55b1362a5c10a79479f2bd65ea9859302eecc69e",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:ladder",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor8.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:ladder"
+      ],
+      "bedrockPaletteStateCount": 4,
+      "bedrockNonAirPrimaryBlocks": 960,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_16_extra"
+    },
+    {
+      "id": "tek_woodfloor9",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/tek_woodfloor9.nbt",
+      "sourceBlobSha": "2ecbcb1505ef3b933fde01d3ced7a8c15e001472",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:dirt",
+        "minecraft:glass",
+        "minecraft:oak_door",
+        "minecraft:oak_planks",
+        "minecraft:potted_dead_bush"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/tek_woodfloor9.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:dirt",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:potted_dead_bush",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door"
+      ],
+      "bedrockPaletteStateCount": 20,
+      "bedrockNonAirPrimaryBlocks": 2078,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_17_extra"
+    },
+    {
+      "id": "woodfloor1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor1.nbt",
+      "sourceBlobSha": "bc88673a46dc5ad71b46e0725cd6485bf92bd783",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:oak_door",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor1.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:glass",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door"
+      ],
+      "bedrockPaletteStateCount": 16,
+      "bedrockNonAirPrimaryBlocks": 1823,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_1_ordinary"
+    },
+    {
+      "id": "woodfloor2",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor2.nbt",
+      "sourceBlobSha": "238596fe717d2c323da6d6f20de0f736e65d00a1",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:oak_door",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor2.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:air",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door"
+      ],
+      "bedrockPaletteStateCount": 24,
+      "bedrockNonAirPrimaryBlocks": 1565,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_2_ordinary"
+    },
+    {
+      "id": "woodfloor3",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor3.nbt",
+      "sourceBlobSha": "a92ba2e4e6cc988da1d8defed2e7136b4842946a",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor3.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 512,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_3_ordinary"
+    },
+    {
+      "id": "woodfloor4",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor4.nbt",
+      "sourceBlobSha": "a4263b986ed5408d23618502b3d86c18e99d19c1",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor4.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 768,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_8_9_ordinary"
+    },
+    {
+      "id": "woodfloor5",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor5.nbt",
+      "sourceBlobSha": "516371e2098f90751b1b72d0f268df4ceb7cb754",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_door",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor5.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door",
+        "minecraft:wooden_door"
+      ],
+      "bedrockPaletteStateCount": 7,
+      "bedrockNonAirPrimaryBlocks": 1529,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_5_ordinary"
+    },
+    {
+      "id": "woodfloor6",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor6.nbt",
+      "sourceBlobSha": "b68641398b06799aac02f7e23702db982f0dd431",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor6.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 2,
+      "bedrockNonAirPrimaryBlocks": 938,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_37_ordinary"
+    },
+    {
+      "id": "woodfloor7",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor7.nbt",
+      "sourceBlobSha": "d31b295072b0c02c42748257bdc61d34a777f439",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:bookshelf",
+        "minecraft:oak_planks"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor7.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:bookshelf",
+        "minecraft:air"
+      ],
+      "bedrockPaletteStateCount": 3,
+      "bedrockNonAirPrimaryBlocks": 992,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_7_ordinary"
+    },
+    {
+      "id": "woodfloor8",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor8.nbt",
+      "sourceBlobSha": "fae9605f22b3c0ff1119873240095e621a59b1a2",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:dirt",
+        "minecraft:grass_block",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence_gate",
+        "minecraft:oak_planks",
+        "minecraft:poppy",
+        "minecraft:redstone_torch",
+        "minecraft:short_grass",
+        "minecraft:tall_grass"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 1,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor8.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:grass_block",
+        "minecraft:dirt",
+        "minecraft:air",
+        "minecraft:short_grass",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:fence_gate",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:poppy",
+        "minecraft:tall_grass",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence",
+        "minecraft:redstone_torch",
+        "minecraft:tall_grass"
+      ],
+      "bedrockPaletteStateCount": 16,
+      "bedrockNonAirPrimaryBlocks": 580,
+      "bedrockEntityCount": 1,
+      "bedrockBlockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_8_extra",
+      "bedrockEntityTypes": [
+        "minecraft:sheep"
+      ]
+    },
+    {
+      "id": "woodfloor9",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/woodfloor9.nbt",
+      "sourceBlobSha": "8d41ef46ec24b3d463f14ec77af95d50a02d7ff0",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        15,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:dispenser",
+        "minecraft:lever",
+        "minecraft:oak_planks",
+        "minecraft:obsidian",
+        "minecraft:piston_head",
+        "minecraft:redstone_wire",
+        "minecraft:repeater",
+        "minecraft:sticky_piston",
+        "minecraft:water",
+        "minecraft:white_wool"
+      ],
+      "javaBlockCount": 3840,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 10,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/woodfloor9.mcstructure",
+      "bedrockSize": [
+        16,
+        15,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "minecraft:oak_planks",
+        "minecraft:white_wool",
+        "minecraft:sticky_piston",
+        "minecraft:sticky_piston",
+        "minecraft:sticky_piston",
+        "minecraft:obsidian",
+        "minecraft:air",
+        "minecraft:lever",
+        "minecraft:unpowered_repeater",
+        "minecraft:lever",
+        "minecraft:unpowered_repeater",
+        "minecraft:sticky_piston_arm_collision",
+        "minecraft:sticky_piston_arm_collision",
+        "minecraft:lever",
+        "minecraft:lever",
+        "minecraft:lever",
+        "minecraft:redstone_wire",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:redstone_wire",
+        "minecraft:redstone_wire",
+        "minecraft:powered_repeater",
+        "minecraft:water",
+        "minecraft:water",
+        "minecraft:water",
+        "minecraft:water",
+        "minecraft:water",
+        "minecraft:water",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:unpowered_repeater",
+        "minecraft:dispenser",
+        "minecraft:dispenser",
+        "minecraft:dispenser"
+      ],
+      "bedrockPaletteStateCount": 38,
+      "bedrockNonAirPrimaryBlocks": 1002,
+      "bedrockEntityCount": 0,
+      "bedrockBlockEntityCount": 10,
+      "status": "validated_asset",
+      "placementY": 217,
+      "generationRole": "floor3_variant_9_extra"
     }
   ]
 }

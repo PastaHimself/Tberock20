@@ -471,3 +471,21 @@ BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/sta
 ## Next chunk
 
 **Next source boundary.** Validate the remaining Floor 1 `clanvoidnew2`..`clanvoidnew7` assets, then continue the remaining Stage 2 structure families and the automatic placement/runtime engine boundary.
+
+## Chunk 67 — Complete Integrity Phase 2 Stage 2 asset/runtime pass
+
+Chunk 67 closes the remaining portable Stage 2 template work. The converter now processes every one of the 64 audited Java templates into a validated Bedrock format-version 1 `.mcstructure` asset. It preserves source dimensions, ZYX cell order, block-entity positions and inventory stacks, source structure entities, and Java AIR/STRUCTURE_VOID ignore behavior via Bedrock `-1` no-op indices. Java-only block ids and states are adapted to the current Bedrock block listing, including legacy doors/signs, directional torches, rails, pistons, repeaters, liquids, and the existing custom-block surrogates.
+
+The model catalog and `STAGE2_TEMPLATE_ASSET_AUDIT.json` now agree on all 64 source blobs, sizes, counts, selector roles, placement heights, and assets (`validatedAssetCount=64`, `deferredTemplateCount=0`). The audit records the runtime strategy and its boundary rather than treating static dimension JSON as a Java custom-generator replacement.
+
+The Phase 2 runtime now starts a retryable, bounded placement queue when a player enters a Stage 2 cell. It reconstructs the source-shaped 9×9 interior surface/room layout and the x=80 tunnel line, selects the audited families, carries per-placement rotation and Java `FRONT_BACK` mirror semantics through Bedrock `StructureRotation`/`StructureMirrorAxis.Z`, and places through `world.structureManager.place`. Older preview builds fall back to the validated `Dimension.runCommand` `/structure load` path. Air-only scaffold and barrier fills remain retryable and are not erased by ignored source air cells.
+
+Local validation for this chunk passes: 74 Python tests, 263 JavaScript tests, add-on/resource/Jigsaw validators, 64 `.mcstructure` files with zero structure warnings/errors, and `.mcaddon` packaging. Java custom chunk-generator seed parity, exact occupancy/overlap filtering, R3 border material, nowhere Voronoi post-processing, and live Bedrock-world smoke validation remain explicit engine/device boundaries.
+
+## Files changed (Chunk 67)
+
+BP/scripts/systems/integrity_arena_model.js · BP/scripts/systems/integrity_arena_runtime.js · BP/scripts/systems/worldgen_structures.js · src/systems/worldgen_structures.js · BP/structures/thebrokenscript/stage2/*.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tools/convert_stage2_structures.py · tests/test_stage2_structure_converter.py · tests/integrity_phase2_stage2_model.test.mjs · focused Stage 2 asset tests · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · docs/chunks/CHUNK_67_{SPEC,REPORT}.md
+
+## Current next step
+
+Run the repository CI workflow on the GitHub branch and perform a live Bedrock-world smoke test if a compatible Bedrock preview/device is available. No Stage 2 source template remains unconverted; the remaining exact-generation differences are documented engine boundaries.

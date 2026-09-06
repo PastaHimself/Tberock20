@@ -500,3 +500,17 @@ Java `Stage2Generator.java` selects `clandimensionroom2` when Floor 2 variant 5 
 ### Chunk 66 adaptation note — Floor 1 variant 1 `clanvoidnew1`
 
 Java `Stage2Generator.java` selects `clanvoidnew1` for Floor 1 variant 1 and places the 16×6×16 template at Y=200; the source blob is DataVersion 3955 with 1,536 cells, 748 non-air cells, zero entities, and zero block entities. The Bedrock adaptation converts the source NBT to an uncompressed little-endian `.mcstructure`, maps wall-torch directions to the documented `torch_facing_direction` state, reuses the existing custom border blocks, catalogs the source SHA and geometry, and exposes the existing no-mirror block-only `structure load` seam. BedrockWikiMcp verified `Dimension.runCommand`; Microsoft Learn verified the structure-load flags and torch state values. No new `@minecraft/server` API is introduced. Exact Java custom chunk generation and automatic runtime placement remain explicitly blocked by the engine boundary.
+
+## A-046 — Integrity Phase 2 complete Stage 2 catalog and runtime placement
+
+1. **Source feature**: the complete `Stage2Generator.genRoom`, `genSurface`, `genTunnel`, and `placeStructure` template set: 64 audited Java NBT templates across the Floor 1–4 room bands, surface variants, and tunnel variants.
+
+2. **Source behavior**: Java places the four room bands at Y 200/207/217/233, selects source variants from the generator RNG, applies a shared mirror/rotation transform, ignores AIR/STRUCTURE_VOID cells, includes template entities, and places the surface at Y 252 plus tunnel segments at Y 160. The surrounding floor/barrier generation remains part of the Stage2Generator contract.
+
+3. **Source evidence**: `decompiled/net/thebrokenscript/world/dimension/boss/stage2/Stage2Generator.java`; `decompiled/net/thebrokenscript/boss/integrity/Stage2Floor.java`; `decompiled/net/thebrokenscript/boss/integrity/Stage2Util.java`; `TheBrokenScript_Bedrock_2_0/STAGE2_GENERATOR_AUDIT.json`; `TheBrokenScript_Bedrock_2_0/STAGE2_TEMPLATE_ASSET_AUDIT.json`.
+
+4. **Bedrock adaptation**: `tools/convert_stage2_structures.py` converts all 64 audited sources into little-endian format-version 1 `.mcstructure` assets with Bedrock ZYX indices, current block/state names, adapted Java block entities/inventory stacks, source entities, and `-1` no-op indices for ignored source air. `integrity_arena_model.js` exposes a 64-entry validated catalog and selector/Y helpers. `integrity_arena_runtime.js` queues the 9×9 interior surface/room cells plus the x=80 tunnel line when a Stage 2 cell is entered, places through `world.structureManager.place`, carries `StructureRotation` and Java `FRONT_BACK` → `StructureMirrorAxis.Z`, and retries through the `Dimension.runCommand` fallback when needed. The queue is capped at 16 placements per tick.
+
+5. **Player-visible difference**: Bedrock static dimension JSON still cannot install the Java custom `Stage2Generator` chunk codec. The runtime selection seed is deterministic per arena/cell but is not Java `RandomSource` seed parity; Java's bounded occupancy set, exact R3 border material, and `genNowhere` Voronoi post-processing remain unavailable. No live Bedrock-world smoke test is available in this environment.
+
+6. **Parity class**: VALIDATED_APPROXIMATION for the complete asset catalog and runtime placement adapter; BLOCKED for exact Java custom-generator parity.

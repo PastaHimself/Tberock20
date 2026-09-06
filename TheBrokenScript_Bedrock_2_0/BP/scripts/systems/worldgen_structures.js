@@ -3,8 +3,9 @@ import { logger } from "../core/logging.js";
 
 // Chunk 11: script-driven worldgen builders.
 // Source corpus: 305 Java .nbt structures + shaft/ (6 pieces) + xcsf phase3 arena
-// (4MB custom format). NBT->mcstructure binary conversion deferred (needs offline
-// tooling); signature structures are rebuilt procedurally here.
+// (4MB custom format). The 64 Stage2Generator templates are converted by
+// tools/convert_stage2_structures.py and placed by the Integrity runtime. The
+// remaining non-Stage-2 corpus and xcsf arena still use the procedural adapter.
 
 const BEDROCK = "minecraft:bedrock";
 const AIR = "minecraft:air";

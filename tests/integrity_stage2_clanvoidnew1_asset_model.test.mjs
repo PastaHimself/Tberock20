@@ -80,6 +80,6 @@ test("clanvoidnew1 contains the source custom blocks and directional torch state
   const serialized = asset.toString("utf8");
   assert.ok(serialized.includes("thebrokenscript:cobblestone_border_block"));
   assert.ok(serialized.includes("thebrokenscript:stone_slab_border_block"));
-  assert.ok(serialized.includes("minecraft:wall_torch"));
+  assert.ok(serialized.includes("minecraft:torch"));
   assert.ok(serialized.includes("torch_facing_direction"));
 });
