@@ -9,7 +9,7 @@ import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js
 // ── Chunk 13: command surface (scriptevent) + chat responses ────────────────
 // Usage: /scriptevent tbs:help   |   /scriptevent tbs:fire <event_id>
 //        /scriptevent tbs:arena start|stop   |   /scriptevent tbs:shaft
-//        /scriptevent tbs:dim <dimId>   |   /scriptevent tbs:adv <advId>
+//        /scriptevent tbs:dim <overworld|nether|the_end>   |   /scriptevent tbs:adv <advId>
 //        /scriptevent tbs:effect heart_corruption|why_cant_you_leave [seconds]
 
 const CHAT_RESPONSES = {
@@ -66,7 +66,7 @@ function handleCommand(ev) {
         "§7/scriptevent tbs:fire <event>",
         "§7/scriptevent tbs:arena <start|stop>",
         "§7/scriptevent tbs:shaft",
-        "§7/scriptevent tbs:dim <dimension>",
+        "§7/scriptevent tbs:dim <overworld|nether|the_end>",
         "§7/scriptevent tbs:adv <advancement>",
         "§7/scriptevent tbs:effect <effect> [seconds]"
       ].join("\n"));
@@ -93,7 +93,10 @@ function handleCommand(ev) {
     }
     case "dim": {
       const id = parts[0];
-      if (!id || !dimensions.ALL.includes(id)) { reply(ev, "§cdimensions: " + dimensions.ALL.join(", ")); break; }
+      if (!id || !dimensions.isSupported(id)) {
+        reply(ev, "§cdimensions: " + dimensions.SUPPORTED.join(", "));
+        break;
+      }
       const ok = dimensions.teleportTo(player, id, { x: 0, y: 201, z: 0 });
       reply(ev, ok ? `§5traveling to ${id}` : "§cteleport failed");
       break;
