@@ -502,6 +502,7 @@ export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
       blockCount: 1536,
       nonAirBlockCount: 748,
       entityCount: 0,
+      blockEntityCount: 0,
       placementY: 200,
       generationRole: "floor1_variant_1",
       status: "validated_asset",
