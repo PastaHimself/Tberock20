@@ -9,7 +9,7 @@
       {
         "element": {
           "element_type": "minecraft:single_pool_element",
-          "location": "thebrokenscript:shaft/shaft_hall",
+          "location": "thebrokenscript/shaft/shaft_hall",
           "projection": "rigid"
         },
         "weight": 1
@@ -17,7 +17,7 @@
       {
         "element": {
           "element_type": "minecraft:single_pool_element",
-          "location": "thebrokenscript:shaft/shaft_corner",
+          "location": "thebrokenscript/shaft/shaft_corner",
           "projection": "rigid"
         },
         "weight": 1
@@ -25,7 +25,7 @@
       {
         "element": {
           "element_type": "minecraft:single_pool_element",
-          "location": "thebrokenscript:shaft/shaft_junction",
+          "location": "thebrokenscript/shaft/shaft_junction",
           "projection": "rigid"
         },
         "weight": 1
@@ -33,7 +33,7 @@
       {
         "element": {
           "element_type": "minecraft:single_pool_element",
-          "location": "thebrokenscript:shaft/shaft_room_hall",
+          "location": "thebrokenscript/shaft/shaft_room_hall",
           "projection": "rigid"
         },
         "weight": 1
