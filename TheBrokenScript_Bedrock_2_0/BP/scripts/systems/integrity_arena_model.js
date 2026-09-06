@@ -479,8 +479,8 @@ export function stage2GeneratorRuntimeVolumes(playerBlock) {
 // Stage2Generator.java template catalog. The Java generator always places
 // clandimensionroom1 is the audited Floor 2 variant 1 at Y 207; the default
 // Floor 4 stone1 template remains at Y 233 and its rare variants extend through
-// stone7. These are the first eleven source templates converted to validated
-// Bedrock .mcstructure assets; the remaining 53 templates
+// stone7. These are the first twelve source templates converted to validated
+// Bedrock .mcstructure assets; the remaining 52 templates
 // stay explicitly deferred until their palettes/entities/block entities are
 // converted and smoke-tested.
 export const STAGE2_TEMPLATE_SOURCE = Object.freeze({

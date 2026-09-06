@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-06 (Chunk 62 — Integrity Phase 2 Stage 2 clandimensionroom1 template asset)
+Last updated: 2026-09-06 (Chunk 66 — Integrity Phase 2 Stage 2 clanvoidnew1 asset)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-06 (Chunk 62 — Integrity Phase 2 Stage 2 clandimensionro
 
 ## Current chunk
 
-**Chunk 62 ready for review — Integrity Phase 2 Stage 2 clandimensionroom1 template asset**
+**Chunk 66 ready for review — Integrity Phase 2 Stage 2 clanvoidnew1 asset**
 
-Chunk 62 validates the source-backed Floor 2 variant 1, `clandimensionroom1`, as a Bedrock .mcstructure asset. The Java source contract is DataVersion 3955, size 16×9×16 with 2,304 cells: 750 minecraft:cobblestone and 1,554 minecraft:air, with no entities or block entities. The Bedrock asset preserves the source dimensions and ZYX block-index layout with two layers, records Floor 2 placement Y 207, and emits structure load ... none false true because it is block-only. The model maps stage2GeneratorFloor2Structure(1, false) to clandimensionroom1; no new @minecraft/server API is introduced. Validated assets are now 8/64 and 56 remain deferred. The Floor 1–7 boundaries and Floor 6 → FLOOR_6_INTEG mapping remain unchanged; Java Stage2Generator custom chunk generation, automatic placement, exact rotation/mirror/occupancy, and live Bedrock smoke testing remain explicit boundaries. GitHub Actions [run 34015384648](https://github.com/PastaHimself/Tberock20/actions/runs/34015384648) passed 67 Python validator tests, complete add-on validation, resource identifier links, Jigsaw JSON and NBT connector checks, all 8 Bedrock structures including clandimensionroom1.mcstructure, JavaScript syntax, beta type-check, 248/248 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 exact known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally.
+Chunk 66 validates the source-backed Floor 1 variant 1 template `clanvoidnew1` as a Bedrock `.mcstructure` asset at Y=200. The Java source is DataVersion 3955, size 16×6×16, with 748 non-air cells across cobblestone-border, stone-slab-border, cobblestone, glass, and wall-torch palette entries; it contains no entities or block entities. The model preserves the Floor 1 variant boundary 1..7, records the source SHA and placement contract, and advances the validated Stage 2 catalog to 12/64 with 52 templates still deferred. GitHub Actions [run 34021929745](https://github.com/PastaHimself/Tberock20/actions/runs/34021929745) passed 67 Python validator tests, complete add-on/resource/Jigsaw validation, all 12 Bedrock structures, JavaScript syntax, beta type-check, 260/260 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally. Java custom Stage2Generator chunk generation and automatic template placement remain explicit engine boundaries.
 
 ## Chunk state
 | Chunk | State |
@@ -454,3 +454,20 @@ BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/sta
 - Preserved the special/ordinary selector boundary and documented Java custom `Stage2Generator` chunk placement as unavailable in static Bedrock dimension JSON.
 - Next source boundary: remaining deferred Stage 2 template assets, then automatic runtime placement and the Stage 2 floor/entity transition gaps.
 
+## Chunk 66 — Integrity Phase 2 Stage 2 clanvoidnew1 asset
+
+- Completed the source-backed Floor 1 variant 1 asset boundary from `Stage2Generator.java`: `clanvoidnew1` at Y=200.
+- Added a validated Bedrock `.mcstructure` with size 16×6×16, 748 non-air primary blocks, zero entities, and zero block entities.
+- Preserved the Floor 1 variant selector boundary 1..7; variants 2..7 remain explicit deferred source assets.
+- Converted Java directional wall torches to Bedrock `torch_facing_direction` states and reused the existing custom cobblestone-border and stone-slab-border blocks.
+- Updated the model/audit contract to 12 validated Stage 2 templates and 52 deferred templates.
+- No new `@minecraft/server` API was introduced; the existing `Dimension.runCommand` structure-load seam remains the adapter.
+- Java custom `Stage2Generator` generation, exact occupancy/RNG/rotation/mirror behavior, and automatic scheduler placement remain engine boundaries.
+
+## Files changed (Chunk 66)
+
+BP/scripts/systems/integrity_arena_model.js · BP/structures/thebrokenscript/stage2/clanvoidnew1.mcstructure · STAGE2_TEMPLATE_ASSET_AUDIT.json · tests/integrity_stage2_clanvoidnew1_asset_model.test.mjs · PORT_PROGRESS.md · PARITY_MATRIX.md · KNOWN_LIMITATIONS.md · ADAPTATION_NOTES.md · VALIDATION_LOG.md · docs/chunks/CHUNK_66_{SPEC,REPORT}.md
+
+## Next chunk
+
+**Next source boundary.** Validate the remaining Floor 1 `clanvoidnew2`..`clanvoidnew7` assets, then continue the remaining Stage 2 structure families and the automatic placement/runtime engine boundary.

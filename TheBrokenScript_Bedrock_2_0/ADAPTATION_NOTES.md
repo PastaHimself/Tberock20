@@ -465,7 +465,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 4. **Bedrock adaptation**: BP/structures/thebrokenscript/stage2/stone7.mcstructure is a validated format-version 1 little-endian Bedrock structure with size 16×3×16, two block-index layers, palette [minecraft:stone, minecraft:smooth_stone, minecraft:air], 288 non-air primary cells, and no entities or block entities. stage2TemplatePlacementPlan records includeEntities=false; stage2TemplateLoadCommand emits structure load thebrokenscript:stage2/stone7 ... none false true. The asset is not automatically loaded by the Phase 2 scheduler.
 
-5. **Player-visible difference**: Only 7/64 source templates are currently available. The remaining 57 templates, automatic scheduler placement, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, and live Bedrock smoke testing remain deferred. Java custom Stage2Generator chunk generation remains an explicit engine boundary.
+5. **Player-visible difference**: Only 12/64 source templates are currently available. The remaining 57 templates, automatic scheduler placement, Java FRONT_BACK mirror mapping, deterministic room/surface/tunnel placement, occupancy set, nowhere/border generation, and live Bedrock smoke testing remain deferred. Java custom Stage2Generator chunk generation remains an explicit engine boundary.
 
 6. **Parity class**: VALIDATED_APPROXIMATION for the converted stone7 asset/catalog seam; Java custom Stage2Generator parity remains BLOCKED.
 
@@ -497,3 +497,6 @@ Java `Stage2Generator.java` selects `clandimensionroom3` for Floor 2 variants 3 
 
 Java `Stage2Generator.java` selects `clandimensionroom2` when Floor 2 variant 5 is special and `clandimensionroom5` otherwise, placing both in the Y=207 band. The Bedrock adaptation preserves that selector contract, converts the ordinary source NBT into an uncompressed little-endian `.mcstructure`, catalogs its source blob SHA and geometry, and exposes the existing validated `structure load` seam. `Dimension.runCommand` remains the existing stable API adapter; no new `@minecraft/server` API is introduced.
 
+### Chunk 66 adaptation note — Floor 1 variant 1 `clanvoidnew1`
+
+Java `Stage2Generator.java` selects `clanvoidnew1` for Floor 1 variant 1 and places the 16×6×16 template at Y=200; the source blob is DataVersion 3955 with 1,536 cells, 748 non-air cells, zero entities, and zero block entities. The Bedrock adaptation converts the source NBT to an uncompressed little-endian `.mcstructure`, maps wall-torch directions to the documented `torch_facing_direction` state, reuses the existing custom border blocks, catalogs the source SHA and geometry, and exposes the existing no-mirror block-only `structure load` seam. BedrockWikiMcp verified `Dimension.runCommand`; Microsoft Learn verified the structure-load flags and torch state values. No new `@minecraft/server` API is introduced. Exact Java custom chunk generation and automatic runtime placement remain explicitly blocked by the engine boundary.

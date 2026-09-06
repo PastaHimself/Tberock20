@@ -105,3 +105,6 @@ The source-backed `clandimensionroom3` Floor 2 variants 3 and 4 are now represen
 
 The source-backed Floor 2 variant 5 ordinary path is now represented by a validated `BP/structures/thebrokenscript/stage2/clandimensionroom5.mcstructure` asset and catalog entry. The model preserves variant 5’s special=true reuse of `clandimensionroom2`, ordinary=false selection of `clandimensionroom5`, Y=207 placement, the no-mirror boundary, and the `/structure load` command seam. Automatic Java custom-chunk-generator placement and live Bedrock-world smoke validation remain pending or engine-limited.
 
+### Chunk 66 parity update — Floor 1 variant 1 template asset
+
+The source-backed `clanvoidnew1` Floor 1 variant 1 is now represented by a validated `BP/structures/thebrokenscript/stage2/clanvoidnew1.mcstructure` asset and catalog entry. The model preserves the Java 1..7 Floor 1 selector boundary, Y=200 placement, source palette/count contract, and no-mirror block-only `/structure load` seam. Directional wall torches use Bedrock's documented `torch_facing_direction` state; the existing custom border blocks are reused. Automatic Java custom-generator placement and live Bedrock-world smoke validation remain pending or engine-limited.
