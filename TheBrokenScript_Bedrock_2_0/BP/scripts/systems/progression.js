@@ -1,6 +1,6 @@
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
-import { progressionCacheKey, progressionPropertyKey } from "./progression_state.js";
+import { hasPersistedAdvancement, persistAdvancement } from "./progression_state.js";
 
 // ── Chunk 13: progression (advancement approximations) ──────────────────────
 // Bedrock has no custom advancements (A-006): award() = title + sound + chat
@@ -32,13 +32,8 @@ export function hasForPlayer(playerOrId, id) {
   const player = resolvePlayer(playerOrId);
   if (!player) return false;
 
-  const cacheKey = progressionCacheKey(player, id);
-  if (cacheKey && awarded.has(cacheKey)) return true;
-
   try {
-    const persisted = Boolean(player.getDynamicProperty(progressionPropertyKey(id)));
-    if (persisted && cacheKey) awarded.add(cacheKey);
-    return persisted;
+    return hasPersistedAdvancement(player, id, awarded);
   } catch (error) {
     logger.error(`progression: failed to read advancement '${id}'`, error);
     return false;
@@ -55,17 +50,13 @@ export function award(playerOrId, id) {
     return false;
   }
 
-  const cacheKey = progressionCacheKey(player, id);
-  if (!cacheKey || hasForPlayer(player, id)) return false;
-
   try {
-    player.setDynamicProperty(progressionPropertyKey(id), true);
+    if (!persistAdvancement(player, id, awarded)) return false;
   } catch (error) {
     logger.error(`progression: failed to persist advancement '${id}'`, error);
     return false;
   }
 
-  awarded.add(cacheKey);
   try {
     player.playSound("random.levelup", { volume: 0.6 });
     player.onScreenDisplay.setTitle("§8Advancement Made§r §7— " + label, {
