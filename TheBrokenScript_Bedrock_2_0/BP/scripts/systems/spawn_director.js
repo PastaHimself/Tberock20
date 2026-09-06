@@ -45,10 +45,11 @@ function evaluateAroundPlayers() {
     if (players.length === 0) return;
     for (const rule of rules.values()) {
         try {
+            const gameTime = world.getTimeOfDay();
             const ctx = {
                 players,
-                gameTime: world.getTimeOfDay(),
-                frequency: eventFrequency(0),
+                gameTime,
+                frequency: eventFrequency(gameTime),
                 isNullHere: () => worldState.get("isNullHere")
             };
             if (rule.predicate(ctx) === true) break;
