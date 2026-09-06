@@ -67,3 +67,8 @@ The `clandimensionroom2` asset is validated as a reusable Bedrock structure, but
 
 The `clandimensionroom3` asset is validated as a reusable Bedrock structure for Java Floor 2 variants 3 and 4, but Bedrock static dimension JSON still cannot host Java's custom `Stage2Generator` codec or reproduce its automatic chunk-generation lifecycle. The port therefore keeps both source selectors and the placement contract explicit without claiming automatic Stage 2 world generation parity.
 
+
+### Chunk 65 limitation update — Floor 2 variant 5 selection
+
+The `clandimensionroom5` asset is validated for Java Floor 2 variant 5’s ordinary path, while the special path intentionally reuses `clandimensionroom2`. Bedrock static dimension JSON still cannot host Java’s custom `Stage2Generator` codec or reproduce its automatic chunk-generation lifecycle; the selector and reusable structure assets therefore remain an explicit placement contract rather than automatic Stage 2 generation.
+

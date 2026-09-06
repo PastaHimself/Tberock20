@@ -100,3 +100,8 @@ The source-backed `clandimensionroom2` Floor 2 variant is now represented by a v
 
 The source-backed `clandimensionroom3` Floor 2 variants 3 and 4 are now represented by a validated `BP/structures/thebrokenscript/stage2/clandimensionroom3.mcstructure` asset and catalog entry. The model preserves both Java selectors, Y=207 placement, the no-mirror boundary, and the `/structure load` command seam. This improves template-asset parity only; automatic Java custom-chunk-generator placement, exact generator RNG/occupancy/rotation/mirror behavior, and Bedrock world/runtime smoke validation remain pending or engine-limited.
 
+
+### Chunk 65 parity update — Floor 2 variant 5 ordinary asset
+
+The source-backed Floor 2 variant 5 ordinary path is now represented by a validated `BP/structures/thebrokenscript/stage2/clandimensionroom5.mcstructure` asset and catalog entry. The model preserves variant 5’s special=true reuse of `clandimensionroom2`, ordinary=false selection of `clandimensionroom5`, Y=207 placement, the no-mirror boundary, and the `/structure load` command seam. Automatic Java custom-chunk-generator placement and live Bedrock-world smoke validation remain pending or engine-limited.
+

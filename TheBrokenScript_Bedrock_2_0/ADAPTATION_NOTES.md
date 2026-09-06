@@ -492,3 +492,8 @@ Java `Stage2Generator.java` selects `clandimensionroom2` for Floor 2 variant 2 a
 
 Java `Stage2Generator.java` selects `clandimensionroom3` for Floor 2 variants 3 and 4 and places the template at Y=207. The Bedrock adaptation converts the source Java NBT into an uncompressed little-endian `.mcstructure`, catalogs its source blob SHA and geometry, and exposes the validated `structure load` seam. `Dimension.runCommand` remains the existing stable API adapter; no new `@minecraft/server` API is introduced. Java custom chunk generation remains explicitly documented as an engine boundary.
 
+
+### Chunk 65 adaptation note — Floor 2 variant 5 special/ordinary mapping
+
+Java `Stage2Generator.java` selects `clandimensionroom2` when Floor 2 variant 5 is special and `clandimensionroom5` otherwise, placing both in the Y=207 band. The Bedrock adaptation preserves that selector contract, converts the ordinary source NBT into an uncompressed little-endian `.mcstructure`, catalogs its source blob SHA and geometry, and exposes the existing validated `structure load` seam. `Dimension.runCommand` remains the existing stable API adapter; no new `@minecraft/server` API is introduced.
+
