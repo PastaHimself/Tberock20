@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-06 (Chunk 66 — Integrity Phase 2 Stage 2 clanvoidnew1 asset)
+Last updated: 2026-09-06 (Chunk 67 — Complete Integrity Phase 2 Stage 2 asset/runtime pass)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -12,9 +12,9 @@ Last updated: 2026-09-06 (Chunk 66 — Integrity Phase 2 Stage 2 clanvoidnew1 as
 
 ## Current chunk
 
-**Chunk 66 ready for review — Integrity Phase 2 Stage 2 clanvoidnew1 asset**
+**Chunk 67 ready for review — Complete Integrity Phase 2 Stage 2 asset/runtime pass**
 
-Chunk 66 validates the source-backed Floor 1 variant 1 template `clanvoidnew1` as a Bedrock `.mcstructure` asset at Y=200. The Java source is DataVersion 3955, size 16×6×16, with 748 non-air cells across cobblestone-border, stone-slab-border, cobblestone, glass, and wall-torch palette entries; it contains no entities or block entities. The model preserves the Floor 1 variant boundary 1..7, records the source SHA and placement contract, and advances the validated Stage 2 catalog to 12/64 with 52 templates still deferred. GitHub Actions [run 34021929745](https://github.com/PastaHimself/Tberock20/actions/runs/34021929745) passed 67 Python validator tests, complete add-on/resource/Jigsaw validation, all 12 Bedrock structures, JavaScript syntax, beta type-check, 260/260 JavaScript regressions, Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints), Mojang Creator Tools validation (0 blockers, 582 warnings, 25 known false-positive blockers ignored), packaging, and both artifact uploads; Bedrock world/runtime smoke testing remains unavailable locally. Java custom Stage2Generator chunk generation and automatic template placement remain explicit engine boundaries.
+Chunk 67 converts all 64 audited Stage 2 source templates into validated Bedrock `.mcstructure` assets and wires bounded automatic placement through the Integrity Phase 2 runtime. Local validation passes 74 Python tests, 264 JavaScript tests, all add-on/resource/Jigsaw validators, beta type-check, JavaScript syntax, and packaging. GitHub Actions [run 34028773676](https://github.com/PastaHimself/Tberock20/actions/runs/34028773676) also passed the validator, diagnostics, Creator Tools, regression, and packaging gates; live Bedrock world/runtime smoke testing remains unavailable locally. Java custom Stage2Generator chunk generation, exact occupancy/RNG behavior, and other documented engine boundaries remain explicit.
 
 ## Chunk state
 | Chunk | State |
@@ -480,7 +480,7 @@ The model catalog and `STAGE2_TEMPLATE_ASSET_AUDIT.json` now agree on all 64 sou
 
 The Phase 2 runtime now starts a retryable, bounded placement queue when a player enters a Stage 2 cell. It reconstructs the source-shaped 9×9 interior surface/room layout and the x=80 tunnel line, selects the audited families, carries per-placement rotation and Java `FRONT_BACK` mirror semantics through Bedrock `StructureRotation`/`StructureMirrorAxis.Z`, and places through `world.structureManager.place`. Older preview builds fall back to the validated `Dimension.runCommand` `/structure load` path. Air-only scaffold and barrier fills remain retryable and are not erased by ignored source air cells.
 
-Local validation for this chunk passes: 74 Python tests, 263 JavaScript tests, add-on/resource/Jigsaw validators, 64 `.mcstructure` files with zero structure warnings/errors, and `.mcaddon` packaging. Java custom chunk-generator seed parity, exact occupancy/overlap filtering, R3 border material, nowhere Voronoi post-processing, and live Bedrock-world smoke validation remain explicit engine/device boundaries.
+Local validation for this chunk passes: 74 Python tests, 264 JavaScript tests, add-on/resource/Jigsaw validators, 64 `.mcstructure` files with zero structure warnings/errors, beta API type-check, JavaScript syntax, and `.mcaddon` packaging. GitHub Actions [run 34028773676](https://github.com/PastaHimself/Tberock20/actions/runs/34028773676) passed the repository validator, diagnostics, Creator Tools, regression, packaging, and report/artifact steps. Java custom chunk-generator seed parity, exact occupancy/overlap filtering, R3 border material, nowhere Voronoi post-processing, and live Bedrock-world smoke validation remain explicit engine/device boundaries.
 
 ## Files changed (Chunk 67)
 
@@ -488,4 +488,4 @@ BP/scripts/systems/integrity_arena_model.js · BP/scripts/systems/integrity_aren
 
 ## Current next step
 
-Run the repository CI workflow on the GitHub branch and perform a live Bedrock-world smoke test if a compatible Bedrock preview/device is available. No Stage 2 source template remains unconverted; the remaining exact-generation differences are documented engine boundaries.
+Review or merge PR #41 when authorized, then perform a live Bedrock-world smoke test if a compatible Bedrock preview/device is available. No Stage 2 source template remains unconverted; the remaining exact-generation differences are documented engine boundaries.

@@ -21,12 +21,12 @@ Completed the portable Stage 2 asset/runtime pass on the Chunk 66 continuation b
 ## Validation
 
 - 74 Python tests pass.
-- 263 JavaScript tests pass.
+- 264 JavaScript tests pass.
 - All 64 `.mcstructure` files pass the repository structure validator with no warnings or errors.
 - Add-on, resource-link, Jigsaw definition, and Jigsaw connector validators pass.
 - Changed JavaScript syntax checks and production packaging pass locally.
 - BedrockWikiMcp/Microsoft Learn API checks are recorded in the parity and adaptation notes.
-- GitHub CI diagnostics, Mojang Creator Tools, and live Bedrock world smoke testing remain external follow-up gates until this branch runs in the repository/device environment.
+- GitHub Actions [run 34028773676](https://github.com/PastaHimself/Tberock20/actions/runs/34028773676) passed the validator tests, complete add-on/resource/Jigsaw validation, 64-structure validation, JavaScript syntax, beta API type-check, 264/264 JavaScript regressions, Blockception diagnostics, Mojang Creator Tools validation, packaging, and report/artifact steps; live Bedrock-world smoke testing remains unavailable.
 
 ## Remaining boundary
 
