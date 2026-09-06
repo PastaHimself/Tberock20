@@ -70,9 +70,8 @@ def write_json(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value), encoding="utf-8")
 
 
-def write_template(bp: Path, template_id: str, data: bytes) -> None:
-    namespace, relative = template_id.split(":", 1)
-    path = bp / "structures" / namespace / f"{relative}.nbt"
+def write_template(bp: Path, asset_path: str, data: bytes) -> None:
+    path = bp / "structures" / f"{asset_path}.nbt"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
 
@@ -103,11 +102,11 @@ def write_pool(bp: Path, pool_id: str, locations: list[str]) -> None:
 
 def build_valid_pack(root: Path) -> Path:
     bp = root / "BP"
-    root_id = "thebrokenscript:shaft/shaft_root"
-    hall_id = "thebrokenscript:shaft/shaft_hall"
+    root_asset = "thebrokenscript/shaft/shaft_root"
+    hall_asset = "thebrokenscript/shaft/shaft_hall"
     write_template(
         bp,
-        root_id,
+        root_asset,
         structure_nbt(
             name="thebrokenscript:shaft_root",
             pool="thebrokenscript:hallway",
@@ -116,15 +115,15 @@ def build_valid_pack(root: Path) -> Path:
     )
     write_template(
         bp,
-        hall_id,
+        hall_asset,
         structure_nbt(
             name="thebrokenscript:hallway",
             pool="minecraft:empty",
             target="minecraft:empty",
         ),
     )
-    write_pool(bp, "thebrokenscript:shaft_root", [root_id])
-    write_pool(bp, "thebrokenscript:hallway", [hall_id])
+    write_pool(bp, "thebrokenscript:shaft_root", [root_asset])
+    write_pool(bp, "thebrokenscript:hallway", [hall_asset])
     write_json(
         bp / "worldgen/structures/shaft.json",
         {
@@ -153,7 +152,7 @@ class JigsawNbtConnectorTests(unittest.TestCase):
             bp = build_valid_pack(Path(temp))
             write_template(
                 bp,
-                "thebrokenscript:shaft/shaft_root",
+                "thebrokenscript/shaft/shaft_root",
                 structure_nbt(
                     name="thebrokenscript:shaft_root",
                     pool="thebrokenscript:missing",
@@ -168,7 +167,7 @@ class JigsawNbtConnectorTests(unittest.TestCase):
             bp = build_valid_pack(Path(temp))
             write_template(
                 bp,
-                "thebrokenscript:shaft/shaft_root",
+                "thebrokenscript/shaft/shaft_root",
                 structure_nbt(
                     name="thebrokenscript:shaft_root",
                     pool="thebrokenscript:hallway",
