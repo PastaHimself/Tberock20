@@ -59,6 +59,16 @@ export const STAGE2_DIMENSION_ID = "thebrokenscript:stage2";
 // dimension JSON cannot execute this generator, so this is an audit model only.
 // Every structure id below is a source template reference; it is not a claim
 // that a Java NBT template can be placed by the Bedrock runtime unchanged.
+const STAGE2_FLOOR1_VARIANTS = Object.freeze([
+  Object.freeze({ variant: 1, structureId: "clanvoidnew1" }),
+  Object.freeze({ variant: 2, structureId: "clanvoidnew2" }),
+  Object.freeze({ variant: 3, structureId: "clanvoidnew3" }),
+  Object.freeze({ variant: 4, structureId: "clanvoidnew4" }),
+  Object.freeze({ variant: 5, structureId: "clanvoidnew5" }),
+  Object.freeze({ variant: 6, structureId: "clanvoidnew6" }),
+  Object.freeze({ variant: 7, structureId: "clanvoidnew7" }),
+]);
+
 const STAGE2_FLOOR2_VARIANTS = Object.freeze([
   Object.freeze({ variant: 1, structureId: "clandimensionroom1", specialStructureId: null, ordinaryStructureId: null }),
   Object.freeze({ variant: 2, structureId: "clandimensionroom2", specialStructureId: null, ordinaryStructureId: null }),
@@ -153,6 +163,7 @@ export const STAGE2_GENERATOR_SOURCE = Object.freeze({
       ]),
     }),
   ]),
+  floor1Variants: STAGE2_FLOOR1_VARIANTS,
   floor2Variants: STAGE2_FLOOR2_VARIANTS,
   floor3Variants: STAGE2_FLOOR3_VARIANTS,
   surfacePlacement: Object.freeze({
@@ -327,6 +338,12 @@ export function stage2SpawnFloorFromY(y) {
   return STAGE2_FLOORS.find((floor) => y >= floor.yMin && y <= floor.yMax) ?? null;
 }
 
+export function stage2GeneratorFloor1Structure(variant) {
+  const entry = STAGE2_FLOOR1_VARIANTS.find((candidate) => candidate.variant === variant);
+  if (!entry) throw new RangeError(`Stage2 floor 1 variant must be in 1..7: ${variant}`);
+  return entry.structureId;
+}
+
 export function stage2GeneratorFloor2Structure(variant, special) {
   const entry = STAGE2_FLOOR2_VARIANTS.find((candidate) => candidate.variant === variant);
   if (!entry) throw new RangeError(`Stage2 floor 2 variant must be in 1..5: ${variant}`);
@@ -470,6 +487,25 @@ export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
   namespace: "thebrokenscript",
   assetPath: "stage2",
   supportedTemplates: Object.freeze({
+    clanvoidnew1: Object.freeze({
+      sourcePath: "source_extracted/data/thebrokenscript/structure/clanvoidnew1.nbt",
+      sourceBlobSha: "a92773a3f9da467f1849d6d34b0e6292e47bcf62",
+      size: Object.freeze([16, 6, 16]),
+      paletteNames: Object.freeze([
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+      ]),
+      blockCount: 1536,
+      nonAirBlockCount: 748,
+      entityCount: 0,
+      placementY: 200,
+      generationRole: "floor1_variant_1",
+      status: "validated_asset",
+    }),
     stone1: Object.freeze({
       sourcePath: "source_extracted/data/thebrokenscript/structure/stone1.nbt",
       sourceBlobSha: "2d8e2d3da26e07f4921764f9f6937cc46f359060",
@@ -626,7 +662,7 @@ export const STAGE2_TEMPLATE_SOURCE = Object.freeze({
       status: "validated_asset",
     }),
   }),
-  deferredTemplateCount: 53,
+  deferredTemplateCount: 52,
 });
 
 function normalizeStage2TemplateRotation(rotation) {

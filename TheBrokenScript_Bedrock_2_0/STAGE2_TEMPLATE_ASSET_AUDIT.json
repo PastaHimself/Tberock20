@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "sourceAudit": "STAGE2_GENERATOR_AUDIT.json",
   "runtimeStatus": "partial_validated_asset_catalog",
-  "validatedAssetCount": 11,
-  "deferredTemplateCount": 53,
+  "validatedAssetCount": 12,
+  "deferredTemplateCount": 52,
   "automaticRuntimePlacement": false,
   "placementStrategy": {
     "api": "Dimension.runCommand",
@@ -15,6 +15,48 @@
     "reason": "Only the no-mirror path has a validated Bedrock asset and an API-verified command seam; the Phase 2 scheduler does not load templates automatically. Entity-bearing templates pass includeEntities=true."
   },
   "templates": [
+    {
+      "id": "clanvoidnew1",
+      "sourcePath": "source_extracted/data/thebrokenscript/structure/clanvoidnew1.nbt",
+      "sourceBlobSha": "a92773a3f9da467f1849d6d34b0e6292e47bcf62",
+      "javaDataVersion": 3955,
+      "javaSize": [
+        16,
+        6,
+        16
+      ],
+      "javaPaletteNames": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:wall_torch",
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block"
+      ],
+      "javaBlockCount": 1536,
+      "javaEntityCount": 0,
+      "javaBlockEntityCount": 0,
+      "bedrockPath": "BP/structures/thebrokenscript/stage2/clanvoidnew1.mcstructure",
+      "bedrockSize": [
+        16,
+        6,
+        16
+      ],
+      "bedrockFormatVersion": 1,
+      "bedrockBlockPalette": [
+        "thebrokenscript:cobblestone_border_block",
+        "thebrokenscript:stone_slab_border_block",
+        "minecraft:cobblestone",
+        "minecraft:glass",
+        "minecraft:air",
+        "minecraft:wall_torch"
+      ],
+      "bedrockNonAirPrimaryBlocks": 748,
+      "bedrockEntityCount": 0,
+      "status": "validated_asset",
+      "placementY": 200,
+      "generationRole": "floor1_variant_1"
+    },
     {
       "id": "stone1",
       "sourcePath": "source_extracted/data/thebrokenscript/structure/stone1.nbt",
