@@ -30,4 +30,6 @@ The Java custom `Stage2Generator` codec and automatic occupancy/RNG/chunk-genera
 
 ## CI
 
-The implementation/documentation head requires the complete GitHub Actions validation before this report is final. The final run URL and counts will be recorded in `VALIDATION_LOG.md` and the pull request before review readiness.
+Corrective serializer commits `2be977253d9cfb05decd0a6cd9b447db6e00047b` and `7929b09104c49fb6955d1126594a004365dd7f60` fixed the Bedrock list lengths and nested palette/structure compound terminators. The repository validator then passed the new asset locally with format 1, size 16×9×16, two layers, 799 non-air blocks, and zero warnings.
+
+GitHub Actions [run 34016753666](https://github.com/PastaHimself/Tberock20/actions/runs/34016753666) passed: 67 Python validator tests; complete add-on, resource-link, Jigsaw JSON, Jigsaw connector, and all 9 Bedrock structure validations; JavaScript syntax; beta API type-check; 248/248 JavaScript regressions; Blockception diagnostics (0 errors, 0 warnings, 4 info, 0 hints); Mojang Creator Tools (0 blockers, 582 warnings, 25 exact known false-positive blockers ignored); packaging; and both artifact uploads.
