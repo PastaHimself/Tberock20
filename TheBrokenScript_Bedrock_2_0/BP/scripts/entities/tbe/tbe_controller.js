@@ -1,4 +1,4 @@
-﻿import { world, system } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { config } from "../../core/config.js";
 import { GameMode } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
@@ -10,6 +10,7 @@ import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 import * as progression from "../../systems/progression.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
+import { captureBanSpawnContext, shouldSummonBan } from "./tbe_kill_followup_model.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // the_broken_end : HP1000 ATK600 0.6×25 size, speed 0.45, follow 64, grace 150, life 1000, chase range 128
@@ -312,11 +313,23 @@ function scanAndBreakInFront(e) {
 }
 
 function onTbeKillPlayer(player, tbeEntity) {
+  const tbeId = tbeEntity.id;
+  let banSpawnContext;
+  try {
+    banSpawnContext = captureBanSpawnContext(tbeEntity.dimension, tbeEntity.location);
+  } catch (error) {
+    logger.error("tbe kill follow-up: failed to capture BAN spawn context", error);
+  }
+
   try { tryPlaySoundAt(tbeEntity.dimension, player.location, "thebrokenscript:the_end_is_near", 2, 0.2); } catch {}
   // source RepTier GAIN_MEDIUM analogue → advancement approximation
   try { progression.award(player.id, "you_ve_brought_it_upon_yourself"); } catch {}
-  try { tbeEntity.remove(); timers.delete(tbeEntity.id); extraState.delete(tbeEntity.id); } catch {}
-  // queue 15 ticks then kick — Bedrock kick command needs operator
+  try { tbeEntity.remove(); } catch (error) { logger.error("tbe kill follow-up: failed to remove TBE", error); }
+  timers.delete(tbeId);
+  extraState.delete(tbeId);
+
+  // Queue 15 ticks then kick. BAN spawning is intentionally independent from
+  // command permission/success and uses the pre-removal TBE position.
   system.runTimeout(() => {
     try {
       const safeName = player.name.replace(/"/g, '\\"');
@@ -326,9 +339,16 @@ function onTbeKillPlayer(player, tbeEntity) {
         try { player.onScreenDisplay.setTitle("§4THE END IS NEAR", { subtitle: "You were removed", fadeInDuration: 10, stayDuration: 60, fadeOutDuration: 20 }); } catch {}
       }
     } catch {}
-    // 50% summon BAN (entity not yet ported until 05F/07 — ledgered skip)
-    // try summon ban at tbe pos if available
-    // try { spawnHelpers.trySummon(tbeEntity.dimension, "thebrokenscript:ban", tbeEntity.location); } catch {}
+
+    if (!banSpawnContext || !shouldSummonBan(Math.random())) return;
+    const ban = spawnHelpers.trySummon(
+      banSpawnContext.dimension,
+      "thebrokenscript:ban",
+      banSpawnContext.location,
+    );
+    if (!ban) {
+      logger.error("tbe kill follow-up: BAN summon failed");
+    }
   }, 15);
 }
 
