@@ -17,14 +17,3 @@ test("spawn director passes the live game time to the frequency provider", async
   assert.match(spawnDirector, /frequency:\s*eventFrequency\(gameTime\)/);
   assert.doesNotMatch(spawnDirector, /eventFrequency\(0\)/);
 });
-
-test("dimension command accepts only Bedrock-supported destination dimensions", async () => {
-  const dimensions = await source("dimensions.js");
-  const commands = await source("commands.js");
-
-  assert.match(dimensions, /export const SUPPORTED = \["overworld", "nether", "the_end"\];/);
-  assert.match(dimensions, /export function isSupported\(id\)/);
-  assert.match(commands, /dimensions\.isSupported\(id\)/);
-  assert.match(commands, /dimensions\.SUPPORTED\.join\(", "\)/);
-  assert.doesNotMatch(commands, /dimensions\.ALL\.includes\(id\)/);
-});

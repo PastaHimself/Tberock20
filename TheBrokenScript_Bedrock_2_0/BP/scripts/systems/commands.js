@@ -9,7 +9,7 @@ import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js
 // ── Chunk 13: command surface (scriptevent) + chat responses ────────────────
 // Usage: /scriptevent tbs:help   |   /scriptevent tbs:fire <event_id>
 //        /scriptevent tbs:arena start|stop   |   /scriptevent tbs:shaft
-//        /scriptevent tbs:dim <overworld|nether|the_end>   |   /scriptevent tbs:adv <advId>
+//        /scriptevent tbs:dim <dimension>   |   /scriptevent tbs:adv <advId>
 //        /scriptevent tbs:effect heart_corruption|why_cant_you_leave [seconds]
 
 const CHAT_RESPONSES = {
@@ -33,7 +33,9 @@ export function begin() {
     system.afterEvents.scriptEventReceive.subscribe((ev) => {
       try { handleCommand(ev); } catch (err) { logger.error("command failed", err); }
     });
-  } catch {}
+  } catch (error) {
+    logger.error("commands: failed to subscribe to scriptEventReceive", error);
+  }
   try {
     world.beforeEvents.chatSend.subscribe((ev) => {
       const msg = ev.message.toLowerCase().trim();
@@ -45,7 +47,9 @@ export function begin() {
         try { sender.playSound("thebrokenscript:null_is_here_loop", { volume: 4 }); } catch {}
       });
     });
-  } catch {}
+  } catch (error) {
+    logger.error("commands: failed to subscribe to chatSend", error);
+  }
 }
 
 function reply(ev, text) {
@@ -66,7 +70,7 @@ function handleCommand(ev) {
         "§7/scriptevent tbs:fire <event>",
         "§7/scriptevent tbs:arena <start|stop>",
         "§7/scriptevent tbs:shaft",
-        "§7/scriptevent tbs:dim <overworld|nether|the_end>",
+        "§7/scriptevent tbs:dim <dimension>",
         "§7/scriptevent tbs:adv <advancement>",
         "§7/scriptevent tbs:effect <effect> [seconds]"
       ].join("\n"));
@@ -102,7 +106,7 @@ function handleCommand(ev) {
       break;
     }
     case "adv": {
-      const ok = progression.award(player.id, parts[0]);
+      const ok = progression.award(player, parts[0]);
       reply(ev, ok ? "§8awarded" : "§calready awarded / unknown");
       break;
     }

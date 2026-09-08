@@ -1,72 +1,101 @@
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
+import {
+  CUSTOM_DIMENSION_IDS,
+  CUSTOM_REALM_NAMES,
+  VANILLA_DIMENSION_IDS,
+  displayDimensionId,
+  isCustomDimensionId,
+  isKnownDimensionId,
+  normalizeDimensionId
+} from "./dimension_ids.js";
 
-// TBSDimensions.java port — logical realm IDs retained for callers.
-// Current Bedrock behavior packs can only provide overworld, nether and the_end
-// dimension data, so unsupported custom realm IDs must not be passed to the engine.
-export const ALL = [
-  "clan_void", "null_torture", "the_moon", "nowhere", "limbo", "nothing",
-  "protected_void", "library", "concrete", "lucid", "stage2", "void_shadow"
-];
-
+// TBSDimensions.java port — logical realm IDs are registered as Script API custom
+// dimensions during StartupEvent and resolved through the same canonical ID model.
+export const ALL = [...CUSTOM_REALM_NAMES];
 export const NIGHTMARES = ["library", "concrete", "limbo", "nothing"];
-export const SUPPORTED = ["overworld", "nether", "the_end"];
+export const SUPPORTED = [...VANILLA_DIMENSION_IDS, ...CUSTOM_REALM_NAMES];
+export const REGISTERED_CUSTOM_IDS = [...CUSTOM_DIMENSION_IDS];
 
-const SUPPORTED_DIMENSIONS = new Set(SUPPORTED);
 const handles = new Map();
-const warnedUnsupported = new Set();
+const warnedUnregistered = new Set();
+const registeredCustom = new Set();
+let registrationAttempted = false;
 
-function normalizeId(id) {
-  if (typeof id !== "string") return "";
-  const value = id.trim();
-  if (value.startsWith("minecraft:")) return value.slice("minecraft:".length);
-  if (value.startsWith("thebrokenscript:")) return value.slice("thebrokenscript:".length);
-  return value;
-}
+/**
+ * Register every logical TBS realm in the only valid registration window.
+ * @param {import("@minecraft/server").DimensionRegistry} dimensionRegistry
+ */
+export function registerCustomDimensions(dimensionRegistry) {
+  if (registrationAttempted) {
+    return registeredCustom.size === CUSTOM_DIMENSION_IDS.length;
+  }
+  registrationAttempted = true;
 
-function logicalId(key) {
-  return `thebrokenscript:${key}`;
+  if (!dimensionRegistry?.registerCustomDimension) {
+    logger.error("dimensions: startup DimensionRegistry is unavailable; custom realms cannot be registered");
+    return false;
+  }
+
+  let ok = true;
+  for (const id of CUSTOM_DIMENSION_IDS) {
+    try {
+      dimensionRegistry.registerCustomDimension(id);
+      registeredCustom.add(id);
+    } catch (error) {
+      ok = false;
+      logger.error(`dimensions: failed to register custom dimension '${id}'`, error);
+    }
+  }
+
+  if (ok) {
+    logger.info(`dimensions: registered ${registeredCustom.size} custom realms`);
+  }
+  return ok;
 }
 
 export function isSupported(id) {
-  return SUPPORTED_DIMENSIONS.has(normalizeId(id));
+  return isKnownDimensionId(id);
 }
 
 export function get(id) {
-  const key = normalizeId(id);
-  if (!key) {
-    logger.error("dimensions: cannot resolve an empty dimension identifier");
+  const normalized = normalizeDimensionId(id);
+  if (!normalized) {
+    logger.error(`dimensions: cannot resolve invalid dimension identifier '${String(id ?? "")}'`);
     return undefined;
   }
 
-  if (!SUPPORTED_DIMENSIONS.has(key)) {
-    const requested = logicalId(key);
-    if (!warnedUnsupported.has(requested)) {
-      warnedUnsupported.add(requested);
-      logger.warn(
-        `dimensions: '${requested}' is unavailable; Bedrock behavior-pack dimension data only supports overworld, nether and the_end`
-      );
+  if (isCustomDimensionId(normalized) && !registeredCustom.has(normalized)) {
+    if (!warnedUnregistered.has(normalized)) {
+      warnedUnregistered.add(normalized);
+      logger.error(`dimensions: custom dimension '${normalized}' was requested before successful startup registration`);
     }
     return undefined;
   }
 
-  if (handles.has(key)) {
-    const handle = handles.get(key);
+  if (handles.has(normalized)) {
+    const handle = handles.get(normalized);
     try {
       if (handle?.isValid?.() !== false) return handle;
-    } catch {}
+    } catch {
+      handles.delete(normalized);
+    }
   }
 
   try {
-    const dimension = world.getDimension(key);
-    handles.set(key, dimension);
+    const dimension = world.getDimension(normalized);
+    handles.set(normalized, dimension);
     return dimension;
   } catch (error) {
-    logger.error(`dimensions: cannot resolve supported dimension '${key}'`, error);
+    logger.error(`dimensions: cannot resolve dimension '${normalized}'`, error);
     return undefined;
   }
 }
 
+/**
+ * Teleport only after the requested realm resolves successfully. Callers can use
+ * the boolean result to gate progression/follow-up state.
+ */
 export function teleportTo(entity, dimId, location) {
   const dim = get(dimId);
   if (!dim) return false;
@@ -74,12 +103,20 @@ export function teleportTo(entity, dimId, location) {
   try {
     entity.teleport(location ?? { x: 0, y: 201, z: 0 }, { dimension: dim });
     return true;
-  } catch (err) {
-    logger.error(`dimensions: teleport to ${dimId} failed`, err);
+  } catch (error) {
+    logger.error(`dimensions: teleport to '${normalizeDimensionId(dimId) || dimId}' failed`, error);
     return false;
   }
 }
 
 export function randomNightmareId() {
   return NIGHTMARES[Math.floor(Math.random() * NIGHTMARES.length)];
+}
+
+export function canonicalId(id) {
+  return normalizeDimensionId(id);
+}
+
+export function displayId(id) {
+  return displayDimensionId(id);
 }

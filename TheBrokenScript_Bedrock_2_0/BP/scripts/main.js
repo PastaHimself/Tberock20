@@ -34,12 +34,17 @@ import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 import * as horrorEvents from "./systems/horror_events.js";
 import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
+import * as dimensions from "./systems/dimensions.js";
 import * as portedFeatures from "./systems/ported_features.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
 function onStartup(event) {
+    const dimensionsReady = dimensions.registerCustomDimensions(event.dimensionRegistry);
     initCustomBlocks(event.blockComponentRegistry);
     portedFeatures.init(event.itemComponentRegistry);
+    if (!dimensionsReady) {
+        logger.error("startup: one or more custom dimensions failed registration");
+    }
     logger.info("startup: early-execution hook registered (script modules active)");
 }
 
