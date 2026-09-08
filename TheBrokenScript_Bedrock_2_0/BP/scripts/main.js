@@ -40,11 +40,11 @@ import * as portedFeatures from "./systems/ported_features.js";
 /** @param {import("@minecraft/server").StartupEvent} event */
 function onStartup(event) {
     const dimensionsReady = dimensions.registerCustomDimensions(event.dimensionRegistry);
+    initCustomBlocks(event.blockComponentRegistry);
+    portedFeatures.init(event.itemComponentRegistry);
     if (!dimensionsReady) {
         logger.error("startup: one or more custom dimensions failed registration");
     }
-    initCustomBlocks(event.blockComponentRegistry);
-    portedFeatures.init(event.itemComponentRegistry);
     logger.info("startup: early-execution hook registered (script modules active)");
 }
 
