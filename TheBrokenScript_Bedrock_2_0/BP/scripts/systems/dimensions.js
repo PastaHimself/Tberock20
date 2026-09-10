@@ -3,6 +3,7 @@ import { logger } from "../core/logging.js";
 import {
   CUSTOM_DIMENSION_IDS,
   CUSTOM_REALM_NAMES,
+  JAVA_REGISTERED_REALM_NAMES,
   VANILLA_DIMENSION_IDS,
   displayDimensionId,
   isCustomDimensionId,
@@ -10,9 +11,9 @@ import {
   normalizeDimensionId
 } from "./dimension_ids.js";
 
-// TBSDimensions.java port — logical realm IDs are registered as Script API custom
-// dimensions during StartupEvent and resolved through the same canonical ID model.
-export const ALL = [...CUSTOM_REALM_NAMES];
+// Java source inventory port — all discovered dimension resources are registered as
+// Script API custom dimensions, while ALL preserves TBSDimensions.java semantics.
+export const ALL = [...JAVA_REGISTERED_REALM_NAMES];
 export const NIGHTMARES = ["library", "concrete", "limbo", "nothing"];
 export const SUPPORTED = [...VANILLA_DIMENSION_IDS, ...CUSTOM_REALM_NAMES];
 export const REGISTERED_CUSTOM_IDS = [...CUSTOM_DIMENSION_IDS];
