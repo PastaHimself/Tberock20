@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import { teleportLinkedPortal } from "./ported_features.js";
@@ -74,11 +74,12 @@ export function init(blockComponentRegistry) {
     onPlayerInteract(ev) {
       if (!ev.player) return;
       if (heldItemTypeId(ev.player) === "thebrokenscript:portal_linker") return;
-      if (teleportLinkedPortal(ev.player, ev.block)) return;
-      try { ev.player.onScreenDisplay.setTitle("§5PORTAL CONTROLLER", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 0 }); } catch {}
-      const loc = { x: ev.player.location.x, y: 201, z: ev.player.location.z };
-      dimensions.teleportTo(ev.player, "clan_void", loc);
-      tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:portal_linker", 3, 1);
+
+      const player = ev.player;
+      const block = ev.block;
+      system.run(() => {
+        void handlePortalControllerInteract(player, block);
+      });
     }
   });
 
@@ -123,6 +124,28 @@ export function init(blockComponentRegistry) {
   register("thebrokenscript:be_jim_trigger", makeJimTrigger());
 
   logger.info(`custom_blocks: ${registered.length} component(s) registered`);
+}
+
+async function handlePortalControllerInteract(player, block) {
+  try {
+    if (await teleportLinkedPortal(player, block)) return;
+
+    try {
+      player.onScreenDisplay.setTitle("§5PORTAL CONTROLLER", {
+        fadeInDuration: 0,
+        stayDuration: 25,
+        fadeOutDuration: 0
+      });
+    } catch {}
+
+    const loc = { x: player.location.x, y: 201, z: player.location.z };
+    const teleported = await dimensions.teleportWhenReady(player, "clan_void", loc);
+    if (teleported) {
+      tryPlayNear(block.dimension, block.location, "thebrokenscript:portal_linker", 3, 1);
+    }
+  } catch (error) {
+    logger.error("custom_blocks: portal controller activation failed", error);
+  }
 }
 
 /** @returns {import("@minecraft/server").BlockCustomComponent} */

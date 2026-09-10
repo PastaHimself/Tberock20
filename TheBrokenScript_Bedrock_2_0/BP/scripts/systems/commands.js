@@ -101,8 +101,16 @@ function handleCommand(ev) {
         reply(ev, "§cdimensions: " + dimensions.SUPPORTED.join(", "));
         break;
       }
-      const ok = dimensions.teleportTo(player, id, { x: 0, y: 201, z: 0 });
-      reply(ev, ok ? `§5traveling to ${id}` : "§cteleport failed");
+      reply(ev, `§5preparing ${id}...`);
+      void dimensions
+        .teleportWhenReady(player, id, { x: 0, y: 201, z: 0 })
+        .then((ok) => {
+          if (!ok) reply(ev, "§cteleport failed");
+        })
+        .catch((error) => {
+          logger.error(`commands: dimension teleport '${id}' failed`, error);
+          reply(ev, "§cteleport failed");
+        });
       break;
     }
     case "adv": {

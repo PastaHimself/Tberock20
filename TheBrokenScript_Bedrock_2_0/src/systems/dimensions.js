@@ -10,6 +10,7 @@ import {
   isKnownDimensionId,
   normalizeDimensionId
 } from "./dimension_ids.js";
+import { ensureDimensionReady } from "./dimension_generation.js";
 
 // Java source inventory port — all discovered dimension resources are registered as
 // Script API custom dimensions, while ALL preserves TBSDimensions.java semantics.
@@ -94,8 +95,8 @@ export function get(id) {
 }
 
 /**
- * Teleport only after the requested realm resolves successfully. Callers can use
- * the boolean result to gate progression/follow-up state.
+ * Immediate compatibility path. New custom-dimension entry points should prefer
+ * teleportWhenReady so the target region is loaded and has safe footing first.
  */
 export function teleportTo(entity, dimId, location) {
   const dim = get(dimId);
@@ -106,6 +107,37 @@ export function teleportTo(entity, dimId, location) {
     return true;
   } catch (error) {
     logger.error(`dimensions: teleport to '${normalizeDimensionId(dimId) || dimId}' failed`, error);
+    return false;
+  }
+}
+
+/**
+ * Resolve the destination, initialize/load custom-dimension landing state, and
+ * teleport only after the destination region is ready.
+ */
+export async function teleportWhenReady(entity, dimId, location) {
+  const normalized = normalizeDimensionId(dimId);
+  const dim = get(normalized);
+  if (!dim) return false;
+
+  let target = location ?? { x: 0, y: 201, z: 0 };
+  if (isCustomDimensionId(normalized)) {
+    const prepared = await ensureDimensionReady({
+      world,
+      dimension: dim,
+      dimensionId: normalized,
+      location: target,
+      logger,
+    });
+    if (!prepared.ready) return false;
+    target = prepared.location;
+  }
+
+  try {
+    entity.teleport(target, { dimension: dim });
+    return true;
+  } catch (error) {
+    logger.error(`dimensions: ready teleport to '${normalized || dimId}' failed`, error);
     return false;
   }
 }

@@ -154,10 +154,11 @@ test("portal link storage is symmetric and dimension-safe", async () => {
   assert.deepEqual(linkedPortal(links, b), a);
 });
 
-test("portal block interaction preserves the old fallback and does not swallow linker use", async () => {
+test("portal block interaction preserves linker use and readiness-gates the fallback", async () => {
   const source = await readFile(path.join(bpRoot, "scripts/systems/custom_blocks.js"), "utf8");
   assert.match(source, /heldItemTypeId\(ev\.player\) === "thebrokenscript:portal_linker"/);
-  assert.match(source, /dimensions\.teleportTo\(ev\.player, "clan_void", loc\)/);
+  assert.match(source, /await\s+dimensions\.teleportWhenReady\(player,\s*"clan_void",\s*loc\)/);
+  assert.doesNotMatch(source, /dimensions\.teleportTo\(ev\.player,\s*"clan_void",\s*loc\)/);
 });
 
 test("ported effects expose finite tick durations and the horror event applies leave pressure", async () => {
