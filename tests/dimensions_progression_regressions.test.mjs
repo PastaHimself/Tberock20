@@ -4,6 +4,8 @@ import test from "node:test";
 import {
   CUSTOM_DIMENSION_IDS,
   CUSTOM_REALM_NAMES,
+  JAVA_REGISTERED_REALM_NAMES,
+  RESOURCE_ONLY_REALM_NAMES,
   isKnownDimensionId,
   normalizeDimensionId
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/dimension_ids.js";
@@ -14,7 +16,9 @@ import {
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/progression_state.js";
 
 test("custom dimension roster is namespaced, unique, and normalizes bare IDs", () => {
-  assert.equal(CUSTOM_REALM_NAMES.length, 12);
+  assert.equal(JAVA_REGISTERED_REALM_NAMES.length, 12);
+  assert.deepEqual(RESOURCE_ONLY_REALM_NAMES, ["backrooms"]);
+  assert.equal(CUSTOM_REALM_NAMES.length, 13);
   assert.equal(new Set(CUSTOM_DIMENSION_IDS).size, CUSTOM_DIMENSION_IDS.length);
   assert.deepEqual(
     CUSTOM_DIMENSION_IDS,
@@ -25,6 +29,8 @@ test("custom dimension roster is namespaced, unique, and normalizes bare IDs", (
   assert.equal(normalizeDimensionId("minecraft:overworld"), "overworld");
   assert.equal(normalizeDimensionId("clan_void"), "thebrokenscript:clan_void");
   assert.equal(normalizeDimensionId("thebrokenscript:clan_void"), "thebrokenscript:clan_void");
+  assert.equal(normalizeDimensionId("backrooms"), "thebrokenscript:backrooms");
+  assert.equal(normalizeDimensionId("thebrokenscript:backrooms"), "thebrokenscript:backrooms");
   assert.equal(normalizeDimensionId("thebrokenscript:not_a_realm"), "");
   assert.equal(isKnownDimensionId("library"), true);
   assert.equal(isKnownDimensionId("minecraft:made_up"), false);
