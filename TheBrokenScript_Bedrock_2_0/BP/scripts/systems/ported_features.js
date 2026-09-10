@@ -1,6 +1,7 @@
 import { EntityDamageCause, GameMode, system, world } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { logger } from "../core/logging.js";
+import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
 import {
@@ -126,16 +127,26 @@ export function usePortalLinker(player, block) {
   return true;
 }
 
-export function teleportLinkedPortal(player, block) {
+export async function teleportLinkedPortal(player, block) {
   if (!isPlayer(player) || !block) return false;
   const destination = linkedPortal(readPortalLinks(), blockReference(block));
   if (!destination) return false;
+
+  const teleported = await dimensions.teleportWhenReady(
+    player,
+    destination.dimensionId,
+    {
+      x: destination.x + 0.5,
+      y: destination.y + 1.1,
+      z: destination.z + 0.5,
+    },
+  );
+  if (!teleported) {
+    logger.error("ported_features: linked portal destination was not ready");
+    return false;
+  }
+
   try {
-    const dimension = world.getDimension(destination.dimensionId);
-    player.teleport(
-      { x: destination.x + 0.5, y: destination.y + 1.1, z: destination.z + 0.5 },
-      { dimension },
-    );
     player.onScreenDisplay.setTitle("§5LINK ESTABLISHED", {
       fadeInDuration: 0,
       stayDuration: 20,
@@ -144,8 +155,8 @@ export function teleportLinkedPortal(player, block) {
     try { player.playSound("travel", { volume: 1.0, pitch: 1.0 }); } catch {}
     return true;
   } catch (err) {
-    logger.error("ported_features: linked portal teleport failed", err);
-    return false;
+    logger.error("ported_features: linked portal post-teleport feedback failed", err);
+    return true;
   }
 }
 
