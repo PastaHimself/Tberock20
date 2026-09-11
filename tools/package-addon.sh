@@ -8,7 +8,39 @@ STAGE_DIR="$DIST_DIR/stage"
 MCADDON_DIR="$DIST_DIR/mcaddon"
 OUTPUT_FILE="$DIST_DIR/The_Broken_Script_2_0.mcaddon"
 
-python "$ROOT_DIR/tools/validate_source_map_release.py"
+usage() {
+  echo "Usage: $0 [--release]" >&2
+}
+
+RELEASE_BUILD=0
+case "${1:-}" in
+  "")
+    ;;
+  --release)
+    RELEASE_BUILD=1
+    shift
+    ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac
+
+if (( $# != 0 )); then
+  usage
+  exit 2
+fi
+
+# Routine CI packages a validated artifact, but that is not itself a release build.
+# Release packaging must opt in explicitly so unresolved source-map audit state is
+# rejected before dist/ is deleted or any release artifact is staged.
+if (( RELEASE_BUILD )); then
+  python "$ROOT_DIR/tools/validate_source_map_release.py"
+fi
 
 rm -rf "$DIST_DIR"
 mkdir -p "$STAGE_DIR/bp" "$STAGE_DIR/rp" "$MCADDON_DIR"
