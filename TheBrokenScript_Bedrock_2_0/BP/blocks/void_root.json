@@ -8,6 +8,9 @@
       }
     },
     "components": {
+      "minecraft:tags": [
+        "thebrokenscript:terrain_corrupt_replace"
+      ],
       "minecraft:loot": "loot_tables/blocks/void_root.json",
       "minecraft:material_instances": {
         "*": {

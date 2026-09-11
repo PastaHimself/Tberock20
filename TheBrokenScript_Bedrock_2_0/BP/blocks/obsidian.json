@@ -8,6 +8,10 @@
       }
     },
     "components": {
+      "minecraft:tags": [
+        "thebrokenscript:root_replaceable",
+        "thebrokenscript:terrain_corrupt_replace"
+      ],
       "minecraft:material_instances": {
         "*": {
           "texture": "redobsidian"
