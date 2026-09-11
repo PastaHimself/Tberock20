@@ -1,4 +1,4 @@
-﻿import * as state from "../core/state.js";
+import * as state from "../core/state.js";
 
 export const INT_MAX = 2147483647;
 
@@ -49,16 +49,16 @@ const DEFAULTS = {
     craftedPolaroid: false,
     inventoryCorruption: 0,
     inventoryCorruptionProgressed: false,
-    entitySpawnDelay: INT_MAX,
-    circuitSpawnDelay: INT_MAX,
-    oblitSpawnDelay: INT_MAX,
-    tbeSpawnDelay: INT_MAX,
-    rareSpawnDelay: INT_MAX,
-    nullSpawnDelay: INT_MAX,
-    curvedSpawnDelay: INT_MAX,
-    eerieNoiseDelay: INT_MAX,
-    herobrineDelay: INT_MAX,
-    circuitInhabitedDelay: INT_MAX,
+    entitySpawnDelay: 0,
+    circuitSpawnDelay: 0,
+    oblitSpawnDelay: 0,
+    tbeSpawnDelay: 0,
+    rareSpawnDelay: 0,
+    nullSpawnDelay: 0,
+    curvedSpawnDelay: 0,
+    eerieNoiseDelay: 0,
+    herobrineDelay: 0,
+    circuitInhabitedDelay: 0,
     commandBlockX: 0,
     commandBlockY: 0,
     commandBlockZ: 0,
@@ -66,9 +66,10 @@ const DEFAULTS = {
 };
 
 export function init() {
-    if (state.getWorld("mapVarsDataVersion", undefined) === undefined) {
-        for (const [key, value] of Object.entries(DEFAULTS)) {
-            state.setWorld(`mv.${key}`, value);
+    for (const [key, value] of Object.entries(DEFAULTS)) {
+        const propertyKey = `mv.${key}`;
+        if (state.getWorld(propertyKey, undefined) === undefined) {
+            state.setWorld(propertyKey, value);
         }
     }
 }
