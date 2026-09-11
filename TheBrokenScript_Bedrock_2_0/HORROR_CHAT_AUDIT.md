@@ -12,13 +12,13 @@ This audit is intentionally registration-focused. Repository-backed Java/decompi
 
 `null`, `herobrine`, `the_broken_end`, `integrity`, `circuit`, `hello`, `friend`, `who_are_you`, `what_do_you_want`, `i_am_scared`, `void`, `steve`, `sorry`.
 
-These numbers are not comparable units. A Java registration points to a `ChatResponse` class that owns its own trigger aliases, `isFullMessage`, case sensitivity, delay and `shouldExecute` gates. For example, `HelloResponse` alone has 40 full-message aliases, is case-insensitive, uses a 100-tick delay, requires the source `isNullHere` state, excludes Limbo, and excludes a nearby `watching` null structure. The Bedrock table instead performs one exact lookup after `toLowerCase().trim()` and currently does not reproduce those per-response gates/delays. Therefore the prior “45 source responses vs 14 implemented” wording must not be interpreted as 31 missing aliases/features, and adding aliases without their source conditions would be incorrect.
+These numbers are not comparable units. A Java registration points to a `ChatResponse` class that owns its own trigger aliases, `isFullMessage`, case sensitivity, delay and `shouldExecute` gates. For example, `HelloResponse` alone has 40 full-message aliases, is case-insensitive, uses a 100-tick delay, requires the source `isNullHere` state, excludes Limbo, and excludes a nearby `watching` null structure. The Bedrock table instead performs one exact lookup after `toLowerCase().trim()` and currently does not reproduce those per-response gates/delays. Therefore the prior “45 source responses vs 14 implemented” wording must not be interpreted as a feature deficit, and adding aliases without their source conditions would be incorrect.
 
 The focused regression test `tests/horror_chat_registration_audit.test.mjs` pins the actual 42/13 registry/rule counts and current exact Bedrock normalization so future audits cannot silently regress to the stale 45/14 comparison.
 
 ## Horror-event registration
 
-`decompiled/net/thebrokenscript/registry/TBSEvents.java` registers **81** named source events. `BP/scripts/systems/horror_events.js` currently places **79** unique ids in its ambient `TABLE`. The Bedrock ambient scheduler runs every 200 ticks, returns immediately with no players or while `tbs:arenaActive` is true, makes two distinct-id attempts per tick, checks the table gate (`null`, `nullHere`, `moon`, or always), and then applies the selected handler to every online player.
+`decompiled/net/thebrokenscript/registry/TBSEvents.java` registers **86** named source events. `BP/scripts/systems/horror_events.js` currently places **79** unique ids in its ambient `TABLE`. The Bedrock ambient scheduler runs every 200 ticks, returns immediately with no players or while `tbs:arenaActive` is true, makes two distinct-id attempts per tick, checks the table gate (`null`, `nullHere`, `moon`, or always), and then applies the selected handler to every online player.
 
 The Bedrock gate mapping is:
 
@@ -29,7 +29,7 @@ The Bedrock gate mapping is:
 
 Manual `fire(id)` bypasses those scheduler gates and executes the named Bedrock handler for every online player. This distinction is intentional in the audit: manual command exposure is not evidence that the ambient Java registration conditions are matched.
 
-As with chat, **81 vs 79 is not by itself evidence of two missing features**. Some Java events are UI/desktop adapters or are driven elsewhere in the Bedrock port. No runtime mechanic, probability, cooldown, delay, player-selection rule, cleanup path, alias, or dimension gate is changed by this audit unless the corresponding Java implementation establishes it.
+As with chat, **86 vs 79 is not by itself evidence of seven missing features**. Some Java events are UI/desktop adapters or are driven elsewhere in the Bedrock port. No runtime mechanic, probability, cooldown, delay, player-selection rule, cleanup path, alias, or dimension gate is changed by this audit unless the corresponding Java implementation establishes it.
 
 ## Bedrock API validation
 
