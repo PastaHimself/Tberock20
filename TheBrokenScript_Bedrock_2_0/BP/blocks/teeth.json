@@ -8,6 +8,9 @@
       }
     },
     "components": {
+      "minecraft:tags": [
+        "thebrokenscript:terrain_corrupt_replace"
+      ],
       "minecraft:material_instances": {
         "*": {
           "texture": "teeth"

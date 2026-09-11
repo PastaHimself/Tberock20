@@ -8,6 +8,9 @@
       }
     },
     "components": {
+      "minecraft:tags": [
+        "thebrokenscript:void_flora_mineable"
+      ],
       "minecraft:loot": "loot_tables/blocks/void_sprout.json",
       "minecraft:material_instances": {
         "*": {
