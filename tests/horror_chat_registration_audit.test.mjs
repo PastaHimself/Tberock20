@@ -53,8 +53,8 @@ test("horror-event source and Bedrock registration counts are audited independen
   const sourceIds = javaRegistryIds(java, "event");
   const bedrockIds = bedrockEventIds(bedrock);
 
-  assert.equal(sourceIds.length, 81, "TBSEvents currently registers 81 named source events");
-  assert.equal(new Set(sourceIds).size, 81, "source event registry ids must be unique");
+  assert.equal(sourceIds.length, 86, "TBSEvents currently registers 86 named source events");
+  assert.equal(new Set(sourceIds).size, 86, "source event registry ids must be unique");
   assert.equal(bedrockIds.length, 79, "Bedrock ambient TABLE currently contains 79 entries");
   assert.equal(new Set(bedrockIds).size, 79, "Bedrock ambient event ids must be unique");
 
