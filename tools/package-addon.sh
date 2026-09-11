@@ -36,10 +36,11 @@ if (( $# != 0 )); then
 fi
 
 # Routine CI packages a validated artifact, but that is not itself a release build.
-# Release packaging must opt in explicitly so unresolved source-map audit state is
-# rejected before dist/ is deleted or any release artifact is staged.
+# Release packaging must opt in explicitly so unresolved source-map audit state and
+# obvious parity-rollup disagreement are rejected before any artifact is staged.
 if (( RELEASE_BUILD )); then
   python "$ROOT_DIR/tools/validate_source_map_release.py"
+  python "$ROOT_DIR/tools/validate_parity_source_map.py"
 fi
 
 rm -rf "$DIST_DIR"
