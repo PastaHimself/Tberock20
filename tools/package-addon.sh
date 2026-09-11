@@ -8,6 +8,8 @@ STAGE_DIR="$DIST_DIR/stage"
 MCADDON_DIR="$DIST_DIR/mcaddon"
 OUTPUT_FILE="$DIST_DIR/The_Broken_Script_2_0.mcaddon"
 
+python "$ROOT_DIR/tools/validate_source_map_release.py"
+
 rm -rf "$DIST_DIR"
 mkdir -p "$STAGE_DIR/bp" "$STAGE_DIR/rp" "$MCADDON_DIR"
 
