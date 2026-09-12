@@ -44,7 +44,8 @@
             "*": {
               "texture": "command_block_inactive"
             }
-          }
+          },
+          "minecraft:geometry": "minecraft:geometry.full_block"
         }
       }
     ]
