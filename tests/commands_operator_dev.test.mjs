@@ -29,9 +29,15 @@ test("Bedrock production reputation command preserves source gate and player req
   assert.match(main, /commands\.register\(event\.customCommandRegistry\)/);
 });
 
-test("Bedrock-only scriptevent hooks remain explicitly dev/regression-only", async () => {
+test("Bedrock dev hooks are separate from player-facing horror chat", async () => {
   const commands = await read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/commands.js");
+  const chat = await read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js");
+  const main = await read("TheBrokenScript_Bedrock_2_0/BP/scripts/main.js");
   assert.match(commands, /Bedrock-only developer\/regression hooks/);
   assert.match(commands, /system\.afterEvents\.scriptEventReceive\.subscribe/);
+  assert.doesNotMatch(commands, /chatSend|CHAT_RESPONSES/);
+  assert.match(chat, /world\.beforeEvents\.chatSend\.subscribe/);
+  assert.doesNotMatch(chat, /scriptEventReceive|tbs:/);
+  assert.match(main, /horrorChat\.begin\(\)/);
   assert.doesNotMatch(commands, /name: "tbs:(fire|arena|shaft|dim|adv|effect)"/);
 });
