@@ -7,8 +7,8 @@ import fnmatch
 import json
 import sys
 from collections import Counter, defaultdict
-from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
+from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[1]
 ADDON = ROOT / "TheBrokenScript_Bedrock_2_0"
@@ -16,8 +16,7 @@ SOURCE_MAP = ADDON / "SOURCE_MAP.json"
 EXPECTED_ROWS = 912
 
 
-@dataclass(frozen=True)
-class Problem:
+class Problem(NamedTuple):
     source_id: str
     spec: str
     reason: str
