@@ -42,6 +42,7 @@ function onStartup(event) {
     const dimensionsReady = dimensions.registerCustomDimensions(event.dimensionRegistry);
     initCustomBlocks(event.blockComponentRegistry);
     portedFeatures.init(event.itemComponentRegistry);
+    commands.register(event.customCommandRegistry);
     if (!dimensionsReady) {
         logger.error("startup: one or more custom dimensions failed registration");
     }
