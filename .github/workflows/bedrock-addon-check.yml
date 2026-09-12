@@ -41,6 +41,9 @@ jobs:
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
+      - name: Validate parity ledgers
+        run: python tools/validate_parity_ledgers.py
+
       - name: Validate complete add-on
         if: always()
         run: python tools/validate_addon.py --report artifacts/addon-validation.json
