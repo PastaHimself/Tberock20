@@ -32,6 +32,7 @@ import * as fracturedRuntime from "./entities/boss/fractured_runtime.js";
 import * as bossSpawnRules from "./entities/boss/boss_spawn_rules.js";
 import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 import * as horrorEvents from "./systems/horror_events.js";
+import * as horrorChat from "./systems/horror_chat.js";
 import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
 import * as dimensions from "./systems/dimensions.js";
@@ -75,6 +76,7 @@ function onWorldLoad() {
     chordProjectileRuntime.begin(scheduler);
     fracturedRuntime.begin(scheduler);
     horrorEvents.begin(scheduler);
+    horrorChat.begin();
     progression.begin(scheduler);
     commands.begin();
     portedFeatures.begin(scheduler);
