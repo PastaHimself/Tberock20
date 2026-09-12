@@ -44,6 +44,9 @@ jobs:
       - name: Audit SOURCE_MAP paths against current Bedrock tree
         run: python tools/audit_source_map_tree.py
 
+      - name: Report SOURCE_MAP semantic audit inventory
+        run: python tools/report_source_map_semantics.py
+
       - name: Validate parity ledgers
         run: python tools/validate_parity_ledgers.py
 
