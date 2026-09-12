@@ -12,6 +12,13 @@ SOURCE_COMMAND_BLOCK = REPO_ROOT / "decompiled/net/thebrokenscript/block/Corrupt
 SOURCE_COMMAND_ENTITY = REPO_ROOT / "decompiled/net/thebrokenscript/block/entity/CommandBlockEntity.java"
 SOURCE_DISRUPTION_BLOCK = REPO_ROOT / "decompiled/net/thebrokenscript/block/DisruptionBlock.java"
 
+# These two definitions pre-date this TODO 12 PR and have no repository source blockstate.
+# Keep their exception exact: any additional Bedrock-only block remains a test failure.
+BEDROCK_ONLY_BLOCK_IDS = {
+    "thebrokenscript:void_goop_flow",
+    "thebrokenscript:void_goop_still",
+}
+
 
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8-sig"))
@@ -42,9 +49,14 @@ class BlockRegistryAndBehaviorParityTests(unittest.TestCase):
 
         self.assertGreater(len(source_ids), 0, "no source blockstates found")
         self.assertEqual(
+            BEDROCK_ONLY_BLOCK_IDS,
+            bedrock_ids - source_ids,
+            "only the two pre-existing Bedrock-only void-goop definitions may lack source blockstates",
+        )
+        self.assertEqual(
             source_ids,
-            bedrock_ids,
-            "Bedrock block identifiers must match the repository-backed source blockstate inventory",
+            bedrock_ids - BEDROCK_ONLY_BLOCK_IDS,
+            "all repository-backed source blockstates must have exactly one Bedrock block identifier",
         )
 
     def test_corrupted_command_block_preserves_source_code_state(self):
@@ -86,13 +98,22 @@ class BlockRegistryAndBehaviorParityTests(unittest.TestCase):
             inactive[0]["components"]["minecraft:material_instances"]["*"]["texture"],
             "command_block_inactive",
         )
+        self.assertEqual(
+            inactive[0]["components"]["minecraft:geometry"],
+            "minecraft:geometry.full_block",
+        )
 
         script = CUSTOM_BLOCKS_SCRIPT.read_text(encoding="utf-8-sig")
         self.assertIn('worldState.set("commandBlockX", x)', script)
         self.assertIn('worldState.set("commandBlockY", y)', script)
         self.assertIn('worldState.set("commandBlockZ", z)', script)
         self.assertIn('worldState.get("codeApplied")', script)
-        self.assertIn('.withState("thebrokenscript:code", true)', script)
+        self.assertIn("ev.block.permutation.getAllStates()", script)
+        self.assertIn('states["thebrokenscript:code"] === true', script)
+        self.assertIn("BlockPermutation.resolve(ev.block.typeId", script)
+        self.assertIn('"thebrokenscript:code": true', script)
+        self.assertNotIn('.getState("thebrokenscript:code")', script)
+        self.assertNotIn('.withState("thebrokenscript:code"', script)
         self.assertNotIn('/give @s minecraft:knowledge', script)
         self.assertNotIn('/tp @s into_the_void', script)
         self.assertNotIn('/ban @a[distance=..64]', script)
