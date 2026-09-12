@@ -25,7 +25,7 @@ function bedrockEventIds(source) {
 
 test("chat-response registry counts are source registrations, not Bedrock rule parity", () => {
   const java = read("decompiled/net/thebrokenscript/registry/TBSChatResponses.java");
-  const bedrock = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/commands.js");
+  const bedrock = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js");
   const sourceIds = javaRegistryIds(java, "chatResponse");
   const bedrockIds = bedrockChatKeys(bedrock);
 
@@ -41,7 +41,7 @@ test("chat-response registry counts are source registrations, not Bedrock rule p
 });
 
 test("Bedrock chat normalization remains exact case-insensitive trimmed full-key lookup", () => {
-  const bedrock = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/commands.js");
+  const bedrock = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js");
   assert.match(bedrock, /ev\.message\.toLowerCase\(\)\.trim\(\)/);
   assert.match(bedrock, /CHAT_RESPONSES\[msg\]/);
   assert.doesNotMatch(bedrock, /includes\(msg\)|startsWith\(msg\)/);
