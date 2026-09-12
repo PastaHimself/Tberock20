@@ -1,4 +1,4 @@
-import { system, world } from "@minecraft/server";
+import { BlockPermutation, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import { teleportLinkedPortal } from "./ported_features.js";
@@ -70,10 +70,14 @@ export function init(blockComponentRegistry) {
     },
     onTick(ev) {
       if (!worldState.get("codeApplied")) return;
-      if (ev.block.permutation.getState("thebrokenscript:code") === true) return;
+      const states = ev.block.permutation.getAllStates();
+      if (states["thebrokenscript:code"] === true) return;
       try {
         ev.block.setPermutation(
-          ev.block.permutation.withState("thebrokenscript:code", true),
+          BlockPermutation.resolve(ev.block.typeId, {
+            ...states,
+            "thebrokenscript:code": true,
+          }),
         );
       } catch (error) {
         logger.error("custom_blocks: command state update failed", error);
