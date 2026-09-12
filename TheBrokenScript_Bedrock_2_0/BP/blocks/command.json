@@ -5,6 +5,12 @@
       "identifier": "thebrokenscript:command",
       "menu_category": {
         "category": "construction"
+      },
+      "states": {
+        "thebrokenscript:code": [
+          false,
+          true
+        ]
       }
     },
     "components": {
@@ -21,7 +27,26 @@
         "explosion_resistance": 5
       },
       "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:tick": {
+        "interval_range": [
+          1,
+          1
+        ],
+        "looping": true
+      },
       "thebrokenscript:be_command": {}
-    }
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('thebrokenscript:code') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "command_block_inactive"
+            }
+          }
+        }
+      }
+    ]
   }
 }
