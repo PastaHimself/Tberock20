@@ -1,7 +1,8 @@
-import { system, world } from "@minecraft/server";
+import { BlockPermutation, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import { teleportLinkedPortal } from "./ported_features.js";
+import * as worldState from "./world_state.js";
 
 // Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -43,30 +44,44 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  // disruption — random glitch pulses while placed
+  // Java DisruptionBlock schedules itself to become air exactly 100 ticks after placement.
   register("thebrokenscript:disruption", {
-    onRandomTick(ev) {
+    onPlace(ev) {
       const { block } = ev;
-      try {
-        block.dimension.spawnParticle("minecraft:basic_flame_particle", {
-          x: block.location.x + 0.5 + (Math.random() - 0.5),
-          y: block.location.y + 1.1,
-          z: block.location.z + 0.5 + (Math.random() - 0.5)
-        });
-      } catch {}
-      if (Math.random() < 0.02) {
-        tryPlayNear(block.dimension, block.location, "thebrokenscript:glitch_sound_1", 3, 1);
-      }
+      system.runTimeout(() => {
+        try {
+          block.setType("minecraft:air");
+        } catch (error) {
+          logger.error("custom_blocks: disruption removal failed", error);
+        }
+      }, 100);
     }
   });
 
-  // command / command_block_giver — interact prints corrupted command feedback
+  // Java CorruptedCommandBlock stores its placed location and flips its `code` state
+  // once the world-level codeApplied flag becomes true. The Java menu/UI remains a
+  // separate, currently unsupported adapter concern; do not fabricate command text here.
   register("thebrokenscript:be_command", {
-    onPlayerInteract(ev) {
-      const lines = ["/give @s minecraft:knowledge", "/tp @s into_the_void", "/ban @a[distance=..64]"];
-      const line = lines[Math.floor(Math.random() * lines.length)];
-      try { ev.player.onScreenDisplay.setTitle(`§7${line}`, { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
-      tryPlayNear(ev.block.dimension, ev.block.location, "thebrokenscript:glitch_sound_1", 2, 0.8);
+    onPlace(ev) {
+      const { x, y, z } = ev.block.location;
+      worldState.set("commandBlockX", x);
+      worldState.set("commandBlockY", y);
+      worldState.set("commandBlockZ", z);
+    },
+    onTick(ev) {
+      if (!worldState.get("codeApplied")) return;
+      const states = ev.block.permutation.getAllStates();
+      if (states["thebrokenscript:code"] === true) return;
+      try {
+        ev.block.setPermutation(
+          BlockPermutation.resolve(ev.block.typeId, {
+            ...states,
+            "thebrokenscript:code": true,
+          }),
+        );
+      } catch (error) {
+        logger.error("custom_blocks: command state update failed", error);
+      }
     }
   });
 
