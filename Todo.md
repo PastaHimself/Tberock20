@@ -35,8 +35,9 @@ The documentation currently disagrees with itself. `PORT_PROGRESS.md` reports ch
 - [ ] Do not blindly convert entries to `ported`; inspect the Java source and current Bedrock behavior first.
 - [ ] Reconcile family rollups in `PARITY_MATRIX.md` with component-level `SOURCE_MAP.json` results.
 - [ ] Reconcile `PORT_PROGRESS.md` claims with current files/tests rather than historical chunk completion alone.
-- [ ] Add a validator that detects source-map entries with unresolved statuses before a release build.
-- [ ] Add a validator/test that detects obvious disagreement between family-level parity status and the source map.
+- [x] Add a validator that detects source-map entries with unresolved statuses before a release build.
+- [x] Add a validator/test that detects obvious disagreement between family-level parity status and the source map.
+  - Evidence (2026-09-12): release CI runs `tools/validate_parity_ledgers.py` before packaging; it rejects unresolved gameplay classifications and family/source-map disagreement. Focused validator unit coverage also remains in `tests/test_source_map_release_validator.py` and `tests/test_parity_source_map_validator.py`.
 
 ### Known stale rollups to verify
 
@@ -88,7 +89,8 @@ Static validators and Node tests are necessary but cannot prove engine behavior.
 
 `ADAPTATION_NOTES.md` entry A-008 documents a known difference: Java advances the story clock only when players are online **and `doDaylight` is enabled**, while the Bedrock port currently gates only on players being online.
 
-- [ ] Re-audit the currently pinned Script API (`@minecraft/server` 2.11.0-beta target) for a supported way to read the daylight-cycle gamerule.
+- [x] Re-audit the currently pinned Script API (`@minecraft/server` 2.11.0-beta target) for a supported way to read the daylight-cycle gamerule.
+  - Evidence (2026-09-12): `package.json` pins `@minecraft/server` `2.11.0-beta.1.26.50-preview.26`; the indexed Microsoft Creator API definition and Microsoft Learn expose `GameRules.doDayLightCycle` as a readable boolean. The implementation/gate work below remains incomplete.
 - [ ] If the API now exposes the needed state, reproduce Java's `playerCount > 0 && doDaylight` gate exactly and retire/update A-008.
 - [ ] If it remains unavailable, investigate a robust command-backed or state-synchronized adapter only if it does not introduce worse correctness/security/performance problems.
 - [ ] Regression-test story counter pause/resume semantics.
@@ -110,7 +112,8 @@ Static validators and Node tests are necessary but cannot prove engine behavior.
 - [ ] Compare Java probability, cooldown, delay, player selection, world/dimension gates, and mutual exclusion rules.
 - [ ] Verify the implemented weighted event pool has the same effective selection behavior as Java, not merely similar weights.
 - [ ] Verify every event's cleanup path after player death, dimension change, disconnect, or server reload.
-- [ ] Resolve the **45-source-response vs 14-implemented-response** documentation discrepancy through source inspection; do not assume either count means 31 missing features until aliases/unreachable/dead source entries are checked.
+- [x] Resolve the **45-source-response vs 14-implemented-response** documentation discrepancy through source inspection; do not assume either count means 31 missing features until aliases/unreachable/dead source entries are checked.
+  - Evidence (2026-09-12): `tests/horror_chat_registration_audit.test.mjs` derives 42 registered Java chat-response IDs from `decompiled/.../TBSChatResponses.java` and 13 generic Bedrock response keys from `commands.js`. Those counts describe different units and are not a parity denominator; per-response trigger/gate/delay auditing remains open.
 - [ ] Verify exact trigger normalization: casing, whitespace, punctuation, substrings/whole-message behavior, cooldowns, and whether the sender or all players receive side effects.
 
 ---
@@ -224,7 +227,8 @@ For each entity, compare source and Bedrock side-by-side:
 
 ## 16. Dimension parity
 
-- [ ] Verify all source dimensions and IDs against Bedrock equivalents.
+- [x] Verify all source dimensions and IDs against Bedrock equivalents.
+  - Evidence (2026-09-12): `tests/dimension_inventory.test.mjs` compares the complete Java dimension resource inventory plus `TBSDimensions.java` registrations to the Bedrock ID model, including the resource-only `backrooms` exception; `tests/dimension_registration.test.mjs` verifies all 13 namespaced IDs are registered through the supported startup `DimensionRegistry` path.
 - [ ] Verify spawn/entry position, time/light/environment settings, fog, biome association, portal routes, return routes, and death/respawn behavior.
 - [ ] Test cross-dimension entity/player references for stale handles and cleanup.
 - [ ] Verify dimension-specific event/spawn restrictions.
