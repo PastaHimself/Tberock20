@@ -41,6 +41,9 @@ jobs:
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
+      - name: Audit SOURCE_MAP paths against current Bedrock tree
+        run: python tools/audit_source_map_tree.py
+
       - name: Validate parity ledgers
         run: python tools/validate_parity_ledgers.py
 
