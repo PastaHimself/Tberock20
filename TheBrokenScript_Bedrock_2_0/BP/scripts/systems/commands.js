@@ -1,12 +1,64 @@
-import { world, system } from "@minecraft/server";
+import {
+  CommandPermissionLevel,
+  CustomCommandStatus,
+  world,
+  system
+} from "@minecraft/server";
 import * as horrorEvents from "./horror_events.js";
 import * as dimensions from "./dimensions.js";
 import * as worldgenStructures from "./worldgen_structures.js";
 import * as progression from "./progression.js";
+import * as playerState from "./player_state.js";
 import { logger } from "../core/logging.js";
 import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js";
 
-// ── Chunk 13: command surface (scriptevent) + chat responses ────────────────
+// Source-backed production command registration. Java registers `tbs` at permission
+// level 4; Bedrock has no equivalent 0-4 op ladder, so Admin is the closest
+// in-game operator-only permission and excludes command-block automation.
+export function register(customCommandRegistry) {
+  customCommandRegistry.registerCommand(
+    {
+      name: "tbs:reputation",
+      description: "reputation",
+      permissionLevel: CommandPermissionLevel.Admin,
+      cheatsRequired: false
+    },
+    (origin) => {
+      const player = origin.sourceEntity;
+      if (!player || player.typeId !== "minecraft:player") {
+        return {
+          status: CustomCommandStatus.Failure,
+          message: "This command must be executed by a player!"
+        };
+      }
+
+      // Custom-command callbacks run in before-event context. Defer state access
+      // and feedback to the next tick, per the Bedrock Script API contract.
+      system.run(() => {
+        try {
+          const rep = playerState.get(player, "entityReputation");
+          const text = rep <= 25 ? "BAD" : rep <= 75 ? "NORMAL" : "GOOD";
+          const desc =
+            rep <= 25
+              ? "Null is pissed and his hatred for you is at maximum. Expect hell from null. Null will now more often attack the player."
+              : rep <= 75
+                ? "Null and you are neutral between each other. Null can sometimes hurt the player."
+                : "Null is cool and doesn't care about you being here. Null will rarely hurt the player.";
+          player.sendMessage(`Reputation value: ${rep}`);
+          player.sendMessage(`Reputation: ${text}`);
+          player.sendMessage(desc);
+        } catch (error) {
+          logger.error("commands: reputation failed", error);
+        }
+      });
+
+      return { status: CustomCommandStatus.Success };
+    }
+  );
+}
+
+// Bedrock-only developer/regression hooks. These are not presented as Java
+// command parity; they remain behind Bedrock's built-in /scriptevent command.
 // Usage: /scriptevent tbs:help   |   /scriptevent tbs:fire <event_id>
 //        /scriptevent tbs:arena start|stop   |   /scriptevent tbs:shaft
 //        /scriptevent tbs:dim <dimension>   |   /scriptevent tbs:adv <advId>
