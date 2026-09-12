@@ -29,7 +29,8 @@ The objective is not simply to make every feature exist. The objective is to mak
 
 The documentation currently disagrees with itself. `PORT_PROGRESS.md` reports chunks 00–38 completed, while `PARITY_MATRIX.md` still marks many later-implemented families as `uninspected`, `unknown`, or `in_progress`.
 
-- [ ] Re-audit all **912 `SOURCE_MAP.json` entries** against the current Bedrock tree.
+- [x] Re-audit all **912 `SOURCE_MAP.json` entries** against the current Bedrock tree.
+  - Evidence (2026-09-12): `tools/audit_source_map_tree.py` requires exactly 912 rows and resolves every declared `bedrock_files` literal/glob against `TheBrokenScript_Bedrock_2_0`; the dedicated GitHub Actions audit step passed with zero unresolved path/case errors.
 - [ ] Make every gameplay-relevant source entry resolve to exactly one of: exact port, validated high-parity port, validated approximation, engine-unsupported, or intentionally excluded with evidence.
 - [ ] Eliminate stale `uninspected`, `unknown`, and `in_progress` statuses that no longer describe the implementation.
 - [ ] Do not blindly convert entries to `ported`; inspect the Java source and current Bedrock behavior first.
