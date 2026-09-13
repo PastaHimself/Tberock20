@@ -27,6 +27,7 @@ function getMoonPhase() {
 function isNight() {
   try {
     const t = world.getTimeOfDay();
+    // audit: Bedrock time-of-day adapter for the Java daytime range.
     return t >= 13000 && t < 23000;
   } catch { return false; }
 }

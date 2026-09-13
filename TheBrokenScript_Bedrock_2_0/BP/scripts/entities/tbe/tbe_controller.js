@@ -535,6 +535,7 @@ function tickAmbush(e) {
 
   if (timers.get(e.id) === undefined) {
     // random lifetime 18000-24000
+    // audit: source range 18000–24000 is inclusive, so the Bedrock roll uses 6001.
     lifetime = 18000 + Math.floor(Math.random() * 6001);
     // weighted variant 1/1/2/3 -> custom name for RP nameplate
     const pool = [1, 1, 2, 3];

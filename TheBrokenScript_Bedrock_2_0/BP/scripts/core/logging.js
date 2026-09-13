@@ -30,8 +30,10 @@ export const logger = {
     warn(message) {
         console.warn(`${PREFIX} ${message}`);
     },
-    warnOnce(key, message) {
-        if (shouldEmitOnce("warn", key)) console.warn(`${PREFIX} ${message}`);
+    warnOnce(key, message, err) {
+        if (shouldEmitOnce("warn", key)) {
+            console.warn(`${PREFIX} ${message}${err !== undefined ? ` :: ${stringifyError(err)}` : ""}`);
+        }
     },
     error(message, err) {
         console.error(`${PREFIX} ${message}${err !== undefined ? ` :: ${stringifyError(err)}` : ""}`);

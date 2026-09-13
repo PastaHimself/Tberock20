@@ -1,6 +1,7 @@
 import { world } from "@minecraft/server";
 
 const NS = "tbs";
+// audit: adapter cap; Bedrock dynamic-property payloads need a bounded JSON size.
 const MAX_JSON_BYTES = 30000;
 
 function key(scope, name) {

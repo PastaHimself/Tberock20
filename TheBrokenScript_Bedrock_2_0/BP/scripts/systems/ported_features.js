@@ -300,6 +300,7 @@ function blockReference(block) {
 function finiteDuration(value) {
   const ticks = Math.floor(Number(value));
   if (!Number.isFinite(ticks)) return 1;
+  // audit: Bedrock safety cap; no Java literal equivalent is available for this API guard.
   return Math.max(1, Math.min(20_000_000, ticks));
 }
 

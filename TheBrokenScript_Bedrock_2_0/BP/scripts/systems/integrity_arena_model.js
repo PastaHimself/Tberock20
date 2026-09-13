@@ -249,8 +249,8 @@ export const VOID_TENTACLE_SOURCE = Object.freeze({
   attackIntervalTicks: 25,
   attackSearchRadiusMultiplier: 5.6, // 8 * 0.7
   attackCandidateRadiusMultiplier: 4.9, // 7 * 0.7
-  meleeRadiusMultiplier: 1.925, // 2.75 * 0.7
-  sweepPlayerRadiusMultiplier: 4.2, // 6 * 0.7
+  meleeRadiusMultiplier: 1.925, // audit: adapter formula 2.75 * 0.7 from source scale handling
+  sweepPlayerRadiusMultiplier: 4.2, // audit: adapter formula 6 * 0.7 from source scale handling
   meleeDamage: 5,
   sweepDamage: 12,
   sweepChance: 0.35,
