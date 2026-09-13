@@ -27,32 +27,33 @@ The objective is not simply to make every feature exist. The objective is to mak
 
 ## 1. Reconcile the parity ledgers with the actual repository
 
-The documentation currently disagrees with itself. `PORT_PROGRESS.md` reports chunks 00–38 completed, while `PARITY_MATRIX.md` still marks many later-implemented families as `uninspected`, `unknown`, or `in_progress`.
+The earlier documentation divergence between the completed chunk log and the family/component parity ledgers is resolved by the Chunk 39 row-level audit; this section records the evidence and the repeatable checks that keep it resolved.
 
-- [ ] Re-audit all **912 `SOURCE_MAP.json` entries** against the current Bedrock tree.
-- [ ] Make every gameplay-relevant source entry resolve to exactly one of: exact port, validated high-parity port, validated approximation, engine-unsupported, or intentionally excluded with evidence.
-- [ ] Eliminate stale `uninspected`, `unknown`, and `in_progress` statuses that no longer describe the implementation.
-- [ ] Do not blindly convert entries to `ported`; inspect the Java source and current Bedrock behavior first.
-- [ ] Reconcile family rollups in `PARITY_MATRIX.md` with component-level `SOURCE_MAP.json` results.
-- [ ] Reconcile `PORT_PROGRESS.md` claims with current files/tests rather than historical chunk completion alone.
+- [x] Re-audit all **912 `SOURCE_MAP.json` entries** against the current Bedrock tree.
+- [x] Make every gameplay-relevant source entry resolve to exactly one of: exact port, validated high-parity port, validated approximation, engine-unsupported, or intentionally excluded with evidence.
+- [x] Eliminate stale `uninspected`, `unknown`, and `in_progress` statuses that no longer describe the implementation.
+- [x] Do not blindly convert entries to `ported`; inspect the Java source and current Bedrock behavior first.
+- [x] Reconcile family rollups in `PARITY_MATRIX.md` with component-level `SOURCE_MAP.json` results.
+- [x] Reconcile `PORT_PROGRESS.md` claims with current files/tests rather than historical chunk completion alone.
 - [x] Add a validator that detects source-map entries with unresolved statuses before a release build.
 - [x] Add a validator/test that detects obvious disagreement between family-level parity status and the source map.
   - Evidence (2026-09-12): release CI runs `tools/validate_parity_ledgers.py` before packaging; it rejects unresolved gameplay classifications and family/source-map disagreement. Focused validator unit coverage also remains in `tests/test_source_map_release_validator.py` and `tests/test_parity_source_map_validator.py`.
+  - Evidence (2026-09-13): `tools/reconcile_parity_ledgers.py --check` reconciles all 912 rows to the deployed BP/RP tree from baseline `4956a0575da28cbec161773d8b7c4ef947b41550`; `validate_parity_ledgers.py`, `validate_parity_source_map.py`, and `validate_source_map_release.py` pass with zero unresolved rows. Bedrock Wiki and Microsoft Learn checks confirm the native damage-cause/entity/projectile attribution used by the damage ledger and the readable daylight-cycle gamerule documented by A-008.
 
 ### Known stale rollups to verify
 
-`PARITY_MATRIX.md` currently lists several families as uninspected/unknown despite later progress chunks reporting implementations. Audit these first:
+The former stale rollups covered the following families; each is now reconciled against current files and tests:
 
-- [ ] remaining entity families (Chunks 05D–05F and 06);
-- [ ] blocks and block-entity equivalents (Chunk 08);
-- [ ] items and fluid approximation (Chunk 09);
-- [ ] dimensions and portals (Chunk 10);
-- [ ] biomes/worldgen/spawn modifiers (Chunk 11);
-- [ ] events and horror choreography (Chunk 12);
-- [ ] chat responses (Chunk 13 reports 14 implemented while the matrix identifies a 45-response source family — verify actual source coverage, aliases, and unreachable/dead entries before deciding whether anything is missing);
-- [ ] recipes, loot, tags, advancements, commands (Chunk 13);
-- [ ] presentation/UI/music/config families (Chunks 14 and 20);
-- [ ] bosses currently still marked `in_progress` even though later chunks substantially extended Phase 3/Jimmy/Fractured behavior.
+- [x] remaining entity families (Chunks 05D–05F and 06);
+- [x] blocks and block-entity equivalents (Chunk 08);
+- [x] items and fluid approximation (Chunk 09);
+- [x] dimensions and portals (Chunk 10);
+- [x] biomes/worldgen/spawn modifiers (Chunk 11);
+- [x] events and horror choreography (Chunk 12);
+- [x] chat responses (Chunk 13 reports 14 implemented while the matrix identifies a 45-response source family — verified source coverage, aliases, and unreachable/dead entries before deciding whether anything is missing);
+- [x] recipes, loot, tags, advancements, commands (Chunk 13);
+- [x] presentation/UI/music/config families (Chunks 14 and 20);
+- [x] bosses previously marked `in_progress` even though later chunks substantially extended Phase 3/Jimmy/Fractured behavior.
 
 ## 2. Full source-to-runtime audit
 
