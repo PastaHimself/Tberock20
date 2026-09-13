@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "matrix_id": "tbs-bedrock-runtime-smoke-v1",
+  "run_id": "not-run-template",
+  "started_at": "2026-09-13T00:00:00Z",
+  "finished_at": "2026-09-13T00:00:00Z",
+  "runtime_contract": {
+    "minecraft_product_line": "1.26.50-preview",
+    "server_api": "2.11.0-beta",
+    "server_ui": "2.1.0",
+    "typing_packages": [
+      "@minecraft/server@2.11.0-beta.1.26.50-preview.26",
+      "@minecraft/server-ui@2.3.0-beta.1.26.50-preview.26"
+    ],
+    "required_experiments": [
+      "Beta APIs"
+    ]
+  },
+  "status": "not-run",
+  "results": [
+    {
+      "id": "bootstrap",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "persistence",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "death_respawn",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "leave_rejoin_restart",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "multiplayer",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "dimensions",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "boss_lifecycle",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "story_progression",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "event_suppression",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    },
+    {
+      "id": "diagnostics",
+      "status": "not-run",
+      "evidence": ["content_log", "report"]
+    }
+  ],
+  "diagnostics": []
+}
