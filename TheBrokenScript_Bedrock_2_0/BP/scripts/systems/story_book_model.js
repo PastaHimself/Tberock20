@@ -1,11 +1,18 @@
 // Pure source-backed model for NullBookStoryEvent. The runtime adapter owns
 // Bedrock ItemStack operations; this module keeps the story contract testable.
 
-const DAY = 24000;
-const OFFSET = 1000;
+import { STORY_EVENT_THRESHOLDS } from "../shared/story_clock_model.js";
+
 const INT_MAX = 2147483647;
 
-export const NULL_BOOK_STORY_TICKS = DAY * 12 + OFFSET;
+const nullBookThreshold = STORY_EVENT_THRESHOLDS.find(
+  ({ eventId }) => eventId === "null_book_hint",
+);
+if (nullBookThreshold === undefined) {
+  throw new Error("story_book_model: null_book_hint threshold is not registered");
+}
+
+export const NULL_BOOK_STORY_TICKS = nullBookThreshold.threshold;
 
 // TBSLang.NULL_BOOK_CONTENT from the Java source language registry.
 export const NULL_BOOK_PAGE1 =

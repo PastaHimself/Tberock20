@@ -104,11 +104,12 @@ the current runtime preserves the source catalog separately because a Java
 custom damage-type registry is not exposed by that API. See [Microsoft Learn:
 EntityApplyDamageOptions](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entityapplydamageoptions?view=minecraft-bedrock-stable).
 
-The daylight-cycle check is also a documented API boundary: the Bedrock
-`GameRules` surface exposes `doDayLightCycle` as a readable boolean. The story
-clock still carries the existing A-008 adapter until runtime verification can
-prove the exact restricted-execution behavior. See [Microsoft Learn:
-GameRules](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/gamerules?view=minecraft-bedrock-stable).
+The daylight-cycle check is now implemented through the documented Bedrock
+`GameRules` surface: `doDayLightCycle` is a readable boolean. The deployed and
+authoring story clocks pass that value through the source-backed tick model,
+which pauses dispatch when false and preserves Java's no-player persisted-time
+behavior when true. See [Microsoft Learn: GameRules](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/gamerules?view=minecraft-bedrock-stable)
+and [Microsoft Learn: World](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/world?view=minecraft-bedrock-stable).
 
 The stable `Entity.applyDamage` contract and native damage-cause model were
 cross-checked against the connected Bedrock Wiki reference for the pinned

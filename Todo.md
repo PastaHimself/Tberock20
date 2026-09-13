@@ -96,14 +96,18 @@ Static validators and Node tests are necessary but cannot prove engine behavior.
 
 ## 4. Story clock and day-cycle parity
 
-`ADAPTATION_NOTES.md` entry A-008 documents a known difference: Java advances the story clock only when players are online **and `doDaylight` is enabled**, while the Bedrock port currently gates only on players being online.
+`ADAPTATION_NOTES.md` entry A-008 records the former daylight-gamerule gap and its resolution. Java advances the story clock only when players are online **and `doDaylight` is enabled**; the Bedrock runtime now reads the supported `world.gameRules.doDayLightCycle` property and applies the same dispatcher gate.
 
 - [x] Re-audit the currently pinned Script API (`@minecraft/server` 2.11.0-beta target) for a supported way to read the daylight-cycle gamerule.
-  - Evidence (2026-09-12): `package.json` pins `@minecraft/server` `2.11.0-beta.1.26.50-preview.26`; the indexed Microsoft Creator API definition and Microsoft Learn expose `GameRules.doDayLightCycle` as a readable boolean. The implementation/gate work below remains incomplete.
-- [ ] If the API now exposes the needed state, reproduce Java's `playerCount > 0 && doDaylight` gate exactly and retire/update A-008.
-- [ ] If it remains unavailable, investigate a robust command-backed or state-synchronized adapter only if it does not introduce worse correctness/security/performance problems.
-- [ ] Regression-test story counter pause/resume semantics.
-- [ ] Verify all source story thresholds, including day/tick offsets and ordering when multiple thresholds are crossed.
+  - Evidence (2026-09-12): `package.json` pins `@minecraft/server` `2.11.0-beta.1.26.50-preview.26`; the indexed Microsoft Creator API definition and Microsoft Learn expose `GameRules.doDayLightCycle` as a readable boolean.
+- [x] Reproduce Java's `playerCount > 0 && doDaylight` gate exactly and retire/update A-008.
+  - Evidence (2026-09-13): `BP/scripts/shared/story_time.js` and the authoring copy read `world.gameRules.doDayLightCycle`; daylight disabled pauses the complete dispatcher, while daylight enabled dispatches at the persisted time and advances it only when at least one player is online. No command-backed adapter is needed.
+- [x] If the API remains unavailable, investigate a robust command-backed or state-synchronized adapter only if it does not introduce worse correctness/security/performance problems.
+  - Evidence (2026-09-13): not applicable because the pinned API exposes the readable property; the command workaround was not introduced.
+- [x] Regression-test story counter pause/resume semantics.
+  - Evidence (2026-09-13): `tests/story_clock.test.mjs` covers daylight pause, no-player pause, player resume, persisted-time dispatch, and exact threshold lookup.
+- [x] Verify all source story thresholds, including day/tick offsets and ordering when multiple thresholds are crossed.
+  - Evidence (2026-09-13): `story_clock_model.js` centralizes the source schedule for days 5, 6, 10, 12, 15, 20, 24, 32, 38, and 48 at `+1000` ticks; regressions anchor every entry to the decompiled Java event classes and preserve chronological registration.
 
 ## 5. Persistent state parity
 
