@@ -200,6 +200,7 @@ def reconcile_library(row: dict[str, Any], key: str) -> None:
                 "BP/scripts/core/config.js",
                 "BP/scripts/core/state.js",
                 "BP/scripts/shared/story_time.js",
+                "BP/scripts/shared/story_clock_model.js",
                 "BEDROCK_ARCHITECTURE.md",
             ],
             notes="Shared brokencore clock, configuration, state, and utility behavior is absorbed into the shipping BP runtime; the Java library jar itself is not shipped.",
@@ -319,6 +320,7 @@ def reconcile_entity(row: dict[str, Any], key: str) -> None:
 STORY_EVENT_FILES = [
     "BP/scripts/systems/story_events.js",
     "BP/scripts/shared/story_time.js",
+    "BP/scripts/shared/story_clock_model.js",
     "BP/scripts/systems/player_state.js",
     "BP/scripts/systems/world_state.js",
 ]
@@ -355,7 +357,7 @@ def reconcile_horror_event(row: dict[str, Any], key: str, current_events: set[st
             parity="high" if key in {"moon_corruption_story", "null_book_hint", "txt_story"} else "approximation",
             identifier=f"thebrokenscript:story-event/{key}",
             files=files,
-            notes="Source story event is represented by the current story-time threshold and state/book adapter; the current BP copy is the shipping authority for the integrated Chunk 38 behavior.",
+            notes="Source story event is represented by the source-backed story-clock threshold schedule and current state/book adapter; the BP copy is the shipping authority for the integrated runtime behavior.",
         )
     elif key == "aberration":
         decide(

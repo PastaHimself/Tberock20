@@ -129,6 +129,10 @@ jobs:
         if: always()
         run: npm test
 
+      - name: Run story clock and day-cycle parity regressions
+        if: always()
+        run: node --experimental-vm-modules --test tests/story_clock.test.mjs
+
       - name: Checkout Blockception Bedrock language server
         if: always()
         uses: actions/checkout@v5

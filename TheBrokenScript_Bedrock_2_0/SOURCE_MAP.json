@@ -80,6 +80,7 @@
         "BP/scripts/core/config.js",
         "BP/scripts/core/state.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BEDROCK_ARCHITECTURE.md"
       ],
       "status": "ported",
@@ -1618,12 +1619,13 @@
       "bedrock_files": [
         "BP/scripts/systems/story_events.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BP/scripts/systems/player_state.js",
         "BP/scripts/systems/world_state.js"
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-13 audit: Source story event is represented by the current story-time threshold and state/book adapter; the current BP copy is the shipping authority for the integrated Chunk 38 behavior."
+      "notes": "2026-09-13 audit: Source story event is represented by the source-backed story-clock threshold schedule and current state/book adapter; the BP copy is the shipping authority for the integrated runtime behavior."
     },
     {
       "source_id": "event.damage",
@@ -2129,12 +2131,13 @@
       "bedrock_files": [
         "BP/scripts/systems/story_events.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BP/scripts/systems/player_state.js",
         "BP/scripts/systems/world_state.js"
       ],
       "status": "ported",
       "parity": "high",
-      "notes": "2026-09-13 audit: Source story event is represented by the current story-time threshold and state/book adapter; the current BP copy is the shipping authority for the integrated Chunk 38 behavior."
+      "notes": "2026-09-13 audit: Source story event is represented by the source-backed story-clock threshold schedule and current state/book adapter; the BP copy is the shipping authority for the integrated runtime behavior."
     },
     {
       "source_id": "event.moon_glitch",
@@ -2198,6 +2201,7 @@
       "bedrock_files": [
         "BP/scripts/systems/story_events.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BP/scripts/systems/player_state.js",
         "BP/scripts/systems/world_state.js",
         "BP/scripts/systems/story_book_model.js",
@@ -2205,7 +2209,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-13 audit: Source story event is represented by the current story-time threshold and state/book adapter; the current BP copy is the shipping authority for the integrated Chunk 38 behavior."
+      "notes": "2026-09-13 audit: Source story event is represented by the source-backed story-clock threshold schedule and current state/book adapter; the BP copy is the shipping authority for the integrated runtime behavior."
     },
     {
       "source_id": "event.null_book_hint",
@@ -2218,6 +2222,7 @@
       "bedrock_files": [
         "BP/scripts/systems/story_events.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BP/scripts/systems/player_state.js",
         "BP/scripts/systems/world_state.js",
         "BP/scripts/systems/story_book_model.js",
@@ -2225,7 +2230,7 @@
       ],
       "status": "ported",
       "parity": "high",
-      "notes": "2026-09-13 audit: Source story event is represented by the current story-time threshold and state/book adapter; the current BP copy is the shipping authority for the integrated Chunk 38 behavior."
+      "notes": "2026-09-13 audit: Source story event is represented by the source-backed story-clock threshold schedule and current state/book adapter; the BP copy is the shipping authority for the integrated runtime behavior."
     },
     {
       "source_id": "event.null_getting_achievement",
@@ -3005,6 +3010,7 @@
       "bedrock_files": [
         "BP/scripts/systems/story_events.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BP/scripts/systems/player_state.js",
         "BP/scripts/systems/world_state.js",
         "BP/scripts/systems/story_book_model.js",
@@ -3012,7 +3018,7 @@
       ],
       "status": "ported",
       "parity": "high",
-      "notes": "2026-09-13 audit: Source story event is represented by the current story-time threshold and state/book adapter; the current BP copy is the shipping authority for the integrated Chunk 38 behavior."
+      "notes": "2026-09-13 audit: Source story event is represented by the source-backed story-clock threshold schedule and current state/book adapter; the BP copy is the shipping authority for the integrated runtime behavior."
     },
     {
       "source_id": "event.why_cant_you_leave",
@@ -15647,6 +15653,7 @@
       "bedrock_files": [
         "BP/scripts/systems/story_events.js",
         "BP/scripts/shared/story_time.js",
+        "BP/scripts/shared/story_clock_model.js",
         "BP/scripts/systems/player_state.js",
         "BP/scripts/systems/world_state.js",
         "BP/scripts/systems/story_book_model.js",

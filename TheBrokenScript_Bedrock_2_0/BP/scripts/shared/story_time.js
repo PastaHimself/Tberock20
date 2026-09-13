@@ -1,6 +1,7 @@
 import { world } from "@minecraft/server";
 import * as state from "../core/state.js";
 import { logger } from "../core/logging.js";
+import { evaluateStoryClockTick } from "./story_clock_model.js";
 
 const KEY = "storyTime";
 
@@ -32,13 +33,34 @@ export function begin(scheduler) {
     logger.debug("story clock started");
 }
 
-function onTick() {
-    if (world.getAllPlayers().length === 0) {
-        return;
+export function runTick({
+    worldApi = world,
+    readTime = getTime,
+    writeTime = (time) => state.setWorld(KEY, time),
+    dispatch = fire,
+} = {}) {
+    const doDayLightCycle = worldApi.gameRules.doDayLightCycle;
+    // Java StoryEvents.tick() pauses the whole story dispatcher when the
+    // daylight cycle is disabled.
+    if (doDayLightCycle !== true) {
+        return { nextTime: undefined, shouldDispatch: false };
     }
-    const next = getTime() + 1;
-    state.setWorld(KEY, next);
-    fire(next);
+    const currentTime = readTime();
+    const tick = evaluateStoryClockTick(
+        currentTime,
+        worldApi.getAllPlayers().length,
+        doDayLightCycle,
+    );
+    if (!tick.shouldDispatch) return tick;
+    if (tick.nextTime !== currentTime) {
+        writeTime(tick.nextTime);
+    }
+    dispatch(tick.nextTime);
+    return tick;
+}
+
+function onTick() {
+    runTick();
 }
 
 function fire(time) {

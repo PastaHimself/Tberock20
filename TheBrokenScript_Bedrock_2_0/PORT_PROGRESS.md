@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-13 (Chunk 39 — source-map/ledger reconciliation)
+Last updated: 2026-09-13 (Chunk 40 — story clock and day-cycle parity)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,16 +11,16 @@ Last updated: 2026-09-13 (Chunk 39 — source-map/ledger reconciliation)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 39 complete — source-map/ledger reconciliation**
+**Chunk 40 complete — story clock and day-cycle parity**
 
-The current deployed `BP/` + `RP/` tree is now the shipping authority for the parity ledgers. The 912 `SOURCE_INVENTORY.json` IDs and 912 `SOURCE_MAP.json` rows match exactly; every row has a terminal decision, an existing Bedrock-side evidence path, and an explicit approximation, unsupported, or excluded note where exact Java parity is not possible. The reconciliation was anchored to repository baseline `4956a0575da28cbec161773d8b7c4ef947b41550` and is repeatable with `python tools/reconcile_parity_ledgers.py --check`.
+The story clock now matches the decompiled Java dispatcher’s daylight/player gate. The deployed `BP/` and authoring `src/` clocks read the pinned Script API’s `world.gameRules.doDayLightCycle` boolean, pause dispatch when daylight cycling is disabled, preserve persisted-time dispatch when daylight is enabled but no players are online, and advance by one tick before dispatch when players are online. The source-backed schedule centralizes all ten exact day-plus-1000 thresholds and is covered by focused regressions. The 912-row parity ledgers remain reconciled and the repeatable check is `python tools/reconcile_parity_ledgers.py --check`.
 
 ## Chunk state
 | Chunk | State |
 |---|---|
 | 00 Complete source inventory & architecture | **completed** |
 | 01 BP/RP foundation | **completed** |
-| 02 Shared runtime & persistence | **completed** (story clock, world/player state ports, config defaults; null_book story event pending item system) |
+| 02 Shared runtime & persistence | **completed** (historical story clock, world/player state ports, and config defaults; story-book delivery completed in Chunk 38; day-cycle parity completed in Chunk 40) |
 | 03 Asset & client foundation | **completed** (sounds/defs 143, textures 502, atlases, geo×77 w/ id fixes, anims×36, flipbooks×5, lang) |
 | 04 Entity framework & AI primitives | **completed** (finder/gaze/effects/spawn_helpers/entity_refs/spawn_director + hooks; 24 modules) |
 | 05A Circuit family (6 entities) | **completed** (BP/RP entities, controller timers/stare/flee/chase, spawn rule with source constants) |
@@ -63,6 +63,7 @@ The current deployed `BP/` + `RP/` tree is now the shipping authority for the pa
 | 37 Fractured audio lifecycle adapter | **completed** (source Jimmy spawn cue; SoundInstance-owned JimArena intro/loop cleanup; focused regression) |
 | 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, Java coordinate encoding, injectable ItemBookComponent creation, independent per-player delivery, overflow drop, bounded retry, and persistence-key correction) |
 | 39 Source-map/ledger reconciliation | **completed** (912/912 map-to-inventory IDs; current BP/RP evidence paths; 69 entities, 125 BP blocks, 78 BP items, 40 recipes, 15 biomes, 13 logical dimensions, 79 H/TABLE events; family matrix reconciled; repeatable CI check added) |
+| 40 Story clock and day-cycle parity | **completed** (readable `doDayLightCycle` gate; Java no-player persisted-time dispatch; exact ten-threshold source schedule; focused regressions; dedicated GitHub Actions gate) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -98,6 +99,9 @@ BP/scripts/systems/{story_book_model,story_book_adapter,story_events,world_state
 
 ## Files changed (Chunk 39)
 `tools/reconcile_parity_ledgers.py` · `tools/validate_parity_ledgers.py` · `.github/workflows/bedrock-addon-check.yml` · `SOURCE_MAP.json` · `PARITY_MATRIX.md` · `PORT_PROGRESS.md` · `Todo.md` · `VALIDATION_LOG.md` · `docs/PARITY_LEDGER_RECONCILIATION.md`
+
+## Files created/changed (Chunk 40)
+`BP/scripts/shared/story_clock_model.js` · `src/shared/story_clock_model.js` · `BP/scripts/shared/story_time.js` · `src/shared/story_time.js` · `BP/scripts/systems/story_events.js` · `src/systems/story_events.js` · `tests/story_clock.test.mjs` · `tests/story_events.test.mjs` · `.github/workflows/bedrock-addon-check.yml` · story/parity/adaptation/ledger documentation
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -203,7 +207,6 @@ Chunk 38 focused local validation: TDD red/green story-book regressions PASS (7/
 
 ## Unresolved defects
 - Runtime import test requires a Minecraft Bedrock install (none detected); static validation covers structure/schema only.
-- Story-clock daylight-gamerule gate approximated (players-online only) — A-008.
 - Fences/trapdoors/panes/doors remain full-cube visuals; flora share one cross geometry (slab/stairs/wall now real geometries).
 - Animated block textures static in Bedrock.
 - Hand cannon ownership/administrative-override enforcement is intentionally not copied: the Java implementation hard-codes one UUID and deletes the item from everyone else. Bedrock has no equivalent Java data component or portable owner UUID.
@@ -245,5 +248,11 @@ The row-level audit reconciles the live deployed tree at baseline `4956a0575da28
 
 The audit uses the deployed BP copy because Chunk 38's integrated story-book adapter is present there while the authoring `src` copy is not yet synchronized. This is a ledger-authority decision, not a claim that the two trees are interchangeable.
 
+## Chunk 40 — Story clock and day-cycle parity
+
+Chunk 40 resolves A-008. The Java `StoryEvents.tick()` contract was verified from the decompiled brokencore implementation and event classes: daylight disabled returns before event lookup; daylight enabled with no players keeps the saved time but still evaluates the exact persisted threshold; daylight enabled with players increments first and evaluates the new time. The Bedrock clock uses `world.gameRules.doDayLightCycle` and a shared pure model in both runtime copies. The threshold model preserves TXT days 5/10/15/20, coordinates day 6, null book day 12, and moon corruption days 24/32/38/48, all at `+1000` ticks, in chronological order.
+
+Focused story-clock regressions are green locally; the complete add-on workflow runs the same focused gate alongside the full Node suite, type-check, pack validators, parity reconciliation, diagnostics, Creator Tools validation, and packaging. A real Bedrock engine smoke run remains pending under the existing runtime-smoke gate.
+
 ## Next chunk
-**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/XCSF tooling, and per-event day-schedule fidelity remain explicit engine/deferred items; none are hidden by the ledger reconciliation.
+**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, and NBT/XCSF tooling remain explicit engine/deferred items; none are hidden by the ledger reconciliation.

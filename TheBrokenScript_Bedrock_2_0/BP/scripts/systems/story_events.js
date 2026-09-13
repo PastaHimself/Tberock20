@@ -1,6 +1,10 @@
 import { world, system, ItemStack } from "@minecraft/server";
 import { logger } from "../core/logging.js";
 import * as storyTime from "../shared/story_time.js";
+import {
+    STORY_EVENT_THRESHOLDS,
+    validateStoryEventActions,
+} from "../shared/story_clock_model.js";
 import * as worldState from "./world_state.js";
 import * as playerState from "./player_state.js";
 import {
@@ -8,23 +12,28 @@ import {
     distributeNullBook,
 } from "./story_book_adapter.js";
 
-const DAY = 24000;
-const OFFSET = 1000;
 const MAX_NULL_BOOK_RETRIES = 20;
 const deliveredNullBookPlayers = new Set();
 let nullBookRetryScheduled = false;
 
+const STORY_EVENT_ACTIONS = Object.freeze({
+    txt_story_5: onTxtHint,
+    txt_story_10: onTxtHint,
+    txt_story_15: onTxtHint,
+    txt_story_20: onTxtHint,
+    coords_hint_6: onCoordsHint,
+    null_book_hint: onNullBook,
+    moon_corruption_24: onMoonCorruption,
+    moon_corruption_32: onMoonCorruption,
+    moon_corruption_38: onMoonCorruption,
+    moon_corruption_48: onMoonCorruption,
+});
+
 export function registerAll() {
-    storyTime.registerThreshold(DAY * 5 + OFFSET, "txt_story_5", onTxtHint);
-    storyTime.registerThreshold(DAY * 10 + OFFSET, "txt_story_10", onTxtHint);
-    storyTime.registerThreshold(DAY * 15 + OFFSET, "txt_story_15", onTxtHint);
-    storyTime.registerThreshold(DAY * 20 + OFFSET, "txt_story_20", onTxtHint);
-    storyTime.registerThreshold(DAY * 6 + OFFSET, "coords_hint_6", onCoordsHint);
-    for (const d of [24, 32, 38, 48]) {
-        storyTime.registerThreshold(DAY * d + OFFSET, `moon_corruption_${d}`, onMoonCorruption);
+    const actions = validateStoryEventActions(STORY_EVENT_ACTIONS);
+    for (const { eventId, threshold } of STORY_EVENT_THRESHOLDS) {
+        storyTime.registerThreshold(threshold, eventId, actions[eventId]);
     }
-    // NullBookStoryEvent: days(12)+1000 — gives every online player the signed "null" book.
-    storyTime.registerThreshold(DAY * 12 + OFFSET, "null_book_hint", onNullBook);
 }
 
 function scheduleNullBookRetry(attempt) {

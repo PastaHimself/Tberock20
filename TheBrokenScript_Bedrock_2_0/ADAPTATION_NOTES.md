@@ -50,7 +50,11 @@ Every entry documents an engine-driven adaptation (prompt §35). Seed set from C
 **Limitation**: no `noise_settings` equivalent; custom-dimension generator capability limited. Design: closest supported terrain via vanilla dimension types + features/structures/scripts per dimension; exact noise parity impossible. Parity: approximation; per-dimension detail in Chunk 10/11.
 
 ## A-008 — Story-clock daylight gate
-Source `StoryEvents.tick()` advances the persisted story counter only when `playerCount>0` **and** gamerule `doDaylight` is enabled. Bedrock stable API (v2.6.0) exposes no gamerule query without commands workarounds; port gates on players-online only. Difference: story time also advances while daylight cycling is disabled (rare server setups). Parity: `VALIDATED_HIGH_PARITY`.
+Source `StoryEvents.tick()` returns before dispatch when the daylight-cycle gamerule is disabled, then advances the persisted story counter only when `playerCount>0`. The pinned Bedrock Script API exposes the equivalent readable `world.gameRules.doDayLightCycle` boolean, so the runtime now applies the same two-stage gate in both the deployed `BP` and authoring `src` copies.
+
+With daylight cycling disabled, the clock and event dispatcher pause. With daylight cycling enabled and no players online, the persisted time does not advance but the dispatcher still evaluates the persisted exact threshold, matching the Java method. With a player online, the clock advances by one tick before exact-threshold dispatch. `tests/story_clock.test.mjs` covers these pause/resume and schedule contracts.
+
+The command-backed workaround is not needed. Engine import/smoke execution remains a separate validation boundary because no Bedrock runtime is available in the local environment. Parity: `VALIDATED_HIGH_PARITY`.
 
 ## A-009 — Java custom font
 The Java font provider and glyph image do not map directly to Bedrock's glyph-page resources. Until every codepoint and page offset is verified, the pack uses standard Bedrock glyphs with obfuscation/color formatting. Shipping an unverified glyph page could replace unrelated vanilla characters globally. Parity: exact = `DEFERRED_UNSAFE`; styled text = `VALIDATED_APPROXIMATION`.

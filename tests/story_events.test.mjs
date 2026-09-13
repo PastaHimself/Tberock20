@@ -11,6 +11,7 @@ import {
   createSignedNullBook,
   distributeNullBook,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/story_book_adapter.js";
+import { STORY_EVENT_THRESHOLDS } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/shared/story_clock_model.js";
 
 const root = new URL("../TheBrokenScript_Bedrock_2_0/", import.meta.url);
 
@@ -20,6 +21,10 @@ async function source(path) {
 
 test("NullBookStoryEvent preserves its day-12 story threshold and source page text", () => {
   assert.equal(NULL_BOOK_STORY_TICKS, 24000 * 12 + 1000);
+  assert.equal(
+    STORY_EVENT_THRESHOLDS.find(({ eventId }) => eventId === "null_book_hint").threshold,
+    NULL_BOOK_STORY_TICKS,
+  );
   assert.equal(
     NULL_BOOK_PAGE1,
     "§0null.err.object.err.null.object.alone.3.not.behind.entitytype:player.receiveddata.invalid.reboot.failed.reset.playerdata:00F9219492D94210F812",
@@ -97,7 +102,8 @@ test("book adapter drops a leftover stack when a player's inventory is full", ()
 
 test("story runtime creates and distributes a signed written book", async () => {
   const runtime = await source("BP/scripts/systems/story_events.js");
-  assert.match(runtime, /registerThreshold\(DAY \* 12 \+ OFFSET, "null_book_hint", onNullBook\)/);
+  assert.match(runtime, /null_book_hint: onNullBook/);
+  assert.match(runtime, /for \(const \{ eventId, threshold \} of STORY_EVENT_THRESHOLDS\)/);
   assert.match(runtime, /createSignedNullBook\(\s*ItemStack/);
   assert.match(runtime, /distributeNullBook\(player, item\)/);
   assert.match(runtime, /system\.runTimeout/);
