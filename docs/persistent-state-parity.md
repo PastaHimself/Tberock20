@@ -22,6 +22,7 @@ The extra Bedrock-only `mv.nullBookGiven`, `pv.nullBookDelivered`, and legacy sc
 - Core adapter metadata is monotonic: a missing schema starts at version 2, version 1 upgrades to version 2, and a future version fails loudly instead of rewriting gameplay data.
 - World initialization and player initialization use missing-only writes. Respawn calls `playerState.init` again, so it can repair a missing property without resetting saved progress.
 - Java lifecycle resets remain separate from attachment initialization: initial join clears `showCoords`, `musicCausedByTBS`, and `glitchesEnabled`; respawn clears `pixelateEnabled` unless the player is in the Lucid dimension.
+- Player join also clears Java's world spawn guards (`hasCircuitSpawned`, `hasSiluetSpawned`, `hasNullSpawned`, and `hasVoidSpawned`). The first-join timer, generated coordinates/code, `isFirstJoin`, `isNullHere`, and `scheduled` transitions are persisted and ticked at the Java 18,000-tick boundary; first-join `isDesync` is cleared for the joining player.
 - Existing legacy player keys (`tbs:ban`, `tbs:fixPos`, `tbs:skipFallDamage`, `tbs:triangleKickTimer`, scalar spawn/RGB coordinates) are copied into `pv.*` only when the canonical key is absent. Legacy keys remain readable for rollback compatibility.
 - Progression awards are keyed by player identity and persisted on the player. A runtime cache is only an optimization, so an award remains consumed after script reload and two players do not share it. The Null Book delivery ledger is also player-persisted, while `mv.nullBookGiven` remains the world-level completion flag.
 - Portal anchors and timed ported effects are transient. Persisted transient properties are removed on an initial spawn/rejoin; timed properties are also removed with `undefined` after expiry. A respawn does not discard an in-progress transient handoff. The one-tick Jim trigger touch marker is removed after its handoff tick.
@@ -31,7 +32,7 @@ The extra Bedrock-only `mv.nullBookGiven`, `pv.nullBookDelivered`, and legacy sc
 
 The entity policy makes the remaining entity-owned state explicit:
 
-- `tbe:variant` is persistent entity state on `the_broken_end_ambush`, matching Java `TheBrokenEndAmbushEntity.addAdditionalSaveData` / `readAdditionalSaveData`.
+- `tbe:alive`, `tbe:lifetime`, and `tbe:variant` are persistent entity state on `the_broken_end_ambush`, matching Java `TheBrokenEndAmbushEntity.addAdditionalSaveData` / `readAdditionalSaveData` keys `AliveTicks`, `Lifetime`, and `variant`.
 - Controller `Map` timers, `extraState`, and cooldown maps are runtime-only and are not serialized.
 - `integrity_arm` (GroundArm) and `chord_projectile` intentionally omit `minecraft:persistent`; the validator requires both to remain explicitly listed as non-persistent.
 - Other shipped custom entity definitions must declare `minecraft:persistent`, preventing an accidental change in entity lifetime from silently changing Java persistence behavior. The validator also checks the declared Java save/load key for each persistent entity-owned property.

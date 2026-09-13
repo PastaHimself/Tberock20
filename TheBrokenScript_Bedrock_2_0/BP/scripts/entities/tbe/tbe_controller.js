@@ -55,6 +55,16 @@ function setNum(e, key, value) {
   m[key] = value;
 }
 
+function getPersistedAmbushNumber(e, property, fallback) {
+  let value;
+  try { value = e.getDynamicProperty(property); } catch { return fallback; }
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function setPersistedAmbushNumber(e, property, value) {
+  try { e.setDynamicProperty(property, value); } catch {}
+}
+
 export function begin(scheduler) {
   scheduler.every("tbs.tbe_tick", 1, onTick);
   // listen for player deaths caused by TBE to approximate awardKillScore kick/ban
@@ -534,18 +544,24 @@ function tickAmbush(e) {
   let lifetime = getNum(e, "lifetime", 0);
 
   if (timers.get(e.id) === undefined) {
+    const storedAlive = getPersistedAmbushNumber(e, "tbe:alive", undefined);
+    const storedLifetime = getPersistedAmbushNumber(e, "tbe:lifetime", undefined);
+    const storedVariant = getPersistedAmbushNumber(e, "tbe:variant", undefined);
     // random lifetime 18000-24000
     // audit: source range 18000–24000 is inclusive, so the Bedrock roll uses 6001.
-    lifetime = 18000 + Math.floor(Math.random() * 6001);
+    aliveTicks = storedAlive ?? 0;
+    lifetime = storedLifetime ?? (18000 + Math.floor(Math.random() * 6001));
     // weighted variant 1/1/2/3 -> custom name for RP nameplate
     const pool = [1, 1, 2, 3];
-    const variant = pool[Math.floor(Math.random() * pool.length)];
+    const variant = storedVariant ?? pool[Math.floor(Math.random() * pool.length)];
     const nameMap = { 1: "Not_It_Cal", 2: "uImmortal_", 3: "99_thatOneteChFella_99" };
     const cname = nameMap[variant] ?? "???";
     try { e.nameTag = cname; } catch {}
-    try { e.setDynamicProperty("tbe:variant", variant); } catch {}
-    timers.set(e.id, { alive: 0, despawnTimer: 0, despawning: 0, spawnTBE: 1, lifetime, variant });
-    aliveTicks = 0; despawnTimer = 0; despawning = 0; spawnTBE = 1;
+    setPersistedAmbushNumber(e, "tbe:alive", aliveTicks);
+    setPersistedAmbushNumber(e, "tbe:lifetime", lifetime);
+    if (storedVariant === undefined) setPersistedAmbushNumber(e, "tbe:variant", variant);
+    timers.set(e.id, { alive: aliveTicks, despawnTimer: 0, despawning: 0, spawnTBE: 1, lifetime, variant });
+    despawnTimer = 0; despawning = 0; spawnTBE = 1;
     // ensure look-at behaviour not needed script-side — native look_at handled by behavior
   }
 
@@ -580,6 +596,7 @@ function tickAmbush(e) {
   }
 
   aliveTicks++; setNum(e, "alive", aliveTicks);
+  setPersistedAmbushNumber(e, "tbe:alive", aliveTicks);
   if (aliveTicks >= lifetime) {
     setNum(e, "spawnTBE", 0);
     setNum(e, "despawning", 1);

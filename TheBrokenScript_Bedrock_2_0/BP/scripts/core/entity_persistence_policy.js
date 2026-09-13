@@ -10,6 +10,8 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:why_leave_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
     "tbs:jim_stage": Object.freeze({ scope: "block", persistence: "persistent", owner: "jim-trigger" }),
     "tbs:jim_stage_touch": Object.freeze({ scope: "entity", persistence: "transient", clear: "next-tick" }),
+    "tbe:alive": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.aliveTicks" }),
+    "tbe:lifetime": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.lifetime" }),
     "tbe:variant": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.variant" }),
     "tbs:ban": Object.freeze({ scope: "player", persistence: "legacy", migrateTo: "pv.ban" }),
     "tbs:fixPos": Object.freeze({ scope: "player", persistence: "legacy", migrateTo: "pv.fixPos" }),
@@ -19,11 +21,21 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
 });
 
 export const ENTITY_DYNAMIC_PROPERTY_POLICY = Object.freeze({
+    "tbe:alive": DYNAMIC_PROPERTY_POLICY["tbe:alive"],
+    "tbe:lifetime": DYNAMIC_PROPERTY_POLICY["tbe:lifetime"],
     "tbe:variant": DYNAMIC_PROPERTY_POLICY["tbe:variant"],
     "tbs:jim_stage_touch": DYNAMIC_PROPERTY_POLICY["tbs:jim_stage_touch"],
 });
 
 export const PERSISTENT_ENTITY_EVIDENCE = Object.freeze({
+    "tbe:alive": Object.freeze({
+        javaClass: "TheBrokenEndAmbushEntity",
+        saveKey: "AliveTicks",
+    }),
+    "tbe:lifetime": Object.freeze({
+        javaClass: "TheBrokenEndAmbushEntity",
+        saveKey: "Lifetime",
+    }),
     "tbe:variant": Object.freeze({
         javaClass: "TheBrokenEndAmbushEntity",
         saveKey: "variant",

@@ -214,6 +214,32 @@ test("runtime initializes player attachments without resetting them on respawn",
   assert.match(deploy, /portedFeatures\.clearTransientPlayerState\(ev\.player, ev\.initialSpawn\);/);
 });
 
+test("Java join and entity save/load lifecycle contracts are wired", async () => {
+  const worldState = await text("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/world_state.js");
+  const source = await text(MAIN_SRC);
+  const deploy = await text(MAIN_BP);
+  const tbe = await text("TheBrokenScript_Bedrock_2_0/BP/scripts/entities/tbe/tbe_controller.js");
+
+  assert.match(worldState, /export function resetOnPlayerJoin\(player\)/);
+  assert.match(worldState, /\["hasCircuitSpawned", "hasSiluetSpawned", "hasNullSpawned", "hasVoidSpawned"\]/);
+  assert.match(worldState, /set\(key, false\)/);
+  assert.match(worldState, /FIRST_JOIN_TIMER_TICKS = 18000/);
+  assert.match(worldState, /set\("joinTimerTicking", true\)/);
+  assert.match(worldState, /export function tickFirstJoin\(playerCount\)/);
+  assert.match(source, /worldState\.resetOnPlayerJoin\(ev\.player\);/);
+  assert.match(deploy, /worldState\.resetOnPlayerJoin\(ev\.player\);/);
+  assert.match(source, /worldState\.tickFirstJoin\(world\.getAllPlayers\(\)\.length\);/);
+  assert.match(deploy, /worldState\.tickFirstJoin\(world\.getAllPlayers\(\)\.length\);/);
+  assert.match(source, /playerState\.set\(ev\.player, "isDesync", false\)/);
+  assert.match(deploy, /playerState\.set\(ev\.player, "isDesync", false\)/);
+
+  assert.match(tbe, /getPersistedAmbushNumber\(e, "tbe:alive"/);
+  assert.match(tbe, /getPersistedAmbushNumber\(e, "tbe:lifetime"/);
+  assert.match(tbe, /getPersistedAmbushNumber\(e, "tbe:variant"/);
+  assert.match(tbe, /setPersistedAmbushNumber\(e, "tbe:alive", aliveTicks\)/);
+  assert.match(tbe, /setPersistedAmbushNumber\(e, "tbe:lifetime", lifetime\)/);
+});
+
 test("one-shot progression is player-scoped and temporary effects are cleared", async () => {
   const source = await text(PROGRESSION_SRC);
   const deploy = await text(PROGRESSION_BP);
@@ -245,10 +271,12 @@ test("entity policy makes persistent, transient, and non-persistent state explic
   assert.equal(policy.scope, "entity");
   assert.equal(policy.persistence, "persistent");
   assert.equal(policy.javaField, "TheBrokenEndAmbushEntity.variant");
-  assert.deepEqual(PERSISTENT_ENTITY_EVIDENCE["tbe:variant"], {
-    javaClass: "TheBrokenEndAmbushEntity",
-    saveKey: "variant",
-  });
+  for (const [key, saveKey] of [["tbe:variant", "variant"], ["tbe:alive", "AliveTicks"], ["tbe:lifetime", "Lifetime"]]) {
+    assert.deepEqual(PERSISTENT_ENTITY_EVIDENCE[key], {
+      javaClass: "TheBrokenEndAmbushEntity",
+      saveKey,
+    });
+  }
   assert.equal(ENTITY_DYNAMIC_PROPERTY_POLICY["tbs:jim_stage_touch"].persistence, "transient");
   assert.ok(TRANSIENT_RUNTIME_STATE.some((entry) => entry.includes("timers")));
   assert.deepEqual(NON_PERSISTENT_ENTITY_TYPES, [
