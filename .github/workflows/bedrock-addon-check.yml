@@ -50,6 +50,21 @@ jobs:
       - name: Validate parity ledgers
         run: python tools/validate_parity_ledgers.py
 
+      - name: Export semantic finalization diagnostics
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/semantic-finalization
+          cp TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json artifacts/semantic-finalization/SOURCE_MAP.before.json
+          python tools/finalize_source_map_semantics.py --write | tee artifacts/semantic-finalization/finalizer.log
+          set +e
+          python tools/validate_parity_ledgers.py > artifacts/semantic-finalization/parity-after-finalizer.log 2>&1
+          PARITY_STATUS=$?
+          set -e
+          cp TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json artifacts/semantic-finalization/SOURCE_MAP.finalized.json
+          printf '%s\n' "$PARITY_STATUS" > artifacts/semantic-finalization/parity-exit-code.txt
+
       - name: Validate complete add-on
         if: always()
         run: python tools/validate_addon.py --report artifacts/addon-validation.json
@@ -200,3 +215,12 @@ jobs:
           path: artifacts/*.json
           if-no-files-found: ignore
           retention-days: 30
+
+      - name: Upload semantic finalization diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: semantic-finalization-diagnostics
+          path: artifacts/semantic-finalization/*
+          if-no-files-found: error
+          retention-days: 7
