@@ -66,21 +66,26 @@ The former stale rollups covered the following families; each is now reconciled 
 - [ ] Search for fallback/no-op branches that silently skip Java side effects.
 - [ ] Search for catch-and-ignore paths that can turn parity failures into invisible behavior loss.
 
-## 3. Runtime smoke-test matrix
+## 3. Runtime smoke-test matrix `[~]`
 
 Static validators and Node tests are necessary but cannot prove engine behavior.
 
-- [ ] Establish a repeatable smoke-test world for the exact Bedrock build/API contract documented in `API_AUDIT.md`.
-- [ ] Test first world creation and pack initialization.
-- [ ] Test save → quit → reload for world state and player state.
-- [ ] Test player death/respawn while story, quest, boss, and effect state is active.
-- [ ] Test leaving/rejoining and server restart persistence.
-- [ ] Test two-player and multi-player ownership/targeting/event behavior.
-- [ ] Test dimension travel, return travel, safe arrival, and portal recovery/failure paths.
-- [ ] Test boss encounter start, abort, player death, reconnect, victory, cleanup, and replay prevention.
-- [ ] Test story progression across every threshold and one-shot event.
-- [ ] Test event suppression while boss arenas/other suppressors are active.
-- [ ] Capture runtime errors/warnings and make parity-critical errors release blockers.
+- [~] Establish a repeatable smoke-test world for the exact Bedrock build/API contract documented in `API_AUDIT.md`. The checked-in world contract, scenario steps, evidence requirements, and report schema are in `tests/runtime-smoke/matrix.json` and `tests/runtime-smoke/README.md`.
+- [~] Test first world creation and pack initialization (`bootstrap`).
+- [~] Test save → quit → reload for world state and player state (`persistence`).
+- [~] Test player death/respawn while story, quest, boss, and effect state is active (`death_respawn`).
+- [~] Test leaving/rejoining and server restart persistence (`leave_rejoin_restart`).
+- [~] Test two-player and multi-player ownership/targeting/event behavior (`multiplayer`).
+- [~] Test dimension travel, return travel, safe arrival, and portal recovery/failure paths (`dimensions`).
+- [~] Test boss encounter start, abort, player death, reconnect, victory, cleanup, and replay prevention (`boss_lifecycle`).
+- [~] Test story progression across every threshold and one-shot event (`story_progression`).
+- [~] Test event suppression while boss arenas/other suppressors are active (`event_suppression`).
+- [x] Capture runtime errors/warnings and make parity-critical errors release blockers (`diagnostics`); `validate_runtime_smoke_report.py` fails on parity-critical errors/warnings, and release tags require a complete passing report.
+
+> The repeatable harness and release gate are complete. The `[~]` entries remain
+> intentionally open until a real 1.26.50 Preview engine run produces and
+> commits `tests/runtime-smoke/latest-report.json`; static CI must not be used
+> as a substitute for engine evidence.
 
 ---
 

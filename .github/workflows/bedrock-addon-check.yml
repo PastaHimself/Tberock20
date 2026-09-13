@@ -15,6 +15,11 @@ on:
         required: false
         default: false
         type: boolean
+      enforce_runtime_smoke:
+        description: "Require a complete Bedrock runtime smoke report"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -45,6 +50,25 @@ jobs:
 
       - name: Install Minecraft Bedrock beta Script API typings
         run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Validate runtime smoke-test matrix
+        run: python tools/validate_runtime_smoke_matrix.py tests/runtime-smoke/matrix.json
+
+      - name: Validate runtime smoke report when present
+        if: ${{ hashFiles('tests/runtime-smoke/latest-report.json') != '' }}
+        run: >-
+          python tools/validate_runtime_smoke_report.py
+          tests/runtime-smoke/latest-report.json
+          --matrix tests/runtime-smoke/matrix.json
+
+      - name: Require complete runtime smoke report for release
+        if: ${{ inputs.enforce_runtime_smoke || startsWith(github.ref, 'refs/tags/v') }}
+        run: >-
+          test -f tests/runtime-smoke/latest-report.json &&
+          python tools/validate_runtime_smoke_report.py
+          tests/runtime-smoke/latest-report.json
+          --matrix tests/runtime-smoke/matrix.json
+          --require-complete
 
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
