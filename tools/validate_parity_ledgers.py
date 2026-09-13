@@ -28,14 +28,14 @@ UNRESOLVED_STATUS = {"uninspected", "analyzed", "in_progress", "unknown", "defer
 UNRESOLVED_PARITY = {"unknown", "approximation-pending", "unsupported-pending", "pending"}
 NON_GAMEPLAY_CATEGORIES = {
     "metadata", "library", "build_artifact", "font", "texture", "model_geometry",
-    "animation", "sound", "misc_asset", "embedded_packs"
+    "animation", "sound", "misc_asset", "embedded_packs", "embedded_resource_pack"
 }
 FAMILY_RULES = {
     "Entities & variants (remaining)": {"entity"},
     "Bosses (Integrity P1–3, Jimmy, Kerfur)": {"entity"},
     "Status effects (2)": {"status_effect"},
     "Events engine (~94 named)": {"horror_event", "event_engine"},
-    "Chat responses (45)": {"chat"},
+    "Chat responses (45)": {"chat_system"},
     "Blocks (123) + block entities (8)": {"block", "block_entity"},
     "Items (192)": {"item"},
     "Fluid void_liquid": {"fluid"},
@@ -48,7 +48,46 @@ FAMILY_RULES = {
     "Advancements (5)": {"progression"},
     "Commands + fx toggles": {"command"},
 }
-ROW_RE = re.compile(r"^\|\s*([^|]+?)\s*\|.*?\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", re.M)
+
+
+def _split_markdown_row(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def parse_family_rows(markdown: str) -> list[dict[str, str]]:
+    """Parse and validate the complete family rollup table."""
+    lines = markdown.splitlines()
+    header_index = None
+    headers: list[str] = []
+    for index, line in enumerate(lines):
+        cells = _split_markdown_row(line) if line.lstrip().startswith("|") else []
+        if cells[:5] == [
+            "Source Feature",
+            "Source Evidence",
+            "Bedrock Implementation",
+            "Status",
+            "Parity",
+        ]:
+            header_index = index
+            headers = cells
+            break
+    if header_index is None:
+        raise ValueError("PARITY_MATRIX.md is missing the family rollup table")
+
+    families: list[dict[str, str]] = []
+    for line in lines[header_index + 2 :]:
+        if not line.lstrip().startswith("|"):
+            break
+        cells = _split_markdown_row(line)
+        if len(cells) != len(headers):
+            raise ValueError(f"malformed PARITY_MATRIX.md table row: {line}")
+        families.append(dict(zip(headers, cells)))
+    return families
+
+
+def canonical_matrix_value(value: str) -> str:
+    match = re.match(r"\s*([a-z_]+)", value.lower())
+    return match.group(1) if match else ""
 
 
 def load_source_map():
@@ -89,8 +128,28 @@ def main() -> int:
             errors.append(f"{sid}: {label} requires evidence/limitation notes")
         terminal_counts[label] += 1
 
-    matrix = PARITY_MATRIX.read_text(encoding="utf-8-sig")
-    matrix_rows = {m.group(1).strip(): (m.group(2).strip().lower(), m.group(3).strip().lower()) for m in ROW_RE.finditer(matrix)}
+    try:
+        families = parse_family_rows(PARITY_MATRIX.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as exc:
+        errors.append(str(exc))
+        families = []
+
+    matrix_rows = {
+        family["Source Feature"]: (
+            canonical_matrix_value(family["Status"]),
+            canonical_matrix_value(family["Parity"]),
+        )
+        for family in families
+    }
+    for family in families:
+        feature = family["Source Feature"]
+        status = canonical_matrix_value(family["Status"])
+        parity = canonical_matrix_value(family["Parity"])
+        if status in UNRESOLVED_STATUS or parity in UNRESOLVED_PARITY or not status or not parity:
+            errors.append(f"{feature}: unresolved family rollup status={family['Status']!r} parity={family['Parity']!r}")
+        elif (status, parity) not in TERMINAL:
+            errors.append(f"{feature}: unsupported family rollup status={family['Status']!r} parity={family['Parity']!r}")
+
     for family, categories in FAMILY_RULES.items():
         if family not in matrix_rows:
             continue

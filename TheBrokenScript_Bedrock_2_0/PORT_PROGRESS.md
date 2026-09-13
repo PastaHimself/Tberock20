@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-03 (Chunk 38 — NullBookStoryEvent written-book adapter)
+Last updated: 2026-09-13 (Chunk 39 — source-map/ledger reconciliation)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-03 (Chunk 38 — NullBookStoryEvent written-book adapter)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 38 complete — NullBookStoryEvent written-book adapter**
+**Chunk 39 complete — source-map/ledger reconciliation**
 
-Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the day-12-plus-1000 story threshold. Its pure model preserves the source null text, chunk-centered binary X/Z coordinates including the Java `Integer.MAX_VALUE` case, literal Y=201, and two-page layout; the injectable adapter builds/signs the Bedrock `ItemBookComponent` item, clones it per player, drops leftovers, and retries logged transient failures. The world-state initialization marker now checks the key it persists. Exact rendered bone world-position contact remains an explicit engine boundary.
+The current deployed `BP/` + `RP/` tree is now the shipping authority for the parity ledgers. The 912 `SOURCE_INVENTORY.json` IDs and 912 `SOURCE_MAP.json` rows match exactly; every row has a terminal decision, an existing Bedrock-side evidence path, and an explicit approximation, unsupported, or excluded note where exact Java parity is not possible. The reconciliation was anchored to repository baseline `4956a0575da28cbec161773d8b7c4ef947b41550` and is repeatable with `python tools/reconcile_parity_ledgers.py --check`.
 
 ## Chunk state
 | Chunk | State |
@@ -33,14 +33,14 @@ Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the d
 | 07 Bosses (Integrity/Jimmy/Kerfur+fever/chord/tether/tentacle) | **completed** (16 entities; Arena hooks; source-backed Phase 3 ring/boundary slice; remaining lifecycle/cutscene differences recorded in the parity ledger) |
 | 08 Blocks (123 + 8 BE equivalents) | **completed** (123/123 blockstates → BP/blocks: ~60 cubes, 19 cross flora w/ geometry.tbs_cross, 16 void_template markers, jim_triggers/initiator/BEs; terrain_texture +13 keys; beta blockComponentRegistry ×12; physical_stacktrace/disruption/corrupt ledgers unblocked; tools/build_blocks.ps1) |
 | 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book signed written-book story adapter at day 12+1000 with bounded delivery retry (Chunk 38)) |
-| 10 Dimensions (13) & portals | **completed** (12 dimension JSONs per TBSDimensions + NIGHTMARES set; dimensions.js runtime w/ beta createDimension fallback; follow → clan_void/null_torture teleport unblocked; portal_controller interact → clan_void Y:201) |
-| 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 biomes + RP fog palettes; procedural Shaft/Hallway builders wired to null_structure interact; 305-NBT corpus + xcsf arena conversion ledgered as deferred tooling; 32 spawn modifiers confirmed covered by spawn_director rules) |
-| 12 Events & horror choreography (94) | **completed** (horror_events.js: 78-id gated weighted pool @200t, ~60 handlers incl. OS-fake titles A-004, place_* pranks w/ real blocks, fire() export; Arena suppression; manifest external revert re-corrected to beta) |
-| 13 Progression/recipes/loot/tags/commands | **completed** (40/40 recipes incl. 16 stonecutter; 126 self-drop loot tables + component wired into 125 blocks; progression.js 5 advancements wired to siluet spawn/TBE kill/polaroid scan/boss hurt; commands.js /scriptevent tbs:* surface + 14 chat responses; manifest version now user-managed, validator non-failing) |
+| 10 Dimensions (13) & portals | **completed** (13 logical IDs registered from `BP/scripts/systems/dimension_ids.js`/`dimensions.js`; safe landing adapter; follow → clan_void/null_torture teleport; portal_controller interact → clan_void Y:201) |
+| 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 BP biomes + 15 RP client biome files; procedural Shaft/Hallway builders; six current Shaft NBT templates and native pools; 305-NBT corpus + XCSF placement remain explicit limitations; spawn rules reconciled) |
+| 12 Events & horror choreography (94) | **completed** (current `horror_events.js` has 79 H/TABLE entries at 200 ticks; story thresholds and source-only/unsupported event rows are explicit in `SOURCE_MAP.json`; Arena suppression and Bedrock title/overlay adapters remain documented) |
+| 13 Progression/recipes/loot/tags/commands | **completed** (40/40 recipes; 126 current loot files; five progression rows; script command surface; current `horror_chat.js` has 13 live response keys, reconciled against the 45-source registration row without treating the counts as the same unit) |
 | 14 Presentation completion | **completed** (tbs_slab/stairs/wall geometries wired into 16 blocks w/ collision; tbs_humanoid geo on faraway/deceiver/xxram_2die; boss death hook — integrity_dies + Arena teardown; manifest owner-pinned version respected) |
 | 15 Integration | **completed** (tools/integration_audit.ps1 — 7 families, 12 dims, 103 identifier classifications, 22 world_state keys all PASS; fixed 3 wrong sound ids + 1 syntax error found by audit) |
 | 16 Multiplayer & performance audit | **completed** (perf.js hasPlayers short-circuit + dimension handle caches in the five 1-tick controllers; multiplayer hook/props review clean; loop inventory documented) |
-| 17 Full parity audit vs 912-entry inventory | **completed** (category-level ledger in CHUNK_17_REPORT.md: every entry maps to shipped artifact / ledgered approx / explicit deferral / engine-N/A; totals — 1:1 ported: 68 entities, 123 blocks, 40 recipes, 143 sound defs, 76 items, 15 biomes, 12 dims, 5 advancements) |
+| 17 Full parity audit vs 912-entry inventory | **completed** (historical category-level audit in CHUNK_17_REPORT.md superseded by the row-level reconciliation in Chunk 39; current ledger has 0 unresolved statuses/parities and explicit blocked/excluded outcomes) |
 | 18 Final validation | **completed** (tools/final_validation.ps1 — 68/68 entity pairing, entity/terrain/item texture resolution, per-scope id uniqueness, item lang keys 76/76, geometry refs 29; found+fixed plural texture paths ×15, gradient + vein_center pointers) |
 | 19 Packaging .mcaddon | **completed** (dist/TheBrokenScript_2_0_Bedrock.mcaddon — 145,789,490 bytes, 1400 entries, forward-slash separators verified, key-file spot check PASS; packager rewritten off Compress-Archive due to backslash-entry bug) |
 | 20 Remaining parity ports | **completed** (functional hand cannon/polaroid/portal linker/desyncer; 4×2 circuit-cave painting surrogate; heart-corruption + why-cant-you-leave effects with source eyes particle; supplied VHS JSON UI + four subpacks + Vibrant Visuals; regression tests and strict UI audit) |
@@ -62,6 +62,7 @@ Chunk 38 ports the source `NullBookStoryEvent` as a signed written book at the d
 | 36 Source particle resources and event bridge | **completed** (nine source definitions/resources; Null/Eyes/Curved event bridge; Paper/resource-only differences ledgered) |
 | 37 Fractured audio lifecycle adapter | **completed** (source Jimmy spawn cue; SoundInstance-owned JimArena intro/loop cleanup; focused regression) |
 | 38 NullBookStoryEvent written-book adapter | **completed** (source threshold, pages, Java coordinate encoding, injectable ItemBookComponent creation, independent per-player delivery, overflow drop, bounded retry, and persistence-key correction) |
+| 39 Source-map/ledger reconciliation | **completed** (912/912 map-to-inventory IDs; current BP/RP evidence paths; 69 entities, 125 BP blocks, 78 BP items, 40 recipes, 15 biomes, 13 logical dimensions, 79 H/TABLE events; family matrix reconciled; repeatable CI check added) |
 
 No validation blocker is open; remaining engine/source-lifecycle gaps are tracked in PARITY_MATRIX.md and KNOWN_LIMITATIONS.md.
 
@@ -94,6 +95,9 @@ BP/scripts/entities/boss/fractured_runtime.js · tests/fractured_runtime.test.mj
 
 ## Files changed (Chunk 38)
 BP/scripts/systems/{story_book_model,story_book_adapter,story_events,world_state}.js · tests/story_events.test.mjs · docs/chunks/CHUNK_38_{SPEC,REPORT}.md · SOURCE_MAP.json · story/parity/adaptation/limitation/validation ledgers
+
+## Files changed (Chunk 39)
+`tools/reconcile_parity_ledgers.py` · `tools/validate_parity_ledgers.py` · `.github/workflows/bedrock-addon-check.yml` · `SOURCE_MAP.json` · `PARITY_MATRIX.md` · `PORT_PROGRESS.md` · `Todo.md` · `VALIDATION_LOG.md` · `docs/PARITY_LEDGER_RECONCILIATION.md`
 
 ## Files changed (Chunk 28)
 BP/entities/{fractured,rock}.json · BP/scripts/main.js · BP/scripts/entities/boss/{boss_controller,fractured_runtime}.js · BP/scripts/systems/fractured_attack_model.js · tests/fractured_{attack_model,runtime}.test.mjs · docs/chunks/CHUNK_28_{SPEC,REPORT}.md
@@ -230,5 +234,16 @@ Chunk 37 adds the source Jimmy spawn cue and SoundInstance lifecycle bridge. Foc
 
 Chunk 38 adds the signed `null_book_hint` story item at the source day-12-plus-1000 threshold. The two pages preserve the source null text and chunk-centered binary Clan Void coordinates, including the Java Integer.MAX_VALUE conversion; the Bedrock book component signs independent per-player copies as `null`/`null`, drops inventory leftovers, and retries logged transient failures. The world-state initialization key is corrected to preserve the delivery gate. Focused and full Node regressions pass; run 128's sole failure was the external MCT bare-beta self-comparison filter, fixed by the narrow follow-up regression; [run 129](https://github.com/PastaHimself/tbs-2.0/actions/runs/33718950818) passed final validator, type-check, diagnostics, Creator Tools, packaging, and artifact/report steps.
 
+## Chunk 39 — Source-map/ledger reconciliation
+
+The row-level audit reconciles the live deployed tree at baseline `4956a0575da28cbec161773d8b7c4ef947b41550`:
+
+- `912/912` source-map IDs match `SOURCE_INVENTORY.json`, with `0` unresolved status/parity values.
+- Current pack evidence includes `69` BP/RP entity pairs, `125` BP block JSON files (`123` source block rows plus two Bedrock fluid forms), `78` BP item JSON files (`76` direct source items plus Bedrock-only additions), `40` recipes, `15` biomes, `6` Shaft NBT templates, `72` BP JavaScript files, `34` current RP animation JSON files plus one `.old` source artifact, `181` OGG files, and `266` PNG files.
+- The `13` dimension rows resolve to startup Script API registrations rather than static `BP/dimensions` files. The `94` horror-event rows resolve to `79` live H/TABLE handlers, five story-threshold adapters, and ten explicitly excluded/unsupported source-only entries. The chat row records the current `13` live response keys alongside the separate source registration count.
+- `PARITY_MATRIX.md` now contains only terminal family rollups. `tools/reconcile_parity_ledgers.py --check`, `tools/validate_parity_ledgers.py`, `tools/validate_parity_source_map.py`, and `tools/validate_source_map_release.py` are the ledger gate; approximation and engine limits remain visible rather than being counted as exact parity.
+
+The audit uses the deployed BP copy because Chunk 38's integrated story-book adapter is present there while the authoring `src` copy is not yet synchronized. This is a ledger-authority decision, not a claim that the two trees are interchangeable.
+
 ## Next chunk
-**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/xcsf tooling, and per-event day-schedule fidelity remain explicit engine/deferred items.
+**Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, NBT/XCSF tooling, and per-event day-schedule fidelity remain explicit engine/deferred items; none are hidden by the ledger reconciliation.

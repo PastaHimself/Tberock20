@@ -24,9 +24,9 @@ Do not treat a previous Bedrock approximation as authoritative if the Java sourc
 
 ## Current state
 
-The port already contains a large amount of implemented content and validation. `PORT_PROGRESS.md` records chunks 00–38 as completed, and the project has static validators, Script API type checking, regression tests, resource checks, and packaging checks.
+The port already contains a large amount of implemented content and validation. `PORT_PROGRESS.md` records chunks 00–39 as completed, and the project has static validators, Script API type checking, regression tests, resource checks, and packaging checks.
 
-However, **chunk completion is not the same as proven Java parity**. The family-level `PARITY_MATRIX.md` still contains stale `uninspected`, `unknown`, and `in_progress` entries for systems that later progress chunks report as implemented. Runtime smoke testing is also still required for important gameplay paths. The active audit/rework backlog is therefore maintained in [`Todo.md`](Todo.md).
+However, **chunk completion is not the same as proven Java parity**. The row-level source-map reconciliation now records an explicit terminal decision for every inventory entry, while approximations, engine limits, and intentional exclusions remain visible. Runtime smoke testing is still required for important gameplay paths. The audit method and current exceptions are documented in [`PARITY_LEDGER_RECONCILIATION.md`](TheBrokenScript_Bedrock_2_0/docs/PARITY_LEDGER_RECONCILIATION.md), and the remaining backlog is maintained in [`Todo.md`](Todo.md).
 
 ## Definition of parity
 
@@ -75,6 +75,7 @@ See [`Todo.md`](Todo.md) for the live detailed checklist.
 - [`TheBrokenScript_Bedrock_2_0/PARITY_MATRIX.md`](TheBrokenScript_Bedrock_2_0/PARITY_MATRIX.md) — family-level source → Bedrock parity ledger.
 - [`TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json`](TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json) — component-level source inventory mapping.
 - [`TheBrokenScript_Bedrock_2_0/PORT_PROGRESS.md`](TheBrokenScript_Bedrock_2_0/PORT_PROGRESS.md) — historical chunk implementation log.
+- [`TheBrokenScript_Bedrock_2_0/docs/PARITY_LEDGER_RECONCILIATION.md`](TheBrokenScript_Bedrock_2_0/docs/PARITY_LEDGER_RECONCILIATION.md) — row-level reconciliation method, evidence snapshot, and explicit engine boundaries.
 - [`TheBrokenScript_Bedrock_2_0/ADAPTATION_NOTES.md`](TheBrokenScript_Bedrock_2_0/ADAPTATION_NOTES.md) — documented engine-driven adaptations.
 - [`TheBrokenScript_Bedrock_2_0/KNOWN_LIMITATIONS.md`](TheBrokenScript_Bedrock_2_0/KNOWN_LIMITATIONS.md) — known Java features that cannot be reproduced exactly on Bedrock.
 - [`TheBrokenScript_Bedrock_2_0/API_AUDIT.md`](TheBrokenScript_Bedrock_2_0/API_AUDIT.md) — pinned Bedrock Script API/runtime contract.
