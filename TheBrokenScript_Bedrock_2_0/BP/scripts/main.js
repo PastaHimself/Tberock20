@@ -54,6 +54,9 @@ function onWorldLoad() {
     state.init();
     worldState.init();
     scheduler.begin();
+    scheduler.every("tbs.worldLifecycle", 1, () => {
+        worldState.tickFirstJoin(world.getAllPlayers().length);
+    });
     storyEvents.registerAll();
     storyTime.begin(scheduler);
     spawnDirector.begin(scheduler);
@@ -85,6 +88,7 @@ function onWorldLoad() {
         "core.playerJoin",
         "lifecycle",
         (ev) => {
+            worldState.resetOnPlayerJoin();
             logger.debug(`playerJoin ${ev.playerName}`);
         }
     );
@@ -102,7 +106,14 @@ function onWorldLoad() {
         "core.playerSpawn",
         "lifecycle",
         (ev) => {
+            playerState.init(ev.player);
+            playerState.resetLifecycleState(ev.player, ev.initialSpawn);
+            portedFeatures.clearTransientPlayerState(ev.player, ev.initialSpawn);
             if (ev.initialSpawn) {
+                worldState.resetOnPlayerJoin(ev.player);
+                if (!worldState.get("isNullHere") && worldState.get("isFirstJoin")) {
+                    playerState.set(ev.player, "isDesync", false);
+                }
                 state.ensurePlayer(ev.player);
                 playerState.set(ev.player, "lastX", Math.floor(ev.player.location.x));
                 playerState.set(ev.player, "lastZ", Math.floor(ev.player.location.z));

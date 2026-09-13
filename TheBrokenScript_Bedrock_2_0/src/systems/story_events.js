@@ -63,19 +63,28 @@ function onNullBook(attempt = 0) {
         return v < 0 ? "-" + Math.abs(v).toString(2) : v.toString(2);
     };
     const page2 = `X: ${bin(cvx)}  Y: 201  Z: ${bin(cvz)}  CV`;
+    let pending = false;
     for (const player of players) {
+        if (playerState.get(player, "nullBookDelivered")) continue;
+        let delivered = false;
         try {
             const inv = player.getComponent("minecraft:inventory");
             const container = inv?.container;
-            if (container) container.addItem(new ItemStack("minecraft:writable_book", 1));
+            if (container) {
+                container.addItem(new ItemStack("minecraft:writable_book", 1));
+                delivered = true;
+            }
         } catch {}
         try {
             player.sendMessage("§8[null] §0" + NULL_BOOK_PAGE1);
             player.sendMessage("§8[null] §f" + page2);
             player.onScreenDisplay.setTitle("§knull§r.book", { fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10 });
+            delivered = true;
         } catch {}
+        if (delivered) playerState.set(player, "nullBookDelivered", true);
+        else pending = true;
     }
-    worldState.set("nullBookGiven", true);
+    if (!pending) worldState.set("nullBookGiven", true);
 }
 
 function onTxtHint() {

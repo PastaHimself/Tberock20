@@ -136,7 +136,12 @@ function makeJimTrigger(stage) {
       try { ev.block.setDynamicProperty("tbs:jim_stage", stage); } catch {}
     },
     onEntityStepOn(ev) {
-      try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", stage); } catch {}
+      try {
+        ev.entity.setDynamicProperty("tbs:jim_stage_touch", stage);
+        system.runTimeout(() => {
+          try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", undefined); } catch {}
+        }, 1);
+      } catch {}
     }
   };
 }

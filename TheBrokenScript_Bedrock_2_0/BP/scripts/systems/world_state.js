@@ -2,76 +2,65 @@ import * as state from "../core/state.js";
 
 export const INT_MAX = 2147483647;
 
-const DEFAULTS = {
-    dataVersion: 3,
-    hasNullSpawned: false,
-    hasSiluetSpawned: false,
-    isFirstJoin: true,
-    hasGeneratedNullDimension: false,
-    hasCircuitSpawned: false,
-    hasTheBrokenEndSpawned: false,
-    hasGeneratedClanBuildDimension: false,
-    daylightCycle: true,
-    daylightCycleEventTimer: 0,
-    hasTriggeredRam2Die: false,
-    hasRam2DieJoined: false,
-    hasVoidSpawned: false,
-    isNullHere: false,
-    firstJoinTimer: 0,
-    scheduled: false,
-    joinTimerTicking: false,
-    hasBuiltHerobrineShrine: false,
-    moonStage: 0,
-    moonShouldChange: false,
-    moonTextureIndex: -1,
-    moonShouldCrack: false,
-    moonCrackIndex: -1,
-    soundPlayed: false,
-    hasMoonCorrupted: false,
-    isFlat: false,
-    fracturedFightActive: false,
-    canFracturedSpawn: false,
-    code: "",
-    codeApplied: false,
-    bossStructX: INT_MAX,
-    bossStructZ: INT_MAX,
-    clanVoidX: INT_MAX,
-    clanVoidZ: INT_MAX,
-    mazeFloorX: INT_MAX,
-    mazeFloorZ: INT_MAX,
-    woodenFloorX: INT_MAX,
-    woodenFloorZ: INT_MAX,
-    stoneFloorX: INT_MAX,
-    stoneFloorZ: INT_MAX,
-    dayAX: INT_MAX,
-    dayAZ: INT_MAX,
-    placedStructure: false,
-    craftedPolaroid: false,
-    inventoryCorruption: 0,
-    inventoryCorruptionProgressed: false,
-    entitySpawnDelay: 0,
-    circuitSpawnDelay: 0,
-    oblitSpawnDelay: 0,
-    tbeSpawnDelay: 0,
-    rareSpawnDelay: 0,
-    nullSpawnDelay: 0,
-    curvedSpawnDelay: 0,
-    eerieNoiseDelay: 0,
-    herobrineDelay: 0,
-    circuitInhabitedDelay: 0,
-    commandBlockX: 0,
-    commandBlockY: 0,
-    commandBlockZ: 0,
-    nullBookGiven: false
-};
+import {
+    WORLD_EXTRA_SCHEMA,
+    WORLD_STATE_SCHEMA,
+    WORLD_DEFAULTS,
+    WORLD_EXTRA_DEFAULTS,
+    applySchemaDefaults,
+} from "../core/persistence_schema.js";
+
+const DEFAULTS = { ...WORLD_DEFAULTS, ...WORLD_EXTRA_DEFAULTS };
+const FIRST_JOIN_TIMER_TICKS = 18000;
+const FIRST_JOIN_COORDINATE_KEYS = Object.freeze([
+    "clanVoidX", "clanVoidZ", "mazeFloorX", "mazeFloorZ", "woodenFloorX", "woodenFloorZ",
+    "stoneFloorX", "stoneFloorZ", "dayAX", "dayAZ",
+]);
+const CODE_SYMBOLS = "$%-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+function randomFirstJoinCoordinate() {
+    const magnitude = Math.floor(Math.random() * 26) * 16;
+    return Math.random() < 0.5 ? -magnitude : magnitude;
+}
+
+function randomFirstJoinCode() {
+    const length = 6 + Math.floor(Math.random() * 7);
+    return Array.from({ length }, () => CODE_SYMBOLS[Math.floor(Math.random() * CODE_SYMBOLS.length)]).join("");
+}
 
 export function init() {
-    for (const [key, value] of Object.entries(DEFAULTS)) {
-        const propertyKey = `mv.${key}`;
-        if (state.getWorld(propertyKey, undefined) === undefined) {
-            state.setWorld(propertyKey, value);
-        }
+    applySchemaDefaults(
+        { ...WORLD_STATE_SCHEMA, ...WORLD_EXTRA_SCHEMA },
+        (key) => state.getWorld(`mv.${key}`, undefined),
+        (key, value) => state.setWorld(`mv.${key}`, value),
+    );
+}
+
+export function resetOnPlayerJoin(player) {
+    void player;
+    if (get("isNullHere")) return;
+
+    for (const key of ["hasCircuitSpawned", "hasSiluetSpawned", "hasNullSpawned", "hasVoidSpawned"]) {
+        set(key, false);
     }
+
+    if (get("isFirstJoin") && get("firstJoinTimer") === 0 && !get("joinTimerTicking")) {
+        set("firstJoinTimer", FIRST_JOIN_TIMER_TICKS);
+        set("joinTimerTicking", true);
+        for (const key of FIRST_JOIN_COORDINATE_KEYS) set(key, randomFirstJoinCoordinate());
+        set("code", randomFirstJoinCode());
+    }
+}
+
+export function tickFirstJoin(playerCount) {
+    if (playerCount <= 0 || get("firstJoinTimer") <= 0) return false;
+    const next = Math.max(0, get("firstJoinTimer") - 1);
+    set("firstJoinTimer", next);
+    if (next !== 0 || get("scheduled")) return false;
+    set("isFirstJoin", false);
+    set("isNullHere", true);
+    set("scheduled", true);
+    return true;
 }
 
 export function get(key) {

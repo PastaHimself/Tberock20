@@ -55,6 +55,13 @@ export function begin(scheduler) {
   scheduler.every("ported_features.effects", 20, tickPortedEffects);
 }
 
+export function clearTransientPlayerState(player, initialSpawn = false) {
+  if (!isPlayer(player) || !initialSpawn) return;
+  for (const property of [PORTAL_ANCHOR_PROPERTY, HEART_CORRUPTION_UNTIL, WHY_LEAVE_UNTIL]) {
+    try { player.setDynamicProperty(property, undefined); } catch {}
+  }
+}
+
 export function fireHandCannon(player) {
   if (!isPlayer(player)) return false;
   const readyAt = cannonReadyAt.get(player.id) ?? 0;
@@ -251,6 +258,8 @@ function tickPortedEffects() {
     const heartUntil = Number(player.getDynamicProperty(HEART_CORRUPTION_UNTIL) ?? 0);
     if (heartUntil > system.currentTick) {
       try { player.onScreenDisplay.setActionBar("§d❤ §5ERR.HEALTH"); } catch {}
+    } else if (heartUntil > 0) {
+      try { player.setDynamicProperty(HEART_CORRUPTION_UNTIL, undefined); } catch {}
     }
 
     const leaveUntil = Number(player.getDynamicProperty(WHY_LEAVE_UNTIL) ?? 0);
@@ -263,6 +272,8 @@ function tickPortedEffects() {
           z: head.z + (Math.random() - 0.5) * 1.8,
         });
       } catch {}
+    } else if (leaveUntil > 0) {
+      try { player.setDynamicProperty(WHY_LEAVE_UNTIL, undefined); } catch {}
     }
   }
 }

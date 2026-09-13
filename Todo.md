@@ -111,13 +111,17 @@ Static validators and Node tests are necessary but cannot prove engine behavior.
 
 ## 5. Persistent state parity
 
-- [ ] Compare every Java world/player attachment field against Bedrock defaults, types, reset behavior, and persistence keys.
-- [ ] Verify first-run initialization does not overwrite existing worlds.
-- [ ] Verify migrations when a property/schema is added after a world already exists.
-- [ ] Verify one-shot events remain consumed after reload.
-- [ ] Verify temporary states that should *not* persist are cleared at the same lifecycle boundary as Java.
-- [ ] Verify per-player state is never accidentally promoted to global/world state or vice versa.
-- [ ] Verify entity-owned runtime state survives only where Java persistence says it should.
+- [x] Compare every Java world/player attachment field against Bedrock defaults, types, reset behavior, and persistence keys.
+- [x] Verify first-run initialization does not overwrite existing worlds.
+- [x] Verify migrations when a property/schema is added after a world already exists.
+- [x] Verify one-shot events remain consumed after reload.
+- [x] Verify temporary states that should *not* persist are cleared at the same lifecycle boundary as Java.
+- [x] Verify per-player state is never accidentally promoted to global/world state or vice versa.
+- [x] Verify entity-owned runtime state survives only where Java persistence says it should.
+
+Evidence: [`docs/persistent-state-parity.md`](docs/persistent-state-parity.md),
+[`tools/validate_persistent_state.py`](tools/validate_persistent_state.py),
+and the `persistent state parity` JavaScript/Python test suites. The validator also checks declared persistent entity keys against Java save/load methods. CI runs the validator on every push and pull request.
 
 ## 6. Horror events and chat responses
 

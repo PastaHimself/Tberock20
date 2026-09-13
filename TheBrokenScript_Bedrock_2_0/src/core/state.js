@@ -1,26 +1,47 @@
 import { world } from "@minecraft/server";
+import { migrateCoreSchema } from "./persistence_schema.js";
 
 const NS = "tbs";
+// audit: adapter cap; Bedrock dynamic-property payloads need a bounded JSON size.
 const MAX_JSON_BYTES = 30000;
 
 function key(scope, name) {
     return `${NS}:${scope}:${name}`;
 }
 
-function checkPrimitive(value) {
+function isVector3(value) {
+    return value !== null && typeof value === "object" &&
+        Number.isFinite(value.x) && Number.isFinite(value.y) && Number.isFinite(value.z);
+}
+
+function checkValue(value) {
     const t = typeof value;
-    if (t !== "string" && t !== "number" && t !== "boolean") {
-        throw new Error(`state: unsupported value type '${t}' (use JSON helpers for objects)`);
+    if (t === "string" || t === "boolean") return;
+    if (t === "number" && Number.isFinite(value)) return;
+    if (isVector3(value)) return;
+    throw new Error(`state: unsupported value type '${t}' (use JSON helpers for objects)`);
+}
+
+function setDynamic(target, propertyKey, value) {
+    if (value === undefined) {
+        target.setDynamicProperty(propertyKey, undefined);
+        return;
     }
+    checkValue(value);
+    target.setDynamicProperty(propertyKey, value);
 }
 
 let initialized = false;
 
 export function init() {
-    if (world.getDynamicProperty(key("meta", "schema")) === undefined) {
-        world.setDynamicProperty(key("meta", "schema"), 1);
-        world.setDynamicProperty(key("meta", "firstInit"), Date.now());
-    }
+    const now = Date.now();
+    const currentSchema = world.getDynamicProperty(key("meta", "schema"));
+    migrateCoreSchema(
+        currentSchema,
+        (name, value) => world.setDynamicProperty(key("meta", name), value),
+        now,
+        world.getDynamicProperty(key("meta", "firstInit")) === undefined,
+    );
     world.setDynamicProperty(key("meta", "lastLoad"), Date.now());
     initialized = true;
 }
@@ -35,8 +56,11 @@ export function getWorld(name, fallback = undefined) {
 }
 
 export function setWorld(name, value) {
-    checkPrimitive(value);
-    world.setDynamicProperty(key("w", name), value);
+    setDynamic(world, key("w", name), value);
+}
+
+export function removeWorld(name) {
+    world.setDynamicProperty(key("w", name), undefined);
 }
 
 export function getWorldJSON(name, fallback = undefined) {
@@ -51,7 +75,14 @@ export function getWorldJSON(name, fallback = undefined) {
 }
 
 export function setWorldJSON(name, value) {
+    if (value === undefined) {
+        world.setDynamicProperty(key("wj", name), undefined);
+        return;
+    }
     const raw = JSON.stringify(value);
+    if (raw === undefined) {
+        throw new Error(`state: JSON payload for '${name}' is not serializable`);
+    }
     if (raw.length > MAX_JSON_BYTES) {
         throw new Error(`state: JSON payload for '${name}' exceeds ${MAX_JSON_BYTES} bytes (${raw.length})`);
     }
@@ -64,8 +95,11 @@ export function getPlayer(player, name, fallback = undefined) {
 }
 
 export function setPlayer(player, name, value) {
-    checkPrimitive(value);
-    player.setDynamicProperty(key("p", name), value);
+    setDynamic(player, key("p", name), value);
+}
+
+export function removePlayer(player, name) {
+    player.setDynamicProperty(key("p", name), undefined);
 }
 
 export function getPlayerJSON(player, name, fallback = undefined) {
@@ -80,7 +114,14 @@ export function getPlayerJSON(player, name, fallback = undefined) {
 }
 
 export function setPlayerJSON(player, name, value) {
+    if (value === undefined) {
+        player.setDynamicProperty(key("pj", name), undefined);
+        return;
+    }
     const raw = JSON.stringify(value);
+    if (raw === undefined) {
+        throw new Error(`state: JSON payload for '${name}' is not serializable`);
+    }
     if (raw.length > MAX_JSON_BYTES) {
         throw new Error(`state: JSON payload for '${name}' exceeds ${MAX_JSON_BYTES} bytes (${raw.length})`);
     }

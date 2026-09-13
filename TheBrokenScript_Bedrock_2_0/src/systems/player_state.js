@@ -1,68 +1,92 @@
 import * as state from "../core/state.js";
+import {
+    PLAYER_COMPATIBILITY_DEFAULTS,
+    PLAYER_DYNAMIC_DEFAULTS,
+    PLAYER_EXTRA_DEFAULTS,
+    PLAYER_EXTRA_SCHEMA,
+    PLAYER_JSON_DEFAULTS,
+    PLAYER_STATE_SCHEMA,
+    applySchemaDefaults,
+} from "../core/persistence_schema.js";
 
-const DEFAULTS = {
-    dataVersion: 2,
-    spawnPosX: 0,
-    spawnPosY: 0,
-    spawnPosZ: 0,
-    hasPlayedCreepyDisc: false,
-    entityReputation: 50,
-    lastRepInteraction: "",
-    noWayOutFrame: 0,
-    vhsEnabled: false,
-    pixelateEnabled: false,
-    aberrationEnabled: false,
-    moonGlitchDuration: 0,
-    ticksUntilExit: 0,
-    syncTimer: 0,
-    showCoords: false,
-    isDesync: false,
-    lookedAtOblit: false,
-    titleName: "",
-    fov: 0,
-    ban: false,
-    fixPos: false,
-    textGlitchStrength: 0,
-    aberrationTimer: 0,
-    enableCustomSky: false,
-    customSkyR: 0,
-    customSkyG: 0,
-    customSkyB: 0,
-    showSkyBlue: false,
-    cameraMode: "FIRST_PERSON",
-    skipFallDamage: false,
-    enableScreenDupe: false,
-    teleportCounter: 0,
-    musicTimer: 0,
-    despawnEntitySwitch: false,
-    lastTeleport: 0,
-    lastClanVoidTeleport: 0,
-    nullFlyRepGainTimer: 0,
-    screenDupeTimer: 0,
-    triangleKickTimer: 0,
-    baseRescanCooldown: 0,
-    musicCausedByTBS: false,
-    feverMessageProgression: 0,
-    invertEnabled: false,
-    invertTimer: 0,
-    lastX: 0,
-    lastZ: 0,
-    currentX: 0,
-    currentZ: 0,
-    sawTxtHint: false,
-    userDir: "",
-    isolationActive: false,
-    isolationTimer: 0,
-    forceMetaParanoia: false,
-    loadingPhase2: false,
-    loadingPhase3: false,
-    glitchesEnabled: false,
-    dreamEnabled: false,
-    voidBox: true
-};
+const DEFAULTS = { ...PLAYER_DYNAMIC_DEFAULTS, ...PLAYER_EXTRA_DEFAULTS, ...PLAYER_COMPATIBILITY_DEFAULTS };
+const DYNAMIC_SCHEMA = Object.fromEntries(
+    Object.entries({ ...PLAYER_STATE_SCHEMA, ...PLAYER_EXTRA_SCHEMA })
+        .filter(([, descriptor]) => descriptor.storage === "dynamic"),
+);
+const JSON_SCHEMA = Object.fromEntries(
+    Object.entries(PLAYER_STATE_SCHEMA)
+        .filter(([, descriptor]) => descriptor.storage === "json"),
+);
+
+const LEGACY_PLAYER_PROPERTIES = Object.freeze({
+    ban: "tbs:ban",
+    fixPos: "tbs:fixPos",
+    skipFallDamage: "tbs:skipFallDamage",
+    triangleKickTimer: "tbs:triangleKickTimer",
+});
+
+const LEGACY_VECTOR_FIELDS = Object.freeze({
+    spawnPos: ["spawnPosX", "spawnPosY", "spawnPosZ"],
+    customSkyColor: ["customSkyR", "customSkyG", "customSkyB"],
+});
 
 export const MOON_GLITCH_DURATION_SECS = 80;
 export const MOON_GLITCH_DURATION_TICKS = 1600;
+
+export function init(player) {
+    migrateLegacyPlayerState(player);
+    applySchemaDefaults(
+        DYNAMIC_SCHEMA,
+        (key) => state.getPlayer(player, `pv.${key}`, undefined),
+        (key, value) => state.setPlayer(player, `pv.${key}`, value),
+    );
+    applySchemaDefaults(
+        JSON_SCHEMA,
+        (key) => state.getPlayerJSON(player, `pv.${key}`, undefined),
+        (key, value) => state.setPlayerJSON(player, `pv.${key}`, value),
+    );
+}
+
+const LUCID_DIMENSION_ID = "thebrokenscript:lucid";
+
+export function resetLifecycleState(player, initialSpawn) {
+    if (initialSpawn) {
+        if (get(player, "showCoords")) set(player, "showCoords", false);
+        if (get(player, "musicCausedByTBS")) set(player, "musicCausedByTBS", false);
+        if (get(player, "glitchesEnabled")) set(player, "glitchesEnabled", false);
+        return;
+    }
+
+    if (get(player, "pixelateEnabled") && player.dimension?.id !== LUCID_DIMENSION_ID) {
+        set(player, "pixelateEnabled", false);
+    }
+}
+
+export function migrateLegacyPlayerState(player) {
+    for (const [canonicalKey, legacyKey] of Object.entries(LEGACY_PLAYER_PROPERTIES)) {
+        const canonical = state.getPlayer(player, `pv.${canonicalKey}`, undefined);
+        if (canonical !== undefined) continue;
+        const legacy = player.getDynamicProperty(legacyKey);
+        if (legacy !== undefined) state.setPlayer(player, `pv.${canonicalKey}`, legacy);
+    }
+
+    for (const [canonicalKey, legacyKeys] of Object.entries(LEGACY_VECTOR_FIELDS)) {
+        const canonical = state.getPlayer(player, `pv.${canonicalKey}`, undefined);
+        if (canonical !== undefined) continue;
+        const values = legacyKeys.map((key) => state.getPlayer(player, `pv.${key}`, undefined));
+        if (!values.some((value) => value !== undefined)) continue;
+        const numbers = values.map((value) => {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : 0;
+        });
+        state.setPlayer(player, `pv.${canonicalKey}`, {
+            x: numbers[0],
+            y: numbers[1],
+            z: numbers[2],
+        });
+    }
+}
 
 export function get(player, key) {
     const v = state.getPlayer(player, `pv.${key}`, undefined);
@@ -76,6 +100,16 @@ export function get(player, key) {
 export function set(player, key, value) {
     if (!(key in DEFAULTS)) throw new Error(`player_state: unknown key '${key}'`);
     state.setPlayer(player, `pv.${key}`, value);
+}
+
+export function getJSON(player, key) {
+    if (!(key in PLAYER_JSON_DEFAULTS)) throw new Error(`player_state: unknown JSON key '${key}'`);
+    return state.getPlayerJSON(player, `pv.${key}`, PLAYER_JSON_DEFAULTS[key]);
+}
+
+export function setJSON(player, key, value) {
+    if (!(key in PLAYER_JSON_DEFAULTS)) throw new Error(`player_state: unknown JSON key '${key}'`);
+    state.setPlayerJSON(player, `pv.${key}`, value);
 }
 
 export function update(player, key, fn) {

@@ -169,7 +169,12 @@ function makeJimTrigger() {
     onStepOn(ev) {
       const stage = jimStage(ev.block);
       if (stage === 0) return;
-      try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", stage); } catch {}
+      try {
+        ev.entity.setDynamicProperty("tbs:jim_stage_touch", stage);
+        system.runTimeout(() => {
+          try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", undefined); } catch {}
+        }, 1);
+      } catch {}
     }
   };
 }

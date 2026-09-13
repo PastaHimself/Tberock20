@@ -113,10 +113,11 @@ test("story runtime creates and distributes a signed written book", async () => 
 
 test("world-state initialization fills only missing persisted keys", async () => {
   const state = await source("BP/scripts/systems/world_state.js");
-  assert.match(state, /for \(const \[key, value\] of Object\.entries\(DEFAULTS\)\)/);
-  assert.match(state, /const propertyKey = `mv\.\$\{key\}`;/);
-  assert.match(state, /getWorld\(propertyKey, undefined\) === undefined/);
-  assert.match(state, /setWorld\(propertyKey, value\)/);
+  assert.match(state, /applySchemaDefaults\(/);
+  assert.match(state, /WORLD_STATE_SCHEMA/);
+  assert.match(state, /WORLD_EXTRA_SCHEMA/);
+  assert.match(state, /getWorld\(`mv\.\$\{key\}`, undefined\)/);
+  assert.match(state, /setWorld\(`mv\.\$\{key\}`, value\)/);
   assert.doesNotMatch(state, /getWorld\("mv\.dataVersion", undefined\)/);
   assert.doesNotMatch(state, /getWorld\("mapVarsDataVersion", undefined\)/);
 });
