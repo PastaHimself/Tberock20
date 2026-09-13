@@ -20,6 +20,29 @@ export const STORY_EVENT_THRESHOLDS = Object.freeze([
     Object.freeze({ eventId: "moon_corruption_48", threshold: threshold(48) }),
 ]);
 
+export function validateStoryEventActions(actions) {
+    const expectedIds = new Set(
+        STORY_EVENT_THRESHOLDS.map(({ eventId }) => String(eventId)),
+    );
+    const missingIds = [...expectedIds].filter(
+        (eventId) => typeof actions?.[eventId] !== "function",
+    );
+    const unexpectedIds = Object.keys(actions ?? {}).filter(
+        (eventId) => !expectedIds.has(eventId),
+    );
+    if (missingIds.length > 0 || unexpectedIds.length > 0) {
+        const details = [];
+        if (missingIds.length > 0) {
+            details.push(`missing handler: ${missingIds.join(", ")}`);
+        }
+        if (unexpectedIds.length > 0) {
+            details.push(`unexpected handler: ${unexpectedIds.join(", ")}`);
+        }
+        throw new Error(`story_clock: event action registry mismatch (${details.join("; ")})`);
+    }
+    return actions;
+}
+
 export function evaluateStoryClockTick(currentTime, playerCount, doDayLightCycle) {
     if (doDayLightCycle !== true) {
         return { nextTime: currentTime, shouldDispatch: false };

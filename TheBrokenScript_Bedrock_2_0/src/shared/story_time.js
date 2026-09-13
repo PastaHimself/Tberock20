@@ -33,24 +33,34 @@ export function begin(scheduler) {
     logger.debug("story clock started");
 }
 
-function onTick() {
-    const doDayLightCycle = world.gameRules.doDayLightCycle;
+export function runTick({
+    worldApi = world,
+    readTime = getTime,
+    writeTime = (time) => state.setWorld(KEY, time),
+    dispatch = fire,
+} = {}) {
+    const doDayLightCycle = worldApi.gameRules.doDayLightCycle;
     // Java StoryEvents.tick() pauses the whole story dispatcher when the
     // daylight cycle is disabled.
     if (doDayLightCycle !== true) {
-        return;
+        return { nextTime: undefined, shouldDispatch: false };
     }
-    const currentTime = getTime();
+    const currentTime = readTime();
     const tick = evaluateStoryClockTick(
         currentTime,
-        world.getAllPlayers().length,
+        worldApi.getAllPlayers().length,
         doDayLightCycle,
     );
-    if (!tick.shouldDispatch) return;
+    if (!tick.shouldDispatch) return tick;
     if (tick.nextTime !== currentTime) {
-        state.setWorld(KEY, tick.nextTime);
+        writeTime(tick.nextTime);
     }
-    fire(tick.nextTime);
+    dispatch(tick.nextTime);
+    return tick;
+}
+
+function onTick() {
+    runTick();
 }
 
 function fire(time) {

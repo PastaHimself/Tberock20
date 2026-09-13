@@ -1,7 +1,10 @@
 import { world, system, ItemStack } from "@minecraft/server";
 import { logger } from "../core/logging.js";
 import * as storyTime from "../shared/story_time.js";
-import { STORY_EVENT_THRESHOLDS } from "../shared/story_clock_model.js";
+import {
+    STORY_EVENT_THRESHOLDS,
+    validateStoryEventActions,
+} from "../shared/story_clock_model.js";
 import * as worldState from "./world_state.js";
 import * as playerState from "./player_state.js";
 import {
@@ -13,7 +16,7 @@ const MAX_NULL_BOOK_RETRIES = 20;
 const deliveredNullBookPlayers = new Set();
 let nullBookRetryScheduled = false;
 
-const STORY_EVENT_ACTIONS = {
+const STORY_EVENT_ACTIONS = Object.freeze({
     txt_story_5: onTxtHint,
     txt_story_10: onTxtHint,
     txt_story_15: onTxtHint,
@@ -24,11 +27,12 @@ const STORY_EVENT_ACTIONS = {
     moon_corruption_32: onMoonCorruption,
     moon_corruption_38: onMoonCorruption,
     moon_corruption_48: onMoonCorruption,
-};
+});
 
 export function registerAll() {
+    const actions = validateStoryEventActions(STORY_EVENT_ACTIONS);
     for (const { eventId, threshold } of STORY_EVENT_THRESHOLDS) {
-        storyTime.registerThreshold(threshold, eventId, STORY_EVENT_ACTIONS[eventId]);
+        storyTime.registerThreshold(threshold, eventId, actions[eventId]);
     }
 }
 

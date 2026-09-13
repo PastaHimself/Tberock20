@@ -1,10 +1,13 @@
-import { world, ItemStack } from "@minecraft/server";
+import { world, system, ItemStack } from "@minecraft/server";
 import * as storyTime from "../shared/story_time.js";
-import { STORY_EVENT_THRESHOLDS } from "../shared/story_clock_model.js";
+import {
+    STORY_EVENT_THRESHOLDS,
+    validateStoryEventActions,
+} from "../shared/story_clock_model.js";
 import * as worldState from "./world_state.js";
 import * as playerState from "./player_state.js";
 
-const STORY_EVENT_ACTIONS = {
+const STORY_EVENT_ACTIONS = Object.freeze({
     txt_story_5: onTxtHint,
     txt_story_10: onTxtHint,
     txt_story_15: onTxtHint,
@@ -15,11 +18,29 @@ const STORY_EVENT_ACTIONS = {
     moon_corruption_32: onMoonCorruption,
     moon_corruption_38: onMoonCorruption,
     moon_corruption_48: onMoonCorruption,
-};
+});
+
+const MAX_NULL_BOOK_RETRIES = 20;
+let nullBookRetryScheduled = false;
 
 export function registerAll() {
+    const actions = validateStoryEventActions(STORY_EVENT_ACTIONS);
     for (const { eventId, threshold } of STORY_EVENT_THRESHOLDS) {
-        storyTime.registerThreshold(threshold, eventId, STORY_EVENT_ACTIONS[eventId]);
+        storyTime.registerThreshold(threshold, eventId, actions[eventId]);
+    }
+}
+
+function scheduleNullBookRetry(attempt) {
+    if (attempt >= MAX_NULL_BOOK_RETRIES || nullBookRetryScheduled) return;
+    if (typeof system.runTimeout !== "function") return;
+    nullBookRetryScheduled = true;
+    try {
+        system.runTimeout(() => {
+            nullBookRetryScheduled = false;
+            onNullBook(attempt + 1);
+        }, 1);
+    } catch {
+        nullBookRetryScheduled = false;
     }
 }
 
@@ -27,9 +48,13 @@ export function registerAll() {
 const NULL_BOOK_PAGE1 =
     "§0null.err.object.err.null.object.alone.3.not.behind.entitytype:player.receiveddata.invalid.reboot.failed.reset.playerdata:00F9219492D94210F812";
 
-function onNullBook() {
+function onNullBook(attempt = 0) {
     if (worldState.get("nullBookGiven")) return;
-    worldState.set("nullBookGiven", true);
+    const players = world.getAllPlayers();
+    if (players.length === 0) {
+        scheduleNullBookRetry(attempt);
+        return;
+    }
     // clanVoid coords as binary pages (source builds from MapVariables clanVoidX/Z; INT_MAX = unset)
     const cvx = worldState.get("clanVoidX");
     const cvz = worldState.get("clanVoidZ");
@@ -38,7 +63,7 @@ function onNullBook() {
         return v < 0 ? "-" + Math.abs(v).toString(2) : v.toString(2);
     };
     const page2 = `X: ${bin(cvx)}  Y: 201  Z: ${bin(cvz)}  CV`;
-    for (const player of world.getAllPlayers()) {
+    for (const player of players) {
         try {
             const inv = player.getComponent("minecraft:inventory");
             const container = inv?.container;
@@ -50,6 +75,7 @@ function onNullBook() {
             player.onScreenDisplay.setTitle("§knull§r.book", { fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10 });
         } catch {}
     }
+    worldState.set("nullBookGiven", true);
 }
 
 function onTxtHint() {

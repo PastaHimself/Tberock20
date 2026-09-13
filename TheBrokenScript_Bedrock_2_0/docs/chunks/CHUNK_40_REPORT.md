@@ -7,6 +7,9 @@
   preserve Java’s no-player persisted-time dispatch behavior.
 - Centralized all ten source thresholds in chronological order and wired both
   story-event registries to that schedule.
+- Added fail-fast action-registry validation, kept the authoring null-book
+  event pending until players exist, and exposed the dispatcher tick through
+  dependency injection for deterministic runtime tests.
 - Retired A-008 as a known implementation gap; the remaining Bedrock engine
   import/smoke boundary is still documented separately.
 - Added a dedicated story-clock/day-cycle GitHub Actions step.
@@ -26,8 +29,11 @@
 ## Validation
 
 `tests/story_clock.test.mjs` covers the daylight pause, no-player pause,
-player resume, persisted-time dispatch, exact schedule, Java source anchors,
-and deployed registry wiring. The focused suite passes locally; the complete
+player resume, persisted-time dispatch through the mocked runtime module,
+exact schedule, Java source anchors, complete BP/src registry wiring, action
+validation, and authoring null-book retry behavior. The complete local Node
+suite passes **228/228**, and the Python validator suite passes **92/92**; the
+focused suite uses Node's VM-module test flag and passes locally. The complete
 workflow result is recorded with the pull request.
 
 ## Remaining boundary
