@@ -14,6 +14,7 @@ from validate_runtime_smoke_matrix import MatrixError, validate_matrix
 
 VALID_STATUSES = {"pass", "fail", "blocked", "not-run"}
 VALID_SEVERITIES = {"error", "warning", "info"}
+PLACEHOLDER_MARKERS = ("replace-with", "placeholder", "your-", "todo")
 
 
 def require(condition: bool, message: str) -> None:
@@ -47,6 +48,19 @@ def validate_report(report: Any, matrix: dict[str, Any], require_complete: bool)
         evidence = result.get("evidence")
         require(isinstance(evidence, list) and evidence, f"result {identifier} needs evidence references")
         require(all(isinstance(item, str) and item.strip() for item in evidence), f"result {identifier}.evidence contains an empty item")
+        required_evidence = {
+            name for name, definition in matrix["evidence"].items() if definition.get("required") is True
+        }
+        evidence_set = set(evidence)
+        require(
+            required_evidence <= evidence_set,
+            f"result {identifier}.evidence is missing required category(s): "
+            f"{', '.join(sorted(required_evidence - evidence_set))}",
+        )
+        require(
+            not any(any(marker in item.lower() for marker in PLACEHOLDER_MARKERS) for item in evidence),
+            f"result {identifier}.evidence contains an unresolved placeholder",
+        )
 
         if scenario["parity_critical"] and result["status"] == "fail":
             raise MatrixError(f"parity-critical scenario failed: {identifier}")
@@ -63,6 +77,12 @@ def validate_report(report: Any, matrix: dict[str, Any], require_complete: bool)
             raise MatrixError(
                 f"parity-critical {diagnostic['severity']} blocks the runtime smoke report: {diagnostic['message']}"
             )
+
+    if report["status"] == "pass":
+        require(
+            all(result["status"] == "pass" for result in results),
+            "report status pass requires every scenario to pass",
+        )
 
     if require_complete:
         require(report["status"] == "pass", "complete runtime smoke report must have status pass")

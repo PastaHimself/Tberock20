@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "matrix_id": "tbs-bedrock-runtime-smoke-v1",
-  "run_id": "replace-with-bedrock-run-id",
+  "run_id": "not-run-template",
   "started_at": "2026-09-13T00:00:00Z",
   "finished_at": "2026-09-13T00:00:00Z",
   "runtime_contract": {
@@ -21,52 +21,52 @@
     {
       "id": "bootstrap",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "persistence",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "death_respawn",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "leave_rejoin_restart",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "multiplayer",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "dimensions",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "boss_lifecycle",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "story_progression",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "event_suppression",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     },
     {
       "id": "diagnostics",
       "status": "not-run",
-      "evidence": ["replace-with-evidence"]
+      "evidence": ["content_log", "report"]
     }
   ],
   "diagnostics": []

@@ -34,6 +34,18 @@ EXPECTED_CONTRACT = {
     "required_experiments": ["Beta APIs"],
 }
 
+EXPECTED_WORLD = {
+    "name": "TBS 2.0 Runtime Smoke 1.26.50 Preview",
+    "seed": "260501126",
+    "difficulty": "normal",
+    "operator_mode": "creative",
+    "cheats": True,
+    "pack_artifact": "dist/The_Broken_Script_2_0.mcaddon",
+    "reset_between_scenarios": True,
+    "fixed_overworld_spawn": "0 80 0",
+    "fixed_dimension_probe": "0 201 0",
+}
+
 
 class MatrixError(ValueError):
     """Raised when a smoke matrix violates its repository contract."""
@@ -56,10 +68,7 @@ def validate_matrix(matrix: Any) -> None:
 
     world = matrix.get("world")
     require(isinstance(world, dict), "world must be an object")
-    for field in ("name", "seed", "difficulty", "operator_mode", "pack_artifact", "fixed_overworld_spawn", "fixed_dimension_probe"):
-        require_string(world.get(field), f"world.{field}")
-    require(world.get("cheats") is True, "world.cheats must be true for the operator smoke world")
-    require(world.get("reset_between_scenarios") is True, "world.reset_between_scenarios must be true")
+    require(world == EXPECTED_WORLD, "world does not match the pinned smoke-world contract")
 
     evidence = matrix.get("evidence")
     require(isinstance(evidence, dict), "evidence must be an object")
@@ -75,6 +84,10 @@ def validate_matrix(matrix: Any) -> None:
         release_gate.get("parity_critical_diagnostic_severities") == ["error", "warning"],
         "release gate must block parity-critical errors and warnings",
     )
+    require(
+        release_gate.get("allowed_nonblocking_diagnostic_severities") == ["info"],
+        "release gate must allow only non-blocking info diagnostics",
+    )
 
     scenarios = matrix.get("scenarios")
     require(isinstance(scenarios, list), "scenarios must be an array")
@@ -87,7 +100,7 @@ def validate_matrix(matrix: Any) -> None:
     for scenario in scenarios:
         identifier = scenario["id"]
         require_string(scenario.get("title"), f"scenario {identifier}.title")
-        require(scenario.get("priority") in {"P0", "P1", "P2"}, f"scenario {identifier}.priority is invalid")
+        require(scenario.get("priority") == "P0", f"scenario {identifier}.priority must remain P0")
         require(scenario.get("parity_critical") is True, f"scenario {identifier} must be parity-critical")
         for field in ("preconditions", "steps", "pass_criteria", "commands", "evidence"):
             value = scenario.get(field)
