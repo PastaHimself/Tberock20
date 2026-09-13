@@ -1,5 +1,6 @@
 ﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
+import * as playerState from "../../systems/player_state.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
@@ -206,7 +207,7 @@ function tickObliteration(e) {
     } else if (s > 0) {
       setNum(e, key, 0);
       // reset player-side accumulator analogue
-      try { player.setDynamicProperty("tbs:triangleKickTimer", 0); } catch {}
+      try { playerState.set(player, "triangleKickTimer", 0); } catch {}
     }
   } else {
     // O1: periodic watching sound beat every 150 ticks while observed/close

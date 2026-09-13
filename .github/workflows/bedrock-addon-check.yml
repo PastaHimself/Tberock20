@@ -73,6 +73,9 @@ jobs:
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
+      - name: Validate persistent state parity
+        run: python tools/validate_persistent_state.py --report artifacts/persistent-state-validation.json
+
       - name: Run full source-to-runtime audit
         run: >-
           python tools/audit_source_to_runtime.py

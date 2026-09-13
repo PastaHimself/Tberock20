@@ -1,5 +1,6 @@
 ﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
+import * as playerState from "../../systems/player_state.js";
 import * as dimensions from "../../systems/dimensions.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
@@ -213,7 +214,7 @@ function tickBan(e) {
   // nearest player ≤128 gets PlayerVariables.ban=true then entity discards
   const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
   if (player) {
-    try { player.setDynamicProperty("tbs:ban", true); } catch {}
+    try { playerState.set(player, "ban", true); } catch {}
   }
   try { e.remove(); } catch {} deleteTimers(e);
 }
@@ -353,8 +354,8 @@ function tickFollow(e) {
       // source: random CLAN_VOID / NULL_TORTURE destination + fixPos/skipFallDamage flags
       const dest = Math.random() < 0.5 ? "clan_void" : "null_torture";
       dimensions.teleportTo(player, dest, { x: player.location.x, y: 201, z: player.location.z });
-      try { player.setDynamicProperty("tbs:fixPos", true); } catch {}
-      try { player.setDynamicProperty("tbs:skipFallDamage", true); } catch {}
+      try { playerState.set(player, "fixPos", true); } catch {}
+      try { playerState.set(player, "skipFallDamage", true); } catch {}
     } else {
       try { player.teleport(e.location); } catch {}
       // give SERIAL_DESIGNATION_N item pending Chunk 09 — ledgered skip

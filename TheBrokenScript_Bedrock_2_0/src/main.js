@@ -84,6 +84,8 @@ function onWorldLoad() {
         "core.playerSpawn",
         "lifecycle",
         (ev) => {
+            playerState.init(ev.player);
+            playerState.resetLifecycleState(ev.player, ev.initialSpawn);
             if (ev.initialSpawn) {
                 state.ensurePlayer(ev.player);
                 playerState.set(ev.player, "lastX", Math.floor(ev.player.location.x));

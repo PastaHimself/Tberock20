@@ -13,7 +13,6 @@ import {
 } from "./story_book_adapter.js";
 
 const MAX_NULL_BOOK_RETRIES = 20;
-const deliveredNullBookPlayers = new Set();
 let nullBookRetryScheduled = false;
 
 const STORY_EVENT_ACTIONS = Object.freeze({
@@ -88,20 +87,18 @@ function onNullBook(attempt = 0) {
 
     let pending = false;
     for (const player of players) {
-        const playerKey = player.id ?? player;
-        if (deliveredNullBookPlayers.has(playerKey)) continue;
+        if (playerState.get(player, "nullBookDelivered")) continue;
         if (distributeNullBook(player, item)) {
-            deliveredNullBookPlayers.add(playerKey);
+            playerState.set(player, "nullBookDelivered", true);
         } else {
             pending = true;
-            logger.warn(`null_book_hint delivery pending for player ${playerKey}`);
+            logger.warn(`null_book_hint delivery pending for player ${player.id ?? player.name ?? "unknown"}`);
         }
     }
     if (pending) {
         scheduleNullBookRetry(attempt);
         return;
     }
-    deliveredNullBookPlayers.clear();
     worldState.set("nullBookGiven", true);
 }
 
