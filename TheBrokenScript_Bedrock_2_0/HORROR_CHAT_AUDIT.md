@@ -8,7 +8,7 @@ This audit is intentionally registration-focused. Repository-backed Java/decompi
 
 `can_you_see_me`, `circuit`, `clan_build`, `entity_303`, `follow`, `friend`, `fuck_you`, `hello`, `herobrine`, `how_can_i_help_you`, `integrity`, `niw`, `null`, `ram2die`, `revuxor`, `steve`, `the_broken_end`, `void`, `what_do_you_want`, `who_are_you`, `i_am_scared`, `blackout`, `cal`, `catfish`, `overlord`, `whyer`, `dyexd`, `null_structure_positive`, `null_structure_negative`, `sorry`, `lucid`, `clanbase_curved`, `hello_structure`, `fever_hello`, `fever_where`, `fever_what`, `fever_who`, `fever_insult`, `fever_want`, `fever_sky`, `fever_homes`, `freebird`.
 
-`BP/scripts/systems/commands.js` currently has **13** generic Bedrock response keys:
+`BP/scripts/systems/horror_chat.js` currently has **13** generic Bedrock response keys:
 
 `null`, `herobrine`, `the_broken_end`, `integrity`, `circuit`, `hello`, `friend`, `who_are_you`, `what_do_you_want`, `i_am_scared`, `void`, `steve`, `sorry`.
 

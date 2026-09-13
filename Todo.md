@@ -113,7 +113,7 @@ Static validators and Node tests are necessary but cannot prove engine behavior.
 - [ ] Verify the implemented weighted event pool has the same effective selection behavior as Java, not merely similar weights.
 - [ ] Verify every event's cleanup path after player death, dimension change, disconnect, or server reload.
 - [x] Resolve the **45-source-response vs 14-implemented-response** documentation discrepancy through source inspection; do not assume either count means 31 missing features until aliases/unreachable/dead source entries are checked.
-  - Evidence (2026-09-12): `tests/horror_chat_registration_audit.test.mjs` derives 42 registered Java chat-response IDs from `decompiled/.../TBSChatResponses.java` and 13 generic Bedrock response keys from `commands.js`. Those counts describe different units and are not a parity denominator; per-response trigger/gate/delay auditing remains open.
+  - Evidence (2026-09-12): `tests/horror_chat_registration_audit.test.mjs` derives 42 registered Java chat-response IDs from `decompiled/.../TBSChatResponses.java` and 13 generic Bedrock response keys from `horror_chat.js`. Those counts describe different units and are not a parity denominator; per-response trigger/gate/delay auditing remains open.
 - [ ] Verify exact trigger normalization: casing, whitespace, punctuation, substrings/whole-message behavior, cooldowns, and whether the sender or all players receive side effects.
 
 ---
