@@ -57,13 +57,28 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/semantic-finalization
           cp TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json artifacts/semantic-finalization/SOURCE_MAP.before.json
-          python tools/finalize_source_map_semantics.py --write | tee artifacts/semantic-finalization/finalizer.log
           set +e
-          python tools/validate_parity_ledgers.py > artifacts/semantic-finalization/parity-after-finalizer.log 2>&1
-          PARITY_STATUS=$?
+          python tools/finalize_source_map_semantics.py --write > artifacts/semantic-finalization/finalizer.log 2>&1
+          FINALIZER_STATUS=$?
           set -e
-          cp TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json artifacts/semantic-finalization/SOURCE_MAP.finalized.json
-          printf '%s\n' "$PARITY_STATUS" > artifacts/semantic-finalization/parity-exit-code.txt
+          printf '%s\n' "$FINALIZER_STATUS" > artifacts/semantic-finalization/finalizer-exit-code.txt
+          if [[ "$FINALIZER_STATUS" -eq 0 ]]; then
+            cp TheBrokenScript_Bedrock_2_0/SOURCE_MAP.json artifacts/semantic-finalization/SOURCE_MAP.finalized.json
+            set +e
+            python tools/validate_parity_ledgers.py > artifacts/semantic-finalization/parity-after-finalizer.log 2>&1
+            PARITY_STATUS=$?
+            set -e
+            printf '%s\n' "$PARITY_STATUS" > artifacts/semantic-finalization/parity-exit-code.txt
+          fi
+
+      - name: Upload semantic finalization diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: semantic-finalization-diagnostics
+          path: artifacts/semantic-finalization/*
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Validate complete add-on
         if: always()
@@ -215,12 +230,3 @@ jobs:
           path: artifacts/*.json
           if-no-files-found: ignore
           retention-days: 30
-
-      - name: Upload semantic finalization diagnostics
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: semantic-finalization-diagnostics
-          path: artifacts/semantic-finalization/*
-          if-no-files-found: error
-          retention-days: 7
