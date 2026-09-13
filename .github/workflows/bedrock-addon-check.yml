@@ -73,6 +73,12 @@ jobs:
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
+      - name: Run full source-to-runtime audit
+        run: >-
+          python tools/audit_source_to_runtime.py
+          --check
+          --report artifacts/source-to-runtime-audit.json
+
       - name: Reconcile parity ledger against shipped tree
         run: python tools/reconcile_parity_ledgers.py --check
 

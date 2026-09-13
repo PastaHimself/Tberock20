@@ -32,6 +32,7 @@ export function resetDelay(key, ticks) {
 function decrementDelays() {
     for (const key of DELAY_KEYS) {
         const v = worldState.get(key);
+        // audit: Java Integer.MAX_VALUE equivalent for persisted delay bounds.
         if (v > 0 && v < 2147483647) {
             worldState.set(key, v - 1);
         }

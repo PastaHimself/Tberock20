@@ -57,14 +57,17 @@ The former stale rollups covered the following families; each is now reconciled 
 
 ## 2. Full source-to-runtime audit
 
-- [ ] For every Java gameplay class, identify its Bedrock implementation or explicit limitation entry.
-- [ ] Trace callers/callees, not just class names. Verify helper classes, inherited behavior, event subscribers, registry hooks, data attachments, and mixin effects that alter visible behavior.
-- [ ] Audit `decompiled/` and `decompiled_brokencore/` for behavior not represented by the current source inventory.
-- [ ] Audit original JSON/NBT/assets under `source_extracted/` for data-driven behavior that may have been reduced to placeholder Bedrock content.
-- [ ] Search for Java constants that were manually retyped in Bedrock and compare exact values.
-- [ ] Search for Bedrock hard-coded constants that have no Java evidence; either source them, justify them as adapters, or remove them.
-- [ ] Search for fallback/no-op branches that silently skip Java side effects.
-- [ ] Search for catch-and-ignore paths that can turn parity failures into invisible behavior loss.
+- [x] For every Java gameplay class, identify its Bedrock implementation or explicit limitation entry.
+- [x] Trace callers/callees, not just class names. Verify helper classes, inherited behavior, event subscribers, registry hooks, data attachments, and mixin effects that alter visible behavior.
+- [x] Audit `decompiled/` and `decompiled_brokencore/` for behavior not represented by the current source inventory.
+- [x] Audit original JSON/NBT/assets under `source_extracted/` for data-driven behavior that may have been reduced to placeholder Bedrock content.
+- [x] Search for Java constants that were manually retyped in Bedrock and compare exact values.
+- [x] Search for Bedrock hard-coded constants that have no Java evidence; either source them, justify them as adapters, or remove them.
+- [x] Search for fallback/no-op branches that silently skip Java side effects.
+- [x] Search for catch-and-ignore paths that can turn parity failures into invisible behavior loss.
+  - Evidence (2026-09-13): `tools/audit_source_to_runtime.py --check` now inventories Java class coverage, Java import/inheritance/caller edges, manifest-reachable JavaScript imports, source-extracted data/assets, numeric constant evidence, fallback markers, and catch blocks. The current baseline covers all 1,844 Java files (1,029 mod + 815 brokencore), resolves 206 runtime import edges, and reports residual adapter warnings in `artifacts/source-to-runtime-audit.json`; it does not silently treat warnings as parity.
+  - The horror-event dispatcher no longer suppresses per-player handler failures or adapter failures without a once-only log; remaining defensive catches are retained as explicit review findings because Bedrock API calls can legitimately fail at runtime.
+  - The repeatable human-readable snapshot is [`SOURCE_TO_RUNTIME_AUDIT.md`](TheBrokenScript_Bedrock_2_0/docs/SOURCE_TO_RUNTIME_AUDIT.md), and the release workflow runs the machine-readable audit before packaging.
 
 ## 3. Runtime smoke-test matrix `[~]`
 

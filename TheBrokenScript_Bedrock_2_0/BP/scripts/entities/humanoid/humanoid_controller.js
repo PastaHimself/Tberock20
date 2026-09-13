@@ -226,6 +226,7 @@ function tickSiluet(e) {
   // isDay → discard + null particle burst
   try {
     const time = world.getTimeOfDay();
+    // audit: Bedrock time-of-day adapter for the Java night-window predicate.
     if (time >= 23000 || time < 1000) {
       try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", e.location); } catch {}
       try { e.remove(); } catch {} deleteTimers(e); return;
@@ -395,6 +396,7 @@ function tickHe(e) {
   }
   try {
     const time = world.getTimeOfDay();
+    // audit: Bedrock time-of-day adapter for the Java night-window predicate.
     if (time >= 23000 || time < 1000) {
       try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", e.location); } catch {}
       try { e.remove(); } catch {} deleteTimers(e); return;
@@ -456,6 +458,7 @@ function tickDeceiver(e) {
   }
   try {
     const time = world.getTimeOfDay();
+    // audit: Bedrock time-of-day adapter for the Java night-window predicate.
     if (time >= 23000 || time < 1000) { try { e.remove(); } catch {} deleteTimers(e); }
   } catch {}
 }

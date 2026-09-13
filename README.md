@@ -28,6 +28,8 @@ The port already contains a large amount of implemented content and validation. 
 
 However, **chunk completion is not the same as proven Java parity**. The row-level source-map reconciliation now records an explicit terminal decision for every inventory entry, while approximations, engine limits, and intentional exclusions remain visible. Runtime smoke testing is still required for important gameplay paths. The audit method and current exceptions are documented in [`PARITY_LEDGER_RECONCILIATION.md`](TheBrokenScript_Bedrock_2_0/docs/PARITY_LEDGER_RECONCILIATION.md), and the remaining backlog is maintained in [`Todo.md`](Todo.md).
 
+The completed static source-to-runtime audit is documented in [`SOURCE_TO_RUNTIME_AUDIT.md`](TheBrokenScript_Bedrock_2_0/docs/SOURCE_TO_RUNTIME_AUDIT.md). GitHub Actions reruns it on every pull request and uploads the JSON evidence report with the other validation artifacts.
+
 ## Definition of parity
 
 A mechanic is not considered parity-complete merely because it exists on Bedrock. For each Java feature, verify as applicable:
@@ -89,6 +91,7 @@ npm install --ignore-scripts --no-audit --no-fund
 npm run typecheck
 npm test
 python -m unittest discover -s tests -p 'test_*.py' -v
+python tools/audit_source_to_runtime.py --check --report artifacts/source-to-runtime-audit.json
 python tools/validate_addon.py --report artifacts/addon-validation.json
 python tools/validate_resource_links.py --report artifacts/resource-link-validation.json
 python tools/validate_jigsaw_worldgen.py

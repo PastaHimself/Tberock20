@@ -10,6 +10,7 @@ function hash32(text, seed) {
   let hash = seed >>> 0;
   for (let index = 0; index < text.length; index++) {
     hash ^= text.charCodeAt(index);
+    // audit: FNV-1a adapter multiplier; the Java key is not persisted verbatim on Bedrock.
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 0).toString(16).padStart(8, "0");
@@ -39,6 +40,7 @@ export function dimensionStatePropertyKey(
 ) {
   const token = dimensionStateToken(dimensionId, stage, regionKey, version);
   const left = hash32(token, 0x811c9dc5);
+  // audit: adapter seed paired with the Java-independent Bedrock property-key hash.
   const right = hash32(token, 0x9e3779b9);
   return `tbs:dim_init_${left}${right}`;
 }
