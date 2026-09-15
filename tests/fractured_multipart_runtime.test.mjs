@@ -9,12 +9,14 @@ const roamPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/entities/fractured_r
 
 test("Jimmy runtime owns conceptual multipart hit routing and deferred arrow effects", async () => {
   const runtime = await readFile(runtimePath, "utf8");
-  assert.match(runtime, /multipartAabbs/);
+  assert.match(runtime, /multipartProjectileHitPlan/);
+  assert.match(runtime, /projectilePositions/);
   assert.match(runtime, /fracturedPartHitPlan/);
   assert.match(runtime, /partRole: matchedPart\?\.role/);
   assert.match(runtime, /roamState: roamLifecycle\?\.state/);
   assert.match(runtime, /roamRiseTicks/);
-  assert.match(runtime, /\.find\(\(part\) => pointInsideAabb/);
+  assert.match(runtime, /from: previous/);
+  assert.match(runtime, /to: impact/);
   assert.match(runtime, /ROAM_SWITCH_TAG/);
   assert.match(runtime, /system\.run\(\(\) =>/);
   assert.match(runtime, /setOnFire/);
@@ -49,9 +51,10 @@ test("dedicated runtime owns the source FracturedRoam host lifecycle and Arena h
   assert.match(runtime, /fracturedRoamDigEligibility/);
   assert.match(runtime, /fracturedRoamFindSurfaceAhead/);
   assert.match(runtime, /fracturedRoamMoveControlStep/);
+  assert.match(runtime, /fracturedRoamRecoveryStep/);
   assert.match(runtime, /fracturedRoamSupportAhead/);
   assert.match(runtime, /fracturedRoamSupportNear/);
-  assert.match(runtime, /recoverFracturedRoamFromAir/);
+  assert.match(runtime, /recoverFracturedFromAir/);
   assert.match(runtime, /fracturedRoamArenaPlan/);
   assert.match(runtime, /arenaStartMusicTicks/);
   assert.match(runtime, /arenaSubAnomalyCount/);

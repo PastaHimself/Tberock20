@@ -4,11 +4,13 @@ import {
   FRACTURED_MULTIPART_SOURCE,
   fracturedPartHitPlan,
   fracturedRoamSwitchStep,
+  multipartProjectileHitPlan,
   multipartAabbs,
   multipartEntityMatches,
   multipartPartDefinitions,
   multipartWorldPosition,
   pointInsideAabb,
+  segmentIntersectsAabb,
   shouldApplyMultipartArrowEffects,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/fractured_multipart_model.js";
 
@@ -109,6 +111,65 @@ test("conceptual part AABBs preserve source dimensions while remaining a runtime
   });
   assert.equal(pointInsideAabb({ x: 0, y: 105, z: 10 }, head), true);
   assert.equal(pointInsideAabb({ x: 0, y: 97.99, z: 10 }, head), false);
+});
+
+test("multipart projectile filtering sweeps between samples", () => {
+  const result = multipartProjectileHitPlan({
+    position: { x: 0, y: 0, z: 0 },
+    yawDegrees: 0,
+    from: { x: -20, y: 95, z: 10 },
+    to: { x: 20, y: 95, z: 10 },
+  });
+  assert.equal(result.hit, true);
+  assert.equal(result.part.name, "head");
+  assert.ok(result.entry > 0 && result.entry < 1);
+});
+
+test("multipart projectile filtering respects yaw, elevation, movement, and long samples", () => {
+  const yawedLeg = multipartProjectileHitPlan({
+    position: { x: 0, y: 0, z: 0 },
+    yawDegrees: 90,
+    from: { x: 45, y: 1, z: -80 },
+    to: { x: 45, y: 1, z: 0 },
+  });
+  assert.equal(yawedLeg.hit, true);
+  assert.equal(yawedLeg.part.name, "frontleft");
+
+  const elevated = multipartProjectileHitPlan({
+    position: { x: 0, y: 0, z: 0 },
+    yawDegrees: 90,
+    from: { x: 45, y: 20, z: -80 },
+    to: { x: 45, y: 20, z: 0 },
+  });
+  assert.equal(elevated.hit, false);
+
+  const movingParent = multipartProjectileHitPlan({
+    position: { x: 14, y: 0, z: 0 },
+    yawDegrees: 180,
+    from: { x: -80, y: 95, z: -10 },
+    to: { x: 80, y: 95, z: -10 },
+  });
+  assert.equal(movingParent.hit, true);
+  assert.equal(movingParent.part.name, "head");
+
+  const coarseLatencySample = multipartProjectileHitPlan({
+    position: { x: 0, y: 0, z: 0 },
+    yawDegrees: 0,
+    from: { x: -140, y: 95, z: 10 },
+    to: { x: 140, y: 95, z: 10 },
+  });
+  assert.equal(coarseLatencySample.hit, true);
+  assert.equal(coarseLatencySample.part.name, "head");
+});
+
+test("segment AABB intersection handles zero-length points and misses", () => {
+  const head = multipartAabbs({ position: { x: 0, y: 0, z: 0 } })
+    .find((part) => part.name === "head");
+  assert.deepEqual(segmentIntersectsAabb({ x: 0, y: 95, z: 10 }, { x: 0, y: 95, z: 10 }, head), {
+    entry: 0,
+    exit: 1,
+  });
+  assert.equal(segmentIntersectsAabb({ x: 0, y: 20, z: 10 }, { x: 0, y: 20, z: 10 }, head), null);
 });
 
 test("part hit routes an arrow through Jimmy and preserves source arrow side effects", () => {
@@ -226,11 +287,11 @@ test("multipart roles preserve FracturedPartEntity versus MultipartSubEntity beh
 
 test("FracturedRoam promotion decrements before the source 103-tick switch completes", () => {
   let state = { switchTicks: FRACTURED_MULTIPART_SOURCE.roamSwitchTicks, promote: false };
-  for (let tick = 0; tick < 102; tick += 1) {
+  for (let tick = 0; tick < 103; tick += 1) {
     state = fracturedRoamSwitchStep(state.switchTicks);
     assert.equal(state.promote, false);
   }
-  assert.equal(state.switchTicks, 1);
+  assert.equal(state.switchTicks, 0);
   state = fracturedRoamSwitchStep(state.switchTicks);
   assert.deepEqual(state, { switchTicks: 0, promote: true });
 });

@@ -3,17 +3,21 @@ import assert from "node:assert/strict";
 import {
   FRACTURED_ROAM_SOURCE,
   fracturedRoamArenaPlan,
+  fracturedRoamArenaRosterStep,
   fracturedRoamBaseTick,
   fracturedRoamDigEligibility,
   fracturedRoamDigGoalStart,
   fracturedRoamDigGoalStop,
   fracturedRoamDespawnStep,
   fracturedRoamFindSurfaceAhead,
+  fracturedRoamLifecycleStep,
   fracturedRoamMoveControlStep,
+  fracturedRoamRecoveryStep,
   fracturedRoamServerTimerStep,
   fracturedRoamSupportAhead,
   fracturedRoamSupportNear,
   fracturedRoamStrollDue,
+  fracturedRoamTargetRange,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/fractured_roam_model.js";
 
 test("FracturedRoam preserves the source timers and arena constants", () => {
@@ -35,6 +39,7 @@ test("FracturedRoam preserves the source timers and arena constants", () => {
     randomStrollSpeedModifier: 0.6,
     randomStrollIntervalTicks: 45,
     randomStrollHorizontalRange: 100,
+    undergroundRandomHorizontalRange: 30,
     randomStrollVerticalRange: 7,
     strollSupportDepth: 10,
     strollSupportLookahead: 8,
@@ -88,6 +93,78 @@ test("BaseFracturedEntity rise, dig, and despawn states use decrement-then-trans
     despawnTicks: 0,
     discarded: true,
   });
+});
+
+test("Roam uses source-specific target ranges and lifecycle boundaries", () => {
+  assert.equal(fracturedRoamTargetRange("NORMAL"), 100);
+  assert.equal(fracturedRoamTargetRange("UNDERGROUND"), 30);
+  assert.equal(fracturedRoamTargetRange("DIGGING"), null);
+  assert.deepEqual(fracturedRoamLifecycleStep({ state: "RISING", riseTicks: 1 }), {
+    state: "RISING",
+    riseTicks: 0,
+    switchTicks: 0,
+    transition: null,
+    discard: false,
+  });
+  assert.deepEqual(fracturedRoamLifecycleStep({ state: "RISING", riseTicks: 0 }), {
+    state: "NORMAL",
+    riseTicks: 0,
+    switchTicks: 0,
+    transition: "normal",
+    discard: false,
+  });
+  assert.deepEqual(fracturedRoamLifecycleStep({ state: "SWITCHING", switchTicks: 1 }), {
+    state: "SWITCHING",
+    riseTicks: 0,
+    switchTicks: 0,
+    transition: null,
+    discard: false,
+  });
+  assert.deepEqual(fracturedRoamLifecycleStep({ state: "SWITCHING", switchTicks: 0 }), {
+    state: "SWITCHING",
+    riseTicks: 0,
+    switchTicks: 0,
+    transition: "arena",
+    discard: true,
+  });
+});
+
+test("Roam recovery waits for a safe ground point and preserves the source thresholds", () => {
+  assert.deepEqual(fracturedRoamRecoveryStep({
+    onGround: true,
+    airborneTicks: 12,
+    safeY: 80,
+    currentY: 40,
+  }), { airborneTicks: 0, recover: false });
+  assert.deepEqual(fracturedRoamRecoveryStep({
+    onGround: false,
+    airborneTicks: 0,
+    safeY: 80,
+    currentY: 59,
+  }), { airborneTicks: 1, recover: true });
+  assert.deepEqual(fracturedRoamRecoveryStep({
+    onGround: false,
+    airborneTicks: 40,
+    safeY: 80,
+    currentY: 79,
+  }), { airborneTicks: 41, recover: true });
+  assert.deepEqual(fracturedRoamRecoveryStep({
+    onGround: false,
+    airborneTicks: 40,
+    safeY: null,
+    currentY: 79,
+  }), { airborneTicks: 41, recover: false });
+});
+
+test("Arena roster replaces a reconnected instance and removes stale keys", () => {
+  const result = fracturedRoamArenaRosterStep({
+    previous: new Map([["p1", { id: "old" }], ["p2", { id: "gone" }]]),
+    current: [{ id: "new", uuid: "p1" }],
+  });
+  assert.deepEqual([...result.roster.entries()], [
+    ["p1", { id: "new", uuid: "p1" }],
+  ]);
+  assert.deepEqual(result.removed, ["p2"]);
 });
 
 test("the underground goal can start only on NORMAL with cooldown clear and roll one", () => {

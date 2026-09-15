@@ -19,6 +19,7 @@ export const FRACTURED_ROAM_SOURCE = Object.freeze({
   randomStrollSpeedModifier: 0.6,
   randomStrollIntervalTicks: 45,
   randomStrollHorizontalRange: 100,
+  undergroundRandomHorizontalRange: 30,
   randomStrollVerticalRange: 7,
   strollSupportDepth: 10,
   strollSupportLookahead: 8,
@@ -92,6 +93,99 @@ export function fracturedRoamBaseTick({
   };
 }
 
+/** Returns the source horizontal search range for the active Roam goal. */
+export function fracturedRoamTargetRange(state) {
+  if (state === "NORMAL") return FRACTURED_ROAM_SOURCE.randomStrollHorizontalRange;
+  if (state === "UNDERGROUND") return FRACTURED_ROAM_SOURCE.undergroundRandomHorizontalRange;
+  return null;
+}
+
+/** Mirrors BaseFracturedEntity's safe-ground and recovery thresholds. */
+export function fracturedRoamRecoveryStep({
+  onGround = false,
+  airborneTicks = 0,
+  safeY = null,
+  currentY = 0,
+} = {}) {
+  if (onGround) return { airborneTicks: 0, recover: false };
+  const nextAirborneTicks = nonNegativeTicks(airborneTicks, 0) + 1;
+  const fellTooFar = Number.isFinite(safeY) && Number.isFinite(currentY) && safeY - currentY > 20;
+  return {
+    airborneTicks: nextAirborneTicks,
+    recover: Number.isFinite(safeY) && (fellTooFar || nextAirborneTicks > 40),
+  };
+}
+
+/** Mirrors the decrement boundaries used by the base lifecycle and switch. */
+export function fracturedRoamLifecycleStep({
+  state = "NORMAL",
+  riseTicks = 0,
+  switchTicks = 0,
+} = {}) {
+  const currentRise = nonNegativeTicks(riseTicks, 0);
+  const currentSwitch = nonNegativeTicks(switchTicks, 0);
+  if (state === "RISING") {
+    if (currentRise > 0) {
+      return {
+        state,
+        riseTicks: currentRise - 1,
+        switchTicks: 0,
+        transition: null,
+        discard: false,
+      };
+    }
+    return {
+      state: "NORMAL",
+      riseTicks: 0,
+      switchTicks: 0,
+      transition: "normal",
+      discard: false,
+    };
+  }
+  if (state === "SWITCHING") {
+    if (currentSwitch > 0) {
+      return {
+        state,
+        riseTicks: 0,
+        switchTicks: currentSwitch - 1,
+        transition: null,
+        discard: false,
+      };
+    }
+    return {
+      state,
+      riseTicks: 0,
+      switchTicks: 0,
+      transition: "arena",
+      discard: true,
+    };
+  }
+  return {
+    state,
+    riseTicks: currentRise,
+    switchTicks: currentSwitch,
+    transition: null,
+    discard: false,
+  };
+}
+
+/** Returns the current Arena roster and keys that disappeared or reconnected. */
+export function fracturedRoamArenaRosterStep({
+  previous = new Map(),
+  current = [],
+} = {}) {
+  const roster = new Map();
+  const removed = [];
+  for (const player of current) {
+    const key = player?.uuid ?? player?.id;
+    if (key != null) roster.set(key, player);
+  }
+  for (const key of previous.keys()) {
+    if (!roster.has(key)) removed.push(key);
+  }
+  return { roster, removed };
+}
+
 /** Mirrors FracturedRoamGoUnDerGroundGoal.canUse.
  * @param {{ state?: string, digCooldown?: number, roll?: number }} options
  */
@@ -148,7 +242,8 @@ function airAt(isAirAt, position) {
   }
 }
 
-/** Mirrors BaseFracturedEntity.findSurfaceAhead's integer scan.\n+ * @param {{ position?: { x?: number, y?: number, z?: number }, yawDegrees?: number, maxDist?: number, step?: number, minBuildHeight?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
+/** Mirrors BaseFracturedEntity.findSurfaceAhead's integer scan.
+ * @param {{ position?: { x?: number, y?: number, z?: number }, yawDegrees?: number, maxDist?: number, step?: number, minBuildHeight?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
  */
 export function fracturedRoamFindSurfaceAhead({
   position,
@@ -189,7 +284,8 @@ export function fracturedRoamFindSurfaceAhead({
   return null;
 }
 
-/** Mirrors RandomStrollGoal.hasSupportNear's downward support search.\n+ * @param {{ position?: { x?: number, y?: number, z?: number }, checkDepth?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
+/** Mirrors RandomStrollGoal.hasSupportNear's downward support search.
+ * @param {{ position?: { x?: number, y?: number, z?: number }, checkDepth?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
  */
 export function fracturedRoamSupportNear({
   position,
@@ -208,7 +304,8 @@ export function fracturedRoamSupportNear({
   return false;
 }
 
-/** Mirrors RandomStrollGoal.hasSupportAhead's eight-block path probe.\n+ * @param {{ current?: { x?: number, y?: number, z?: number }, wanted?: { x?: number, y?: number, z?: number }, lookaheadDist?: number, checkDepth?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
+/** Mirrors RandomStrollGoal.hasSupportAhead's eight-block path probe.
+ * @param {{ current?: { x?: number, y?: number, z?: number }, wanted?: { x?: number, y?: number, z?: number }, lookaheadDist?: number, checkDepth?: number, isAirAt?: (position: { x: number, y: number, z: number }) => boolean }} options
  */
 export function fracturedRoamSupportAhead({
   current,
@@ -244,7 +341,8 @@ function wrapDegrees(degrees) {
   return wrapped === -180 ? 180 : wrapped;
 }
 
-/** Mirrors BaseFracturedEntity.RoamMoveControl.tick's movement decision.\n+ * @param {{ operation?: string, position?: { x?: number, z?: number }, wanted?: { x?: number, z?: number }, yawDegrees?: number, speedModifier?: number, movementSpeed?: number }} options
+/** Mirrors BaseFracturedEntity.RoamMoveControl.tick's movement decision.
+ * @param {{ operation?: string, position?: { x?: number, z?: number }, wanted?: { x?: number, z?: number }, yawDegrees?: number, speedModifier?: number, movementSpeed?: number }} options
  */
 export function fracturedRoamMoveControlStep({
   operation = "WAIT",

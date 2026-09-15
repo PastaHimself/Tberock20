@@ -8,6 +8,8 @@ const bossControllerPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/scripts/en
 const fracturedPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/entities/fractured.json", import.meta.url);
 const rockPath = new URL("../TheBrokenScript_Bedrock_2_0/BP/entities/rock.json", import.meta.url);
 const particlePath = new URL("../TheBrokenScript_Bedrock_2_0/RP/particles/moon_stone_block_burst.particle.json", import.meta.url);
+const adaptationNotesPath = new URL("../TheBrokenScript_Bedrock_2_0/ADAPTATION_NOTES.md", import.meta.url);
+const limitationsPath = new URL("../TheBrokenScript_Bedrock_2_0/KNOWN_LIMITATIONS.md", import.meta.url);
 
 test("Jimmy and Rock are owned by the dedicated runtime families", async () => {
   const fractured = JSON.parse(await readFile(fracturedPath, "utf8"));
@@ -52,6 +54,27 @@ test("runtime exposes one scheduler owner and one collision owner", async () => 
   assert.doesNotMatch(runtime, /\.applyKnockback\s*\([^)]*,[^)]*,[^)]*,[^)]*\)/);
 });
 
+test("runtime wires source rising parity, lifecycle state, and contact fallback", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /FRACTURED_RISING_SOURCE/);
+  assert.match(runtime, /fracturedRisingStep/);
+  assert.match(runtime, /fracturedRisingImpactPlan/);
+  assert.match(runtime, /FRACTURED_RISING_SOURCE\.sourceId/);
+  assert.match(runtime, /fracturedLifecycleStates/);
+  assert.match(runtime, /resolveFracturedContactOrigin/);
+  assert.match(runtime, /fracturedRoamTargetRange/);
+});
+
+test("Jimmy parity documentation records the current Bedrock capability boundary", async () => {
+  const notes = await readFile(adaptationNotesPath, "utf8");
+  const limitations = await readFile(limitationsPath, "utf8");
+  const text = `${notes}\n${limitations}`;
+  assert.match(text, /EntityHurtBeforeEvent/);
+  assert.match(text, /rendered bone|locator/i);
+  assert.match(text, /continuous projectile sweep|swept/i);
+  assert.match(text, /ordinary melee|melee hit/i);
+});
+
 test("Rock block impact is wired to the source-counted custom particle emitter", async () => {
   const runtime = await readFile(runtimePath, "utf8");
   const particle = JSON.parse(await readFile(particlePath, "utf8"));
@@ -77,4 +100,7 @@ test("Fractured audio retains SoundInstance handles and stops arena music on res
   assert.match(runtime, /stopArenaSounds\(arena\)/);
   assert.match(runtime, /ROAM_ARENA_SOURCE\.introSound/);
   assert.match(runtime, /jimmy\.spawn/);
+  assert.match(runtime, /fracturedRoamArenaRosterStep/);
+  assert.match(runtime, /playerNames/);
+  assert.match(runtime, /soundStops/);
 });

@@ -139,12 +139,65 @@ export function multipartAabbs({ position, yawDegrees = 0 } = {}) {
   });
 }
 
-/** Mirrors BaseFracturedEntity's decrement-then-promote switching tick. */
+/** Mirrors BaseFracturedEntity's decrement-before-promote switching tick. */
 export function fracturedRoamSwitchStep(switchTicks = FRACTURED_MULTIPART_SOURCE.roamSwitchTicks) {
   const current = Math.max(0, Math.floor(Number(switchTicks) || 0));
   if (current === 0) return { switchTicks: 0, promote: true };
-  const next = current - 1;
-  return { switchTicks: next, promote: next === 0 };
+  return { switchTicks: current - 1, promote: false };
+}
+
+/** Returns the normalized segment interval that overlaps an AABB. */
+export function segmentIntersectsAabb(from, to, aabb) {
+  if (!from || !to || !aabb) return null;
+  let entry = 0;
+  let exit = 1;
+  for (const axis of ["x", "y", "z"]) {
+    const start = Number(from[axis]);
+    const end = Number(to[axis]);
+    const minimum = Number(aabb.min?.[axis]);
+    const maximum = Number(aabb.max?.[axis]);
+    if (![start, end, minimum, maximum].every(Number.isFinite)) return null;
+    const delta = end - start;
+    if (Math.abs(delta) < 1e-9) {
+      if (start < minimum || start > maximum) return null;
+      continue;
+    }
+    const first = (minimum - start) / delta;
+    const second = (maximum - start) / delta;
+    entry = Math.max(entry, Math.min(first, second));
+    exit = Math.min(exit, Math.max(first, second));
+    if (entry > exit) return null;
+  }
+  return { entry, exit };
+}
+
+/**
+ * Tests a projectile segment against the six source-defined regions. The
+ * result is ordered by first segment entry, then by source part order. A
+ * point impact is represented by equal from/to coordinates.
+ * @param {{ position?: { x: number, y: number, z: number }, yawDegrees?: number, from?: { x: number, y: number, z: number }, to?: { x: number, y: number, z: number } }} options
+ */
+export function multipartProjectileHitPlan({
+  position,
+  yawDegrees = 0,
+  from,
+  to = from,
+} = {}) {
+  let best = null;
+  multipartAabbs({ position, yawDegrees }).forEach((part, index) => {
+    const intersection = segmentIntersectsAabb(from, to, part);
+    if (!intersection) return;
+    if (!best || intersection.entry < best.entry ||
+        (intersection.entry === best.entry && index < best.index)) {
+      best = {
+        hit: true,
+        part,
+        entry: intersection.entry,
+        index,
+      };
+    }
+  });
+  return best ?? { hit: false, part: null, entry: null, index: -1 };
 }
 
 export function pointInsideAabb(point, aabb) {

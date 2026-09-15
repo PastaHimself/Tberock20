@@ -3,14 +3,18 @@ import assert from "node:assert/strict";
 import {
   FRACTURED_ATTACKS,
   FRACTURED_LIFECYCLE_SOURCE,
+  FRACTURED_RISING_SOURCE,
   FRACTURED_SOURCE,
   chooseFracturedAttack,
+  fracturedAttackCandidates,
   fracturedAttackStep,
   fracturedDefeatStep,
   fracturedImpactPlan,
   fracturedRockBlockBurstPlan,
   fracturedRockImpactPlan,
   fracturedRockFlightStep,
+  fracturedRisingImpactPlan,
+  fracturedRisingStep,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/fractured_attack_model.js";
 
 test("Jimmy constants preserve the recovered source timings and damage values", () => {
@@ -69,6 +73,32 @@ test("selector accepts only NOOP after delay and uses source equal weights", () 
   assert.equal(chooseFracturedAttack({ currentAttack: "noop", attackDelay: 0, targetPresent: true, roll: 0.75 }), "moonRockToss");
   assert.equal(chooseFracturedAttack({ currentAttack: "noop", attackDelay: 0, targetPresent: true, roll: 0.750001 }), "airLift");
   assert.equal(chooseFracturedAttack({ currentAttack: "noop", attackDelay: 0, targetPresent: true, roll: 0.999999 }), "airLift");
+});
+
+test("selector exposes the four equal-weight source candidates and permits repeats", () => {
+  assert.deepEqual(fracturedAttackCandidates(), [
+    { attack: "stomp", chance: 1 },
+    { attack: "slam", chance: 1 },
+    { attack: "moonRockToss", chance: 1 },
+    { attack: "airLift", chance: 1 },
+  ]);
+  assert.equal(chooseFracturedAttack({
+    currentAttack: "noop", attackDelay: 0, targetPresent: true, roll: 0,
+  }), "stomp");
+});
+
+test("Jimmy rising uses the post-decrement source window", () => {
+  assert.deepEqual(fracturedRisingStep(104), { tick: 103, active: true });
+  assert.deepEqual(fracturedRisingStep(55), { tick: 54, active: false });
+  assert.deepEqual(fracturedRisingStep(54), { tick: 53, active: false });
+  assert.deepEqual(fracturedRisingImpactPlan(), {
+    sourceId: "thebrokenscript:jimmy_rise",
+    radius: 30,
+    damage: 19,
+    knockback: 30,
+    groundedOnly: true,
+  });
+  assert.equal(FRACTURED_RISING_SOURCE.durationTicks, 149);
 });
 
 test("attack step increments and finishes at the source length", () => {

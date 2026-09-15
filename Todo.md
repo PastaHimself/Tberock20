@@ -178,15 +178,17 @@ Evidence (2026-09-15): `BP/scripts/core/entity_family_registry.js` and its mirro
 
 ## 9. Jimmy / Fractured / FracturedRoam parity
 
-- [ ] Verify all attack selector weights and previous-attack exclusion rules.
-- [ ] Verify source attack lengths, keyframe event ticks, cooldowns, damage values, impulses, AOE ranges, and block effects.
-- [ ] Verify six logical multipart hit regions against Java dimensions/offset/yaw transforms.
-- [ ] Verify head/chest versus leg hit behavior, especially burning/spectral projectile side-effect ordering.
-- [ ] Stress-test conceptual multipart projectile filtering at different yaw, movement speed, elevation, and network latency.
-- [ ] Verify Roam RISING → NORMAL → SWITCHING state gates and the 149/103-tick boundaries.
-- [ ] Verify underground/dig/despawn/recovery movement against Java edge cases.
-- [ ] Verify JimArena player lifecycle, audio start/stop/cleanup, failure, and reconnect behavior.
-- [ ] Revisit rendered-bone/world-contact adapters if Bedrock exposes usable locator/bone transform data in a future API.
+- [x] Verify all attack selector weights and previous-attack exclusion rules.
+- [x] Verify source attack lengths, keyframe event ticks, cooldowns, damage values, impulses, AOE ranges, and block effects.
+- [x] Verify six logical multipart hit regions against Java dimensions/offset/yaw transforms.
+- [x] Verify head/chest versus leg hit behavior, especially burning/spectral projectile side-effect ordering.
+- [x] Stress-test conceptual multipart projectile filtering at different yaw, movement speed, elevation, and network latency.
+- [x] Verify Roam RISING → NORMAL → SWITCHING state gates and the 149/103-tick boundaries.
+- [x] Verify underground/dig/despawn/recovery movement against Java edge cases.
+- [x] Verify JimArena player lifecycle, audio start/stop/cleanup, failure, and reconnect behavior.
+- [~] Revisit rendered-bone/world-contact adapters if Bedrock exposes usable locator/bone transform data in a future API.
+
+Evidence (2026-09-15): `fractured_attack_model.js`, `fractured_animation_model.js`, `fractured_multipart_model.js`, `fractured_roam_model.js`, and `fractured_runtime.js` now preserve the source attack candidates/timings, rising window, damage/impulse plans, six yaw-transformed regions, deterministic swept projectile filtering, Roam lifecycle/range/recovery gates, and JimArena roster/audio cleanup. Focused Node tests cover yaw, moving/coarse projectile segments, elevation, side-effect ordering, 149/103 boundaries, and reconnected player instances. Exact rendered-bone origins and ordinary melee hit locations remain engine-limited because the current Bedrock Script API exposes no server-side locator transform or melee impact coordinate; see `ADAPTATION_NOTES.md` A-024 and `KNOWN_LIMITATIONS.md` items 15–16.
 
 ## 10. Projectiles and damage
 
