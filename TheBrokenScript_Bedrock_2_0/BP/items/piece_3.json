@@ -2,16 +2,16 @@
   "format_version": "1.26.40",
   "minecraft:item": {
     "description": {
-      "identifier": "thebrokenscript:piece_3",
-      "menu_category": {
-        "category": "items"
-      }
+      "identifier": "thebrokenscript:piece_3"
     },
     "components": {
       "minecraft:icon": "piece_3",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.piece_3"
-      }
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:rarity": "uncommon",
+      "minecraft:fire_resistant": true
     }
   }
 }

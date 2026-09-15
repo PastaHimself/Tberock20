@@ -1,5 +1,6 @@
 import {
   CommandPermissionLevel,
+  CustomCommandParamType,
   CustomCommandStatus,
   system
 } from "@minecraft/server";
@@ -12,10 +13,62 @@ import { logger } from "../core/logging.js";
 import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js";
 import * as integrityArenaRuntime from "../entities/boss/integrity_arena_runtime.js";
 
+const DEV_MODE_SPAWN_COUNT = 1000;
+const DEV_MODE_ENTITY_TYPES = Object.freeze({
+  "2018": "thebrokenscript:circuit",
+  "544253": "thebrokenscript:the_broken_end",
+});
+
 // Source-backed production command registration. Java registers `tbs` at permission
 // level 4; Bedrock has no equivalent 0-4 op ladder, so Admin is the closest
 // in-game operator-only permission and excludes command-block automation.
 export function register(customCommandRegistry) {
+  customCommandRegistry.registerCommand(
+    {
+      name: "tbs:devmode",
+      description: "devmode [code]",
+      permissionLevel: CommandPermissionLevel.Admin,
+      cheatsRequired: false,
+      mandatoryParameters: [
+        { name: "code", type: CustomCommandParamType.String },
+      ],
+    },
+    (origin, code) => {
+      const player = origin.sourceEntity;
+      if (!player || player.typeId !== "minecraft:player") {
+        return {
+          status: CustomCommandStatus.Failure,
+          message: "This command must be executed by a player!"
+        };
+      }
+
+      const entityTypeId = DEV_MODE_ENTITY_TYPES[String(code ?? "")];
+      if (!entityTypeId) {
+        return {
+          status: CustomCommandStatus.Failure,
+          message: "Dev mode code is invalid!"
+        };
+      }
+
+      // Spawn work is deferred out of the custom-command callback because the
+      // callback executes in before-event/early-execution context.
+      try {
+        system.run(() => spawnDevModeEntities(player, entityTypeId));
+      } catch (error) {
+        logger.error("commands: devmode scheduling failed", error);
+        return {
+          status: CustomCommandStatus.Failure,
+          message: "Dev mode could not start!"
+        };
+      }
+
+      return {
+        status: CustomCommandStatus.Success,
+        message: "Have fun!"
+      };
+    }
+  );
+
   customCommandRegistry.registerCommand(
     {
       name: "tbs:reputation",
@@ -55,6 +108,23 @@ export function register(customCommandRegistry) {
       return { status: CustomCommandStatus.Success };
     }
   );
+}
+
+function spawnDevModeEntities(player, entityTypeId) {
+  const location = { ...player.location };
+  let spawned = 0;
+  let firstError;
+  for (let index = 0; index < DEV_MODE_SPAWN_COUNT; index += 1) {
+    try {
+      player.dimension.spawnEntity(entityTypeId, location);
+      spawned += 1;
+    } catch (error) {
+      firstError ??= error;
+    }
+  }
+  if (firstError) {
+    logger.error(`commands: devmode spawned ${spawned}/${DEV_MODE_SPAWN_COUNT} ${entityTypeId}`, firstError);
+  }
 }
 
 // Bedrock-only developer/regression hooks. These are not presented as Java

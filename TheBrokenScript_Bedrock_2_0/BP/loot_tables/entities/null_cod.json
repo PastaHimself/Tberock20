@@ -1,5 +1,14 @@
 {
   "pools": [
-    { "rolls": 1, "entries": [ { "type": "item", "name": "minecraft:cod", "weight": 1 } ] }
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "thebrokenscript:null_cod",
+          "weight": 1
+        }
+      ]
+    }
   ]
 }

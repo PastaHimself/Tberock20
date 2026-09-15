@@ -11,6 +11,11 @@ import {
   normalizeDimensionId
 } from "./dimension_ids.js";
 import { ensureDimensionReady } from "./dimension_generation.js";
+import {
+  getDimensionEntryLocation as readDimensionEntryLocation,
+  getDimensionEntryRotation as readDimensionEntryRotation,
+  getDimensionPolicy as readDimensionPolicy,
+} from "./dimension_policies.js";
 
 // Java source inventory port — all discovered dimension resources are registered as
 // Script API custom dimensions, while ALL preserves TBSDimensions.java semantics.
@@ -23,6 +28,10 @@ const handles = new Map();
 const warnedUnregistered = new Set();
 const registeredCustom = new Set();
 let registrationAttempted = false;
+
+// Bedrock's registerCustomDimension currently supplies the void generator
+// boundary; the source Java noise_settings/custom ChunkGenerator remains an
+// explicit approximation documented in docs/P1_DIMENSION_POLICY.json.
 
 /**
  * Register every logical TBS realm in the only valid registration window.
@@ -103,7 +112,11 @@ export function teleportTo(entity, dimId, location) {
   if (!dim) return false;
 
   try {
-    entity.teleport(location ?? { x: 0, y: 201, z: 0 }, { dimension: dim });
+    const normalized = normalizeDimensionId(dimId);
+    entity.teleport(
+      location ?? readDimensionEntryLocation(normalized),
+      teleportOptions(normalized, dim),
+    );
     return true;
   } catch (error) {
     logger.error(`dimensions: teleport to '${normalizeDimensionId(dimId) || dimId}' failed`, error);
@@ -120,7 +133,7 @@ export async function teleportWhenReady(entity, dimId, location) {
   const dim = get(normalized);
   if (!dim) return false;
 
-  let target = location ?? { x: 0, y: 201, z: 0 };
+  let target = location ?? readDimensionEntryLocation(normalized);
   if (isCustomDimensionId(normalized)) {
     const prepared = await ensureDimensionReady({
       world,
@@ -134,7 +147,7 @@ export async function teleportWhenReady(entity, dimId, location) {
   }
 
   try {
-    entity.teleport(target, { dimension: dim });
+    entity.teleport(target, teleportOptions(normalized, dim));
     return true;
   } catch (error) {
     logger.error(`dimensions: ready teleport to '${normalized || dimId}' failed`, error);
@@ -152,4 +165,15 @@ export function canonicalId(id) {
 
 export function displayId(id) {
   return displayDimensionId(id);
+}
+
+export function getPolicy(id) {
+  return readDimensionPolicy(id);
+}
+
+function teleportOptions(normalized, dimension) {
+  const options = { dimension };
+  const rotation = readDimensionEntryRotation(normalized);
+  if (rotation) options.rotation = rotation;
+  return options;
 }
