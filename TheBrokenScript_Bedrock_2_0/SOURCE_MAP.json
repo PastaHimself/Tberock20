@@ -15611,13 +15611,12 @@
       "bedrock_identifier": "script:horror-chat",
       "bedrock_files": [
         "BP/scripts/systems/horror_chat.js",
-        "BP/scripts/shared/horror_chat_model.js",
         "HORROR_CHAT_AUDIT.md",
         "RP/texts/en_US.lang"
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: All 42 source chat-response contracts are represented by the ordered Bedrock registry; aliases, punctuation normalization, delivery scope, delays, and engine-lifecycle adaptations are documented."
+      "notes": "2026-09-15 audit: Current Bedrock keyword responses are reconciled against the chat audit; 42 source response contracts are not overstated as one-to-one parity with every source response registration."
     },
     {
       "source_id": "registry.event_handlers",
@@ -15629,14 +15628,13 @@
       "bedrock_identifier": "script:horror-event-engine",
       "bedrock_files": [
         "BP/scripts/systems/horror_events.js",
-        "BP/scripts/shared/horror_event_model.js",
         "BP/scripts/systems/event_frequency.js",
         "BP/scripts/systems/story_events.js",
         "HORROR_CHAT_AUDIT.md"
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: The 86 registered source event contracts, source frequency curve, inverse-use weighted picker, persistent ledger, lifecycle invalidation, and story thresholds are represented; desktop/client-only hooks remain explicit adaptations."
+      "notes": "2026-09-15 audit: The live source-backed H pool, event frequency gates, and story thresholds are present; source event registration semantics and desktop/client hooks are reconciled as explicit adapters."
     },
     {
       "source_id": "registry.story_events",

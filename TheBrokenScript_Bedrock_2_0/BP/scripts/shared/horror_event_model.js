@@ -194,7 +194,7 @@ export function normalizeEventUseCounts(raw, entriesOrIds = SOURCE_EVENT_IDS, ma
     if (typeof entry === "string") return entry;
     return entry.id;
   });
-  const result = {};
+  const result = /** @type {Record<string, number>} */ ({});
   for (const id of ids) {
     const number = Number(raw?.[id]);
     result[id] = Number.isFinite(number)
