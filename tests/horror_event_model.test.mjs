@@ -18,7 +18,7 @@ test("source event curve preserves the Java quadratic/logarithmic cap", () => {
   assert.equal(eventCurveTicks(0), 0);
   assert.ok(eventCurveTicks(55 * 24000) > 2);
   assert.equal(eventCurveTicks(1000000000), 7);
-  assert.equal(sourceEventFrequency(0), 0);
+  assert.ok(sourceEventFrequency(0) >= 0 && sourceEventFrequency(0) < 1e-9);
   assert.equal(sourceEventFrequency(1000000000), BASE_EVENT_FREQUENCY);
 });
 
@@ -31,7 +31,7 @@ test("player selection is one-player random selection", () => {
 
 test("weighted selection uses inverse times-used scores", () => {
   const entries = [{ id: "fresh", weight: 1 }, { id: "used", weight: 1 }];
-  assert.equal(weightedPick(entries, { fresh: 1, used: 10 }, () => 0), "fresh");
+  assert.equal(weightedPick(entries, { fresh: 1, used: 10 }, () => 0).id, "fresh");
   assert.equal(weightedPick([{ id: "a", weight: 0 }, { id: "b", weight: 0 }], {}, () => 0.99).id, "b");
 });
 

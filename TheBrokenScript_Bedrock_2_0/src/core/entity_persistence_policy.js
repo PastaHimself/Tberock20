@@ -8,6 +8,7 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:portal_links_v1": Object.freeze({ scope: "world", persistence: "persistent", owner: "portal-link" }),
     "tbs:heart_corruption_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
     "tbs:why_leave_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
+    "tbs:isNullProfile": Object.freeze({ scope: "player", persistence: "transient", clear: "player-spawn" }),
     "tbs:jim_stage": Object.freeze({ scope: "block", persistence: "persistent", owner: "jim-trigger" }),
     "tbs:jim_stage_touch": Object.freeze({ scope: "entity", persistence: "transient", clear: "next-tick" }),
     "tbe:alive": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.aliveTicks" }),

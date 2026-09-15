@@ -183,8 +183,17 @@ export function weightedPick(entries, useCounts = {}, random = Math.random) {
   return weighted[weighted.length - 1].entry;
 }
 
+/**
+ * @param {Record<string, unknown>} raw
+ * @param {readonly (string | {id: string})[]} entriesOrIds
+ * @param {number} max
+ * @returns {Record<string, number>}
+ */
 export function normalizeEventUseCounts(raw, entriesOrIds = SOURCE_EVENT_IDS, max = MAX_EVENT_USE_COUNT) {
-  const ids = entriesOrIds.map((entry) => typeof entry === "string" ? entry : entry.id);
+  const ids = entriesOrIds.map((entry) => {
+    if (typeof entry === "string") return entry;
+    return entry.id;
+  });
   const result = {};
   for (const id of ids) {
     const number = Number(raw?.[id]);
@@ -205,7 +214,7 @@ export function pickValidEvent(
   entries,
   useCounts = {},
   random = Math.random,
-  isValid = () => true,
+  isValid = (_entry) => true,
   maxAttempts = Math.max(1, entries?.length ?? 1),
 ) {
   const normalized = normalizeEventUseCounts(useCounts, entries ?? []);

@@ -36,7 +36,7 @@ test("Bedrock dev hooks are separate from player-facing horror chat", async () =
   assert.match(commands, /Bedrock-only developer\/regression hooks/);
   assert.match(commands, /system\.afterEvents\.scriptEventReceive\.subscribe/);
   assert.doesNotMatch(commands, /chatSend|CHAT_RESPONSES/);
-  assert.match(chat, /world\.beforeEvents\.chatSend\.subscribe/);
+  assert.match(chat, /world\.beforeEvents\.chatSend/);\n  assert.match(chat, /events\.subscribeGuarded/);
   assert.doesNotMatch(chat, /scriptEventReceive|tbs:/);
   assert.match(main, /horrorChat\.begin\(\)/);
   assert.doesNotMatch(commands, /name: "tbs:(fire|arena|shaft|dim|adv|effect)"/);
