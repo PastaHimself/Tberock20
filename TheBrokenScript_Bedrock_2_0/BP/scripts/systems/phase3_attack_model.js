@@ -116,6 +116,78 @@ export const FIREBALL_BEDROCK_ADAPTER = Object.freeze({
   maxLifetimeTicks: 200,
 });
 
+function segmentAabbContact(from, to, aabb, radius) {
+  if (!from || !to || !aabb?.min || !aabb?.max) return null;
+  const minimum = {
+    x: aabb.min.x - radius,
+    y: aabb.min.y - radius,
+    z: aabb.min.z - radius,
+  };
+  const maximum = {
+    x: aabb.max.x + radius,
+    y: aabb.max.y + radius,
+    z: aabb.max.z + radius,
+  };
+  let entry = 0;
+  let exit = 1;
+  for (const axis of ["x", "y", "z"]) {
+    const delta = to[axis] - from[axis];
+    if (delta === 0) {
+      if (from[axis] < minimum[axis] || from[axis] > maximum[axis]) return null;
+      continue;
+    }
+    let near = (minimum[axis] - from[axis]) / delta;
+    let far = (maximum[axis] - from[axis]) / delta;
+    if (near > far) [near, far] = [far, near];
+    entry = Math.max(entry, near);
+    exit = Math.min(exit, far);
+    if (entry > exit) return null;
+  }
+  return entry >= 0 && entry <= 1 ? entry : null;
+}
+
+/**
+ * @param {{
+ *   from?: { x: number, y: number, z: number };
+ *   to?: { x: number, y: number, z: number };
+ *   targets?: Array<{ id: string, aabb: { min: object, max: object } }>;
+ *   ownerId?: string | null;
+ *   radius?: number;
+ * }} [options]
+ */
+export function fireballSegmentHitPlan({
+  from,
+  to,
+  targets = [],
+  ownerId = null,
+  radius = FIREBALL_BEDROCK_ADAPTER.collisionRadius,
+} = {}) {
+  if (!Array.isArray(targets) || !Number.isFinite(radius) || radius < 0) return null;
+  return targets
+    .filter((target) => typeof target?.id === "string" && target.id !== ownerId)
+    .map((target) => ({ id: target.id, t: segmentAabbContact(from, to, target.aabb, radius) }))
+    .filter((hit) => hit.t !== null)
+    .sort((left, right) => left.t - right.t || left.id.localeCompare(right.id))[0] ?? null;
+}
+
+/**
+ * @param {{
+ *   mainhandItemId?: string | null;
+ *   fallDistance?: number;
+ *   fallFlying?: boolean;
+ * }} [options]
+ */
+export function maceAttackIsEligible({
+  mainhandItemId,
+  fallDistance = 0,
+  fallFlying = false,
+} = {}) {
+  return mainhandItemId === "minecraft:mace"
+    && Number.isFinite(fallDistance)
+    && fallDistance >= 1.5
+    && fallFlying !== true;
+}
+
 export const TENTACLE_SWIPE_SOURCE = Object.freeze({
   attackCooldownTicks: 100,
   chance: 0.15,

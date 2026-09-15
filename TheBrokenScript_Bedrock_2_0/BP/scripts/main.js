@@ -26,6 +26,7 @@ import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
 import * as stalkController from "./entities/stalk/stalk_controller.js";
 import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
 import * as bossController from "./entities/boss/boss_controller.js";
+import * as integrityArenaRuntime from "./entities/boss/integrity_arena_runtime.js";
 import * as phase3Runtime from "./entities/boss/phase3_runtime.js";
 import * as chordProjectileRuntime from "./entities/boss/chord_projectile_runtime.js";
 import * as fracturedRuntime from "./entities/boss/fractured_runtime.js";
@@ -75,6 +76,7 @@ function onWorldLoad() {
     stalkController.begin(scheduler);
     bossSpawnRules.register();
     bossController.begin(scheduler);
+    integrityArenaRuntime.begin(scheduler);
     phase3Runtime.begin(scheduler);
     chordProjectileRuntime.begin(scheduler);
     fracturedRuntime.begin(scheduler);
