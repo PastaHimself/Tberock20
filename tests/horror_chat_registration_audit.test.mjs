@@ -1,64 +1,42 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×½N‹Z–‹­¦ëeŠw¬Õ¥µÁ½ÉĞÑ•ÍĞ™É½´€‰¹½‘”éÑ•ÍĞˆì)¥µÁ½ÉĞ…ÍÍ•ÉĞ™É½´€‰¹½‘”é…ÍÍ•ÉĞ½ÍÑÉ¥Ğˆì)¥µÁ½ÉĞìÉ•…‘¥±•Må¹Œô™É½´€‰¹½‘”é™Ìˆì)¥µÁ½ÉĞì(€!Q}IMA=9M}%9%Q%=9L°(€M=UI}Y9Q}%9%Q%=9L°(€±•…¹¡…Ñ5•ÍÍ…”°(€™¥¹‘¡…ÑI•ÍÁ½¹Í”°(€¥Í¡…ÑI•ÍÁ½¹Í•±¥¥‰±”°)ô™É½´€ˆ¸¸½Q¡•	É½­•¹MÉ¥ÁÑ}	•‘É½­|É|À½	@½ÍÉ¥ÁÑÌ½ÍåÍÑ•µÌ½¡½ÉÉ½É}ÉÕ±•Ì¹©Ìˆì()½¹ÍĞÉ•…€ô€¡Á…Ñ ¤€ôøÉ•…‘¥±•Må¹Œ¡¹•ÜUI0¡€¸¸¼‘íÁ…Ñ¡õ€°¥µÁ½ÉĞ¹µ•Ñ„¹ÕÉ°¤°€‰ÕÑ˜àˆ¤ì()™Õ¹Ñ¥½¸©…Ù…I•¥ÍÑÉå%‘Ì¡Í½ÕÉ”°­¥¹¤ì(€½¹ÍĞ¥‘Ì€ômtì(€½¹ÍĞ‘¥É•Ğ€ô¹•ÜI•áÀ¡Q	MI•qp¹%9MQ9qp¸‘í­¥¹‘õqp¡qqpˆ¡myqqp‰t¬¥qqp‰€¤ì(€½¹ÍĞ‘•™…Õ±ÑÌ€ô¹•ÜI•áÀ¡	É½­•¹I•qp¸‘í­¥¹‘õqp‘‘•™…Õ±Ñqp¡myqq¹t¨ıqp¡MÑÉ¥¹qp¥qqpˆ¡myqqp‰t¬¥qqp‰€¤ì(€™½È€¡½¹ÍĞ±¥¹”½˜Í½ÕÉ”¹ÍÁ±¥Ğ ‰q¸ˆ¤¤ì(€€€½¹ÍĞµ…Ñ €ô±¥¹”¹µ…Ñ ¡‘¥É•Ğ¤€üü±¥¹”¹µ…Ñ ¡‘•™…Õ±ÑÌ¤ì(€€€¥˜€¡µ…Ñ ¤¥‘Ì¹ÁÕÍ ¡µ…Ñ¡lÅt¤ì(€ô(€É•ÑÕÉ¸¥‘Ìì)ô()Ñ•ÍĞ ‰¡…ĞµÉ•ÍÁ½¹Í”É•¥ÍÑÉ…Ñ¥½¸½É‘•È…¹‰•¡…Ù¥½È…É”Í½ÕÉ”µ‰…­•ˆ°€ ¤€ôøì(€½¹ÍĞ©…Ù„€ôÉ•… ‰‘•½µÁ¥±•½¹•Ğ½Ñ¡•‰É½­•¹ÍÉ¥ÁĞ½É•¥ÍÑÉä½Q	M¡…ÑI•ÍÁ½¹Í•Ì¹©…Ù„ˆ¤ì(€½¹ÍĞÍ½ÕÉ•%‘Ì€ô©…Ù…I•¥ÍÑÉå%‘Ì¡©…Ù„°€‰¡…ÑI•ÍÁ½¹Í”ˆ¤ì(€½¹ÍĞ‰•‘É½­%‘Ì€ô!Q}IMA=9M}%9%Q%=9L¹µ…À ¡‘•™¥¹¥Ñ¥½¸¤€ôø‘•™¥¹¥Ñ¥½¸¹¥¤ì((€…ÍÍ•ÉĞ¹•ÅÕ…°¡Í½ÕÉ•%‘Ì¹±•¹Ñ °€ĞÈ°€‰Q	M¡…ÑI•ÍÁ½¹Í•ÌÕÉÉ•¹Ñ±äÉ•¥ÍÑ•ÉÌ€ĞÈÉ•ÍÁ½¹Í•Ìˆ¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡¹•ÜM•Ğ¡Í½ÕÉ•%‘Ì¤¹Í¥é”°€ĞÈ°€‰Í½ÕÉ”É•ÍÁ½¹Í”É•¥ÍÑÉä¥‘ÌµÕÍĞ‰”Õ¹¥ÅÕ”ˆ¤ì(€…ÍÍ•ÉĞ¹‘••ÁÅÕ…°¡‰•‘É½­%‘Ì°Í½ÕÉ•%‘Ì°€‰	•‘É½¬É•ÍÁ½¹Í”‘•™¥¹¥Ñ¥½¹ÌÁÉ•Í•ÉÙ”)…Ù„É•¥ÍÑÉ…Ñ¥½¸½É‘•Èˆ¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡¹•ÜM•Ğ¡‰•‘É½­%‘Ì¤¹Í¥é”°€ĞÈ°€‰	•‘É½¬É•ÍÁ½¹Í”¥‘ÌµÕÍĞ‰”Õ¹¥ÅÕ”ˆ¤ì)ô¤ï½¶‰Ëkºwµç\Ş\İ[\ËÚÜœ›Ü—ØÚ]šœÈŠNÂˆÛÛœİXZ[ˆH™XY
+•Pœ›ÚÙ[”ØÜš\Ğ™Y›ØÚ×Ì—ÌĞ”ÜØÜš\ËÛXZ[‹šœÈŠNÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+[\[Y[][Û‹Ù]™[˜Ø[˜Ù[ÊKËH˜]˜H[™\ˆX]™\ÈHÜšYÚ[˜[Ú]š\ÚX›HŠNÂˆ\ÜÙ\›X]Ú
+[\[Y[][Û‹Ùš[™Ú]™\ÜÛœÙW
+]™[›Y\ÜØYÙW
+KÊNÂˆ\ÜÙ\›X]Ú
+[\[Y[][Û‹Ù^Ü[˜İ[ÛˆÛX\”^Y\‹ÊNÂˆ\ÜÙ\›X]Ú
+XZ[‹İÛÜ›˜Y\‘]™[×œ^Y\‘[Y[œÚ[ÛÚ[™ÙKÊNÂˆ\ÜÙ\›X]Ú
+XZ[‹ÚÜœ›Ü‘]™[×˜ÛX\”^Y\—
+]—œ^Y\—
+KÊNÂˆ\ÜÙ\›X]Ú
+XZ[‹ÚÜœ›ÜÚ]˜ÛX\”^Y\—
+]—œ^Y\—
+KÊNÂˆ\ÜÙ\›X]Ú
+XZ[‹ÚÜœ›Ü‘]™[×˜ÛX\”^Y\—
+]—™XY[]W
+KÊNÂˆ\ÜÙ\›X]Ú
+XZ[‹ÚÜœ›ÜÚ]˜ÛX\”^Y\—
+]—™XY[]W
+KÊNÂŸJNÂ‚\İ
+˜[Ûİ\˜ÙHÜœ›Üˆ]™[È]™H[™\œÈ[™Ûİ\˜ÙHÙ[Xİ[Ûˆ[\È‹
 
-const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const BEDROCK_CHAT_IMPLEMENTATION = "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js";
+HOˆÂˆÛÛœİ˜]˜HH™XY
+™XÛÛ\[YÛ™]İXœ›ÚÙ[œØÜš\Ü™YÚ\İKÕ”Ñ]™[Ëš˜]˜HŠNÂˆÛÛœİÛİ\˜ÙRYÈH˜]˜T™YÚ\İRYÊ˜]˜K™]™[ŠNÂˆÛÛœİ™Y›ØÚÒYÈHÓÕTÑWÑU‘S•ÑQ’S’USÓ”Ë›X\
 
-function javaRegistryIds(source, kind) {
-  const ids = [];
-  const direct = new RegExp(`TBSReg\\.INSTANCE\\.${kind}\\(\\"([^\"]+)\\"`, "g");
-  const defaults = new RegExp(`BrokenReg\\.${kind}\\$default\\([^\\n]*?\\(String\\)\\"([^\"]+)\\"`, "g");
-  for (const match of source.matchAll(direct)) ids.push(match[1]);
-  for (const match of source.matchAll(defaults)) ids.push(match[1]);
-  return ids.sort();
-}
+Yš[š][ÛŠHOˆYš[š][Û‹šY
+NÂˆÛÛœİ[\[Y[][ÛˆH™XY
+•Pœ›ÚÙ[”ØÜš\Ğ™Y›ØÚ×Ì—ÌĞ”ÜØÜš\ËÜŞ\İ[\ËÚÜœ›Ü—Ù]™[ËšœÈŠNÂ‚ˆ\ÜÙ\™\]X[
+Ûİ\˜ÙRYË›[™İ‹•”Ñ]™[Èİ\œ™[H™YÚ\İ\œÈˆ˜[YYÛİ\˜ÙH]™[ÈŠNÂˆ\ÜÙ\™\]X[
+™]ÈÙ]
+Ûİ\˜ÙRYÊKœÚ^™K‹œÛİ\˜ÙH]™[™YÚ\İHYÈ]\İ™H[š\]YHŠNÂˆ\ÜÙ\™Y\\]X[
+Ë‹‹˜™Y›ØÚÒY×KœÛÜ
 
-function bedrockChatKeys(source) {
-  const body = source.match(/const CHAT_RESPONSES = \{([\s\S]*?)\n\};/)?.[1] ?? "";
-  return [...body.matchAll(/^\s{2}([a-z0-9_]+):/gm)].map((m) => m[1]).sort();
-}
+KË‹‹œÛİ\˜ÙRY×KœÛÜ
 
-function bedrockEventIds(source) {
-  const body = source.match(/const TABLE = \[([\s\S]*?)\n\];/)?.[1] ?? "";
-  return [...body.matchAll(/\[\"([^\"]+)\",/g)].map((m) => m[1]).sort();
-}
-
-test("chat-response registry counts are source registrations, not Bedrock rule parity", () => {
-  const java = read("decompiled/net/thebrokenscript/registry/TBSChatResponses.java");
-  const bedrock = read(BEDROCK_CHAT_IMPLEMENTATION);
-  const sourceIds = javaRegistryIds(java, "chatResponse");
-  const bedrockIds = bedrockChatKeys(bedrock);
-
-  assert.equal(sourceIds.length, 42, "TBSChatResponses currently registers 42 responses");
-  assert.equal(new Set(sourceIds).size, 42, "source response registry ids must be unique");
-  assert.equal(bedrockIds.length, 13, "Bedrock currently has 13 generic chat-response keys");
-
-  // These are registry/rule identifiers. They are deliberately not asserted equal:
-  // each Java ChatResponse owns its own trigger list, gates and delay semantics.
-  assert.ok(sourceIds.includes("hello"));
-  assert.ok(sourceIds.includes("fever_hello"));
-  assert.ok(!bedrockIds.includes("fever_hello"));
-});
-
-test("Bedrock chat normalization remains exact case-insensitive trimmed full-key lookup", () => {
-  const bedrock = read(BEDROCK_CHAT_IMPLEMENTATION);
-  assert.match(bedrock, /ev\.message\.toLowerCase\(\)\.trim\(\)/);
-  assert.match(bedrock, /CHAT_RESPONSES\[msg\]/);
-  assert.doesNotMatch(bedrock, /includes\(msg\)|startsWith\(msg\)/);
-});
-
-test("horror-event source and Bedrock registration counts are audited independently", () => {
-  const java = read("decompiled/net/thebrokenscript/registry/TBSEvents.java");
-  const bedrock = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_events.js");
-  const sourceIds = javaRegistryIds(java, "event");
-  const bedrockIds = bedrockEventIds(bedrock);
-
-  assert.equal(sourceIds.length, 86, "TBSEvents currently registers 86 named source events");
-  assert.equal(new Set(sourceIds).size, 86, "source event registry ids must be unique");
-  assert.equal(bedrockIds.length, 79, "Bedrock ambient TABLE currently contains 79 entries");
-  assert.equal(new Set(bedrockIds).size, 79, "Bedrock ambient event ids must be unique");
-
-  // Count differences alone do not establish missing mechanics: some source events
-  // are engine/UI adapters or are driven by other Bedrock systems rather than TABLE.
-});
+K™Y›ØÚÈÛİ\˜ÙH[\ÈÛİ™\ˆ]™\H˜]˜H]™[YŠNÂˆ›Üˆ
+ÛÛœİYÙˆ™Y›ØÚÒYÊH\ÜÙ\›X]Ú
+[\[Y[][Û‹™]È™YÑ^
+‰ÚYWÊ—
+
+KZ\ÜÚ[™È[™\ˆ›Üˆ	ÚYX
+NÂŸJNÂ

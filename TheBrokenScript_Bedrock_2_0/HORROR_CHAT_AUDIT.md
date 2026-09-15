@@ -1,40 +1,1 @@
-# Horror events and chat responses audit
-
-This audit is intentionally registration-focused. Repository-backed Java/decompiled code is the behavioral oracle; registration counts are not treated as feature-parity counts.
-
-## Chat-response count discrepancy
-
-`decompiled/net/thebrokenscript/registry/TBSChatResponses.java` registers **42** chat-response objects, not 45. The registered ids are:
-
-`can_you_see_me`, `circuit`, `clan_build`, `entity_303`, `follow`, `friend`, `fuck_you`, `hello`, `herobrine`, `how_can_i_help_you`, `integrity`, `niw`, `null`, `ram2die`, `revuxor`, `steve`, `the_broken_end`, `void`, `what_do_you_want`, `who_are_you`, `i_am_scared`, `blackout`, `cal`, `catfish`, `overlord`, `whyer`, `dyexd`, `null_structure_positive`, `null_structure_negative`, `sorry`, `lucid`, `clanbase_curved`, `hello_structure`, `fever_hello`, `fever_where`, `fever_what`, `fever_who`, `fever_insult`, `fever_want`, `fever_sky`, `fever_homes`, `freebird`.
-
-`BP/scripts/systems/horror_chat.js` currently has **13** generic Bedrock response keys:
-
-`null`, `herobrine`, `the_broken_end`, `integrity`, `circuit`, `hello`, `friend`, `who_are_you`, `what_do_you_want`, `i_am_scared`, `void`, `steve`, `sorry`.
-
-These numbers are not comparable units. A Java registration points to a `ChatResponse` class that owns its own trigger aliases, `isFullMessage`, case sensitivity, delay and `shouldExecute` gates. For example, `HelloResponse` alone has 40 full-message aliases, is case-insensitive, uses a 100-tick delay, requires the source `isNullHere` state, excludes Limbo, and excludes a nearby `watching` null structure. The Bedrock table instead performs one exact lookup after `toLowerCase().trim()` and currently does not reproduce those per-response gates/delays. Therefore the prior â€œ45 source responses vs 14 implementedâ€ wording must not be interpreted as a feature deficit, and adding aliases without their source conditions would be incorrect.
-
-The focused regression test `tests/horror_chat_registration_audit.test.mjs` pins the actual 42/13 registry/rule counts and current exact Bedrock normalization so future audits cannot silently regress to the stale 45/14 comparison.
-
-## Horror-event registration
-
-`decompiled/net/thebrokenscript/registry/TBSEvents.java` registers **86** named source events. `BP/scripts/systems/horror_events.js` currently places **79** unique ids in its ambient `TABLE`. The Bedrock ambient scheduler runs every 200 ticks, returns immediately with no players or while `tbs:arenaActive` is true, makes two distinct-id attempts per tick, checks the table gate (`null`, `nullHere`, `moon`, or always), and then applies the selected handler to every online player.
-
-The Bedrock gate mapping is:
-
-- `null`: `isNullHere || hasNullSpawned`
-- `nullHere`: `isNullHere`
-- `moon`: `hasMoonCorrupted`
-- `null` JavaScript value: always eligible
-
-Manual `fire(id)` bypasses those scheduler gates and executes the named Bedrock handler for every online player. This distinction is intentional in the audit: manual command exposure is not evidence that the ambient Java registration conditions are matched.
-
-As with chat, **86 vs 79 is not by itself evidence of seven missing features**. Some Java events are UI/desktop adapters or are driven elsewhere in the Bedrock port. No runtime mechanic, probability, cooldown, delay, player-selection rule, cleanup path, alias, or dimension gate is changed by this audit unless the corresponding Java implementation establishes it.
-
-## Bedrock API validation
-
-The pack is pinned to `@minecraft/server` `2.11.0-beta`. Bedrock Wiki's indexed Microsoft Creator API definitions confirm `ChatSendBeforeEvent.message`, `sender`, and cancellable `cancel`, and `Player.sendMessage`. Microsoft Learn's event guidance shows `world.beforeEvents.chatSend.subscribe(...)`; `System.runTimeout` is available for tick-delayed work. The current chat handler uses `system.run(...)` to defer the response out of the before-event callback, which is compatible with the documented before-event write restrictions.
-
-## Scope decision
-
-No Java response was promoted to a Bedrock runtime alias in this change because the inspected source demonstrates that aliases are coupled to class-specific execution conditions and delays. The evidence-backed fix is the count/normalization regression guard plus this audit record; runtime parity work must port each response/event from its concrete Java class rather than infer behavior from registration counts.
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×}8N‹Z–‹­¦ëeŠw¬ÔŒ!½ÉÉ½È•Ù•¹ÑÌ…¹¡…ĞÉ•ÍÁ½¹Í•Ì…Õ‘¥Ğ()Q¡”‘•½µÁ¥±•)…Ù„±…ÍÍ•Ì…É”Ñ¡”‰•¡…Ù¥½É…°½É…±”¸I•¥ÍÑÉ…Ñ¥½¸½Õ¹ÑÌ…É”¡•­•¥¹‘•Á•¹‘•¹Ñ±ä™É½´ÉÕ¹Ñ¥µ”…‘…ÁÑ•ÉÌ°…¹•Ù•ÉäÍ½ÕÉ”É•¥ÍÑÉ…Ñ¥½¸¹½Ü¡…Ì…¸½É‘•É•	•‘É½¬ÉÕ±”½¡…¹‘±•È•¹ÑÉä¸((ŒŒI•¥ÍÑÉ…Ñ¥½¸É•½¹¥±¥…Ñ¥½¸()Q	M¡…ÑI•ÍÁ½¹Í•Ì¹©…Ù…€É•¥ÍÑ•ÉÌ€¨¨ĞÈ¨¨É•ÍÁ½¹Í”½‰©•ÑÌ¸¡½ÉÉ½É}ÉÕ±•Ì¹©Í€½¹Ñ…¥¹ÌÑ¡”Í…µ”€ĞÈ¥‘Ì¥¸Ñ¡”Í…µ”½É‘•È°¥¹±Õ‘¥¹œ…±°™•Ù•È°ÍÑÉÕÑÕÉ”°™Õ¹¹ä°…¹µ¥Í•±±…¹•½ÕÌÉ•ÍÁ½¹Í•Ì¸Q¡”ÁÉ•Ù¥½ÕÌƒŠpĞÔÍ½ÕÉ”É•ÍÁ½¹Í•ÌÙÌ€ÄĞ¥µÁ±•µ•¹Ñ•É•ÍÁ½¹Í•ÏŠtİ½É‘¥¹œ½µÁ…É•‘¥™™•É•¹ĞÍ¹…ÁÍ¡½ÑÌ…¹‘¥™™•É•¹ĞÕ¹¥ÑÌìÑ¡”™½ÕÍ•…Õ‘¥Ğ¹½Ü½µÁ…É•ÌÑ¡”Í½ÕÉ”É•¥ÍÑÉäİ¥Ñ Ñ¡”…ÑÕ…°É•ÍÁ½¹Í”‘•™¥¹¥Ñ¥½¹Ì¸()Q	MÙ•¹ÑÌ¹©…Ù…€É•¥ÍÑ•ÉÌ€¨¨àØ¨¨¹…µ••Ù•¹ÑÌ¸¡½ÉÉ½É}ÉÕ±•Ì¹©Í€½¹Ñ…¥¹Ì…±°€àØÍ½ÕÉ”¥‘Ì…¹¡½ÉÉ½É}•Ù•¹ÑÌ¹©Í€ÁÉ½Ù¥‘•Ì„½¹É•Ñ”¡…¹‘±•È™½È•… ½¹”°¥¹±Õ‘¥¹œÑ¡”Í•Ù•¸ÁÉ•Ù¥½ÕÍ±ä…‰Í•¹Ğ…‘…ÁÑ•ÉÌè¹½½Á€°¹Õ±±}‰½½­€°¹Õ±±}¥¹Ñ•É™…•}ÑÉ¥•É€°½‰™ÕÍ…Ñ•‘}Í¥¹€°Ñ•áÑ€°Ñ¥Ñ±•}•Ù•¹Ñ€°…¹…‰•ÉÉ…Ñ¥½¹€¸((ŒŒÙ•¹ĞÍ•±•Ñ¥½¸…¹…Ñ•Ì()Q¡”…µ‰¥•¹Ğ•Ù•¹Ğ•¹¥¹”¹½Ü™½±±½İÌÑ¡”Í½ÕÉ”Í•±•Ñ¥½¸Í¡…Á”è½¹”Á•ÈÍ•ÉÙ•ÈÑ¥¬°½¹”Õ¹¥™½Éµ±äÍ•±•Ñ•½¹±¥¹”Á±…å•È°Ñ¡”Í½ÕÉ”™É•ÅÕ•¹ä€È¸äÄØØØØÙ”´Ñ€°Í½ÕÉ”•Ù•¹Ğµ±…ÍÌ½Á±…å•È…Ñ•Ì°…¹½¹”İ•¥¡Ñ•Í•±•Ñ¥½¸¸Ù•¹Ğİ•¥¡ÑÌ…É”Á•ÉÍ¥ÍÑ•¹Ğ…¹ÕÍ”Ñ¡”Í½ÕÉ”•™™•Ñ¥Ù”İ•¥¡Ğİ•¥¡Ğ€¼µ…à Ä°Í•±•Ñ¥½¹½Õ¹Ğ¥€¸µ½½¹}Á¡…Í•€¡…Ìİ•¥¡Ğ€Ô°¥Í½±…Ñ¥½¹€¡…Ìİ•¥¡Ğ€À°…¹…±°½Ñ¡•ÈÉ•¥ÍÑ•É••Ù•¹ÑÌ¡…Ù”İ•¥¡Ğ€Ä¸Q¡”Í•±•Ñ••Ù•¹Ğ¥Ì•á•ÕÑ•½¹±ä™½ÈÑ¡”Í•±•Ñ•ƒ}8¶‰ËkºwµçL]XÚÈY˜][[^K™\›Ë]XÚÈ^Ù\[ÛœËÙ[™\‹[Û›H™]™\ˆ[]™\Kœ›ØYØ\İ[]™\K[™HÜšYÚ[˜[Ú]Y\ÜØYÙH™[XZ[œÈš\ÚX›K‚‚•H™\ÜÛœÙHØ]\È[˜ÛYH[™\Ù[˜ÙK[X›È^Û\Ú[Û‹[X›È™]™\ˆ™Z]š[Ü‹™X\˜HØ]Ú[™ÈİXİ\™\ËY\›X]İXİ\™\Ë[™İXİ\™K\˜Y]\ÈÚXÚÜËˆ™\]][Ûˆ[\˜Xİ[ÛœÈ™XÛÜ™HÛİ\˜ÙHY\ˆÛÈÛÜœXØ[ˆ™\İÜ™H[ˆÙˆH\İÜÜÈY\‹ˆ[^YYÚ]Y™™XİÈ\™HÙ\ÜÚ[Û‹K^Y\‹K[™[Y[œÚ[Û‹\ØY™H[™\™HÛX\™YÛˆX]\ØÛÛ›™Xİ[Y[œÚ[ÛˆÚ[™ÙK[™™[ØY‚‚ˆÈÈ™Y›ØÚÈTH˜[Y][Û‚‚•HXÚÈ\È[›™YÈZ[™XÜ˜YÜÙ\™\˜‹ŒLKŒX™]XˆZXÜ›ÜÛÙX\›ˆØİ[Y[ÈH™Y›Ü™KY]™[Ú]Ù[™™Y›Ü™Q]™[Ù[™\‹ÛY\ÜØYÙHšY[ËŞ\İ[Kœ[•[Y[İ]XÚÈØÚY[[™Ë^Y\ˆ˜[Y]KÛÜ›Y\‘]™[Ëœ^Y\‘[Y[œÚ[ÛÚ[™ÙX[™^Y\“X]™PY\‘]™[ˆH[\[Y[][ÛˆX]™\ÈHÚ]]™[[˜Ø[˜Ù[Y[™Y™\œÈÛÜ›]]][ÛœÈÈØÚY[YØ[˜XÚÜËˆ™Y›ØÚÈÚZÚIÜÈ[™^YZXÜ›ÜÛÙÜ™X]ÜˆTHYš[š][ÛœÈÙ\™H\ÙY\ÈHÜ›ÜÜËXÚXÚÈ›ÜˆHØ[YH]™[[™^Y\ˆY™XŞXÛHÛÛ˜XİË‚‚ˆÈÈÛ›İÛˆ[Z]][ÛœÂ‚‘\ÚİÜİÚ[™İÈ]KÚY\‹ØÜ™Y[œÚİ[™˜]˜H[İXİ\™P›ØÚÑ[]XY\›X]Ù˜]H™Z]š[Üˆ]™H›ÈÛ™K]Ë[Û™H™Y›ØÚÈTKˆ^H\ÙH^XÚ]]Kİ]KX\šÙ\‹X›ØÚË[™[]KÜ\XÛHY\\œÎÈH]Y]Ù\È›İÛZ[HÛY[[[Ù\š]H›ÜˆÜÙHY™™XİËˆH™Y›ØÚÈÛÜ›Ü[[YHÛ[ÚÙH\İ™[XZ[œÈ\[™[ÛˆZ[™XÜ˜Y^Xİ][Ûˆ[™\ÈÛİ™\™YHH™\ÜÚ]ÜIÜÈXÚØYÙKÜİ]XÈÒHÚXÚÜË‚

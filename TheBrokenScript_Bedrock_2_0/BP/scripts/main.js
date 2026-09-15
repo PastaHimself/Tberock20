@@ -1,115 +1,4 @@
-import { world, system } from "@minecraft/server";
-import { logger } from "./core/logging.js";
-import { guard } from "./core/errors.js";
-import * as scheduler from "./core/scheduler.js";
-import * as events from "./core/events.js";
-import * as state from "./core/state.js";
-import { config } from "./core/config.js";
-import * as storyTime from "./shared/story_time.js";
-import * as worldState from "./systems/world_state.js";
-import * as playerState from "./systems/player_state.js";
-import * as configDefaults from "./systems/config_defaults.js";
-import * as storyEvents from "./systems/story_events.js";
-import * as spawnDirector from "./systems/spawn_director.js";
-import * as entityRefs from "./core/entity_refs.js";
-import * as circuitController from "./entities/circuit/circuit_controller.js";
-import * as circuitSpawnRules from "./entities/circuit/circuit_spawn_rules.js";
-import * as nullController from "./entities/null/null_controller.js";
-import * as nullSpawnRules from "./entities/null/null_spawn_rules.js";
-import * as nullPursuitController from "./entities/null/null_pursuit_controller.js";
-import * as tbeController from "./entities/tbe/tbe_controller.js";
-import * as tbeSpawnRules from "./entities/tbe/tbe_spawn_rules.js";
-import * as humanoidController from "./entities/humanoid/humanoid_controller.js";
-import * as humanoidSpawnRules from "./entities/humanoid/humanoid_spawn_rules.js";
-import * as miscController from "./entities/misc/misc_controller.js";
-import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
-import * as stalkController from "./entities/stalk/stalk_controller.js";
-import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
-import * as bossController from "./entities/boss/boss_controller.js";
-import * as integrityArenaRuntime from "./entities/boss/integrity_arena_runtime.js";
-import * as phase3Runtime from "./entities/boss/phase3_runtime.js";
-import * as chordProjectileRuntime from "./entities/boss/chord_projectile_runtime.js";
-import * as fracturedRuntime from "./entities/boss/fractured_runtime.js";
-import * as bossSpawnRules from "./entities/boss/boss_spawn_rules.js";
-import { init as initCustomBlocks } from "./systems/custom_blocks.js";
-import * as horrorEvents from "./systems/horror_events.js";
-import * as horrorChat from "./systems/horror_chat.js";
-import * as progression from "./systems/progression.js";
-import * as commands from "./systems/commands.js";
-import * as dimensions from "./systems/dimensions.js";
-import * as portedFeatures from "./systems/ported_features.js";
-
-/** @param {import("@minecraft/server").StartupEvent} event */
-function onStartup(event) {
-    const dimensionsReady = dimensions.registerCustomDimensions(event.dimensionRegistry);
-    initCustomBlocks(event.blockComponentRegistry);
-    portedFeatures.init(event.itemComponentRegistry);
-    commands.register(event.customCommandRegistry);
-    if (!dimensionsReady) {
-        logger.error("startup: one or more custom dimensions failed registration");
-    }
-    logger.info("startup: early-execution hook registered (script modules active)");
-}
-
-function onWorldLoad() {
-    state.init();
-    worldState.init();
-    scheduler.begin();
-    scheduler.every("tbs.worldLifecycle", 1, () => {
-        worldState.tickFirstJoin(world.getAllPlayers().length);
-    });
-    storyEvents.registerAll();
-    storyTime.begin(scheduler);
-    spawnDirector.begin(scheduler);
-    circuitSpawnRules.register();
-    circuitController.begin(scheduler);
-    nullSpawnRules.register();
-    nullController.begin(scheduler);
-    nullPursuitController.begin(scheduler);
-    tbeSpawnRules.register();
-    tbeController.begin(scheduler);
-    humanoidSpawnRules.register();
-    humanoidController.begin(scheduler);
-    miscSpawnRules.register();
-    miscController.begin(scheduler);
-    stalkSpawnRules.register();
-    stalkController.begin(scheduler);
-    bossSpawnRules.register();
-    bossController.begin(scheduler);
-    integrityArenaRuntime.begin(scheduler);
-    phase3Runtime.begin(scheduler);
-    chordProjectileRuntime.begin(scheduler);
-    fracturedRuntime.begin(scheduler);
-    horrorEvents.begin(scheduler);
-    horrorChat.begin();
-    progression.begin(scheduler);
-    commands.begin();
-    portedFeatures.begin(scheduler);
-    events.subscribeGuarded(
-        world.afterEvents.playerJoin,
-        "core.playerJoin",
-        "lifecycle",
-        (ev) => {
-            worldState.resetOnPlayerJoin();
-            logger.debug(`playerJoin ${ev.playerName}`);
-        }
-    );
-    events.subscribeGuarded(
-        world.afterEvents.playerLeave,
-        "core.playerLeave",
-        "lifecycle",
-        (ev) => {
-            logger.debug(`playerLeave ${ev.playerName} (${ev.playerId})`);
-            entityRefs.invalidateEntity(ev.playerId);
-        }
-    );
-    events.subscribeGuarded(
-        world.afterEvents.playerSpawn,
-        "core.playerSpawn",
-        "lifecycle",
-        (ev) => {
-            playerState.init(ev.player);
-            playerState.resetLifecycleState(ev.player, ev.initialSpawn);
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éíÛ}õN‹Z–‹­¦ëeŠw¬Õ¥µÁ½ÉÐìÝ½É±°ÍåÍÑ•´ô™É½´€‰µ¥¹•É…™Ð½Í•ÉÙ•Èˆì)¥µÁ½ÉÐì±½•Èô™É½´€ˆ¸½½É”½±½¥¹œ¹©Ìˆì)¥µÁ½ÉÐìÕ…Éô™É½´€ˆ¸½½É”½•ÉÉ½ÉÌ¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÍ¡•‘Õ±•È™É½´€ˆ¸½½É”½Í¡•‘Õ±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì•Ù•¹ÑÌ™É½´€ˆ¸½½É”½•Ù•¹ÑÌ¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÍÑ…Ñ”™É½´€ˆ¸½½É”½ÍÑ…Ñ”¹©Ìˆì)¥µÁ½ÉÐì½¹™¥œô™É½´€ˆ¸½½É”½½¹™¥œ¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÍÑ½ÉåQ¥µ”™É½´€ˆ¸½Í¡…É•½ÍÑ½Éå}Ñ¥µ”¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÝ½É±‘MÑ…Ñ”™É½´€ˆ¸½ÍåÍÑ•µÌ½Ý½É±‘}ÍÑ…Ñ”¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÁ±…å•ÉMÑ…Ñ”™É½´€ˆ¸½ÍåÍÑ•µÌ½Á±…å•É}ÍÑ…Ñ”¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì½¹™¥•™…Õ±ÑÌ™É½´€ˆ¸½ÍåÍÑ•µÌ½½¹™¥}‘•™…Õ±ÑÌ¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÍÑ½ÉåÙ•¹ÑÌ™É½´€ˆ¸½ÍåÍÑ•µÌ½ÍÑ½Éå}•Ù•¹ÑÌ¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÍÁ…Ý¹¥É•Ñ½È™É½´€ˆ¸½ÍåÍÑ•µÌ½ÍÁ…Ý¹}‘¥É•Ñ½È¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì•¹Ñ¥ÑåI•™Ì™É½´€ˆ¸½½É”½•¹Ñ¥Ñå}É•™Ì¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¥ÉÕ¥Ñ½¹ÑÉ½±±•È™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¥ÉÕ¥Ð½¥ÉÕ¥Ñ}½¹ÑÉ½±±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¥ÉÕ¥ÑMÁ…Ý¹IÕ±•Ì™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¥ÉÕ¥Ð½¥ÉÕ¥Ñ}ÍÁ…Ý¹}ÉÕ±•Ì¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¹Õ±±½¹ÑÉ½±±•È™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¹Õ±°½¹Õ±±}½¹ÑÉ½±±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¹Õ±±MÁ…Ý¹IÕ±•Ì™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¹Õ±°½¹Õ±±}ÍÁ…Ý¹}ÉÕ±•Ì¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¹Õ±±AÕÉÍÕ¥Ñ½¹ÑÉ½±±•È™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¹Õ±°½¹Õ±±}ÁÕÉÍÕ¥Ñ}½¹ÑÉ½±±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÑ‰•½¹ÑÉ½±±•È™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½Ñ‰”½Ñ‰•}½¹ÑÉ½±±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÑ‰•MÁ…Ý¹IÕ±•Ì™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½Ñ‰”½Ñ‰•}ÍÁ…Ý¹}ÉÕ±•Ì¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¡Õµ…¹½¥‘½¹ÑÉ½±±•È™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¡Õµ…¹½¥½¡Õµ…¹½¥‘}½¹ÑÉ½±±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…Ì¡Õµ…¹½¥‘MÁ…Ý¹IÕ±•Ì™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½¡Õµ…¹½¥½¡Õµ…¹½¥‘}ÍÁ…Ý¹}ÉÕ±•Ì¹©Ìˆì)¥µÁ½ÉÐ€¨…Ìµ¥Í½¹ÑÉ½±±•È™É½´€ˆ¸½•¹Ñ¥Ñ¥•Ì½µ¥ÍŒ½µ¥Í}½¹ÑÉ½±±•È¹©Ìˆì)¥µÁ½ÉÐ€¨…Ìµ¥ÍMÁ…Ý¹IÕ±—]÷ÖÚ$z{-®éÜj×tate(ev.player, ev.initialSpawn);
             portedFeatures.clearTransientPlayerState(ev.player, ev.initialSpawn);
             if (ev.initialSpawn) {
                 worldState.resetOnPlayerJoin(ev.player);
@@ -130,6 +19,8 @@ function onWorldLoad() {
         (ev) => {
             entityRefs.invalidateEntity(ev.deadEntity.id);
             if (ev.deadEntity.typeId !== "minecraft:player") return;
+            horrorEvents.clearPlayer(ev.deadEntity);
+            horrorChat.clearPlayer(ev.deadEntity);
             logger.debug(`player death: ${ev.deadEntity.name} source=${ev.damageSource?.cause ?? "unknown"}`);
         }
     );

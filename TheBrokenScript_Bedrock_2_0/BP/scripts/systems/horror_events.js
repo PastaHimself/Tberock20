@@ -1,287 +1,41 @@
-import { world, system, ItemStack } from "@minecraft/server";
-import * as worldState from "./world_state.js";
-import * as dimensions from "./dimensions.js";
-import * as progression from "./progression.js";
-import { logger } from "../core/logging.js";
-import { applyWhyCantYouLeave } from "./ported_features.js";
-import { spawnSourceParticle } from "./particle_runtime.js";
-
-// â”€â”€ Chunk 12: Events & horror choreography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// 95 event classes in source (81 TBSEvents + 14 others). OS-level events
-// (jframe/window titles, BSOD, fake crash) approximate to titles per A-004.
-// Events fire from a weighted ambient pool every 200 ticks, gated on story
-// flags (isNullHere / hasMoonCorrupted / hasNullSpawned).
-
-const SOUNDS = {
-  heartbeat: "thebrokenscript:heartbeat",
-  whisper: "thebrokenscript:null_is_here_loop",
-  psst: "thebrokenscript:psst",
-  glitch: "thebrokenscript:glitch_sound_1",
-  reel: "thebrokenscript:reel",
-  circuit_deceive: "thebrokenscript:circuit_deceive",
-  kills_player: "thebrokenscript:kills_player"
-};
-
-function reportAdapterFailure(operation, err) {
-  logger.warnOnce(
-    `horror-events:adapter:${operation}`,
-    `horror event adapter '${operation}' failed; the side effect was skipped`,
-    err
-  );
-}
-
-function reportHandlerFailure(id, err) {
-  logger.errorOnce(
-    `horror-events:handler:${id}`,
-    `horror event handler '${id}' failed for at least one player`,
-    err
-  );
-}
-
-function playNear(player, id, vol = 3, pitch = 1) {
-  try { player.playSound(id, { volume: vol, pitch }); } catch (err) { reportAdapterFailure(`sound:${id}`, err); }
-}
-function title(player, text, stay = 30, sub) {
-  try { player.onScreenDisplay.setTitle(text, { fadeInDuration: 0, stayDuration: stay, fadeOutDuration: 10, subtitle: sub }); } catch (err) { reportAdapterFailure("title", err); }
-}
-function actionBar(player, text) {
-  try { player.onScreenDisplay.setActionBar(text); } catch (err) { reportAdapterFailure("action-bar", err); }
-}
-
-// â”€â”€ handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const H = {
-  // ambient audio
-  heartbeat(p) { playNear(p, SOUNDS.heartbeat, 6, 0.9 + Math.random() * 0.2); },
-  play_sound(p) { playNear(p, Math.random() < 0.5 ? "ambient.cave" : SOUNDS.glitch, 5, Math.random()); },
-  random_song(p) {
-    const songs = ["thebrokenscript:instability", "thebrokenscript:instabilityv2", "thebrokenscript:instabilityv3"];
-    try { p.dimension.playSound(songs[Math.floor(Math.random() * songs.length)], p.location, { volume: 1 }); } catch (err) { reportAdapterFailure("dimension-sound", err); }
-  },
-  psst_event(p) { playNear(p, SOUNDS.whisper, 8, 1.4); },
-  null_whisper(p) { title(p, "Â§7...", 20); playNear(p, SOUNDS.whisper, 10, 1); },
-  breathe(p) { playNear(p, SOUNDS.reel, 4, 0.35); },
-  cave(p) { playNear(p, "ambient.cave", 8, Math.random()); },
-
-  // visual overlays
-  opengl_error(p) { title(p, "Â§4OpenGL Error 1282: GL_INVALID_OPERATION", 60); },
-  nulled_gui(p) { title(p, "Â§kâ–ˆâ–ˆâ–ˆ Â§rGUI nulled Â§kâ–ˆâ–ˆâ–ˆ", 40); },
-  screen_dupe(p) { actionBar(p, "Â§7[screen duplicated]"); },
-  fake_disconnect(p) { title(p, "Â§cDisconnected", 50, "Â§7End of stream"); },
-  close_menu(p) { title(p, " ", 5); },
-  keep_playing(p) { title(p, "Â§fkeep playing.", 40); },
-  why_cant_you_leave(p) { applyWhyCantYouLeave(p, 1000); },
-  rejoin(p) { title(p, "Â§frejoined the game", 30); },
-  isolation(p) { title(p, "Â§8you are alone.", 60); },
-  collinlock(p) { title(p, "Â§7collinlock_ joined", 30); },
-  jframe_1(p) { title(p, "Â§7[The Broken Script]", 40); },
-  jframe_2(p) { title(p, "Â§7[Error] â€” cannot close window", 40); },
-  jframe_3(p) { title(p, "Â§7[hello?]", 40); },
-  jframe_4(p) { title(p, "Â§7[I see you]", 40); },
-  jframe_5(p) { title(p, "Â§7[behind you]", 40); },
-  wrong_overlay(p) { title(p, "Â§kâ–“â–“â–“", 15); },
-  bsod(p) { title(p, "Â§f:(", 80, "Â§7A problem has been detected."); },
-  sky_blue(p) { try { p.dimension.runCommand("weather clear 100"); } catch (err) { reportAdapterFailure("weather", err); } },
-  gamma(p) { try { p.runCommand("effect @s night_vision 100 255 true"); } catch (err) { reportAdapterFailure("night-vision", err); } },
-
-  // null-flavored
-  null_title(p) { title(p, "Â§knullÂ§r", 30); },
-  null_particle(p) {
-    spawnSourceParticle(p, "null_particle");
-    playNear(p, SOUNDS.glitch, 3, 1);
-  },
-  null_scare(p) {
-    title(p, "Â§kâ–ˆâ–ˆ null â–ˆâ–ˆ", 25);
-    playNear(p, SOUNDS.kills_player, 6, 0.75);
-  },
-  null_is_near(p) { title(p, "Â§7he is close.", 40); playNear(p, SOUNDS.heartbeat, 8, 0.8); },
-  stare_at_player(p) { title(p, "Â§8...", 30); },
-  behind_you(p) { playNear(p, SOUNDS.psst, 10, 0.8); },
-  run(p) { title(p, "Â§fRUN", 20); playNear(p, SOUNDS.kills_player, 5, 1.2); },
-
-  // damage-ish
-  damage(p) { try { p.applyDamage(2); } catch (err) { reportAdapterFailure("damage", err); } },
-  look_and_damage(p) { try { p.applyDamage(1); } catch (err) { reportAdapterFailure("look-and-damage", err); } actionBar(p, "Â§cdon't look"); },
-  set_on_fire(p) { try { p.runCommand("execute as @s run particle minecraft:flame_particle ^ ^1 ^"); } catch (err) { reportAdapterFailure("fire-particle", err); } try { p.setOnFire(3, true); } catch (err) { reportAdapterFailure("set-on-fire", err); } },
-  /** @param {import("@minecraft/server").Player} p */
-  push(p) {
-    const v = p.getVelocity();
-    const horizontalSpeed = Math.hypot(v.x, v.z);
-    const horizontalForce = horizontalSpeed > 0
-      ? { x: (v.x / horizontalSpeed) * 2, z: (v.z / horizontalSpeed) * 2 }
-      : { x: 0, z: 0 };
-    try { p.applyKnockback(horizontalForce, 0.4); } catch (err) { reportAdapterFailure("knockback", err); }
-  },
-  stick(p) { try { p.applyDamage(1); } catch (err) { reportAdapterFailure("stick-damage", err); } actionBar(p, "Â§7you feel stuck."); },
-  explode_base(p) {
-    try { p.dimension.createExplosion(p.location, 2, { breaksBlocks: false }); } catch (err) { reportAdapterFailure("explosion", err); }
-  },
-  lava_cast(p) {
-    try { p.dimension.getBlock({ x: Math.floor(p.location.x), y: Math.floor(p.location.y) - 1, z: Math.floor(p.location.z) })?.setType("minecraft:magma"); } catch (err) { reportAdapterFailure("lava-cast", err); }
-  },
-  hungry(p) { try { p.addEffect("hunger", 200, { amplifier: 1, showParticles: false }); } catch (err) { reportAdapterFailure("hunger", err); } },
-  paranoia(p) { title(p, "Â§7someone is watching.", 45); playNear(p, SOUNDS.heartbeat, 5, 1); },
-  madness_1(p) { title(p, "Â§kâ–“ Â§rtext_madness Â§kâ–“", 30); playNear(p, SOUNDS.glitch, 4, 0.6); },
-  eyes(p) {
-    spawnSourceParticle(p, "eyes");
-    title(p, "Â§4â—‰ â€¸ â—‰", 20);
-  },
-
-  // time/sky
-  set_time(p) { try { p.dimension.runCommand("time set midnight"); } catch (err) { reportAdapterFailure("set-time", err); } },
-  set_random_time_of_day(p) {
-    const times = ["day", "noon", "midnight", "night"];
-    try { p.dimension.runCommand(`time set ${times[Math.floor(Math.random() * times.length)]}`); } catch (err) { reportAdapterFailure("random-time", err); }
-  },
-  set_do_daylight_cycle(p) {
-    const v = Math.random() < 0.5 ? "true" : "false";
-    try { p.dimension.runCommand(`gamerule dodaylightcycle ${v}`); } catch (err) { reportAdapterFailure("daylight-cycle", err); }
-  },
-  moon_phase(p) { worldState.update("moonShouldChange", () => true); },
-  moon_glitch(p) { setFakeMoonTexture(); title(p, "Â§kthe moon flickers", 30); },
-  reset_rotation(p) {
-    try { p.teleport(p.location, { rotation: { x: 0, y: 0 } }); } catch (err) { reportAdapterFailure("reset-rotation", err); }
-  },
-
-  // placement pranks
-  place_bedrock(p) { placeAt(p, "minecraft:bedrock"); },
-  place_cave_air(p) { placeAt(p, "minecraft:cave_air"); },
-  place_empty(p) { placeAt(p, "thebrokenscript:empty"); },
-  place_hello(p) { placeAt(p, "thebrokenscript:hello"); },
-  place_netherrack(p) { placeAt(p, "minecraft:netherrack"); },
-  place_redstone_torch(p) { placeAt(p, "minecraft:redstone_torch"); },
-  place_water(p) { placeAt(p, "minecraft:water"); },
-  place_flowing_water(p) { placeAt(p, "minecraft:flowing_water"); },
-  place_lava(p) { placeAt(p, "minecraft:lava"); },
-  place_all_dead(p) { placeAt(p, "thebrokenscript:all_dead"); },
-  place_oak_sign(p) { placeAt(p, "minecraft:oak_sign"); },
-  doors(p) { playNear(p, "door.open", 6, 0.8); },
-  door(p) { playNear(p, "door.close", 6, 0.8); },
-
-  // entities
-  false_villager(p) { try { p.dimension.spawnEntity("minecraft:villager_v2", offsetFrom(p, 12)); } catch (err) { reportAdapterFailure("false-villager", err); } },
-  strike_lightning(p) { try { p.dimension.spawnEntity("minecraft:lightning_bolt", offsetFrom(p, 16)); } catch (err) { reportAdapterFailure("lightning", err); } },
-  shadow_bug(p) { try { p.dimension.spawnParticle("minecraft:basic_smoke_particle", offsetFrom(p, 5)); } catch (err) { reportAdapterFailure("shadow-particle", err); } },
-  hallucination(p) { title(p, "Â§7did you see that?", 30); },
-  entity_discard(p) { actionBar(p, "Â§7something vanished."); },
-  null_invade_base(p) {
-    try { p.dimension.spawnEntity("thebrokenscript:null_invade_base", offsetFrom(p, 24)); } catch (err) { reportAdapterFailure("null-invade", err); }
-  },
-  tbe_curious(p) { try { p.dimension.spawnEntity("thebrokenscript:the_broken_end_curious", offsetFrom(p, 40)); } catch (err) { reportAdapterFailure("tbe-curious", err); } },
-
-  // progression / items
-  give_disc_11(p) { giveItem(p, "minecraft:music_disc_cat", 1); title(p, "Â§7disc obtained.", 25); },
-  giift(p) { giveItem(p, "thebrokenscript:torn_paper", 1); title(p, "Â§7a gift?", 25); },
-  experience(p) { try { p.addExperience(Math.floor(Math.random() * 30) + 5); } catch (err) { reportAdapterFailure("experience", err); } },
-  inventory_corruption(p) { worldState.update("inventoryCorruption", (n) => Math.min(5, n + 1)); actionBar(p, "Â§8inventory corrupts..."); },
-  nullnullnull_advancement(p) { progression.award(p.id, "nullnullnull"); title(p, "Â§8advancement made: Â§knullnullnull", 40); },
-  null_getting_achievement(p) { progression.award(p.id, "can_someone_hear_me"); title(p, "Â§7achievement get! Â§k???", 30); },
-  can_someone_hear_me(p) { progression.award(p.id, "can_someone_hear_me"); title(p, "Â§7can someone hear me?", 40); },
-  coord(p) { actionBar(p, `Â§7X:${Math.floor(p.location.x)} Y:${Math.floor(p.location.y)} Z:${Math.floor(p.location.z)}`); },
-  txt(p) { actionBar(p, "err.file"); }
-};
-
-function setFakeMoonTexture() {
-  worldState.set("moonTextureIndex", Math.floor(Math.random() * 4));
-}
-function placeAt(p, blockId) {
-  try {
-    const b = p.dimension.getBlock({
-      x: Math.floor(p.location.x) + Math.floor(Math.random() * 5 - 2),
-      y: Math.floor(p.location.y) - 1,
-      z: Math.floor(p.location.z) + Math.floor(Math.random() * 5 - 2)
-    });
-    if (b && (b.typeId === "minecraft:air" || b.isAir)) b.setType(blockId);
-  } catch (err) { reportAdapterFailure("placement", err); }
-}
-function offsetFrom(p, dist) {
-  return {
-    x: p.location.x + (Math.random() * 2 - 1) * dist,
-    y: p.location.y,
-    z: p.location.z + (Math.random() * 2 - 1) * dist
-  };
-}
-function giveItem(p, itemId, amount) {
-  try {
-    const inv = p.getComponent("minecraft:inventory")?.container;
-    if (inv) inv.addItem(new ItemStack(itemId, amount));
-  } catch (err) { reportAdapterFailure("inventory", err); }
-}
-
-// event table: [id, gate] â€” gates: null (always after first join day), nullHere, moon
-const TABLE = [
-  ["heartbeat", null], ["play_sound", null], ["random_song", null], ["psst_event", null],
-  ["breathe", null], ["cave", null], ["doors", null], ["door", null], ["coord", null], ["txt", null],
-  ["opengl_error", "null"], ["nulled_gui", "null"], ["screen_dupe", "null"], ["fake_disconnect", "null"],
-  ["close_menu", "null"], ["keep_playing", "null"], ["why_cant_you_leave", "null"], ["rejoin", "null"],
-  ["isolation", "null"], ["collinlock", "null"], ["jframe_1", "null"], ["jframe_2", "null"],
-  ["jframe_3", "null"], ["jframe_4", "null"], ["jframe_5", "null"], ["wrong_overlay", "null"],
-  ["bsod", "moon"], ["sky_blue", null], ["gamma", "moon"], ["reset_rotation", null],
-  ["null_title", "null"], ["null_particle", "null"], ["null_scare", "null"], ["null_is_near", "null"],
-  ["stare_at_player", "null"], ["behind_you", "null"], ["run", "null"], ["null_whisper", "null"],
-  ["damage", "null"], ["look_and_damage", "null"], ["set_on_fire", "moon"], ["push", "null"],
-  ["stick", "null"], ["explode_base", "moon"], ["lava_cast", "moon"], ["hungry", null],
-  ["paranoia", "null"], ["madness_1", "null"], ["eyes", "null"],
-  ["set_time", "null"], ["set_random_time_of_day", "null"], ["set_do_daylight_cycle", "null"],
-  ["moon_phase", "moon"], ["moon_glitch", "moon"],
-  ["place_bedrock", "null"], ["place_cave_air", "null"], ["place_empty", "null"], ["place_hello", "null"],
-  ["place_netherrack", "moon"], ["place_redstone_torch", null], ["place_water", null], ["place_flowing_water", null],
-  ["place_lava", "moon"], ["place_all_dead", "null"], ["place_oak_sign", "null"],
-  ["false_villager", null], ["strike_lightning", "moon"], ["shadow_bug", null], ["hallucination", "null"],
-  ["entity_discard", "null"], ["null_invade_base", "nullHere"], ["tbe_curious", "nullHere"],
-  ["give_disc_11", "null"], ["giift", "null"], ["experience", null], ["inventory_corruption", "moon"],
-  ["nullnullnull_advancement", "nullHere"], ["null_getting_achievement", "null"], ["can_someone_hear_me", "null"]
-];
-
-export function begin(scheduler) {
-  scheduler.every("tbs.horror_events", 200, tick);
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éíïN¹N‹Z–‹­¦ëeŠw¬Õ¥µÁ½ÉÐì…µ•5½‘”°%Ñ•µMÑ…¬°ÍåÍÑ•´°Ý½É±ô™É½´€‰µ¥¹•É…™Ð½Í•ÉÙ•Èˆì)¥µÁ½ÉÐ€¨…ÌÍÑ…Ñ”™É½´€ˆ¸¸½½É”½ÍÑ…Ñ”¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÝ½É±‘MÑ…Ñ”™É½´€ˆ¸½Ý½É±‘}ÍÑ…Ñ”¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÁ±…å•ÉMÑ…Ñ”™É½´€ˆ¸½Á±…å•É}ÍÑ…Ñ”¹©Ìˆì)¥µÁ½ÉÐ€¨…ÌÁÉ½É•ÍÍ¥½¸™É½´€ˆ¸½ÁÉ½É•ÍÍ¥½¸¹©Ìˆì)¥µÁ½ÉÐì±½•Èô™É½´€ˆ¸¸½½É”½±½¥¹œ¹©Ìˆì)¥µÁ½ÉÐì…ÁÁ±å]¡å…¹Ñe½Õ1•…Ù”ô™É½´€ˆ¸½Á½ÉÑ•‘}™•…ÑÕÉ•Ì¹©Ìˆì)¥µÁ½ÉÐìÍÁ…Ý¹M½ÕÉ•A…ÉÑ¥±”ô™É½´€ˆ¸½Á…ÉÑ¥±•}ÉÕ¹Ñ¥µ”¹©Ìˆì)¥µÁ½ÉÐì(€Y9Q}IEU9d°(€M=UI}Y9Q}%9%Q%=9L°(€¥ÍÙ•¹Ñ±¥¥‰±”°(€Í•±•Ñ]•¥¡Ñ•‘Ù•¹Ð°)ô™É½´€ˆ¸½¡½ÉÉ½É}ÉÕ±•Ì¹©Ìˆì((¼¼M½ÕÉ”Ù•¹Ñ¹¥¹”Í•µ…¹Ñ¥Ìè(¼¼€€€¨½¹”Í•ÉÙ•ÈÑ¥¬…ÑÑ•µÁÐì(¼¼€€€¨½¹”Õ¹¥™½Éµ±äÍ•±•Ñ•Á±…å•Èì(¼¼€€€¨„€È¸äÄØØØØÙ”´Ð•Ù•¹Ðµ™É•ÅÕ•¹äÉ½±°ì(¼¼€€€¨½¹”Ù…±¥•Ù•¹ÐÍ•±•Ñ•Ý¥Ñ Ñ¡”Á•ÉÍ¥ÍÑ•¹Ð¥¹Ù•ÉÍ”µ™É•ÅÕ•¹äÑÉ…­•È¸(¼¼	•‘É½¬µ½¹±äU$•™™•ÑÌÉ•µ…¥¸…‘…ÁÑ•ÉÌ°‰ÕÐÑ¡•¥ÈÍ½ÕÉ”…Ñ•Ì…¹‘•±…å•(¼¼…±±‰…­Ì±¥Ù”¡•É”Í¼Ñ¡•ä…¹¹½Ð½ÕÑ±¥Ù”„Á±…å•È°‘¥µ•¹Í¥½¸°½ÈÉ•±½…¸()½¹ÍÐM=U9L€ôì(€¡•…ÉÑ‰•…Ðè€‰Ñ¡•‰É½­•¹ÍÉ¥ÁÐé¡•…ÉÑ‰•…Ðˆ°(€Ý¡¥ÍÁ•Èè€‰Ñ¡•‰É½­•¹ÍÉ¥ÁÐé¹Õ±±}¥Í}¡•É•}±½½Àˆ°(€ÁÍÍÐè€‰Ñ¡•‰É½­•¹ÍÉ¥ÁÐéÁÍÍÐˆ°(€±¥Ñ è€‰Ñ¡•‰É½­•¹ÍÉ¥ÁÐé±¥Ñ¡}Í½Õ¹‘|Äˆ°(€É••°è€‰Ñ¡•‰É½­•¹ÍÉ¥ÁÐéÉ••°ˆ°(€­¥±±Í}Á±…å•Èè€‰Ñ¡•‰É½­•¹ÍÉ¥ÁÐé­¥±±Í}Á±…å•Èˆ°)ôì()½¹ÍÐY9Q}]%!Q}-d€ô€‰¡½ÉÉ½É}•Ù•¹Ñ}Ý•¥¡ÑÌˆì)½¹ÍÐMMM%=9}AI=AIQd€ô€‰¡½ÉÉ½É}•Ù•¹ÑÍ}Í•ÍÍ¥½¸ˆì)½¹ÍÐÁ•¹‘¥¹	åA±…å•È€ô¹•Ü5…À ¤ì)±•ÐÍ•ÍÍ¥½¹Q½­•¸€ô€Àì()™Õ¹Ñ¥½¸É•Á½ÉÑ‘…ÁÑ•É…¥±ÕÉ”¡½Á•É…Ñ¥½¸°•ÉÈ¤ì(€±½•È¹Ý…É¹=¹” (€€€¡½ÉÉ½Èµ•Ù•¹ÑÌé…‘…ÁÑ•Èè‘í½Á•É…Ñ¥½¹õ€°(€€€¡½ÉÉ½È•Ù•¹Ð…‘…ÁÑ•È€Ÿ­:æÚ$z{-®éÜj×  try { return world.getDynamicProperty("tbs:arenaActive") === true; } catch (err) { reportAdapterFailure("arena-state", err); return false; }
 }
 
 function tick() {
   const players = world.getAllPlayers();
-  if (players.length === 0) return;
-  if (bossArenaActive()) return;
+  if (players.length === 0 || bossArenaActive()) return;
 
-  const fired = new Set();
-  let attempts = 2;
-  while (attempts-- > 0) {
-    const [id, gate] = TABLE[Math.floor(Math.random() * TABLE.length)];
-    if (fired.has(id)) continue;
-    fired.add(id);
-    if (!eligible(gate)) continue;
-    const fn = H[id];
-    if (!fn) continue;
-    for (const p of players) {
-      try { fn(p); } catch (err) { reportHandlerFailure(id, err); }
-    }
-  }
+  const target = players[Math.floor(Math.random() * players.length)];
+  if (!target) return;
+  const context = eventContext(target, players);
+  if (!context.enabled || Math.random() >= EVENT_FREQUENCY) return;
+
+  const eligible = SOURCE_EVENT_DEFINITIONS.filter((definition) =>
+    H[definition.id] && isEventEligible(definition, context),
+  );
+  const selected = selectWeightedEvent(eligible, readEventWeights());
+  if (!selected) return;
+
+  const weights = readEventWeights();
+  recordEventWeight(selected.id, weights);
+  try { H[selected.id](target); } catch (err) { reportHandlerFailure(selected.id, err); }
 }
 
-function bossArenaActive() {
-  try {
-    // avoid horror spam during integrity fight
-    return world.getDynamicProperty?.("tbs:arenaActive") === true;
-  } catch (err) {
-    reportAdapterFailure("arena-state", err);
-    return false;
-  }
+export function begin(scheduler) {
+  beginSession();
+  scheduler.every("tbs.horror_events", 1, tick);
 }
 
-function eligible(gate) {
-  if (gate === null) return true;
-  if (gate === "null") return worldState.get("isNullHere") || worldState.get("hasNullSpawned");
-  if (gate === "nullHere") return worldState.get("isNullHere");
-  if (gate === "moon") return worldState.get("hasMoonCorrupted");
-  return true;
-}
-
-// expose manual fire for other systems (Chunk 13 commands)
+// Developer command adapter: force the named event for every current player,
+// matching the old command behavior and intentionally bypassing ambient gates.
 export function fire(id) {
   const fn = H[id];
   if (!fn) return false;
-  for (const p of world.getAllPlayers()) {
-    try { fn(p); } catch (err) { reportHandlerFailure(id, err); }
+  for (const player of world.getAllPlayers()) {
+    try { fn(player); } catch (err) { reportHandlerFailure(id, err); }
   }
   return true;
 }
 
-export const EVENT_COUNT = TABLE.length;
+export const EVENT_IDS = SOURCE_EVENT_DEFINITIONS.map((definition) => definition.id);
+export const EVENT_COUNT = SOURCE_EVENT_DEFINITIONS.length;
