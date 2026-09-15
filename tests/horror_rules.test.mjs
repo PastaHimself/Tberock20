@@ -1,1 +1,81 @@
-YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×NıN‹Z–‹­¦ëeŠw¬Õ¥µÁ½ÉĞÑ•ÍĞ™É½´€‰¹½‘”éÑ•ÍĞˆì)¥µÁ½ÉĞ…ÍÍ•ÉĞ™É½´€‰¹½‘”é…ÍÍ•ÉĞ½ÍÑÉ¥Ğˆì()¥µÁ½ÉĞì(€!Q}IMA=9M}%9%Q%=9L°(€Y9Q}IEU9d°(€M=UI}Y9Q}%9%Q%=9L°(€™¥¹‘¡…ÑI•ÍÁ½¹Í”°(€¥Í¡…ÑI•ÍÁ½¹Í•±¥¥‰±”°(€¥ÍÙ•¹Ñ±¥¥‰±”°(€Í•±•Ñ]•¥¡Ñ•‘Ù•¹Ğ°)ô™É½´€ˆ¸¸½Q¡•	É½­•¹MÉ¥ÁÑ}	•‘É½­|É|À½	@½ÍÉ¥ÁÑÌ½ÍåÍÑ•µÌ½¡½ÉÉ½É}ÉÕ±•Ì¹©Ìˆì()Ñ•ÍĞ ‰Í½ÕÉ”¡…ĞÉ•¥ÍÑÉäÁÉ•Í•ÉÙ•Ì…±¥…Í•Ì°¹½Éµ…±¥é…Ñ¥½¸°…¹™¥ÉÍĞµµ…Ñ ½É‘•Èˆ°€ ¤€ôøì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡!Q}IMA=9M}%9%Q%=9L¹±•¹Ñ °€ĞÈ¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡™¥¹‘¡…ÑI•ÍÁ½¹Í” ˆ€¡±1¼„„„€ˆ¤ü¹¥°€‰¡•±±¼ˆ¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡™¥¹‘¡…ÑI•ÍÁ½¹Í” ‰¡•±±¼Ñ¡•É”ˆ¤°Õ¹‘•™¥¹•¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡™¥¹‘¡…ÑI•ÍÁ½¹Í” ‰Í½ÉÉä°Á±•…Í”ˆ¤ü¹¥°€‰Í½ÉÉäˆ¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡™¥¹‘¡…ÑI•ÍÁ½¹Í” ‰9U10ˆ¤°Õ¹‘•™¥¹•¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡™¥¹‘¡…ÑI•ÍÁ½¹Í” ‰¹Õ±°„ˆ¤ü¹¥°€‰¹Õ±°ˆ¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡™¥¹‘¡…ÑI•ÍÁ½¹Í” ‰Q¡¥Ì¥Í¸Ğ„™É•”‰¥ÉÍ¥ÑÕ…Ñ¥½¸°¥Ì¥Ğüˆ¤ü¹¥°€‰™É••‰¥Éˆ¤ì)ô¤ì()Ñ•ÍĞ ‰¡…Ğ…Ñ•Ì‘¥ÍÑ¥¹Õ¥Í 1¥µ‰¼…¹9Õ±°µİ½É±ÍÑÉÕÑÕÉ”½¹‘¥Ñ¥½¹Ìˆ°€ ¤€ôøì(€½¹ÍĞ¡•±±¼€ô!Q}IMA=9M}%9%Q%=9L¹™¥¹ ¡É•ÍÁ½¹Í”¤€ôøÉ•ÍÁ½¹Í”¹¥€ôôô€‰¡•±±¼ˆ¤ì(€½¹ÍĞ™•Ù•É!•±±¼€ô!Q}IMA=9M}%9%Q%=9L¹™¥¹ ¡É•ÍÁ½¹Í”¤€ôøÉ•ÍÁ½¹Í”¹¥€ôôô€‰™•Ù•É}¡•±±¼ˆ¤ì(€½¹ÍĞ¡•±±½MÑÉÕÑÕÉ”€ô!Q}IMA=9M}%9%Q%=9L¹™¥¹ ¡É•ÍÁ½¹Í”¤€ôøÉ•ÍÁ½¹Í”¹¥€ôôô€‰¡•±±½}ÍÑÉÕÑÕÉ”ˆ¤ì((€…ÍÍ•ÉĞ¹•ÅÕ…°¡¥Í¡…ÑI•ÍÁ½¹Í•±¥¥‰±”¡¡•±±¼°ì(€€€¥Í9Õ±±!•É”èÑÉÕ”°(€€€‘¥µ•¹Í¥½¹%è€‰½Ù•Éİ½É±ˆ°(€€€¹•…É‰å]…Ñ¡¥¹œè™…±Í”°(€ô¤°ÑÉÕ”¤ì(€…ÍÍ•ÉĞ¹•ÅÕ…°¡¥Í¡…ÑI•ÍÁ½¹Í•±¥¥‰±”¡¡•±±¼°ì(€€€¥Í9Õ±±!•É”èÑÉÕ”°(€€€‘¥µ•¹Í¥½¹%è€‰Ñ¡•‰É½­•¹ÍÉ¥ÁĞé±¥µ‰¼ˆ°(€€€¹•…É‰å]…Ñ£¿m¢G§²ÚîÆ­yÒÒ’ÂG'VR“°§Ò“° §FW7B‚&WfVçB–6¶W"W6W26÷W&6Rg&WVVæ7’ÂöæRVÆ–v–&ÆRÆ–W"ÂæB–çfW'6RÖg&WVVæ7’vV–v‡G2"Â‚’Óâ°¢76W'BæWVÂ„UdTåEôe$UTTä5’Â"ã“ccccfRÓB“°¢76W'BæWVÂ…4õU$4UôUdTåEôDTd”ä•D”ôå2æÆVæwF‚Âƒb“° ¢6öç7BÖööå†6RÒ4õU$4UôUdTåEôDTd”ä•D”ôå2æf–æB‚†WfVçB’ÓâWfVçBæ–BÓÓÒ&Öööå÷†6R"“°¢6öç7B—6öÆF–öâÒ4õU$4UôUdTåEôDTd”ä•D”ôå2æf–æB‚†WfVçB’ÓâWfVçBæ–BÓÓÒ&—6öÆF–öâ"“°¢6öç7BçVÆÄ–çfFRÒ4õU$4UôUdTåEôDTd”ä•D”ôå2æf–æB‚†WfVçB’ÓâWfVçBæ–BÓÓÒ&çVÆÅö–çfFUö&6R"“°¢76W'BæWVÂ†Öööå†6RçvV–v‡BÂR“°¢76W'BæWVÂ†—6öÆF–öâçvV–v‡BÂ“°¢76W'BæWVÂ†—6öÆF–öâæÖ–æ–×VÕÆ–W'2Â"“°¢76W'BæWVÂ†—4WfVçDVÆ–v–&ÆR†çVÆÄ–çfFRÂ²—4çVÆÄ†W&S¢G'VRÂ7W'f—fÃ¢G'VRÂF–ÖVç6–öä–C¢&Ö–æV7&gC¦÷fW'v÷&ÆB"Ò’ÂG'VR“°¢76W'BæWVÂ†—4WfVçDVÆ–v–&ÆR†çVÆÄ–çfFRÂ²—4çVÆÄ†W&S¢G'VRÂ7W'f—fÃ¢G'VRÂF–ÖVç6–öä–C¢&Ö–æV7&gC§F†UöæWF†W""Ò’ÂfÇ6R“°¢76W'BæWVÂ†—4WfVçDVÆ–v–&ÆR†Öööå†6RÂ°¢—4çVÆÄ†W&S¢G'VRÀ¢7W'f—fÃ¢G'VRÀ¢—4F“¢G'VRÀ¢Öööå6†÷VÆD6†ævS¢G'VRÀ¢Öööå†6S¢À¢Ò’ÂG'VR“° ¢6öç7Bf—'7BÒ6VÆV7EvV–v‡FVDWfVçB€¢4õU$4UôUdTåEôDTd”ä•D”ôå2æf–ÇFW"‚†WfVçB’ÓâWfVçBæ–BÓÓÒ&Öööå÷†6R"ÇÂWfVçBæ–BÓÓÒ&†V'F&VB"’À¢²Öööå÷†6S¢Â†V'F&VC¢ÒÀ¢ãsRÀ¢“°¢76W'BæWVÂ†f—'7Bæ–BÂ&Öööå÷†6R"“° ¢6öç7B6V6öæBÒ6VÆV7EvV–v‡FVDWfVçB€¢4õU$4UôUdTåEôDTd”ä•D”ôå2æf–ÇFW"‚†WfVçB’ÓâWfVçBæ–BÓÓÒ&Öööå÷†6R"ÇÂWfVçBæ–BÓÓÒ&†V'F&VB"’À¢²Öööå÷†6S¢"Â†V'F&VC¢ÒÀ¢ã#RÀ¢“°¢76W'BæWVÂ‡6V6öæBæ–BÂ&†V'F&VB"“°§Ò“°
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  CHAT_RESPONSE_DEFINITIONS,
+  EVENT_FREQUENCY,
+  SOURCE_EVENT_DEFINITIONS,
+  findChatResponse,
+  isChatResponseEligible,
+  isEventEligible,
+  selectWeightedEvent,
+} from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_rules.js";
+
+test("source chat registry preserves aliases, normalization, and first-match order", () => {
+  assert.equal(CHAT_RESPONSE_DEFINITIONS.length, 42);
+  assert.equal(findChatResponse("  hElLo!!! ")?.id, "hello");
+  assert.equal(findChatResponse("hello there"), undefined);
+  assert.equal(findChatResponse("sorry, please")?.id, "sorry");
+  assert.equal(findChatResponse("NULL"), undefined);
+  assert.equal(findChatResponse("null!")?.id, "null");
+  assert.equal(findChatResponse("This isn't a free bird situation, is it?")?.id, "freebird");
+});
+
+test("chat gates distinguish Limbo and Null-world structure conditions", () => {
+  const hello = CHAT_RESPONSE_DEFINITIONS.find((response) => response.id === "hello");
+  const feverHello = CHAT_RESPONSE_DEFINITIONS.find((response) => response.id === "fever_hello");
+  const helloStructure = CHAT_RESPONSE_DEFINITIONS.find((response) => response.id === "hello_structure");
+
+  assert.equal(isChatResponseEligible(hello, {
+    isNullHere: true,
+    dimensionId: "overworld",
+    nearbyWatching: false,
+  }), true);
+  assert.equal(isChatResponseEligible(hello, {
+    isNullHere: true,
+    dimensionId: "thebrokenscript:limbo",
+    nearbyWatching: false,
+  }), false);
+  assert.equal(isChatResponseEligible(feverHello, {
+    dimensionId: "thebrokenscript:limbo",
+  }), true);
+  assert.equal(isChatResponseEligible(helloStructure, {
+    isNullHere: true,
+    nearbyWatching: true,
+  }), true);
+});
+
+test("event picker uses source frequency, one eligible player, and inverse-frequency weights", () => {
+  assert.equal(EVENT_FREQUENCY, 2.9166666e-4);
+  assert.equal(SOURCE_EVENT_DEFINITIONS.length, 86);
+
+  const moonPhase = SOURCE_EVENT_DEFINITIONS.find((event) => event.id === "moon_phase");
+  const isolation = SOURCE_EVENT_DEFINITIONS.find((event) => event.id === "isolation");
+  const nullInvade = SOURCE_EVENT_DEFINITIONS.find((event) => event.id === "null_invade_base");
+  assert.equal(moonPhase.weight, 5);
+  assert.equal(isolation.weight, 0);
+  assert.equal(isolation.minimumPlayers, 2);
+  assert.equal(isEventEligible(nullInvade, { isNullHere: true, survival: true, dimensionId: "minecraft:overworld" }), true);
+  assert.equal(isEventEligible(nullInvade, { isNullHere: true, survival: true, dimensionId: "minecraft:the_nether" }), false);
+  assert.equal(isEventEligible(moonPhase, {
+    isNullHere: true,
+    survival: true,
+    isDay: true,
+    moonShouldChange: true,
+    moonPhase: 0,
+  }), true);
+
+  const first = selectWeightedEvent(
+    SOURCE_EVENT_DEFINITIONS.filter((event) => event.id === "moon_phase" || event.id === "heartbeat"),
+    { moon_phase: 1, heartbeat: 1 },
+    0.75,
+  );
+  assert.equal(first.id, "moon_phase");
+
+  const second = selectWeightedEvent(
+    SOURCE_EVENT_DEFINITIONS.filter((event) => event.id === "moon_phase" || event.id === "heartbeat"),
+    { moon_phase: 2, heartbeat: 1 },
+    0.25,
+  );
+  assert.equal(second.id, "heartbeat");
+});

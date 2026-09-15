@@ -1,42 +1,75 @@
-YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×½N‹Z–‹­¦ëeŠw¬Õ¥µÁ½ÉÐÑ•ÍÐ™É½´€‰¹½‘”éÑ•ÍÐˆì)¥µÁ½ÉÐ…ÍÍ•ÉÐ™É½´€‰¹½‘”é…ÍÍ•ÉÐ½ÍÑÉ¥Ðˆì)¥µÁ½ÉÐìÉ•…‘¥±•Må¹Œô™É½´€‰¹½‘”é™Ìˆì)¥µÁ½ÉÐì(€!Q}IMA=9M}%9%Q%=9L°(€M=UI}Y9Q}%9%Q%=9L°(€±•…¹¡…Ñ5•ÍÍ…”°(€™¥¹‘¡…ÑI•ÍÁ½¹Í”°(€¥Í¡…ÑI•ÍÁ½¹Í•±¥¥‰±”°)ô™É½´€ˆ¸¸½Q¡•	É½­•¹MÉ¥ÁÑ}	•‘É½­|É|À½	@½ÍÉ¥ÁÑÌ½ÍåÍÑ•µÌ½¡½ÉÉ½É}ÉÕ±•Ì¹©Ìˆì()½¹ÍÐÉ•…€ô€¡Á…Ñ ¤€ôøÉ•…‘¥±•Må¹Œ¡¹•ÜUI0¡€¸¸¼‘íÁ…Ñ¡õ€°¥µÁ½ÉÐ¹µ•Ñ„¹ÕÉ°¤°€‰ÕÑ˜àˆ¤ì()™Õ¹Ñ¥½¸©…Ù…I•¥ÍÑÉå%‘Ì¡Í½ÕÉ”°­¥¹¤ì(€½¹ÍÐ¥‘Ì€ômtì(€½¹ÍÐ‘¥É•Ð€ô¹•ÜI•áÀ¡Q	MI•qp¹%9MQ9qp¸‘í­¥¹‘õqp¡qqpˆ¡myqqp‰t¬¥qqp‰€¤ì(€½¹ÍÐ‘•™…Õ±ÑÌ€ô¹•ÜI•áÀ¡	É½­•¹I•qp¸‘í­¥¹‘õqp‘‘•™…Õ±Ñqp¡myqq¹t¨ýqp¡MÑÉ¥¹qp¥qqpˆ¡myqqp‰t¬¥qqp‰€¤ì(€™½È€¡½¹ÍÐ±¥¹”½˜Í½ÕÉ”¹ÍÁ±¥Ð ‰q¸ˆ¤¤ì(€€€½¹ÍÐµ…Ñ €ô±¥¹”¹µ…Ñ ¡‘¥É•Ð¤€üü±¥¹”¹µ…Ñ ¡‘•™…Õ±ÑÌ¤ì(€€€¥˜€¡µ…Ñ ¤¥‘Ì¹ÁÕÍ ¡µ…Ñ¡lÅt¤ì(€ô(€É•ÑÕÉ¸¥‘Ìì)ô()Ñ•ÍÐ ‰¡…ÐµÉ•ÍÁ½¹Í”É•¥ÍÑÉ…Ñ¥½¸½É‘•È…¹‰•¡…Ù¥½È…É”Í½ÕÉ”µ‰…­•ˆ°€ ¤€ôøì(€½¹ÍÐ©…Ù„€ôÉ•… ‰‘•½µÁ¥±•½¹•Ð½Ñ¡•‰É½­•¹ÍÉ¥ÁÐ½É•¥ÍÑÉä½Q	M¡…ÑI•ÍÁ½¹Í•Ì¹©…Ù„ˆ¤ì(€½¹ÍÐÍ½ÕÉ•%‘Ì€ô©…Ù…I•¥ÍÑÉå%‘Ì¡©…Ù„°€‰¡…ÑI•ÍÁ½¹Í”ˆ¤ì(€½¹ÍÐ‰•‘É½­%‘Ì€ô!Q}IMA=9M}%9%Q%=9L¹µ…À ¡‘•™¥¹¥Ñ¥½¸¤€ôø‘•™¥¹¥Ñ¥½¸¹¥¤ì((€…ÍÍ•ÉÐ¹•ÅÕ…°¡Í½ÕÉ•%‘Ì¹±•¹Ñ °€ÐÈ°€‰Q	M¡…ÑI•ÍÁ½¹Í•ÌÕÉÉ•¹Ñ±äÉ•¥ÍÑ•ÉÌ€ÐÈÉ•ÍÁ½¹Í•Ìˆ¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡¹•ÜM•Ð¡Í½ÕÉ•%‘Ì¤¹Í¥é”°€ÐÈ°€‰Í½ÕÉ”É•ÍÁ½¹Í”É•¥ÍÑÉä¥‘ÌµÕÍÐ‰”Õ¹¥ÅÕ”ˆ¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡‰•‘É½­%‘Ì°Í½ÕÉ•%‘Ì°€‰	•‘É½¬É•ÍÁ½¹Í”‘•™¥¹¥Ñ¥½¹ÌÁÉ•Í•ÉÙ”)…Ù„É•¥ÍÑÉ…Ñ¥½¸½É‘•Èˆ¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡¹•ÜM•Ð¡‰•‘É½­%‘Ì¤¹Í¥é”°€ÐÈ°€‰	•‘É½¬É•ÍÁ½¹Í”¥‘ÌµÕÍÐ‰”Õ¹¥ÅÕ”ˆ¤ì)ô¤ï½¶‰žËkºwµç\Þ\Ý[\ËÚÜœ›Ü—ØÚ]šœÈŠNÂˆÛÛœÝXZ[ˆH™XY
-•Pœ›ÚÙ[”ØÜš\Ð™Y›ØÚ×Ì—ÌÐ”ÜØÜš\ËÛXZ[‹šœÈŠNÂˆ\ÜÙ\™Ù\Ó›ÝX]Ú
-[\[Y[][Û‹Ù]™[˜Ø[˜Ù[ÊKËH˜]˜H[™\ˆX]™\ÈHÜšYÚ[˜[Ú]š\ÚX›HŠNÂˆ\ÜÙ\›X]Ú
-[\[Y[][Û‹Ùš[™Ú]™\ÜÛœÙW
-]™[›Y\ÜØYÙW
-KÊNÂˆ\ÜÙ\›X]Ú
-[\[Y[][Û‹Ù^Ü[˜Ý[ÛˆÛX\”^Y\‹ÊNÂˆ\ÜÙ\›X]Ú
-XZ[‹ÝÛÜ›˜Y\‘]™[×œ^Y\‘[Y[œÚ[ÛÚ[™ÙKÊNÂˆ\ÜÙ\›X]Ú
-XZ[‹ÚÜœ›Ü‘]™[×˜ÛX\”^Y\—
-]—œ^Y\—
-KÊNÂˆ\ÜÙ\›X]Ú
-XZ[‹ÚÜœ›ÜÚ]˜ÛX\”^Y\—
-]—œ^Y\—
-KÊNÂˆ\ÜÙ\›X]Ú
-XZ[‹ÚÜœ›Ü‘]™[×˜ÛX\”^Y\—
-]—™XY[]W
-KÊNÂˆ\ÜÙ\›X]Ú
-XZ[‹ÚÜœ›ÜÚ]˜ÛX\”^Y\—
-]—™XY[]W
-KÊNÂŸJNÂ‚\Ý
-˜[ÛÝ\˜ÙHÜœ›Üˆ]™[È]™H[™\œÈ[™ÛÝ\˜ÙHÙ[XÝ[Ûˆ[\È‹
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import {
+  CHAT_RESPONSE_DEFINITIONS,
+  SOURCE_EVENT_DEFINITIONS,
+  cleanChatMessage,
+  findChatResponse,
+  isChatResponseEligible,
+} from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_rules.js";
 
-HOˆÂˆÛÛœÝ˜]˜HH™XY
-™XÛÛ\[YÛ™]ÝXœ›ÚÙ[œØÜš\Ü™YÚ\ÝžKÕ”Ñ]™[Ëš˜]˜HŠNÂˆÛÛœÝÛÝ\˜ÙRYÈH˜]˜T™YÚ\ÝžRYÊ˜]˜K™]™[ŠNÂˆÛÛœÝ™Y›ØÚÒYÈHÓÕTÑWÑU‘S•ÑQ’S’USÓ”Ë›X\
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-Yš[š][ÛŠHOˆYš[š][Û‹šY
-NÂˆÛÛœÝ[\[Y[][ÛˆH™XY
-•Pœ›ÚÙ[”ØÜš\Ð™Y›ØÚ×Ì—ÌÐ”ÜØÜš\ËÜÞ\Ý[\ËÚÜœ›Ü—Ù]™[ËšœÈŠNÂ‚ˆ\ÜÙ\™\]X[
-ÛÝ\˜ÙRYË›[™Ý‹•”Ñ]™[ÈÝ\œ™[H™YÚ\Ý\œÈˆ˜[YYÛÝ\˜ÙH]™[ÈŠNÂˆ\ÜÙ\™\]X[
-™]ÈÙ]
-ÛÝ\˜ÙRYÊKœÚ^™K‹œÛÝ\˜ÙH]™[™YÚ\ÝžHYÈ]\Ý™H[š\]YHŠNÂˆ\ÜÙ\™Y\\]X[
-Ë‹‹˜™Y›ØÚÒY×KœÛÜ
+function javaRegistryIds(source, kind) {
+  const ids = [];
+  const direct = new RegExp(`TBSReg\\.INSTANCE\\.${kind}\\(\\\"([^\\\"]+)\\\"`);
+  const defaults = new RegExp(`BrokenReg\\.${kind}\\$default\\([^\\n]*?\\(String\\)\\\"([^\\\"]+)\\\"`);
+  for (const line of source.split("\n")) {
+    const match = line.match(direct) ?? line.match(defaults);
+    if (match) ids.push(match[1]);
+  }
+  return ids;
+}
 
-KË‹‹œÛÝ\˜ÙRY×KœÛÜ
+test("chat-response registration order and behavior are source-backed", () => {
+  const java = read("decompiled/net/thebrokenscript/registry/TBSChatResponses.java");
+  const sourceIds = javaRegistryIds(java, "chatResponse");
+  const bedrockIds = CHAT_RESPONSE_DEFINITIONS.map((definition) => definition.id);
 
-K™Y›ØÚÈÛÝ\˜ÙH[\ÈÛÝ™\ˆ]™\žH˜]˜H]™[YŠNÂˆ›Üˆ
-ÛÛœÝYÙˆ™Y›ØÚÒYÊH\ÜÙ\›X]Ú
-[\[Y[][Û‹™]È™YÑ^
-‰ÚYWÊ—
-
-KZ\ÜÚ[™È[™\ˆ›Üˆ	ÚYX
-NÂŸJNÂ
+  assert.equal(sourceIds.length, 42, "TBSChatResponses currently registers 42 responses");
+  assert.equal(new Set(sourceIds).size, 42, "source response registry ids must be unique");
+  assert.deepEqual(bedrockIds, sourceIds, "Bedrock response definitions preserve Java registration order");
+  assert.equal(new Set(bedrockIds).size, 42, "Bedrock response ids must be unique");
+});
+
+test("chat matching preserves source normalization, aliases, gates, and first-match behavior", () => {
+  assert.equal(cleanChatMessage("  hElLo!!!  "), "hElLo");
+  assert.equal(findChatResponse("  hElLo!!!  ")?.id, "hello");
+  assert.equal(findChatResponse("hello there"), undefined, "full-message aliases must not become substrings");
+  assert.equal(findChatResponse("sorry, please")?.id, "sorry", "substring aliases may ignore punctuation");
+  assert.equal(findChatResponse("NULL"), undefined, "the null response is case-sensitive");
+  assert.equal(findChatResponse("null!")?.id, "null", "punctuation is normalized before matching");
+  assert.equal(findChatResponse("This isn't a freebird situation, now is it?")?.id, "freebird");
+
+  const hello = CHAT_RESPONSE_DEFINITIONS.find((definition) => definition.id === "hello");
+  const feverHello = CHAT_RESPONSE_DEFINITIONS.find((definition) => definition.id === "fever_hello");
+  const structureHello = CHAT_RESPONSE_DEFINITIONS.find((definition) => definition.id === "hello_structure");
+  assert.equal(isChatResponseEligible(hello, { isNullHere: true, dimensionId: "minecraft:overworld", nearbyWatching: false }), true);
+  assert.equal(isChatResponseEligible(hello, { isNullHere: true, dimensionId: "thebrokenscript:limbo", nearbyWatching: false }), false);
+  assert.equal(isChatResponseEligible(feverHello, { dimensionId: "thebrokenscript:limbo" }), true);
+  assert.equal(isChatResponseEligible(structureHello, { isNullHere: true, nearbyWatching: true }), true);
+
+  const implementation = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js");
+  const main = read("TheBrokenScript_Bedrock_2_0/BP/scripts/main.js");
+  assert.doesNotMatch(implementation, /event\.cancel\s*=/, "the Java handler leaves the original chat visible");
+  assert.match(implementation, /findChatResponse\(event\.message\)/);
+  assert.match(implementation, /export function clearPlayer/);
+  assert.match(main, /world\.afterEvents\.playerDimensionChange/);
+  assert.match(main, /horrorEvents\.clearPlayer\(ev\.player\)/);
+  assert.match(main, /horrorChat\.clearPlayer\(ev\.player\)/);
+  assert.match(main, /horrorEvents\.clearPlayer\(ev\.deadEntity\)/);
+  assert.match(main, /horrorChat\.clearPlayer\(ev\.deadEntity\)/);
+});
+
+test("all source horror events have handlers and source selection rules", () => {
+  const java = read("decompiled/net/thebrokenscript/registry/TBSEvents.java");
+  const sourceIds = javaRegistryIds(java, "event");
+  const bedrockIds = SOURCE_EVENT_DEFINITIONS.map((definition) => definition.id);
+  const implementation = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_events.js");
+
+  assert.equal(sourceIds.length, 86, "TBSEvents currently registers 86 named source events");
+  assert.equal(new Set(sourceIds).size, 86, "source event registry ids must be unique");
+  assert.deepEqual([...bedrockIds].sort(), [...sourceIds].sort(), "Bedrock source rules cover every Java event id");
+  for (const id of bedrockIds) assert.match(implementation, new RegExp(`\\b${id}\\s*\\(`), `missing handler for ${id}`);
+});
