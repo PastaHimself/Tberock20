@@ -1452,7 +1452,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.behind_you",
@@ -1469,7 +1469,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.breathe",
@@ -1486,7 +1486,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.bsod",
@@ -1503,7 +1503,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.can_someone_hear_me",
@@ -1520,7 +1520,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.cave",
@@ -1537,7 +1537,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.close_menu",
@@ -1554,7 +1554,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.collinlock",
@@ -1571,7 +1571,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.collinlock16",
@@ -1605,7 +1605,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.coords_hint",
@@ -1641,7 +1641,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.disconnect_1",
@@ -1709,7 +1709,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.doors",
@@ -1726,7 +1726,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.entity_discard",
@@ -1743,7 +1743,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.experience",
@@ -1760,7 +1760,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.explode_base",
@@ -1777,7 +1777,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.eyes",
@@ -1794,7 +1794,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.fake_disconnect",
@@ -1811,7 +1811,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.false_villager",
@@ -1828,7 +1828,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.gamma",
@@ -1845,7 +1845,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.giift",
@@ -1862,7 +1862,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.give_disc_11",
@@ -1879,7 +1879,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.hallucination",
@@ -1896,7 +1896,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.heartbeat",
@@ -1913,7 +1913,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.hungry",
@@ -1930,7 +1930,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.inventory_corruption",
@@ -1947,7 +1947,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.isolation",
@@ -1964,7 +1964,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.jframe_1",
@@ -1981,7 +1981,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.jframe_2",
@@ -1998,7 +1998,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.jframe_3",
@@ -2015,7 +2015,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.jframe_4",
@@ -2032,7 +2032,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.jframe_5",
@@ -2049,7 +2049,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.keep_playing",
@@ -2066,7 +2066,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.lava_cast",
@@ -2083,7 +2083,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.look_and_damage",
@@ -2100,7 +2100,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.madness_1",
@@ -2117,7 +2117,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.moon_corruption_story",
@@ -2153,7 +2153,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.moon_phase",
@@ -2170,7 +2170,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.noop",
@@ -2187,7 +2187,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_book",
@@ -2204,7 +2204,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_book_hint",
@@ -2242,7 +2242,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_interface_trigger",
@@ -2259,7 +2259,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_invade_base",
@@ -2276,7 +2276,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_is_near",
@@ -2293,7 +2293,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_particle",
@@ -2310,7 +2310,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_scare",
@@ -2327,7 +2327,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_title",
@@ -2344,7 +2344,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.null_whisper",
@@ -2361,7 +2361,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.nulled_gui",
@@ -2378,7 +2378,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.nullnullnull_advancement",
@@ -2395,7 +2395,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.obfuscated_sign",
@@ -2412,7 +2412,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.opengl_error",
@@ -2429,7 +2429,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.paranoia",
@@ -2446,7 +2446,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_all_dead",
@@ -2463,7 +2463,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_bedrock",
@@ -2480,7 +2480,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_cave_air",
@@ -2497,7 +2497,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_empty",
@@ -2514,7 +2514,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_flowing_water",
@@ -2531,7 +2531,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_hello",
@@ -2548,7 +2548,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_lava",
@@ -2565,7 +2565,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_netherrack",
@@ -2582,7 +2582,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_oak_sign",
@@ -2599,7 +2599,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_redstone_torch",
@@ -2616,7 +2616,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.place_water",
@@ -2633,7 +2633,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.play_sound",
@@ -2650,7 +2650,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.psst_event",
@@ -2667,7 +2667,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.push",
@@ -2684,7 +2684,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.random_song",
@@ -2701,7 +2701,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.rejoin",
@@ -2718,7 +2718,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.reset_rotation",
@@ -2735,7 +2735,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.run",
@@ -2752,7 +2752,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.screen_dupe",
@@ -2769,7 +2769,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.set_do_daylight_cycle",
@@ -2786,7 +2786,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.set_on_fire",
@@ -2803,7 +2803,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.set_random_time_of_day",
@@ -2820,7 +2820,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.set_time",
@@ -2837,7 +2837,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.shadow_bug",
@@ -2854,7 +2854,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.sky_blue",
@@ -2871,7 +2871,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.stare_at_player",
@@ -2888,7 +2888,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.stick",
@@ -2905,7 +2905,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.strike_lightning",
@@ -2922,7 +2922,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.tbe_curious",
@@ -2939,7 +2939,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.text",
@@ -2956,7 +2956,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.title_event",
@@ -2973,7 +2973,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.txt",
@@ -2990,7 +2990,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.txt_story",
@@ -3028,7 +3028,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "event.wrong_overlay",
@@ -3045,7 +3045,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
+      "notes": "2026-09-15 audit: Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations."
     },
     {
       "source_id": "item.a_flower",
