@@ -10,7 +10,7 @@
       "entries": [
         {
           "type": "item",
-          "name": "minecraft:cobblestone_stairs",
+          "name": "thebrokenscript:sideways_cobblestone_stairs",
           "weight": 1
         }
       ]

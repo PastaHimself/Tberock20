@@ -61,6 +61,17 @@ class P1ParityValidatorTests(unittest.TestCase):
             content["tag_adapters"],
         )
 
+    def test_vanilla_only_loot_outputs_are_explicit_bedrock_adapters(self):
+        adapters = self.report["content"]["loot_adapter_tables"]
+        self.assertEqual(
+            "minecraft:cobblestone_stairs -> thebrokenscript:sideways_cobblestone_stairs",
+            adapters["sideways_cobblestone_stairs"],
+        )
+        self.assertEqual(
+            "minecraft:oak_door -> thebrokenscript:ud_oak_door",
+            adapters["ud_oak_door"],
+        )
+
     def test_validator_rejects_a_reintroduced_missing_source_loot_table(self):
         mutated = copy.deepcopy(self.report)
         mutated["content"]["missing_source_loot_tables"] = [

@@ -10,7 +10,7 @@
       "entries": [
         {
           "type": "item",
-          "name": "minecraft:oak_door",
+          "name": "thebrokenscript:ud_oak_door",
           "weight": 1
         }
       ]

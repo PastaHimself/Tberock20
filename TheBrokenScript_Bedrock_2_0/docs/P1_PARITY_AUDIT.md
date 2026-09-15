@@ -26,8 +26,11 @@ dimension/portal contracts.
 - All 138 source loot tables are present, including the 26 plush tables and
   the intentional empty `null` table. Explosion survival, shears-only flora
   drops, output identifiers, empty/no-drop tables, and source weights are
-  checked. Java slab/door state functions are recorded as the documented
-  single-block geometry adapter.
+  checked. The Java-only `minecraft:cobblestone_stairs` and
+  `minecraft:oak_door` outputs use explicit custom-block loot adapters in
+  the Bedrock pack, and those mappings are release-gated. Java slab/door
+  state functions are recorded as the documented single-block geometry
+  adapter.
 - Source block-tag membership is checked against `minecraft:tags`; the
   source item tags are preserved as explicit adapters. The flora tag maps to
   `minecraft:shears`, and the creepy-disc tag remains source evidence for

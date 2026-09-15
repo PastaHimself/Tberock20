@@ -208,7 +208,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 7. **Player-visible difference**: source gameplay timings, damage, impulses, lifecycle, recovery, conceptual sweep, and audio cleanup are deterministic; rendered-bone contact, exact melee hit locations, bossbar/camera packets, and exact Java audio attenuation remain adaptations.
 8. **Parity class**: `VALIDATED_APPROXIMATION` for source-verifiable gameplay and cleanup; `ENGINE_UNSUPPORTED` for exact rendered-bone and melee-impact transport.
 
-<<<<<<< /tmp/tmpkh2n1txt/main
+<<<<<<< /tmp/tmpnyrtteup/main
 ## A-025 — Projectiles and damage parity audit
 
 1. **Source feature**: the custom Chord projectile, Integrity fireball, Jimmy Rock projectile, inherited Chord/engine arrow damage, and all 15 Java custom damage types.
@@ -268,4 +268,14 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 4. **Bedrock limitation**: Bedrock has no Java permission-level 4 ladder or one-to-one Brigadier `CommandSourceStack` position contract, so `Admin` and a player origin are the closest safe mappings.
 5. **Docs checked**: [Microsoft's CustomCommandRegistry](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/customcommandregistry?view=minecraft-bedrock-stable) and [CustomCommandParameter](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/customcommandparameter?view=minecraft-bedrock-stable).
 6. **Parity class**: `VALIDATED_HIGH_PARITY` for direct command validation/messages/effects; `VALIDATED_APPROXIMATION` for the permission/source-origin mapping and the unregistered Java `dev` tree.
->>>>>>> /tmp/tmpkh2n1txt/ours
+
+## A-030 — P1 vanilla loot output identifiers
+
+1. **Source feature**: the `sideways_cobblestone_stairs` and `ud_oak_door` block loot tables.
+2. **Source behavior**: the Java tables drop `minecraft:cobblestone_stairs` and `minecraft:oak_door`, respectively, after the source explosion-survival condition.
+3. **Source evidence**: `source_extracted/data/thebrokenscript/loot_table/blocks/{sideways_cobblestone_stairs,ud_oak_door}.json`.
+4. **Bedrock limitation**: the current project validation surface cannot resolve those two vanilla outputs as behavior-pack item definitions, while the shipped custom block forms are resolvable and placeable.
+5. **Replacement design**: the tables keep the source condition and weight but route the output through `thebrokenscript:sideways_cobblestone_stairs` and `thebrokenscript:ud_oak_door`; `validate_p1_parity.py` release-gates both explicit mappings.
+6. **Player-visible difference**: breaking these custom blocks returns the pack's custom block form instead of an unresolved vanilla item identifier.
+7. **Parity class**: `VALIDATED_APPROXIMATION`; source table structure and intent are preserved, with the output identifier represented by a documented Bedrock adapter.
+>>>>>>> /tmp/tmpnyrtteup/ours

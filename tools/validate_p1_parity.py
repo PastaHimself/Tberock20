@@ -157,6 +157,17 @@ STATEFUL_LOOT_TABLES = {
     "void_plank_door",
 }
 
+LOOT_OUTPUT_ADAPTERS = {
+    "sideways_cobblestone_stairs": (
+        "minecraft:cobblestone_stairs",
+        "thebrokenscript:sideways_cobblestone_stairs",
+    ),
+    "ud_oak_door": (
+        "minecraft:oak_door",
+        "thebrokenscript:ud_oak_door",
+    ),
+}
+
 FLORA_LOOT_TABLES = {
     "void_grass",
     "void_sprout",
@@ -700,7 +711,10 @@ def _loot_contract(repo: Path) -> dict[str, Any]:
         source_conditions[name] = len(
             set(source_contract["pool_conditions"]) | set(source_contract["entry_conditions"])
         )
-        if name in STATEFUL_LOOT_TABLES:
+        if name in LOOT_OUTPUT_ADAPTERS:
+            source_name, bedrock_name = LOOT_OUTPUT_ADAPTERS[name]
+            adapter_tables[name] = f"{source_name} -> {bedrock_name}"
+        elif name in STATEFUL_LOOT_TABLES:
             adapter_tables[name] = "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter"
         if name in FLORA_LOOT_TABLES:
             adapter_tables[name] = "Java tag match_tool is represented by a direct minecraft:shears match_tool condition"
@@ -711,13 +725,21 @@ def _loot_contract(repo: Path) -> dict[str, Any]:
         if source_contract["empty"]:
             continue
         source_names = [entry["name"] for entry in source_contract["entries"]]
+        expected_names = source_names[:]
+        if name in LOOT_OUTPUT_ADAPTERS:
+            source_name, bedrock_name = LOOT_OUTPUT_ADAPTERS[name]
+            expected_names = [
+                bedrock_name if entry_name == source_name else entry_name
+                for entry_name in source_names
+            ]
         bedrock_names = [entry["name"] for entry in bedrock_contract["entries"]]
-        if source_names != bedrock_names:
-            mismatches.append(f"{kind}:{name}: output mismatch {source_names!r} != {bedrock_names!r}")
-        if name not in STATEFUL_LOOT_TABLES and source_contract["entries"] != bedrock_contract["entries"]:
+        if expected_names != bedrock_names:
+            mismatches.append(f"{kind}:{name}: output mismatch {expected_names!r} != {bedrock_names!r}")
+        expected_entries = [dict(entry, name=expected_name) for entry, expected_name in zip(source_contract["entries"], expected_names)]
+        if name not in STATEFUL_LOOT_TABLES and expected_entries != bedrock_contract["entries"]:
             mismatches.append(
                 f"{kind}:{name}: entry count/weight mismatch "
-                f"{source_contract['entries']!r} != {bedrock_contract['entries']!r}"
+                f"{expected_entries!r} != {bedrock_contract['entries']!r}"
             )
         if "survives_explosion" in source_contract["pool_conditions"] and "survives_explosion" not in bedrock_contract["pool_conditions"]:
             mismatches.append(f"{kind}:{name}: missing survives_explosion condition")
@@ -1213,6 +1235,10 @@ def validate_report(report: dict[str, Any]) -> list[str]:
         errors.append(f"expected 40 source recipes, found {content.get('source_recipe_count')}")
     if content.get("source_loot_table_count") != 138:
         errors.append(f"expected 138 source loot tables, found {content.get('source_loot_table_count')}")
+    loot_adapters = content.get("loot_adapter_tables", {})
+    for table_name, (source_name, bedrock_name) in LOOT_OUTPUT_ADAPTERS.items():
+        if loot_adapters.get(table_name) != f"{source_name} -> {bedrock_name}":
+            errors.append(f"loot output adapter missing for {table_name}")
     if content.get("advancement_titles") != content.get("source_advancement_titles"):
         errors.append("progression advancement titles drift from source language")
     if content.get("advancement_descriptions") != content.get("source_advancement_descriptions"):
