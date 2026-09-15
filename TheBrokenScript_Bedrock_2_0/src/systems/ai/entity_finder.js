@@ -1,20 +1,16 @@
 import { world } from "@minecraft/server";
+import { closestTarget, dimensionIdOf } from "./targeting_model.js";
 
-export function closestPlayerInRange(players, location, maxDistance) {
-    let best = null;
-    let bestDist = maxDistance * maxDistance;
-    for (const p of players) {
-        if (p.dimension.id !== undefined && location.dimension !== undefined && p.dimension.id !== location.dimension.id) continue;
-        const dx = p.location.x - location.x;
-        const dy = p.location.y - location.y;
-        const dz = p.location.z - location.z;
-        const d2 = dx * dx + dy * dy + dz * dz;
-        if (d2 <= bestDist) {
-            bestDist = d2;
-            best = p;
-        }
-    }
-    return best;
+export function closestPlayerInRange(players, location, maxDistance, options = {}) {
+    const dimensionId = options.dimensionId ?? dimensionIdOf(options.dimension);
+    return closestTarget(players, location, maxDistance, { dimensionId });
+}
+
+export function closestPlayerForEntity(players, entity, maxDistance, options = {}) {
+    return closestPlayerInRange(players, entity?.location, maxDistance, {
+        ...options,
+        dimensionId: options.dimensionId ?? dimensionIdOf(entity?.dimension),
+    });
 }
 
 export function countEntitiesInRange(dimension, location, maxDistance, typeIds) {

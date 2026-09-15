@@ -4,6 +4,7 @@ import * as worldState from "../../systems/world_state.js";
 import { config } from "../../core/config.js";
 import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
+import { hasSkyLightAt } from "../../systems/ai/visibility.js";
 
 // ── condition constants (FracturedConditions / FeverStalkConditions) ─────────
 const FRACTURED_ROW = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06];   // indexed by corruption stage clamp 0..5
@@ -70,6 +71,7 @@ export function register() {
       try { existing = player.dimension.getEntities({ type: "thebrokenscript:fever_stalk" }); } catch {}
       if (existing.length > 0) return false;
       const loc = pickCandidateNearPlayer(player, 32, 80);
+      if (!hasSkyLightAt(player.dimension, loc)) return false;
       try { return player.dimension.spawnEntity("thebrokenscript:fever_stalk", loc) !== undefined; } catch { return false; }
     }
   });

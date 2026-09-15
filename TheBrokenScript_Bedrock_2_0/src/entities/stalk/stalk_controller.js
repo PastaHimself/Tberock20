@@ -97,7 +97,7 @@ function tickCurved(e) {
       // melee pulses while transformed
       system.runInterval(() => {
         if (!e.isValid()) return;
-        const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 4);
+        const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 4);
         if (target) {
           try { target.applyDamage(7, { cause: "entityAttack", damagingEntity: e }); } catch { try { target.applyDamage(7); } catch {} }
         }
@@ -105,7 +105,7 @@ function tickCurved(e) {
     }
   } else {
     // untransformed: approach survival player ONLY when outside their FOV cone
-    const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 192);
+    const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 192);
     if (player) {
       const gm = typeof player.getGameMode === "function" ? player.getGameMode() : undefined;
       const survival = gm !== "creative" && gm !== "spectator" && gm !== 1 && gm !== 3;
@@ -183,9 +183,9 @@ function tickObliteration(e) {
   if (system.currentTick % 15 === 0) {
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.1, z: e.location.z }); } catch {}
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 480);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 480);
   if (!player) return;
-  const watching = gaze.isLookingAtLocation(player, e.location, 14);
+  const watching = gaze.isLookingAtEntity(player, e, 14);
   const close = distance(e.location, player.location) < 20;
 
   if (isTwo) {
@@ -235,7 +235,7 @@ function tryPlayAt(dim, loc, sound, vol = 1, pitch = 1) {
 function tickHerobrine(e) {
   let life = getNum(e, "life", 400);
   if (!timers.has(e.id)) { life = 400; timers.set(e.id, { life }); }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 158);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 158);
   if (player) {
     try { e.lookAt?.(player.location); } catch {}
     if (distance(e.location, player.location) < 42) {

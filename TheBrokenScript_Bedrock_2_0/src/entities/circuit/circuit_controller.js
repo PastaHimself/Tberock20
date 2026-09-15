@@ -59,10 +59,9 @@ function tickStalk(entity) {
   t--; setTimer(entity, t);
   if (t <= 0) { worldState.set("hasCircuitSpawned", false); entity.remove(); entityTimers.delete(entity.id); return; }
 
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), entity.location, 256);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 256);
   if (!player) return;
-  if (!gaze.isLookingAtLocation(player, entity.location, 14)) return;
-  if (!entity.hasComponent?.("minecraft:physics") && !canSee(entity, player)) return;
+  if (!gaze.isLookingAtEntity(player, entity, 14)) return;
 
   if (Math.random() < 0.5) {
     player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
@@ -81,10 +80,10 @@ function tickStare(entity) {
   if (t === 0) { setTimer(entity, STALK_LIFETIME); t = STALK_LIFETIME; }
   t--; setTimer(entity, t);
   if (t <= 0) { entity.remove(); entityTimers.delete(entity.id); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), entity.location, 256);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 256);
   if (!player) return;
   try { entity.lookAt?.(player.location); } catch {}
-  if (!gaze.isLookingAtLocation(player, entity.location, 14)) return;
+  if (!gaze.isLookingAtEntity(player, entity, 14)) return;
   if (Math.random() < 0.5) {
     player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
     entity.remove(); entityTimers.delete(entity.id); return;
@@ -102,10 +101,10 @@ function tickMineshaftWalk(entity) {
   if (t === 0) { setTimer(entity, STALK_LIFETIME); t = STALK_LIFETIME; }
   t--; setTimer(entity, t);
   if (t <= 0) { worldState.set("hasCircuitSpawned", false); entity.remove(); entityTimers.delete(entity.id); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), entity.location, 256);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 256);
   if (!player) return;
   if (entityFinder.countEntitiesInRange(entity.dimension, entity.location, 20, ["thebrokenscript:circuit"]) > 0) return;
-  if (!gaze.isLookingAtLocation(player, entity.location, 12)) return;
+  if (!gaze.isLookingAtEntity(player, entity, 12)) return;
   const spawned = spawnHelpers.trySummon(entity.dimension, "thebrokenscript:circuit_mineshaft_flee", entity.location);
   if (spawned) { entity.remove(); entityTimers.delete(entity.id); }
 }
@@ -115,7 +114,7 @@ function tickMineshaftStare(entity) {
   if (t === 0) { setTimer(entity, STALK_LIFETIME); t = STALK_LIFETIME; }
   t--; setTimer(entity, t);
   if (t <= 0) { entity.remove(); entityTimers.delete(entity.id); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), entity.location, 256);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 256);
   if (!player) return;
   try { entity.lookAt?.({ x: player.location.x, y: player.location.y + 1, z: player.location.z }); } catch {}
   if (distance(entity.location, player.location) > 8) return;
@@ -128,7 +127,7 @@ function tickMineshaftStare(entity) {
 function tickFlee(entity) {
   let t = getTimer(entity);
   if (t === 0) { setTimer(entity, FLEE_LIFETIME); t = FLEE_LIFETIME; }
-  const near = entityFinder.closestPlayerInRange(world.getAllPlayers(), entity.location, 25);
+  const near = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 25);
   if (!near) { t--; setTimer(entity, t); if (t <= 0) {
     const spawned = spawnHelpers.trySummon(entity.dimension, "thebrokenscript:circuit_mineshaft_walk", entity.location);
     entity.remove(); entityTimers.delete(entity.id); if (spawned) spawnHelpers.applyRandomRotation(spawned);
@@ -148,12 +147,9 @@ function tickCircuit(entity) {
     }
   }
   if (Math.random() < 0.01) {
-    const p = entityFinder.closestPlayerInRange(world.getAllPlayers(), entity.location, 128);
+    const p = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 128);
     if (p) playerState.set(p, "noWayOutFrame", (playerState.get(p, "noWayOutFrame") + 1) % 6);
   }
 }
 
-function canSee(entity, player) {
-  try { return entity.hasComponent?.("minecraft:physics") ? true : entity.dimension.getBlock(entity.location)?.getComponent?.("minecraft:inventory") !== undefined; } catch { return true; }
-}
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z); }

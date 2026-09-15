@@ -5,6 +5,7 @@ import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
+import { hasSkyLightAt } from "../../systems/ai/visibility.js";
 
 function isBlacklistedBiome() { return false; }
 
@@ -19,7 +20,7 @@ export function register() {
       if (bossHooks.isArenaPhase1()) return false;
       if (Math.random() > 0.0085 + eventFrequency(ctx.gameTime)) return false;
       const dim = ctx.players[0].dimension;
-      try { if (dim.getBlock(ctx.players[0].location)?.getSkyLightLevel?.() !== 15) return false; } catch {}
+      if (!hasSkyLightAt(dim, ctx.players[0].location)) return false;
       if (entityFinder.hasEntitiesInRange(dim, ctx.players[0].location, 120, ["thebrokenscript:null_watching","thebrokenscript:null_flying","thebrokenscript:null_mining","thebrokenscript:null_is_here"])) return false;
       const candidate = { x: ctx.players[0].location.x + (Math.random()*40-20), y: ctx.players[0].location.y, z: ctx.players[0].location.z + (Math.random()*40-20) };
       const spawned = spawnHelpers.trySummon(dim, "thebrokenscript:null_watching", candidate);

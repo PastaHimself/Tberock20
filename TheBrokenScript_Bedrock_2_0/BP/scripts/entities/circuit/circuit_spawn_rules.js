@@ -4,6 +4,7 @@ import { config } from "../../core/config.js";
 import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
+import { skyLightLevelAt } from "../../systems/ai/visibility.js";
 
 const BIOME_BLACKLIST_SUBSTRINGS = ["the_end", "end_midlands", "end_highlands", "null_biome"];
 
@@ -25,10 +26,8 @@ function canSpawnCircuitStalk(ctx) {
   if (bossHooks.isArenaPhase1()) return false;
   if (isBlacklistedBiome(dim, player.location)) return false;
   if (Math.random() > 0.015 + eventFrequency(ctx.gameTime)) return false;
-  try {
-    const sky = dim.getBlock(player.location)?.getSkyLightLevel?.() ?? 0;
-    if (sky !== 0) return false;
-  } catch {}
+  const sky = skyLightLevelAt(dim, player.location);
+  if (sky !== 0) return false;
   if (entityFinder.hasEntitiesInRange(dim, player.location, 420, ["thebrokenscript:circuit", "thebrokenscript:circuit_stalk", "thebrokenscript:circuit_stare", "thebrokenscript:circuit_mineshaft_walk", "thebrokenscript:circuit_mineshaft_stare", "thebrokenscript:circuit_mineshaft_flee"])) return false;
   worldState.set("circuitSpawnDelay", 5200);
   worldState.set("hasCircuitSpawned", true);
