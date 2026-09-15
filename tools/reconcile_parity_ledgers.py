@@ -126,23 +126,25 @@ def choose_entity_controller(key: str) -> list[str]:
 def current_horror_event_keys() -> tuple[set[str], set[str]]:
     path = ADDON / "BP/scripts/systems/horror_events.js"
     text = path.read_text(encoding="utf-8")
+    rules_path = ADDON / "BP/scripts/systems/horror_rules.js"
+    rules_text = rules_path.read_text(encoding="utf-8")
     try:
         handlers_start = text.index("const H = {") + len("const H = {")
         handlers_end = text.index("\n};\n\nfunction setFakeMoonTexture", handlers_start)
         handlers_text = text[handlers_start:handlers_end]
-        table_text = text.split("const TABLE = [", 1)[1].split("];", 1)[0]
+        event_ids_text = rules_text.split("export const SOURCE_EVENT_IDS = Object.freeze([", 1)[1].split("]);", 1)[0]
     except IndexError as exc:
-        raise ReconciliationError("could not locate H/TABLE in horror_events.js") from exc
-    handlers = set(re.findall(r"^\s{2}([A-Za-z0-9_]+)\(p\)", handlers_text, re.MULTILINE))
-    table = set(re.findall(r'\["([A-Za-z0-9_]+)"\s*,', table_text))
-    if handlers != table:
-        missing_handlers = sorted(table - handlers)
-        missing_table = sorted(handlers - table)
+        raise ReconciliationError("could not locate horror event handlers or source registry") from exc
+    handlers = set(re.findall(r"^\s{2}([A-Za-z0-9_]+)\([^)]*\)", handlers_text, re.MULTILINE))
+    registry = set(re.findall(r'"([A-Za-z0-9_]+)"', event_ids_text))
+    if handlers != registry:
+        missing_handlers = sorted(registry - handlers)
+        missing_registry = sorted(handlers - registry)
         raise ReconciliationError(
-            f"horror event H/TABLE drift: missing handlers={missing_handlers}; "
-            f"missing table entries={missing_table}"
+            f"horror event handler/registry drift: missing handlers={missing_handlers}; "
+            f"missing registry entries={missing_registry}"
         )
-    return handlers, table
+    return handlers, registry
 
 
 def decide(
@@ -342,7 +344,7 @@ def reconcile_horror_event(row: dict[str, Any], key: str, current_events: set[st
                 "BP/scripts/systems/event_frequency.js",
                 "RP/texts/en_US.lang",
             ],
-            notes="Source event id is present in the live H/TABLE event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations.",
+            notes="Source event id is present in the live source-backed handler registry; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations.",
         )
     elif key in STORY_EVENT_KEYS:
         files = STORY_EVENT_FILES
@@ -393,7 +395,7 @@ def reconcile_horror_event(row: dict[str, Any], key: str, current_events: set[st
             parity="unsupported",
             identifier="not-shipped:event/obfuscated_sign",
             files=["HORROR_CHAT_AUDIT.md", "docs/chunks/CHUNK_17_REPORT.md", "RP/texts/en_US.lang"],
-            notes="The source/lang entry is not part of the current registered H/TABLE pool and has no evidence-backed placement/schedule in the shipped pack; it remains intentionally excluded.",
+            notes="The source/lang entry is not part of the current source-backed handler registry and has no evidence-backed placement/schedule in the shipped pack; it remains intentionally excluded.",
         )
     elif key in EXCLUDED_EVENT_KEYS:
         decide(
@@ -402,7 +404,7 @@ def reconcile_horror_event(row: dict[str, Any], key: str, current_events: set[st
             parity="full",
             identifier=f"not-shipped:event/{key}",
             files=["HORROR_CHAT_AUDIT.md", "docs/chunks/CHUNK_17_REPORT.md", "RP/texts/en_US.lang"],
-            notes="The source/lang event entry is not part of the current registered H/TABLE pool and has no evidence-backed runtime behavior in the shipped pack; it is intentionally excluded.",
+            notes="The source/lang event entry is not part of the current source-backed handler registry and has no evidence-backed runtime behavior in the shipped pack; it is intentionally excluded.",
         )
     else:
         raise ReconciliationError(f"event.{key}: no explicit reconciliation rule")
@@ -659,7 +661,7 @@ def reconcile_row(row: dict[str, Any], current_events: set[str]) -> None:
             parity="approximation",
             identifier="script:horror-chat",
             files=["BP/scripts/systems/horror_chat.js", "HORROR_CHAT_AUDIT.md", "RP/texts/en_US.lang"],
-            notes="Current Bedrock keyword responses are reconciled against the chat audit; 13 live keys are not overstated as one-to-one parity with every source response registration.",
+            notes="All 42 source chat registrations are represented by ordered Bedrock response definitions; class-specific aliases, gates, punctuation normalization, delays, and sender/broadcast delivery remain explicit in the shared horror rules module.",
         )
     elif category == "event_engine":
         decide(
@@ -668,7 +670,7 @@ def reconcile_row(row: dict[str, Any], current_events: set[str]) -> None:
             parity="approximation",
             identifier="script:horror-event-engine",
             files=["BP/scripts/systems/horror_events.js", "BP/scripts/systems/event_frequency.js", "BP/scripts/systems/story_events.js", "HORROR_CHAT_AUDIT.md"],
-            notes="The live H/TABLE pool, event frequency gates, and story thresholds are present; source event registration count and desktop/client hooks are reconciled as explicit adapters.",
+            notes="The live source-backed handler registry, event frequency gates, and story thresholds are present; desktop/client hooks are reconciled as explicit adapters.",
         )
     elif category == "code_entrypoint":
         decide(
@@ -1014,8 +1016,8 @@ def reconcile_payload(payload: dict[str, Any]) -> dict[str, Any]:
         raise ReconciliationError("SOURCE_MAP.json row order/IDs differ from SOURCE_INVENTORY.json")
 
     current_events, _ = current_horror_event_keys()
-    if len(current_events) != 79:
-        raise ReconciliationError(f"expected 79 current H/TABLE events, found {len(current_events)}")
+    if len(current_events) != 86:
+        raise ReconciliationError(f"expected 86 current horror event handlers, found {len(current_events)}")
 
     for row in map_rows:
         if not isinstance(row, dict):

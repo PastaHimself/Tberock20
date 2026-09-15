@@ -100,8 +100,32 @@ const DEFINITIONS = {
   },
 };
 
+// Bedrock cannot register Java DamageType JSON or its bypass tags. These are
+// the nearest stable Script API causes and attribution shapes for each source
+// callsite; the source id and unsupported Java flags remain explicit metadata.
+const BEDROCK_MAPPINGS = {
+  bad_sun: { nativeCause: "fire", attribution: "environment" },
+  bite: { nativeCause: "entityAttack", attribution: "entity" },
+  fever_attack: { nativeCause: "entityAttack", attribution: "entity" },
+  circuit_attack: { nativeCause: "entityAttack", attribution: "entity" },
+  chord_lazer: { nativeCause: "entityAttack", attribution: "entity" },
+  integrity_ball: { nativeCause: "projectile", attribution: "projectile" },
+  null_maze: { nativeCause: "entityAttack", attribution: "entity" },
+  rock: { nativeCause: "projectile", attribution: "projectile" },
+  jimmy_rise: { nativeCause: "entityAttack", attribution: "entity" },
+  sa1: { nativeCause: "entityAttack", attribution: "entity" },
+  jimmy_stomp: { nativeCause: "entityAttack", attribution: "entity" },
+  void_mass: { nativeCause: "void", attribution: "entity" },
+  integ_bypass: { nativeCause: "entityAttack", attribution: "entity" },
+  hand_cannon_damage: { nativeCause: "magic", attribution: "entity" },
+  sub_anom_2: { nativeCause: "entityAttack", attribution: "entity" },
+};
+
 export const CUSTOM_DAMAGE_SOURCE_KEYS = Object.freeze(Object.keys(DEFINITIONS));
 export const CUSTOM_DAMAGE_SOURCE_COUNT = CUSTOM_DAMAGE_SOURCE_KEYS.length;
+export const CUSTOM_DAMAGE_SOURCE_MAPPINGS = Object.freeze(Object.fromEntries(
+  CUSTOM_DAMAGE_SOURCE_KEYS.map((key) => [key, Object.freeze({ ...BEDROCK_MAPPINGS[key] })]),
+));
 
 export const CUSTOM_DAMAGE_SOURCES = Object.freeze(Object.fromEntries(
   CUSTOM_DAMAGE_SOURCE_KEYS.map((key) => [key, freezeDefinition({
@@ -113,6 +137,7 @@ export const CUSTOM_DAMAGE_SOURCES = Object.freeze(Object.fromEntries(
     exhaustion: 0.1,
     scaling: "always",
     noKnockback: false,
+    mapping: CUSTOM_DAMAGE_SOURCE_MAPPINGS[key],
     ...DEFINITIONS[key],
   })]),
 ));
@@ -128,24 +153,50 @@ export function getDamageSource(sourceId) {
 }
 
 /**
- * Keeps the source id as pure metadata while carrying the native Bedrock
- * attribution fields accepted by Entity.applyDamage(). The default `override`
- * cause matches script-originated damage; source-specific callers should pass
- * entityAttack, projectile, fire, or void when the Java callsite supplies one.
+ * @param {string} sourceId
+ * @param {{
+ *   amount?: number;
+ *   cause?: string;
+ *   damagingEntity?: any;
+ *   damagingProjectile?: any;
+ * }} [options]
  */
 export function damageSourcePlan(sourceId, {
   amount = 0,
-  cause = "override",
+  cause,
   damagingEntity = null,
   damagingProjectile = null,
 } = {}) {
   const source = getDamageSource(sourceId);
   if (!source) throw new Error(`Unknown custom damage source: ${sourceId}`);
+  if (cause !== undefined && cause !== source.mapping.nativeCause) {
+    throw new Error(
+      `Custom damage source ${source.id} is mapped to ${source.mapping.nativeCause}, not ${cause}`,
+    );
+  }
   return {
     sourceId: source.id,
     amount,
-    cause,
+    cause: source.mapping.nativeCause,
     damagingEntity,
     damagingProjectile,
+  };
+}
+
+/**
+ * Builds one of the two mutually exclusive applyDamage option shapes exposed
+ * by the Bedrock Script API. Projectile attribution implies the native
+ * projectile cause, so it must not be mixed with the ordinary `cause` field.
+ */
+export function damageSourceApplyOptions(plan) {
+  if (plan?.damagingProjectile) {
+    return {
+      ...(plan.damagingEntity ? { damagingEntity: plan.damagingEntity } : {}),
+      damagingProjectile: plan.damagingProjectile,
+    };
+  }
+  return {
+    cause: plan?.cause,
+    ...(plan?.damagingEntity ? { damagingEntity: plan.damagingEntity } : {}),
   };
 }

@@ -4,6 +4,8 @@ import {
   CUSTOM_DAMAGE_SOURCE_COUNT,
   CUSTOM_DAMAGE_SOURCE_KEYS,
   CUSTOM_DAMAGE_SOURCES,
+  CUSTOM_DAMAGE_SOURCE_MAPPINGS,
+  damageSourceApplyOptions,
   damageSourcePlan,
   getDamageSource,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/damage_source_model.js";
@@ -56,6 +58,27 @@ test("source definitions preserve resource and registry semantics", () => {
   assert.equal(shieldBypass.deathMessage, "%1$s has been killed");
 });
 
+test("every custom source has an explicit native Bedrock mapping", () => {
+  assert.deepEqual(Object.keys(CUSTOM_DAMAGE_SOURCE_MAPPINGS), CUSTOM_DAMAGE_SOURCE_KEYS);
+  assert.deepEqual(CUSTOM_DAMAGE_SOURCE_MAPPINGS, {
+    bad_sun: { nativeCause: "fire", attribution: "environment" },
+    bite: { nativeCause: "entityAttack", attribution: "entity" },
+    fever_attack: { nativeCause: "entityAttack", attribution: "entity" },
+    circuit_attack: { nativeCause: "entityAttack", attribution: "entity" },
+    chord_lazer: { nativeCause: "entityAttack", attribution: "entity" },
+    integrity_ball: { nativeCause: "projectile", attribution: "projectile" },
+    null_maze: { nativeCause: "entityAttack", attribution: "entity" },
+    rock: { nativeCause: "projectile", attribution: "projectile" },
+    jimmy_rise: { nativeCause: "entityAttack", attribution: "entity" },
+    sa1: { nativeCause: "entityAttack", attribution: "entity" },
+    jimmy_stomp: { nativeCause: "entityAttack", attribution: "entity" },
+    void_mass: { nativeCause: "void", attribution: "entity" },
+    integ_bypass: { nativeCause: "entityAttack", attribution: "entity" },
+    hand_cannon_damage: { nativeCause: "magic", attribution: "entity" },
+    sub_anom_2: { nativeCause: "entityAttack", attribution: "entity" },
+  });
+});
+
 test("damage plan preserves source id while carrying Bedrock attribution", () => {
   const plan = damageSourcePlan("rock", {
     amount: 15,
@@ -72,7 +95,35 @@ test("damage plan preserves source id while carrying Bedrock attribution", () =>
   });
 });
 
-test("damage plan uses the neutral override cause only when no native cause is supplied", () => {
-  assert.equal(damageSourcePlan("sub_anom_2").cause, "override");
+test("damage plan uses the documented native mapping when no cause is supplied", () => {
+  assert.equal(damageSourcePlan("sub_anom_2").cause, "entityAttack");
   assert.throws(() => damageSourcePlan("thebrokenscript:not_a_real_source"), /Unknown custom damage source/);
+});
+
+test("mapped sources build mutually exclusive entity and projectile option shapes", () => {
+  const entity = { id: "attacker" };
+  const projectile = { id: "projectile" };
+  for (const [key, mapping] of Object.entries(CUSTOM_DAMAGE_SOURCE_MAPPINGS)) {
+    const plan = damageSourcePlan(key, {
+      amount: 1,
+      damagingEntity: mapping.attribution === "environment" ? null : entity,
+      damagingProjectile: mapping.attribution === "projectile" ? projectile : null,
+    });
+    if (mapping.attribution === "projectile") {
+      assert.deepEqual(damageSourceApplyOptions(plan), {
+        damagingEntity: entity,
+        damagingProjectile: projectile,
+      }, key);
+    } else {
+      assert.deepEqual(damageSourceApplyOptions(plan), {
+        cause: mapping.nativeCause,
+        ...(mapping.attribution === "entity" ? { damagingEntity: entity } : {}),
+      }, key);
+    }
+    assert.throws(
+      () => damageSourcePlan(key, { cause: mapping.nativeCause === "projectile" ? "magic" : "projectile" }),
+      /mapped to/,
+      key,
+    );
+  }
 });

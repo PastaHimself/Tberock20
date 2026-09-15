@@ -11,6 +11,7 @@ import {
   TENTACLE_SWIPE_BEDROCK_ADAPTER,
   TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
+  fireballImpactPlan,
   gravityAttackStep,
   phase3AttackCooldown,
   phase3AttackLength,
@@ -174,10 +175,18 @@ test("attack lengths and cooldowns match implemented source attacks", () => {
 
 test("Bedrock Fireball adapter launches once and keeps source duration", () => {
   assert.equal(FIREBALL_BEDROCK_ADAPTER.runtimeStatus, "adapted_animation_keyframe");
+  assert.equal(FIREBALL_BEDROCK_ADAPTER.playerTargetCenterHeight, 0.5);
   assert.equal(fireballAttackStep({ attackTicks: FIREBALL_BEDROCK_ADAPTER.launchTick }).launch, true);
   assert.equal(fireballAttackStep({ attackTicks: FIREBALL_BEDROCK_ADAPTER.launchTick, shotFireball: true }).launch, false);
   assert.equal(fireballAttackStep({ attackTicks: 143 }).finished, false);
   assert.equal(fireballAttackStep({ attackTicks: 144 }).finished, true);
+});
+
+test("Fireball resolves the nearest block or entity impact along its sweep", () => {
+  assert.equal(fireballImpactPlan({ blockHitT: 0.8, entityHitT: 0.2 }), "entity");
+  assert.equal(fireballImpactPlan({ blockHitT: 0.2, entityHitT: 0.8 }), "block");
+  assert.equal(fireballImpactPlan({ blockHitT: 0.5, entityHitT: 0.5 }), "block");
+  assert.equal(fireballImpactPlan({}), null);
 });
 
 test("TentacleSwipe center and impact plan retain source transform and hit rules", () => {

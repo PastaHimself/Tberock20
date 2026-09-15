@@ -24,6 +24,7 @@ import {
   TENTACLES_ATTACK_SOURCE,
   TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
+  fireballImpactPlan,
   fireballSegmentHitPlan,
   gravityAttackStep,
   phase3AttackCooldown,
@@ -813,10 +814,10 @@ function fireballBlockHit(fireball, next) {
         y: Math.floor(point.y),
         z: Math.floor(point.z),
       });
-      if (block !== undefined && block.isAir !== true) return true;
+      if (block !== undefined && block.isAir !== true) return fraction;
     } catch {}
   }
-  return false;
+  return null;
 }
 
 function fireballEntityHit(fireball, projectile, from, to) {
@@ -843,7 +844,8 @@ function fireballEntityHit(fireball, projectile, from, to) {
     ownerId: projectile.ownerId,
     targets: candidates,
   });
-  return candidates.find((candidate) => candidate.id === hit?.id)?.entity ?? null;
+  const candidate = candidates.find((entry) => entry.id === hit?.id);
+  return candidate ? { entity: candidate.entity, t: hit.t } : null;
 }
 
 function tickFireball(fireball) {
@@ -866,14 +868,17 @@ function tickFireball(fireball) {
     z: fireball.location.z + (projectile.dirZ / len) * FIREBALL_ATTACK_SOURCE.projectileSpeedBlocksPerTick,
   };
   const from = { ...fireball.location };
-  if (fireballBlockHit(fireball, next)) {
+  const blockHitT = fireballBlockHit(fireball, next);
+  const entityHit = fireballEntityHit(fireball, projectile, from, next);
+  const impact = fireballImpactPlan({ blockHitT, entityHitT: entityHit?.t });
+  if (impact === "block") {
     explodeFireball(fireball);
     return;
   }
-  const hit = fireballEntityHit(fireball, projectile, from, next);
   try { fireball.teleport(next); } catch { removeEntity(fireball); return; }
 
-  if (hit) {
+  if (impact === "entity") {
+    const hit = entityHit.entity;
     applyEntityAttack(
       fireball,
       hit,

@@ -196,6 +196,9 @@ export const PLAYER_STATE_SCHEMA = Object.freeze({
 });
 
 export const PLAYER_EXTRA_SCHEMA = Object.freeze({
+    // Bedrock-only profile markers used by the source Null-event gates.
+    fakeNull: extra("boolean", false),
+    isNullProfile: extra("boolean", false),
     // Bedrock-only delivery ledger for the one-shot story book adapter.
     nullBookDelivered: extra("boolean", false),
 });

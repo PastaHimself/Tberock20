@@ -137,6 +137,18 @@ export function chordProjectileEntityImpactPlan({ targetType, isCreativePlayer =
   };
 }
 
+/**
+ * Builds the Bedrock projectile-attribution options shape. Projectile damage
+ * options carry the projectile and optional firing entity; they do not also
+ * carry the ordinary EntityApplyDamageOptions `cause` field.
+ */
+export function chordProjectileDamageOptions(owner, projectile) {
+  return {
+    ...(owner ? { damagingEntity: owner } : {}),
+    damagingProjectile: projectile,
+  };
+}
+
 export function chordProjectileDirection(vector) {
   const x = Number(vector?.x ?? 0);
   const y = Number(vector?.y ?? 0);
