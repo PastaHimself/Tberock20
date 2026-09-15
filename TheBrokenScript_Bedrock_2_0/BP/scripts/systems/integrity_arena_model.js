@@ -12,6 +12,46 @@ export const ARENA_SOURCE = Object.freeze({
   participantRadius: 150,
 });
 
+function finitePoint(point) {
+  return point && [point.x, point.y, point.z].every(Number.isFinite);
+}
+
+/**
+ * Mirrors Arena.start's inclusive distance check while returning stable IDs
+ * instead of retaining Script API player objects across ticks.
+ */
+export function integrityParticipantIdsWithinRadius(
+  players,
+  center,
+  radius = ARENA_SOURCE.participantRadius,
+) {
+  if (!Array.isArray(players) || !finitePoint(center) || !Number.isFinite(radius) || radius < 0) {
+    return [];
+  }
+  const radiusSquared = radius * radius;
+  const ids = new Set();
+  for (const player of players) {
+    if (typeof player?.id !== "string" || player.id.length === 0 || !finitePoint(player.location)) continue;
+    const dx = player.location.x - center.x;
+    const dy = player.location.y - center.y;
+    const dz = player.location.z - center.z;
+    if (dx * dx + dy * dy + dz * dz <= radiusSquared) ids.add(player.id);
+  }
+  return [...ids].sort();
+}
+
+/**
+ * Bedrock's AABB is the server equivalent of the Java bounding box. Java's
+ * intersects predicate excludes boxes that only touch on a face/edge.
+ */
+export function aabbIntersects(first, second) {
+  if (!finitePoint(first?.min) || !finitePoint(first?.max)
+    || !finitePoint(second?.min) || !finitePoint(second?.max)) return false;
+  return first.min.x < second.max.x && first.max.x > second.min.x
+    && first.min.y < second.max.y && first.max.y > second.min.y
+    && first.min.z < second.max.z && first.max.z > second.min.z;
+}
+
 export const PHASE1_SOURCE = Object.freeze({
   introDelayTicks: 1080,
   terrainCorruptionRadius: 100,

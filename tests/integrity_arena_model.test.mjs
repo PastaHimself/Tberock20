@@ -50,12 +50,33 @@ import {
 import * as integrityModel from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/integrity_arena_model.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const authoringBossControllerPath = path.join(
+  repoRoot,
+  "TheBrokenScript_Bedrock_2_0/src/entities/boss/boss_controller.js",
+);
+const workflowPath = path.join(repoRoot, ".github/workflows/bedrock-addon-check.yml");
 
 test("Arena phase order and participant radius match Java source", () => {
   assert.equal(ARENA_SOURCE.participantRadius, 150);
   assert.equal(nextIntegrityPhase(INTEGRITY_PHASE.PHASE_1), INTEGRITY_PHASE.PHASE_2);
   assert.equal(nextIntegrityPhase(INTEGRITY_PHASE.PHASE_2), INTEGRITY_PHASE.PHASE_3);
   assert.equal(nextIntegrityPhase(INTEGRITY_PHASE.PHASE_3), null);
+});
+
+test("authoring controller does not fabricate Integrity HP transitions", async () => {
+  const source = await readFile(authoringBossControllerPath, "utf8");
+  const start = source.indexOf("function tickIntegrityEarly");
+  const end = source.indexOf("function tickIntegrityP3");
+  assert.ok(start >= 0 && end > start);
+  const section = source.slice(start, end);
+  assert.doesNotMatch(section, /threshold|transitionPhase|currentValue/);
+});
+
+test("GitHub Actions runs the focused Integrity parity suite", async () => {
+  const workflow = await readFile(workflowPath, "utf8");
+  assert.match(workflow, /Run Integrity boss parity regressions/);
+  assert.match(workflow, /integrity_parity_model\.test\.mjs/);
+  assert.match(workflow, /integrity_arena_runtime\.test\.mjs/);
 });
 
 test("Arena.checkLivingPlayers preserves the source's <=2-player behavior", () => {

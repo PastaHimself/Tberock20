@@ -64,6 +64,18 @@ function normalizeParticipantIds(ids) {
   return unique;
 }
 
+export function integrityRosterRecords(participantIds, players) {
+  if (!Array.isArray(participantIds) || !Array.isArray(players)) return [];
+  const current = new Map(
+    players
+      .filter((player) => typeof player?.id === "string" && player.connected !== false)
+      .map((player) => [player.id, player]),
+  );
+  return participantIds
+    .filter((id) => typeof id === "string" && current.has(id))
+    .map((id) => ({ id, player: current.get(id) }));
+}
+
 export function createIntegrityEncounter() {
   return {
     state: INTEGRITY_ENCOUNTER_STATE.DORMANT,

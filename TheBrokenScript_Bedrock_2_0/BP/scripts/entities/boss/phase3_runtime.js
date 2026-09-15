@@ -7,6 +7,7 @@ import {
   GROUND_ARM_SOURCE,
   GROUND_ATTACK_SOURCE,
   PHASE3_SOURCE,
+  aabbIntersects,
   phase3BoundaryKillStep,
   phase3TentacleCandidatePosition,
   groundArmImpactPlan,
@@ -23,11 +24,13 @@ import {
   TENTACLES_ATTACK_SOURCE,
   TENTACLE_SWIPE_SOURCE,
   fireballAttackStep,
+  fireballSegmentHitPlan,
   gravityAttackStep,
   phase3AttackCooldown,
   phase3AttackLength,
   phase3DamagePlan,
   phase3DeathStep,
+  maceAttackIsEligible,
   selectPhase3ImplementedAttack,
   tentaclesAttackCanUse,
   tentaclesAttackImpactPlan,
@@ -45,6 +48,7 @@ const pendingMaceParryCooldowns = new Map();
 const pendingDeaths = new Map();
 let gravityActiveThisTick = false;
 let damageHookInstalled = false;
+let participantIds = null;
 
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -70,6 +74,10 @@ function health(entity) {
 
 function isLiving(entity) {
   return isValid(entity) && health(entity) > 0;
+}
+
+function entityAabb(entity) {
+  try { return entity.getAABB(); } catch { return undefined; }
 }
 
 function isOnGround(entity) {
@@ -126,10 +134,18 @@ function runtimeEntities(dim) {
   try { return dim.getEntities({ families: [RUNTIME_FAMILY] }); } catch { return []; }
 }
 
+function rosterPlayers() {
+  try {
+    return world.getAllPlayers().filter((player) => (
+      participantIds === null || participantIds.has(player.id)
+    ));
+  } catch {
+    return [];
+  }
+}
+
 function nearestPlayer(entity, fixedId = null) {
-  let players = [];
-  try { players = world.getAllPlayers(); } catch { return null; }
-  const candidates = players.filter((player) => {
+  const candidates = rosterPlayers().filter((player) => {
     try {
       if (player.dimension.id !== entity.dimension.id || !isLiving(player)) return false;
       return fixedId === null || player.id === fixedId;
@@ -155,11 +171,18 @@ function removeEntity(entity) {
   pendingDeaths.delete(entity.id);
 }
 
-function applyEntityAttack(attacker, target, damage, cause = EntityDamageCause.entityAttack, sourceId = null) {
+function applyEntityAttack(
+  attacker,
+  target,
+  damage,
+  cause = EntityDamageCause.entityAttack,
+  sourceId = null,
+  attributionEntity = null,
+) {
   if (sourceId) {
     return applyDamageWithSource(target, damage, sourceId, {
       cause,
-      damagingEntity: attacker,
+      damagingEntity: attributionEntity ?? attacker,
       damagingProjectile: cause === EntityDamageCause.projectile ? attacker : null,
     }).accepted;
   }
@@ -174,12 +197,14 @@ function applyEntityAttack(attacker, target, damage, cause = EntityDamageCause.e
 function damageSourceKind(event) {
   const cause = event.damageSource?.cause;
   const source = event.damageSource?.damagingEntity;
+  const projectile = event.damageSource?.damagingProjectile;
   if (cause === EntityDamageCause.void) return "void";
   if (cause === EntityDamageCause.selfDestruct) return "self_destruct";
   // Bedrock's override cause is the closest stable cause for an indirect
   // health/kill operation; Java calls this GENERIC_KILL in the source entity.
   if (cause === EntityDamageCause.override) return "generic_kill";
-  if (source?.typeId === "thebrokenscript:integ_fireball") return "integ_fireball";
+  if (source?.typeId === "thebrokenscript:integ_fireball"
+    || projectile?.typeId === "thebrokenscript:integ_fireball") return "integ_fireball";
   if (source?.typeId === "minecraft:player") return "player";
   return "other";
 }
@@ -269,6 +294,33 @@ function queueMaceParry(player) {
   try { system.run(() => breakParriedMace(player)); } catch {}
 }
 
+function mainhandItemId(player) {
+  try {
+    const slot = player.getComponent("minecraft:equippable")
+      ?.getEquipmentSlot(EquipmentSlot.Mainhand);
+    if (!slot?.hasItem()) return null;
+    return slot.getItem()?.typeId ?? slot.typeId ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function maceAttackFromEvent(event) {
+  const player = event.damageSource?.damagingEntity;
+  if (event.damageSource?.cause !== EntityDamageCause.maceSmash || player?.typeId !== "minecraft:player") {
+    return false;
+  }
+  const fallFlying = player.isFallFlying === true || player.isGliding === true;
+  // Bedrock exposes isFalling but not Java's fallDistance. A native maceSmash
+  // event is the supported evidence that the source threshold was reached.
+  const fallDistance = player.isFalling === true || !fallFlying ? 1.5 : 0;
+  return maceAttackIsEligible({
+    mainhandItemId: mainhandItemId(player),
+    fallDistance,
+    fallFlying,
+  });
+}
+
 function installDamageHook() {
   if (damageHookInstalled) return;
   damageHookInstalled = true;
@@ -283,7 +335,7 @@ function installDamageHook() {
         ...state,
         sourceKind,
         incomingAmount: event.damage,
-        maceAttack: sourceKind === "player" && event.damageSource?.cause === EntityDamageCause.maceSmash,
+        maceAttack: sourceKind === "player" && maceAttackFromEvent(event),
         targetHealth: health(target),
       });
 
@@ -362,9 +414,7 @@ function spawnPhase3Tentacles(entity, state) {
 }
 
 function phase3Players(entity) {
-  let players = [];
-  try { players = world.getAllPlayers(); } catch { return []; }
-  return players
+  return rosterPlayers()
     .filter((player) => {
       try { return player.dimension.id === entity.dimension.id; } catch { return false; }
     })
@@ -404,7 +454,10 @@ function initPhase3(entity) {
   states.set(entity.id, state);
   pendingHurtFrames.delete(entity.id);
   pendingMaceParryCooldowns.delete(entity.id);
-  bossHooks.setArenaState(true, false);
+  // The Arena owner is the only module allowed to claim the global active
+  // flag. Standalone Phase 3 entities still work for regression/dev spawns,
+  // but do not end or overwrite an unrelated encounter.
+  if (participantIds !== null) bossHooks.setArenaState(true, false);
   return state;
 }
 
@@ -486,6 +539,7 @@ function spawnFireball(entity, target) {
   if (!fireball) return false;
   projectileStates.set(fireball.id, {
     ownerId: entity.id,
+    ownerEntity: entity,
     dirX: target.location.x - from.x,
     dirY: target.location.y + FIREBALL_BEDROCK_ADAPTER.playerTargetCenterHeight - from.y,
     dirZ: target.location.z - from.z,
@@ -533,9 +587,7 @@ function tickTentacleSwipe(entity, state) {
     position: entity.location,
     yawDegrees: Number.isFinite(rotation?.y) ? rotation.y : 0,
   });
-  let players = [];
-  try { players = world.getAllPlayers(); } catch { return; }
-  const candidates = players
+  const candidates = rosterPlayers()
     .filter((player) => player.dimension.id === entity.dimension.id && isLiving(player))
     .map((player) => ({ id: player.id, entity: player, position: player.location }));
   const impacts = tentacleSwipeImpactPlan({ center, players: candidates });
@@ -553,9 +605,7 @@ function tickGravityAttack(state) {
 }
 
 function tentaclesPlayerRecords(entity) {
-  let players = [];
-  try { players = world.getAllPlayers(); } catch { return []; }
-  return players
+  return rosterPlayers()
     .filter((player) => {
       try { return player.dimension.id === entity.dimension.id && isLiving(player); } catch { return false; }
     })
@@ -711,14 +761,17 @@ function tickGroundArm(arm) {
   }
   if (!step.impact || !owner) return;
 
-  const candidates = nearby(arm, GROUND_ARM_SOURCE.impactRadius)
+  const armAabb = entityAabb(arm);
+  const candidates = rosterPlayers()
     .filter((entity) => entity.typeId === "minecraft:player" && isLiving(entity))
     .map((player) => ({
       id: player.id,
       entity: player,
+      aabb: entityAabb(player),
       dx: player.location.x - arm.location.x,
       dz: player.location.z - arm.location.z,
-    }));
+    }))
+    .filter((player) => armAabb && player.aabb && aabbIntersects(armAabb, player.aabb));
   const impacts = groundArmImpactPlan({ intersectingPlayers: candidates });
   for (const impact of impacts) {
     const candidate = candidates.find((entry) => entry.id === impact.id);
@@ -744,26 +797,53 @@ function explodeFireball(fireball) {
 }
 
 function fireballBlockHit(fireball, next) {
-  try {
-    const block = fireball.dimension.getBlock({
-      x: Math.floor(next.x),
-      y: Math.floor(next.y),
-      z: Math.floor(next.z),
-    });
-    return block !== undefined && block.isAir !== true;
-  } catch {
-    return false;
+  const from = fireball.location;
+  const distanceToNext = distance(from, next);
+  const steps = Math.max(1, Math.ceil(distanceToNext * 2));
+  for (let index = 1; index <= steps; index += 1) {
+    const fraction = index / steps;
+    const point = {
+      x: from.x + (next.x - from.x) * fraction,
+      y: from.y + (next.y - from.y) * fraction,
+      z: from.z + (next.z - from.z) * fraction,
+    };
+    try {
+      const block = fireball.dimension.getBlock({
+        x: Math.floor(point.x),
+        y: Math.floor(point.y),
+        z: Math.floor(point.z),
+      });
+      if (block !== undefined && block.isAir !== true) return true;
+    } catch {}
   }
+  return false;
 }
 
-function fireballEntityHit(fireball, projectile) {
-  const targets = nearby(fireball, FIREBALL_BEDROCK_ADAPTER.collisionRadius)
-    .filter((entity) => (
-      entity.id !== fireball.id
-      && entity.id !== projectile.ownerId
-      && isLiving(entity)
-    ));
-  return targets[0] ?? null;
+function fireballEntityHit(fireball, projectile, from, to) {
+  const candidates = rosterPlayers()
+    .filter((entity) => {
+      try {
+        return entity.dimension.id === fireball.dimension.id
+          && entity.id !== fireball.id
+          && entity.id !== projectile.ownerId
+          && isLiving(entity);
+      } catch {
+        return false;
+      }
+    })
+    .map((entity) => ({
+      id: entity.id,
+      entity,
+      aabb: entityAabb(entity),
+    }))
+    .filter((candidate) => candidate.aabb !== undefined);
+  const hit = fireballSegmentHitPlan({
+    from,
+    to,
+    ownerId: projectile.ownerId,
+    targets: candidates,
+  });
+  return candidates.find((candidate) => candidate.id === hit?.id)?.entity ?? null;
 }
 
 function tickFireball(fireball) {
@@ -785,13 +865,14 @@ function tickFireball(fireball) {
     y: fireball.location.y + (projectile.dirY / len) * FIREBALL_ATTACK_SOURCE.projectileSpeedBlocksPerTick,
     z: fireball.location.z + (projectile.dirZ / len) * FIREBALL_ATTACK_SOURCE.projectileSpeedBlocksPerTick,
   };
+  const from = { ...fireball.location };
   if (fireballBlockHit(fireball, next)) {
     explodeFireball(fireball);
     return;
   }
+  const hit = fireballEntityHit(fireball, projectile, from, next);
   try { fireball.teleport(next); } catch { removeEntity(fireball); return; }
 
-  const hit = fireballEntityHit(fireball, projectile);
   if (hit) {
     applyEntityAttack(
       fireball,
@@ -799,6 +880,7 @@ function tickFireball(fireball) {
       FIREBALL_ATTACK_SOURCE.entityHitDamage,
       EntityDamageCause.projectile,
       "thebrokenscript:integrity_ball",
+      projectile.ownerEntity ?? null,
     );
     explodeFireball(fireball);
     return;
@@ -834,9 +916,15 @@ function applyStage3InverseGravity(players) {
 }
 
 function onTick() {
-  let players = [];
-  try { players = world.getAllPlayers(); } catch { return; }
-  if (players.length === 0) return;
+  const players = rosterPlayers();
+  if (players.length === 0 && participantIds !== null) return;
+  if (players.length === 0) {
+    try {
+      if (world.getAllPlayers().length === 0) return;
+    } catch {
+      return;
+    }
+  }
   gravityActiveThisTick = false;
   for (const dim of dimensions()) {
     for (const entity of runtimeEntities(dim)) {
@@ -851,3 +939,33 @@ export function begin(scheduler) {
   scheduler.every("tbs.phase3_runtime_tick", 1, onTick);
 }
 
+export function setParticipantIds(ids) {
+  participantIds = new Set(
+    Array.isArray(ids)
+      ? ids.filter((id) => typeof id === "string" && id.length > 0)
+      : [],
+  );
+}
+
+export function clearParticipantIds() {
+  participantIds = null;
+  armOwners.clear();
+}
+
+export function cleanup() {
+  for (const dim of dimensions()) {
+    for (const entity of runtimeEntities(dim)) removeEntity(entity);
+  }
+  states.clear();
+  armOwners.clear();
+  projectileStates.clear();
+  pendingHurtFrames.clear();
+  pendingMaceParryCooldowns.clear();
+  pendingDeaths.clear();
+  gravityActiveThisTick = false;
+  participantIds = null;
+}
+
+export function getParticipantIds() {
+  return participantIds === null ? [] : [...participantIds].sort();
+}

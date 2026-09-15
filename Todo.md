@@ -164,17 +164,19 @@ Evidence (2026-09-15): `BP/scripts/core/entity_family_registry.js` and its mirro
 
 ## 8. Integrity boss parity
 
-- [ ] Audit Phase 1 and Phase 2 directly from source; confirm no historical fabricated health-threshold transition logic remains.
-- [ ] Audit Phase 3 candidate generation, presets, arena boundary, attack selector, attack cooldowns, damage gates, mace parry, death timing, and cleanup against source.
-- [ ] Verify inclusive/exclusive random ranges exactly.
-- [ ] Verify GroundAttack/GroundArm target capture, spawn tick, owner semantics, impact geometry, stuck propagation, and destruction lifecycle.
-- [ ] Verify fireball/projectile collision and owner exclusion under lag and multiplayer.
-- [ ] Verify final cutscene timing model against Java even where camera/packet transport must be adapted.
-- [ ] Verify participant tracking/arena membership has no multiplayer leak or cross-player damage attribution errors.
+- [x] Audit Phase 1 and Phase 2 directly from source; confirm no historical fabricated health-threshold transition logic remains.
+- [x] Audit Phase 3 candidate generation, presets, arena boundary, attack selector, attack cooldowns, damage gates, mace parry, death timing, and cleanup against source.
+- [x] Verify inclusive/exclusive random ranges exactly.
+- [x] Verify GroundAttack/GroundArm target capture, spawn tick, owner semantics, impact geometry, stuck propagation, and destruction lifecycle.
+- [x] Verify fireball/projectile collision and owner exclusion under lag and multiplayer.
+- [x] Verify final cutscene timing model against Java even where camera/packet transport must be adapted.
+- [x] Verify participant tracking/arena membership has no multiplayer leak or cross-player damage attribution errors.
 
 ### Engine-limited Integrity behavior
 
-- [ ] Keep Java-only overlay/music packet, exact camera override, exact custom damage type, synchronized owner field, and exact AABB-contact differences explicitly documented until a better Bedrock API exists.
+- [x] Keep Java-only overlay/music packet, exact camera interpolation/zoom transport, exact custom damage type, synchronized owner field, and custom dying animation explicitly documented until a better Bedrock API exists.
+
+Evidence (2026-09-15): `BP/scripts/entities/boss/integrity_arena_runtime.js` is the live Arena owner; `integrity_arena_model.js` and `phase3_attack_model.js` preserve source constants and inclusive/exclusive predicates; `phase3_runtime.js` isolates the Arena roster, uses `Entity.getAABB()` for GroundArm contact, performs swept fireball collision with owner exclusion, and exposes cleanup. `tests/integrity_arena_model.test.mjs`, `tests/integrity_arena_runtime.test.mjs`, `tests/integrity_parity_model.test.mjs`, `tests/phase3_attack_model.test.mjs`, and `tests/phase3_lifecycle_model.test.mjs` run in the named GitHub Actions Integrity gate. Remaining packet-level overlay/music, exact camera interpolation/zoom transport, Java custom damage metadata, synchronized owner field, and custom dying animation are documented in `ADAPTATION_NOTES.md` A-011/A-013/A-018 and `KNOWN_LIMITATIONS.md` item 14.
 
 ## 9. Jimmy / Fractured / FracturedRoam parity
 

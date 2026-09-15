@@ -41,17 +41,16 @@ function installDeathHook() {
         id === "thebrokenscript:the_obliteration_2";
       if (!isBoss) return;
       try { ev.deadEntity.dimension.playSound("thebrokenscript:integrity_dies", ev.deadEntity.location, { volume: 10, pitch: 1 }); } catch {}
-      if (id.startsWith("thebrokenscript:integrity")) bossHooks.setArenaState(false, false);
     });
   } catch {}
 }
 
 // ── constants from decompiled sources ──────────────────────────────────────
-// Integrity phase advancement is owned by Arena/Phase source semantics, not HP
-// fractions. Source-backed arena constants/predicates live in integrity_arena_model.js;
-// automatic arena startup remains disabled until its Java callsite is recovered.
-// Phase 3 ring spawning and boundary countdown are wired below. The Java
-// participant roster/transfer and custom camera packets remain engine gaps.
+// Integrity phase advancement and global Arena state are owned by
+// integrity_arena_runtime.js. Source-backed constants/predicates live in
+// integrity_arena_model.js; this controller remains the per-entity fallback for
+// presentation/attack hooks. The Java packet overlay/music/custom damage and
+// synchronized owner transports remain documented engine adapters.
 // Fractured, Rock, and FracturedRoam are owned by the dedicated source-specific runtime.
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
@@ -339,10 +338,9 @@ function tickEntity(e) {
   switch (e.typeId) {
     case "thebrokenscript:integrity_phase_1":
     case "thebrokenscript:integrity_phase_2": return tickIntegrityEarly(e);
-    case "thebrokenscript:integrity_phase_3": return tickIntegrityP3(e);
-    case "thebrokenscript:integrity_arm": return tickArm(e);
     case "thebrokenscript:integrity_curious": return tickCuriousWatcher(e);
-    case "thebrokenscript:integ_fireball": return tickFireball(e);
+    // Phase 3, GroundArm, and Integrity fireballs are all in the dedicated
+    // phase3_runtime family and have one scheduler/collision owner there.
     case "thebrokenscript:fractured_roam": return tickFracturedRoam(e);
     case "thebrokenscript:murderfur": return tickMurderfur(e);
     case "thebrokenscript:fever": return tickFever(e);

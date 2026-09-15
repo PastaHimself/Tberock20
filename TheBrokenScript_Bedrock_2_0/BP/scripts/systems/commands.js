@@ -1,7 +1,6 @@
 import {
   CommandPermissionLevel,
   CustomCommandStatus,
-  world,
   system
 } from "@minecraft/server";
 import * as horrorEvents from "./horror_events.js";
@@ -11,6 +10,7 @@ import * as progression from "./progression.js";
 import * as playerState from "./player_state.js";
 import { logger } from "../core/logging.js";
 import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js";
+import * as integrityArenaRuntime from "../entities/boss/integrity_arena_runtime.js";
 
 // Source-backed production command registration. Java registers `tbs` at permission
 // level 4; Bedrock has no equivalent 0-4 op ladder, so Admin is the closest
@@ -60,7 +60,7 @@ export function register(customCommandRegistry) {
 // Bedrock-only developer/regression hooks. These are not presented as Java
 // command parity; they remain behind Bedrock's built-in /scriptevent command.
 // Usage: /scriptevent tbs:help   |   /scriptevent tbs:fire <event_id>
-//        /scriptevent tbs:arena start|stop   |   /scriptevent tbs:shaft
+//        /scriptevent tbs:arena start|next|stop   |   /scriptevent tbs:shaft
 //        /scriptevent tbs:dim <dimension>   |   /scriptevent tbs:adv <advId>
 //        /scriptevent tbs:effect heart_corruption|why_cant_you_leave [seconds]
 
@@ -90,7 +90,7 @@ function handleCommand(ev) {
       reply(ev, [
         "§8--- The Broken Script commands ---",
         "§7/scriptevent tbs:fire <event>",
-        "§7/scriptevent tbs:arena <start|stop>",
+        "§7/scriptevent tbs:arena <start [p3]|next|stop>",
         "§7/scriptevent tbs:shaft",
         "§7/scriptevent tbs:dim <dimension>",
         "§7/scriptevent tbs:adv <advancement>",
@@ -106,10 +106,26 @@ function handleCommand(ev) {
       reply(ev, `§7${horrorEvents.EVENT_COUNT} events registered`);
       break;
     case "arena": {
-      const on = parts[0] === "start";
-      world.setDynamicProperty("tbs:arenaActive", on);
-      world.setDynamicProperty("tbs:arenaPhase1", on && parts[1] !== "p3");
-      reply(ev, on ? "§5Arena started" : "§5Arena stopped");
+      const action = parts[0] ?? "";
+      if (action === "start") {
+        /** @type {"phase1"|"phase3"} */
+        const requestedPhase = parts[1] === "p3" ? "phase3" : "phase1";
+        const result = integrityArenaRuntime.start(player, requestedPhase);
+        reply(
+          ev,
+          result.accepted
+            ? `§5Arena started (${result.participantIds.length} participants)`
+            : `§cArena not started: ${result.reason}`,
+        );
+      } else if (action === "next") {
+        const result = integrityArenaRuntime.next();
+        reply(ev, result.accepted ? `§5Arena advanced to ${result.phase}` : `§cArena not advanced: ${result.reason}`);
+      } else if (action === "stop") {
+        integrityArenaRuntime.stop("command");
+        reply(ev, "§5Arena stopped");
+      } else {
+        reply(ev, "§7Usage: /scriptevent tbs:arena <start [p3]|next|stop>");
+      }
       break;
     }
     case "shaft": {

@@ -140,6 +140,16 @@ jobs:
         if: always()
         run: node --experimental-vm-modules --test tests/story_clock.test.mjs
 
+      - name: Run Integrity boss parity regressions
+        if: always()
+        run: >-
+          node --experimental-vm-modules --test
+          tests/integrity_parity_model.test.mjs
+          tests/integrity_arena_runtime.test.mjs
+          tests/integrity_arena_model.test.mjs
+          tests/phase3_attack_model.test.mjs
+          tests/phase3_lifecycle_model.test.mjs
+
       - name: Checkout Blockception Bedrock language server
         if: always()
         uses: actions/checkout@v5
