@@ -163,7 +163,7 @@ function tickBrokenEnd(e) {
   }
 
   // target handling — closest player within 128 chase range (source ChaseGoal detectionRange 128)
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id), e.location, 128);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
   if (player) {
     // keep hasSeen if within LOS (1000 scan every 10 ticks — approximate each tick)
     if (hasLineOfSightApprox(player, e)) {
@@ -374,7 +374,7 @@ function tickStalk(e) {
     // don't run gaze triggers while invisible — but keep despawn ticking
   } else {
     // look-at-closest behavior
-    const player = entityFinder.closestPlayerInRange(world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id), e.location, 150);
+    const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 150);
     if (player) {
       try { e.lookAt?.(player.location); } catch {}
       const dist30 = isWithin(e, player, 30);
@@ -394,7 +394,7 @@ function tickStalk(e) {
         }
       }
       // 192 gaze LOS trigger (hitbox-like: fov 14)
-      const inGazeRange = isWithin(e, player, 192) && gaze.isLookingAtLocation(player, e.location, 14);
+      const inGazeRange = isWithin(e, player, 192) && gaze.isLookingAtEntity(player, e, 14);
       if (inGazeRange && hasLineOfSightApprox(player, e)) {
         try { player.addEffect("blindness", 21, { amplifier: 1, showParticles: false }); } catch {}
         tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:heartbeat", 10, 0);
@@ -437,7 +437,7 @@ function tickCurious(e) {
   life--; setNum(e, "life", life);
   if (life <= 0) { try { e.remove(); } catch {} timers.delete(e.id); return; }
 
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id), e.location, 512);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 512);
   if (!player) return;
 
   const inRange = isWithin(e, player, 40);
@@ -452,7 +452,7 @@ function tickCurious(e) {
       return dot >= Math.cos(fov / 2);
     } catch { return false; }
   })();
-  const lookingAt = gaze.isLookingAtLocation(player, e.location, 14);
+  const lookingAt = gaze.isLookingAtEntity(player, e, 14);
   const hasLOS = hasLineOfSightApprox(player, e);
   const isSeen = inRange || (hasLOS && (inFov || lookingAt));
 
@@ -538,7 +538,7 @@ function tickAmbush(e) {
     despawnTimer++; setNum(e, "despawnTimer", despawnTimer);
     if (despawnTimer >= AMBUSH_DESPAWN_TICKS) {
       if (spawnTBE) {
-        const player = entityFinder.closestPlayerInRange(world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id), e.location, 512);
+        const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 512);
         if (player) {
           const dist = 15 + Math.random() * 15;
           const look = player.getViewDirection();
@@ -572,7 +572,7 @@ function tickAmbush(e) {
     return;
   }
 
-  const near = entityFinder.closestPlayerInRange(world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id), e.location, 15);
+        const near = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 15);
   if (near) {
     setNum(e, "despawning", 1);
     tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:reel", 1, 1);

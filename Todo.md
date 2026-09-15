@@ -141,24 +141,26 @@ and the `persistent state parity` JavaScript/Python test suites. The validator a
 
 For each entity, compare source and Bedrock side-by-side:
 
-- [ ] health, movement speed, follow range, scale, collision size, knockback resistance, attack damage, armor, and immunities;
-- [ ] spawn conditions, rarity, biome/dimension blacklist/whitelist, light/sky checks, distance gates, delays, and caps;
-- [ ] despawn rules and persistence;
-- [ ] target acquisition/loss and player filters;
-- [ ] line-of-sight/gaze/FOV logic;
-- [ ] AI state transitions, timers, interruptions, grace periods, and cooldowns;
-- [ ] teleport, stalking, hiding, chase, flee, mining/block interaction, and environmental side effects;
-- [ ] sound/particle/animation events at exact state/tick boundaries;
-- [ ] death behavior, drops, progression hooks, and cleanup.
+- [~] health, movement speed, follow range, scale, collision size, knockback resistance, attack damage, armor, and immunities;
+- [~] spawn conditions, rarity, biome/dimension blacklist/whitelist, light/sky checks, distance gates, delays, and caps;
+- [~] despawn rules and persistence;
+- [x] target acquisition/loss and player filters;
+- [x] line-of-sight/gaze/FOV logic;
+- [~] AI state transitions, timers, interruptions, grace periods, and cooldowns;
+- [~] teleport, stalking, hiding, chase, flee, mining/block interaction, and environmental side effects;
+- [~] sound/particle/animation events at exact state/tick boundaries;
+- [~] death behavior, drops, progression hooks, and cleanup.
 
 ### High-risk adapted entity behavior
 
-- [ ] Revisit gaze-cone approximations where Java uses more exact view/visibility tests.
-- [ ] Revisit dimension-teleport approximations in Null behavior.
+- [x] Revisit gaze-cone approximations where Java uses more exact view/visibility tests.
+- [~] Revisit dimension-teleport approximations in Null behavior.
 - [ ] Revisit maze door/block-breaking behavior that was skipped or approximated.
 - [ ] Revisit flying FOV/sneak behavior.
 - [ ] Revisit chunk-removal/chunk-operation surrogates and confirm the closest safe observable behavior.
-- [ ] Verify all spawn-director rules against the source conditions rather than relying solely on the historical Chunk 17 category audit.
+- [~] Verify all spawn-director rules against the source conditions rather than relying solely on the historical Chunk 17 category audit.
+
+Evidence (2026-09-15): `BP/scripts/core/entity_family_registry.js` and its mirrored `src` contract inventory all 69 shipped BP entities exactly once and point each family to source roots, controller, spawn, and render surfaces. `tests/entity_family_fidelity.test.mjs` covers registry completeness, render/runtime links, cross-dimension and spectator filtering, hitbox-aware ray visibility, blocked gaze rays, and supported sky-light gates. The shared targeting/gaze/visibility services are used by the family controllers, and the spawn director now evaluates the legacy `players[0]` rule contract once per player while retaining one-successful-spawn pacing. Java-only multipart/render/chunk behavior remains explicitly classified as an adaptation in `ADAPTATION_NOTES.md` A-023; a real Bedrock engine smoke report is still required before claiming exact runtime parity.
 
 ## 8. Integrity boss parity
 

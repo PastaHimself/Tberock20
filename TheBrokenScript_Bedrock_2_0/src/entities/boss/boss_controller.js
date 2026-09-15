@@ -174,7 +174,7 @@ function tickIntegrityP3(e) {
   setNum(e, "volley", v);
   if (v <= 0) {
     setNum(e, "volley", 100);
-    const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 64);
+    const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 64);
     if (target) {
       const fb = spawnAt(e.dimension, "thebrokenscript:integ_fireball", {
         x: e.location.x, y: e.location.y + 4, z: e.location.z
@@ -218,7 +218,7 @@ function tickArm(e) {
 function tickCuriousWatcher(e) {
   let life = getNum(e, "life", 1200);
   if (!timers.has(e.id)) { life = 1200; timers.set(e.id, { life }); }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 158);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 158);
   if (player) { try { e.lookAt?.(player.location); } catch {} }
   life--; setNum(e, "life", life);
   if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
@@ -253,7 +253,7 @@ function tickFireball(e) {
 
 // ── Fractured (Jimmy) ────────────────────────────────────────────────────────
 function tickFractured(e) {
-  const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
+  const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
   if (!target) return;
   try { e.lookAt?.(target.location); } catch {}
   if (distance(e.location, target.location) > 6 && system.currentTick % 5 === 0) {
@@ -295,7 +295,7 @@ function tickRock(e) {
 
 // ── Murderfur (Kerfur pet) ───────────────────────────────────────────────────
 function tickMurderfur(e) {
-  const owner = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 400);
+  const owner = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 400);
   if (owner) {
     const d = distance(e.location, owner.location);
     if (d > 6 && system.currentTick % 15 === 0) approach(e, owner, 0.45);
@@ -308,7 +308,7 @@ function tickMurderfur(e) {
 
 // ── Fever pair ───────────────────────────────────────────────────────────────
 function tickFever(e) {
-  const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 256);
+  const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 256);
   if (!target) return;
   if (distance(e.location, target.location) > 4 && system.currentTick % 5 === 0) {
     approach(e, target, 0.2);
@@ -323,7 +323,7 @@ function tickFever(e) {
 function tickFeverStalk(e) {
   let life = getNum(e, "life", 7200);
   if (!timers.has(e.id)) { life = 7200; timers.set(e.id, { life }); }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 158);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 158);
   if (player) { try { e.lookAt?.(player.location); } catch {} }
   life--; setNum(e, "life", life);
   if (life <= 0 || (player && distance(e.location, player.location) < 16)) {
@@ -335,7 +335,7 @@ function tickFeverStalk(e) {
 
 // ── Chord pair ───────────────────────────────────────────────────────────────
 function tickChord(e) {
-  const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 48);
+  const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 48);
   if (!target) return;
   if (distance(e.location, target.location) > 3 && system.currentTick % 3 === 0) {
     approach(e, target, 0.15);

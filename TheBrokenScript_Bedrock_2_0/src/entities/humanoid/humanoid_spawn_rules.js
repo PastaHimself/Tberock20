@@ -5,6 +5,7 @@ import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
+import { hasSkyLightAt } from "../../systems/ai/visibility.js";
 import * as progression from "../../systems/progression.js";
 
 // ── SiluetConditions matrix[moonStage 0..2][moonPhase 0..7] ──────────────────
@@ -33,11 +34,7 @@ function getMoonPhase() {
 }
 
 function playerSkyLightAtLeast(dim, loc, min) {
-  try {
-    const lvl = dim.getBlock({ x: Math.floor(loc.x), y: Math.floor(loc.y), z: Math.floor(loc.z) })?.getSkyLightLevel?.();
-    if (typeof lvl === "number") return lvl >= min;
-  } catch {}
-  return true; // permissive fallback
+  return hasSkyLightAt(dim, loc, min);
 }
 
 function pickCandidateNearPlayer(player, minDist, maxDist) {
@@ -87,7 +84,7 @@ function canSpawnSiluet(ctx) {
   if (typeId === "thebrokenscript:siluet") {
     try { dim.playSound("ambient.cave", loc, { volume: 10, pitch: 1 }); } catch {}
     if (Math.random() < 0.9) {
-      const near = entityFinder.closestPlayerInRange(world.getAllPlayers(), loc, 1000);
+      const near = entityFinder.closestPlayerInRange(world.getAllPlayers(), loc, 1000, { dimension: dim });
       if (near) progression.award(near.id, "can_you_see_me");
     }
   } else if (typeId === "thebrokenscript:he") {

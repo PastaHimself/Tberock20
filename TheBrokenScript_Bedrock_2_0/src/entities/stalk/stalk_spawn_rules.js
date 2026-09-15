@@ -4,6 +4,7 @@ import * as worldState from "../../systems/world_state.js";
 import { config } from "../../core/config.js";
 import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
+import { hasSkyLightAt } from "../../systems/ai/visibility.js";
 
 // ── condition constants ──────────────────────────────────────────────────────
 const CURVED_CHANCE = 0.00085;      // CurvedConditions, delay 32000, max 2 alive
@@ -85,6 +86,7 @@ export function register() {
       if (worldState.get("herobrineDelay") > 0) return false;
       if (Math.random() > HEROBRINE_CHANCE) return false;
       const loc = pickCandidateNearPlayer(player, 32, 80);
+      if (!hasSkyLightAt(player.dimension, loc)) return false;
       let existing = [];
       try { existing = player.dimension.getEntities({ type: "thebrokenscript:herobrine" }); } catch {}
       if (existing.length > 0) return false;

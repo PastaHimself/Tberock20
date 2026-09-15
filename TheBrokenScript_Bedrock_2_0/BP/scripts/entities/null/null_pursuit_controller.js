@@ -49,7 +49,7 @@ function tickEntity(e) {
 }
 
 function tickChase(e) {
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 520);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 520);
   if (!player) { e.remove(); timers.delete(e.id); return; }
   if (Math.random() < 0.01) { try { e.dimension.runCommand("time set midnight"); } catch {} }
   if (Math.random() < 0.25) { try { e.dimension.spawnParticle("thebrokenscript:null_particle", e.location); } catch {} }
@@ -57,7 +57,7 @@ function tickChase(e) {
 }
 
 function tickMaze(e) {
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
   if (!player) return;
   try {
     const light = e.dimension.getBlock({ x: Math.floor(e.location.x), y: Math.floor(e.location.y + 1), z: Math.floor(e.location.z) });
@@ -66,7 +66,7 @@ function tickMaze(e) {
 }
 
 function tickEndgame(e) {
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 50);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 50);
   if (!player) return;
   try { player.onScreenDisplay.setTitle("HERE I AM", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 10 }); } catch {}
   if (getTimer(e) % 60 === 0) { try { player.applyDamage(999, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { player.applyDamage(999); } catch {} } }
@@ -80,14 +80,14 @@ function tickFlying(e) {
   if (getTimer(e) % 20 === 0) {
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.2, z: e.location.z }); } catch {}
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 30);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 30);
   if (player && Math.random() < 0.3) { try { player.applyDamage(Math.floor(Math.random()*9)+1); } catch {} }
 }
 
 function tickInvade(e) {
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 15);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 15);
   if (!player) return;
-  if (!gaze.isLookingAtLocation(player, e.location, 14)) return;
+  if (!gaze.isLookingAtEntity(player, e, 14)) return;
   if (Math.random() < 0.7) {
     try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch {}
     try { e.dimension.spawnEntity("minecraft:lightning_bolt", e.location); } catch {}

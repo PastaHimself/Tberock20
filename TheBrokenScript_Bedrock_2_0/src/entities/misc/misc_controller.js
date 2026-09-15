@@ -178,7 +178,7 @@ function tickXxram(e) {
     }
   } catch {}
 
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 520);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 520);
   if (!player) return;
   try { e.lookAt?.(player.location); } catch {}
   if (distance(e.location, player.location) < 25) {
@@ -212,7 +212,7 @@ function __spawn(dim, typeId, loc) {
 // ── ban ──────────────────────────────────────────────────────────────────────
 function tickBan(e) {
   // nearest player ≤128 gets PlayerVariables.ban=true then entity discards
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
   if (player) {
     try { playerState.set(player, "ban", true); } catch {}
   }
@@ -226,7 +226,7 @@ function tickNiw(e) {
     life = NIW_LIFE; timers.set(e.id, { life });
     tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:white_noise", 10, 0);
   }
-  const closest = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 510);
+  const closest = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 510);
   if (closest) {
     if (distance(e.location, closest.location) < 10) {
       try { closest.addEffect("blindness", 500, { amplifier: 1, showParticles: false }); } catch {}
@@ -236,7 +236,7 @@ function tickNiw(e) {
       try { e.remove(); } catch {} deleteTimers(e);
       return;
     }
-    if (distance(e.location, closest.location) < 100 && gaze.isLookingAtLocation(closest, e.location, 14)) {
+    if (distance(e.location, closest.location) < 100 && gaze.isLookingAtEntity(closest, e, 14)) {
       try { e.remove(); } catch {} deleteTimers(e);
       if (Math.random() < 0.7) {
         const s = __spawn(e.dimension, "thebrokenscript:nothingiswatchingchase", e.location);
@@ -253,7 +253,7 @@ function tickNiw(e) {
 
 // ── nothingiswatchingchase ───────────────────────────────────────────────────
 function tickNiwChase(e) {
-  const target = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 500);
+  const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 500);
   if (!target) return;
   try { e.lookAt?.(target.location); } catch {}
   if (distance(e.location, target.location) < 5) {
@@ -284,7 +284,7 @@ function tickPhantom(e) {
     try { e.nameTag = "Phantom Player (notexture)"; } catch {}
     try { e.nameTagVisible = true; } catch {}
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 256);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 256);
   if (player) {
     if (distance(e.location, player.location) < 200 && Math.random() < 0.0001) {
       try { e.remove(); } catch {} deleteTimers(e);
@@ -315,9 +315,9 @@ function tickHetzer(e) {
   if (system.currentTick % 10 === 0) {
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.15, z: e.location.z }); } catch {}
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 64);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 64);
   if (player) {
-    const observed = gaze.isLookingAtLocation(player, e.location, 14) || distance(e.location, player.location) < 10;
+    const observed = gaze.isLookingAtEntity(player, e, 14) || distance(e.location, player.location) < 10;
     if (observed && system.currentTick % 40 === 0) {
       try { player.addEffect("blindness", 5, { amplifier: 1, showParticles: false }); } catch {}
     }
@@ -345,7 +345,7 @@ function tickFollow(e) {
       if (b && b.typeId === "minecraft:air") b.setType("thebrokenscript:disruption");
     } catch {}
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 40);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 40);
   if (player && distance(e.location, player.location) < 20 && hasLineOfSightApprox(player, e)) {
     try { e.remove(); } catch {} deleteTimers(e);
     if (Math.random() < 0.5) {

@@ -184,7 +184,7 @@ function tickStare(e) {
   if (!timers.has(e.id)) { life = STARE_LIFE; timers.set(e.id, { life }); }
   life--; setNum(e, "life", life);
   if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 512);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 512);
   if (!player) return;
   try {
     const mobs = e.dimension.getEntities({ location: e.location, maxDistance: 512 });
@@ -208,7 +208,7 @@ function tickStare(e) {
 function tickSiluet(e) {
   let life = getNum(e, "life", SILUET_LIFE);
   if (!timers.has(e.id)) { life = SILUET_LIFE; timers.set(e.id, { life }); }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 512);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 512);
   if (player) {
     try { e.lookAt?.(player.location); } catch {}
     // rocket easter egg (funnySetting 1%) — config not yet registered; ledgered skip
@@ -216,7 +216,7 @@ function tickSiluet(e) {
       vanishOrChase(e, "thebrokenscript:siluet_chase", player);
       return;
     }
-    if (distance(e.location, player.location) < 20 && gaze.isLookingAtLocation(player, e.location, 14)) {
+    if (distance(e.location, player.location) < 20 && gaze.isLookingAtEntity(player, e, 14)) {
       gazeReaction(e, "thebrokenscript:siluet_chase", player);
       return;
     }
@@ -244,14 +244,14 @@ function tickSiluetStare(e) {
   // base siluet layer first (mirrors super.baseTick())
   tickSiluet(e);
   if (!e.isValid()) return;
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 620);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 620);
   if (!player) return;
   try { e.lookAt?.(player.location); } catch {}
   if (distance(e.location, player.location) < 10) {
     vanishOrChase(e, "thebrokenscript:siluet_chase", player);
     return;
   }
-  if (distance(e.location, player.location) < 45 && gaze.isLookingAtLocation(player, e.location, 14)) {
+  if (distance(e.location, player.location) < 45 && gaze.isLookingAtEntity(player, e, 14)) {
     gazeReaction(e, "thebrokenscript:siluet_chase", player);
   }
 }
@@ -263,7 +263,7 @@ function tickChase(e) {
   despawn++; setNum(e, "despawn", despawn);
   if (despawn > CHASE_LIFE) { try { e.remove(); } catch {} deleteTimers(e); return; }
 
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 800);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 800);
   if (!player) return;
   try { e.lookAt?.(player.location); } catch {}
 
@@ -329,7 +329,7 @@ function tickHallucination(e) {
     life = HALLUCINATION_LIFE; looked = 0;
     // bind to closest player as the "owner" (source binds via UUID packet)
     timers.set(e.id, { life, looked, owner: undefined });
-    const near = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 512);
+    const near = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 512);
     if (near) setNum(e, "owner", near.id);
   }
   const ownerId = getNum(e, "owner", undefined);
@@ -379,14 +379,14 @@ function tickHe(e) {
     try { e.dimension.spawnEntity("minecraft:lightning_bolt", e.location); } catch {}
     try { e.dimension.runCommandAsync("weather rain 6000"); } catch {}
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 1000);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 1000);
   if (player) {
     try { e.lookAt?.(player.location); } catch {}
     if (distance(e.location, player.location) < 10) {
       vanishOrChase(e, "thebrokenscript:he_chase", player);
       return;
     }
-    if (distance(e.location, player.location) < 20 && gaze.isLookingAtLocation(player, e.location, 14)) {
+    if (distance(e.location, player.location) < 20 && gaze.isLookingAtEntity(player, e, 14)) {
       gazeReaction(e, "thebrokenscript:he_chase", player);
       return;
     }
@@ -433,7 +433,7 @@ function tickDeceiver(e) {
       } catch {}
     }
   }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 3000);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 3000);
   if (player) {
     try { e.lookAt?.({ x: player.location.x, y: player.location.y + 1, z: player.location.z }); } catch {}
     if (distance(e.location, player.location) < 10) {
@@ -463,10 +463,10 @@ function tickFaraway(e) {
   let life = getNum(e, "life", FARAWAY_LIFE);
   let delay = getNum(e, "delay", 0);
   if (!timers.has(e.id)) { life = FARAWAY_LIFE; delay = 0; timers.set(e.id, { life, delay }); }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 400);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 400);
   if (player) {
     const seen = (distance(e.location, player.location) < 38 && hasLineOfSightApprox(player, e) && inFovCone(player, e))
-      || gaze.isLookingAtLocation(player, e.location, 14);
+      || gaze.isLookingAtEntity(player, e, 14);
     if (seen) {
       delay++; setNum(e, "delay", delay);
       if (delay >= 25) {

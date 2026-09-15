@@ -5,6 +5,7 @@ import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
+import { hasSkyLightAt } from "../../systems/ai/visibility.js";
 
 // ── TBEConditions (moonStage==2) & TBEAmbushConditions (hasMoonCorrupted) ─────
 const SPAWN_CHANCE_TBE = [0, 0, 0, 0, 0.00015, 0.00025, 0.001, 0.002]; // indexed by moonPhase 0..7
@@ -53,17 +54,6 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
   return { x, y, z };
 }
 
-function skyVisible(dim, loc) {
-  try {
-    const block = dim.getBlock({ x: Math.floor(loc.x), y: Math.floor(loc.y + 1), z: Math.floor(loc.z) });
-    // Bedrock doesn't expose canSeeSky; approximate via sky light at position ==15
-    // try getSkyLightLevel if present
-    const sky = block?.getComponent?.("minecraft:sky_light") ?? block?.getSkyLightLevel?.();
-    // fallback: treat as visible when getBlock returns and y is high-ish or surrounding transparent
-    return true; // permissive — spawn_director already guards isNullHere/phase etc.
-  } catch { return true; }
-}
-
 function canSpawnTbeStalk(ctx) {
   const player = ctx.players[0];
   const dim = player.dimension;
@@ -76,7 +66,7 @@ function canSpawnTbeStalk(ctx) {
   // flat world guard approximation: treat as seeded flag worldState isFlat? keep permissive
   // distance >=45 enforced via candidate at 45-90 ring
   const loc = pickCandidateNearPlayer(player, 45, 90);
-  if (!skyVisible(dim, loc)) return false;
+  if (!hasSkyLightAt(dim, loc)) return false;
   // isFlat check from original: world.getLevel().isFlat() && rnd>0.001 -> block 99.9% spawns on flat
   // worldState isFlat default false; approximate: if isFlat true, extra gate
   if (worldState.get("isFlat") && Math.random() > 0.001) return false;
@@ -106,7 +96,7 @@ function canSpawnTbeAmbush(ctx) {
   if (bossHooks.isArenaPhase1()) return false;
   if (worldState.get("isFlat") && Math.random() > 0.001) return false;
   const loc = pickCandidateNearPlayer(player, 45, 90);
-  if (!skyVisible(dim, loc)) return false;
+  if (!hasSkyLightAt(dim, loc)) return false;
   if (hasOtherBrokenEndsInRange(dim, loc)) return false;
   // distance check not strictly required for ambush in source, but keep for safety (source had no distance guard for ambush)
   const corruptStage = Math.max(0, Math.min(2, worldState.get("moonStage") ?? 0));

@@ -1,0 +1,198 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import test from "node:test";
+
+import {
+  ENTITY_FAMILY_CONTRACTS,
+  allEntityIds,
+  familyForEntity,
+} from "../TheBrokenScript_Bedrock_2_0/BP/scripts/core/entity_family_registry.js";
+import { isLookingAtEntity } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ai/gaze.js";
+import { closestTarget } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ai/targeting_model.js";
+import { hasSkyLightAt, skyLightLevelAt } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ai/visibility.js";
+
+const projectRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const bpEntitiesRoot = path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "entities");
+
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function shippedEntityIds() {
+  return fs
+    .readdirSync(bpEntitiesRoot)
+    .filter((file) => file.endsWith(".json"))
+    .map((file) => readJson(path.join(bpEntitiesRoot, file))["minecraft:entity"].description.identifier)
+    .sort();
+}
+
+test("the family registry covers every shipped entity exactly once", () => {
+  const actualIds = shippedEntityIds();
+  const registeredIds = allEntityIds().sort();
+
+  assert.deepEqual(registeredIds, actualIds);
+  assert.equal(new Set(registeredIds).size, registeredIds.length);
+
+  for (const entityId of actualIds) {
+    const family = familyForEntity(entityId);
+    assert.ok(family, `missing family contract for ${entityId}`);
+    assert.ok(family.sourceRoots.length > 0, `${entityId} has no source evidence`);
+    for (const field of [
+      "attributes",
+      "spawn",
+      "despawn",
+      "targeting",
+      "visibility",
+      "state",
+      "sideEffects",
+      "cleanup",
+    ]) {
+      assert.ok(
+        ["implemented", "adapted", "not_applicable"].includes(family.coverage[field]),
+        `${entityId} is missing a coverage status for ${field}`,
+      );
+    }
+  }
+});
+
+test("every family contract points at shipped runtime, source, and render surfaces", () => {
+  const seen = new Set();
+
+  for (const family of ENTITY_FAMILY_CONTRACTS) {
+    assert.ok(family.key, "family contract has no key");
+    assert.ok(family.runtime.controller, `${family.key} has no controller surface`);
+    assert.ok(family.runtime.spawnRules || family.runtime.renderOnly, `${family.key} has no spawn surface`);
+    assert.ok(family.sourceRoots.length > 0, `${family.key} has no source roots`);
+
+    for (const entityId of family.entityIds) {
+      assert.equal(seen.has(entityId), false, `${entityId} is assigned to multiple families`);
+      seen.add(entityId);
+
+      const slug = entityId.split(":")[1];
+      assert.equal(
+        fs.existsSync(path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "RP", "entity", `${slug}.entity.json`)),
+        true,
+        `${entityId} is missing its render definition`,
+      );
+    }
+
+    assert.equal(fs.existsSync(path.join(projectRoot, family.runtime.controller)), true, `${family.key} controller is missing`);
+    if (family.runtime.spawnRules) {
+      assert.equal(fs.existsSync(path.join(projectRoot, family.runtime.spawnRules)), true, `${family.key} spawn rules are missing`);
+    }
+  }
+
+  assert.deepEqual([...seen].sort(), shippedEntityIds());
+});
+
+test("the registry is reconciled with source-map entity and placement rows", () => {
+  const sourceMap = readJson(path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "SOURCE_MAP.json"));
+  const sourceRows = new Map(
+    sourceMap.rows
+      .filter((row) => ["entity", "painting"].includes(row.category) && row.bedrock_identifier)
+      .map((row) => [row.bedrock_identifier, row]),
+  );
+
+  for (const entityId of shippedEntityIds()) {
+    const family = familyForEntity(entityId);
+    const sourceId = family.sourceMapAliases[entityId] ?? entityId;
+    const row = sourceRows.get(sourceId);
+    assert.ok(row, `${entityId} is not represented in SOURCE_MAP.json`);
+    assert.ok(row.bedrock_files.some((file) => file === `BP/entities/${sourceId.split(":")[1]}.json`), `${entityId} source-map row omits its BP definition`);
+    assert.ok(row.bedrock_files.some((file) => file === `RP/entity/${sourceId.split(":")[1]}.entity.json`), `${entityId} source-map row omits its RP definition`);
+  }
+});
+
+test("target acquisition rejects cross-dimension and spectator candidates", () => {
+  const target = {
+    dimension: { id: "minecraft:overworld" },
+    location: { x: 8, y: 64, z: 0 },
+    getGameMode: () => "survival",
+  };
+  const spectator = {
+    dimension: { id: "minecraft:overworld" },
+    location: { x: 1, y: 64, z: 0 },
+    getGameMode: () => "Spectator",
+  };
+  const netherTarget = {
+    dimension: { id: "minecraft:nether" },
+    location: { x: 0.5, y: 64, z: 0 },
+    getGameMode: () => "survival",
+  };
+
+  assert.equal(
+    closestTarget([netherTarget, spectator, target], { x: 0, y: 64, z: 0 }, 16, {
+      dimensionId: "minecraft:overworld",
+    }),
+    target,
+  );
+});
+
+test("gaze checks entity hitbox samples and rejects a blocked ray", () => {
+  const player = {
+    dimension: {
+      id: "minecraft:overworld",
+      getBlockFromRay: () => undefined,
+    },
+    getHeadLocation: () => ({ x: 0, y: 1.62, z: 0 }),
+    getViewDirection: () => ({ x: 0, y: 0, z: 1 }),
+  };
+  const hitbox = {
+    dimension: player.dimension,
+    location: { x: 2, y: 0, z: 10 },
+    getAABB: () => ({
+      center: { x: 1.5, y: 1, z: 10 },
+      extent: { x: 2.5, y: 1, z: 0.5 },
+    }),
+  };
+
+  assert.equal(isLookingAtEntity(player, hitbox, 8), true);
+
+  const blockedPlayer = {
+    ...player,
+    dimension: {
+      ...player.dimension,
+      getBlockFromRay: () => ({
+        block: { location: { x: 1, y: 1, z: 1 } },
+        faceLocation: { x: 0, y: 0, z: 0 },
+      }),
+    },
+  };
+  assert.equal(isLookingAtEntity(blockedPlayer, hitbox, 8), false);
+});
+
+test("sky-light gates query the documented dimension method at the sampled block", () => {
+  let sampled;
+  const dimension = {
+    getSkyLightLevel: (location) => {
+      sampled = location;
+      return 15;
+    },
+  };
+
+  assert.equal(hasSkyLightAt(dimension, { x: 4.9, y: 64.9, z: -2.1 }), true);
+  assert.deepEqual(sampled, { x: 4, y: 65, z: -3 });
+  assert.equal(skyLightLevelAt({ getSkyLightLevel: () => 1 }, { x: 0, y: 64, z: 0 }), 1);
+  assert.equal(hasSkyLightAt({}, { x: 0, y: 64, z: 0 }), false);
+});
+
+test("spawn evaluation is scoped to each player and uses supported sky-light queries", () => {
+  const spawnDirector = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "systems", "spawn_director.js"),
+    "utf8",
+  );
+  const nullRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "null", "null_spawn_rules.js"),
+    "utf8",
+  );
+  const tbeRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "tbe", "tbe_spawn_rules.js"),
+    "utf8",
+  );
+
+  assert.match(spawnDirector, /for\s*\(const player of players\)/);
+  assert.match(spawnDirector, /player,\s*players:[\s\S]*gameTime/);
+  assert.match(nullRules, /hasSkyLightAt/);
+  assert.match(tbeRules, /hasSkyLightAt/);
+});

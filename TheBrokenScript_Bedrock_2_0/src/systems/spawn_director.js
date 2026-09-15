@@ -32,6 +32,7 @@ export function resetDelay(key, ticks) {
 function decrementDelays() {
     for (const key of DELAY_KEYS) {
         const v = worldState.get(key);
+        // audit: Java Integer.MAX_VALUE equivalent for persisted delay bounds.
         if (v > 0 && v < 2147483647) {
             worldState.set(key, v - 1);
         }
@@ -43,18 +44,33 @@ function evaluateAroundPlayers() {
     if (bossHooks.isArenaPhase1()) return;
     const players = world.getAllPlayers();
     if (players.length === 0) return;
-    for (const rule of rules.values()) {
-        try {
-            const ctx = {
-                players,
-                gameTime: world.getTime?.() ?? 0,
-                frequency: eventFrequency(0),
-                isNullHere: () => worldState.get("isNullHere")
-            };
-            if (rule.predicate(ctx) === true) break;
-        } catch (err) {
-            logger.error(`spawn_director rule '${rule.id}' failed`, err);
+    const gameTime = world.getTimeOfDay();
+
+    // Rules historically read players[0]. Re-ordering the shared view per
+    // player keeps that contract while preventing the first player from
+    // deciding every spawn in a multiplayer world. A director tick still
+    // admits at most one successful rule, matching the original pacing.
+    for (const player of players) {
+        const scopedPlayers = [player, ...players.filter((candidate) => candidate !== player)];
+        let spawned = false;
+        for (const rule of rules.values()) {
+            try {
+                const ctx = {
+                    player,
+                    players: scopedPlayers,
+                    gameTime,
+                    frequency: eventFrequency(gameTime),
+                    isNullHere: () => worldState.get("isNullHere")
+                };
+                if (rule.predicate(ctx) === true) {
+                    spawned = true;
+                    break;
+                }
+            } catch (err) {
+                logger.error(`spawn_director rule '${rule.id}' failed`, err);
+            }
         }
+        if (spawned) break;
     }
 }
 

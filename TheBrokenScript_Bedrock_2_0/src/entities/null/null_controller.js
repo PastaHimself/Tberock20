@@ -35,9 +35,9 @@ function tickEntity(e) {
 function tickWatching(e) {
   let t = getTimer(e); if (t === 0) { setTimer(e, WATCHING_LIFE); t = WATCHING_LIFE; }
   t -= 5; setTimer(e, t); if (t <= 0) { e.remove(); timers.delete(e.id); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 30);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 30);
   if (!player) return;
-  if (!gaze.isLookingAtLocation(player, e.location, 12)) return;
+  if (!gaze.isLookingAtEntity(player, e, 12)) return;
   const choice = Math.floor(Math.random() * 9) + 1;
   switch (choice) {
     case 1: effects.blindness(player, 4); try { player.playSound("thebrokenscript:null_flee"); } catch {} e.remove(); timers.delete(e.id); break;
@@ -60,7 +60,7 @@ function tickScare(e) {
 function tickMining(e) {
   let t = getTimer(e); if (t === 0) { setTimer(e, MINING_LIFE); t = MINING_LIFE; }
   t -= 5; setTimer(e, t); if (t <= 0) { e.remove(); timers.delete(e.id); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 100);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 100);
   if (!player) return;
   if (Math.random() < 0.02) {
     const front = { x: Math.floor(e.location.x + e.getViewDirection().x * 2), y: Math.floor(e.location.y), z: Math.floor(e.location.z + e.getViewDirection().z * 2) };
@@ -75,7 +75,7 @@ let isHereApproach = 0;
 function tickIsHere(e) {
   let t = getTimer(e); if (t === 0) { setTimer(e, IS_HERE_LIFE); t = IS_HERE_LIFE; }
   t -= 5; setTimer(e, t); if (t <= 0) { e.remove(); timers.delete(e.id); return; }
-  const player = entityFinder.closestPlayerInRange(world.getAllPlayers(), e.location, 128);
+  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
   if (!player) return;
   isHereApproach = (isHereApproach + 5) % 5;
   if (isHereApproach === 0) {
