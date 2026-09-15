@@ -206,43 +206,43 @@ Evidence (2026-09-15): `fractured_attack_model.js`, `fractured_animation_model.j
 
 ## 11. Quest/progression behavior
 
-- [ ] Enumerate all Java quest/progression triggers and prerequisites.
-- [ ] Verify unlock ordering and mutually exclusive/one-shot branches.
-- [ ] Verify rewards, item quantities, effects, messages, sounds, and state flags.
-- [ ] Verify boss/progression hooks cannot trigger twice through alternate damage/death paths.
-- [ ] Verify progression remains correct after reload, death, disconnect, and multiplayer participation.
+- [x] Enumerate all Java quest/progression triggers and prerequisites.
+- [x] Verify unlock ordering and mutually exclusive/one-shot branches.
+- [~] Verify rewards, item quantities, effects, messages, sounds, and state flags.
+- [x] Verify boss/progression hooks cannot trigger twice through alternate damage/death paths.
+- [~] Verify progression remains correct after reload, death, disconnect, and multiplayer participation.
 
 ## 12. Blocks and block entities
 
-- [ ] Audit all 123 source blocks against Bedrock definitions for material-like behavior, hardness/destruction time, tool requirements, collision/selection boxes, light, placement, drops, sounds, ticking, redstone-like behavior, and scripted interactions.
-- [ ] Audit all 8 source block-entity equivalents for storage/state/tick semantics.
-- [ ] Verify portal controller/extender/linking interactions and safe-arrival checks.
-- [ ] Verify custom geometry blocks (slabs/stairs/walls/cross flora) behave correctly for collision, placement, rotation, water/environment interaction where relevant.
-- [ ] Replace placeholder/self-drop loot behavior where Java has richer source loot/functions.
+- [~] Audit all 123 source blocks against Bedrock definitions for material-like behavior, hardness/destruction time, tool requirements, collision/selection boxes, light, placement, drops, sounds, ticking, redstone-like behavior, and scripted interactions.
+- [~] Audit all 8 source block-entity equivalents for storage/state/tick semantics.
+- [x] Verify portal controller/extender/linking interactions and safe-arrival checks.
+- [~] Verify custom geometry blocks (slabs/stairs/walls/cross flora) behave correctly for collision, placement, rotation, water/environment interaction where relevant.
+- [x] Replace placeholder/self-drop loot behavior where Java has richer source loot/functions.
 
 ## 13. Items
 
-- [ ] Audit every source item, including items represented indirectly rather than as one Bedrock item JSON.
-- [ ] Verify stack size, durability, cooldown, use duration, use animation, consumability, food/effect values, rarity-like presentation, enchantability, and creative availability where applicable.
-- [ ] Re-audit hand cannon, polaroid, portal linker, desyncer, plushies, discs, null book, easter-egg items, and any item with scripted use behavior.
-- [ ] Verify Java data-component/NBT semantics are preserved where gameplay observes them.
-- [ ] Verify item behavior under full inventory, death, container transfer, duplication-sensitive paths, and multiplayer ownership.
+- [x] Audit every source item, including items represented indirectly rather than as one Bedrock item JSON.
+- [~] Verify stack size, durability, cooldown, use duration, use animation, consumability, food/effect values, rarity-like presentation, enchantability, and creative availability where applicable.
+- [x] Re-audit hand cannon, polaroid, portal linker, desyncer, plushies, discs, null book, easter-egg items, and any item with scripted use behavior.
+- [~] Verify Java data-component/NBT semantics are preserved where gameplay observes them.
+- [~] Verify item behavior under full inventory, death, container transfer, duplication-sensitive paths, and multiplayer ownership.
 
 ## 14. Recipes, loot, tags, and drops
 
-- [ ] Compare all 40 source recipes ingredient-for-ingredient and output-for-output, including counts and recipe category/type behavior that affects availability.
-- [ ] Audit stonecutter recipes for exact inputs/outputs/counts.
-- [ ] Compare all source block/entity loot tables rather than assuming self-drop is parity.
-- [ ] Port source loot conditions/functions/weights where Bedrock supports them; document adapters where it does not.
-- [ ] Verify tag membership because tags can silently alter recipes, tools, spawning, interactions, and source predicates.
+- [x] Compare all 40 source recipes ingredient-for-ingredient and output-for-output, including counts and recipe category/type behavior that affects availability.
+- [x] Audit stonecutter recipes for exact inputs/outputs/counts.
+- [x] Compare all source block/entity loot tables rather than assuming self-drop is parity.
+- [x] Port source loot conditions/functions/weights where Bedrock supports them; document adapters where it does not.
+- [x] Verify tag membership because tags can silently alter recipes, tools, spawning, interactions, and source predicates.
 
 ## 15. Commands and operator/dev behavior
 
-- [ ] Enumerate Java commands and subcommands.
-- [ ] Match permissions/operator requirements as closely as Bedrock allows.
-- [ ] Match arguments, default values, validation, error cases, messages, and side effects.
-- [ ] Keep test/dev commands clearly separated from player-facing production behavior.
-- [ ] Ensure a debug command cannot accidentally bypass normal progression in release gameplay unless Java provides the same capability.
+- [x] Enumerate Java commands and subcommands.
+- [x] Match permissions/operator requirements as closely as Bedrock allows.
+- [~] Match arguments, default values, validation, error cases, messages, and side effects.
+- [x] Keep test/dev commands clearly separated from player-facing production behavior.
+- [x] Ensure a debug command cannot accidentally bypass normal progression in release gameplay unless Java provides the same capability.
 
 ---
 
@@ -252,9 +252,9 @@ Evidence (2026-09-15): `fractured_attack_model.js`, `fractured_animation_model.j
 
 - [x] Verify all source dimensions and IDs against Bedrock equivalents.
   - Evidence (2026-09-12): `tests/dimension_inventory.test.mjs` compares the complete Java dimension resource inventory plus `TBSDimensions.java` registrations to the Bedrock ID model, including the resource-only `backrooms` exception; `tests/dimension_registration.test.mjs` verifies all 13 namespaced IDs are registered through the supported startup `DimensionRegistry` path.
-- [ ] Verify spawn/entry position, time/light/environment settings, fog, biome association, portal routes, return routes, and death/respawn behavior.
-- [ ] Test cross-dimension entity/player references for stale handles and cleanup.
-- [ ] Verify dimension-specific event/spawn restrictions.
+- [~] Verify spawn/entry position, time/light/environment settings, fog, biome association, portal routes, return routes, and death/respawn behavior.
+- [~] Test cross-dimension entity/player references for stale handles and cleanup.
+- [~] Verify dimension-specific event/spawn restrictions.
 
 ### BLOCKED / approximation boundary
 
@@ -262,21 +262,32 @@ Exact Java `noise_settings` terrain generation is currently documented as unavai
 
 ## 17. Structures and jigsaw/world placement
 
-- [ ] Audit the entire source NBT structure corpus, not only the Shaft and Integrity slices already modeled.
-- [ ] Verify rotations, mirrors, connector orientation, pools, target/name matching, weights, projection/placement behavior, and processors.
-- [ ] Verify native Shaft assembly against Java pool weights and natural placement frequency/spacing once authoritative source evidence is recovered.
-- [ ] Resolve remaining Integrity Stage 2 placement behavior where Java's custom generator cannot map directly.
-- [ ] Complete/verify XCSF reconstruction and decide which portions can be made runtime-equivalent.
-- [ ] Compare actual in-game generated structures to Java screenshots/world samples where source alone is insufficient.
+- [x] Audit the entire source NBT structure corpus, not only the Shaft and Integrity slices already modeled.
+- [~] Verify rotations, mirrors, connector orientation, pools, target/name matching, weights, projection/placement behavior, and processors.
+- [~] Verify native Shaft assembly against Java pool weights and natural placement frequency/spacing once authoritative source evidence is recovered.
+- [~] Resolve remaining Integrity Stage 2 placement behavior where Java's custom generator cannot map directly.
+- [~] Complete/verify XCSF reconstruction and decide which portions can be made runtime-equivalent.
+- [~] Compare actual in-game generated structures to Java screenshots/world samples where source alone is insufficient.
 
 ## 18. Portals
 
-- [ ] Audit activation requirements and item consumption.
-- [ ] Audit destination selection and coordinates.
-- [ ] Verify safe-arrival/platform/fallback logic.
-- [ ] Verify cooldowns and repeat entry behavior.
-- [ ] Verify mobs/items/projectiles if Java portals support them.
-- [ ] Test portal behavior when destination chunks/dimensions are unavailable or initialization fails.
+- [x] Audit activation requirements and item consumption.
+- [x] Audit destination selection and coordinates.
+- [x] Verify safe-arrival/platform/fallback logic.
+- [x] Verify cooldowns and repeat entry behavior.
+- [~] Verify mobs/items/projectiles if Java portals support them.
+- [~] Test portal behavior when destination chunks/dimensions are unavailable or initialization fails.
+
+Evidence (2026-09-15): `tools/validate_p1_parity.py --check` now checks the
+source-backed counts, exact recipe/loot signatures, item metadata, advancement
+criteria/hooks, block-entity adapters, command inventory, 13-dimension policy,
+314-template structure inventory, and portal readiness/cooldown contracts.
+Focused coverage is in `tests/test_p1_parity_validator.py`,
+`tests/dimension_registration.test.mjs`, and
+`tests/dimension_portal_routing.test.mjs`; CI runs the parity validator before
+the existing add-on gates. Entries marked `[~]` remain intentionally open for
+real Bedrock engine smoke/world-sample evidence or for Java-only surfaces that
+the pinned Bedrock API cannot express exactly.
 
 ---
 

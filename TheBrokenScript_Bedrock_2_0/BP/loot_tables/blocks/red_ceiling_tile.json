@@ -1,9 +1,18 @@
 {
   "pools": [
     {
-      "rolls": 1,
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "survives_explosion"
+        }
+      ],
       "entries": [
-        { "type": "item", "name": "thebrokenscript:red_ceiling_tile", "weight": 1 }
+        {
+          "type": "item",
+          "name": "thebrokenscript:red_ceiling_tile",
+          "weight": 1
+        }
       ]
     }
   ]

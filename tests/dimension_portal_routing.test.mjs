@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -41,4 +41,24 @@ test("portal controller defers async destination preparation out of the componen
   assert.match(customBlocks, /system\.run\(\(\)\s*=>\s*\{/);
   assert.match(customBlocks, /await\s+teleportLinkedPortal\(player,\s*block\)/);
   assert.match(customBlocks, /await\s+dimensions\.teleportWhenReady\(player,\s*"clan_void"/);
+});
+
+test("portal cooldown logic blocks same-tick re-entry and permits the next tick", async () => {
+  const modulePath = path.join(ROOT, "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_feature_logic.js");
+  const { canEnterPortal, portalCooldownUntil } = await import(pathToFileURL(modulePath));
+  const cooldownUntil = portalCooldownUntil(200);
+  assert.equal(cooldownUntil, 201);
+  assert.equal(canEnterPortal(200, cooldownUntil), false);
+  assert.equal(canEnterPortal(201, cooldownUntil), true);
+});
+
+test("linked portal activation reserves cooldown and owns failed linked routes", () => {
+  const ported = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js");
+  const customBlocks = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/custom_blocks.js");
+  assert.match(ported, /const reservation = portalCooldownUntil\(currentTick, PORTAL_COOLDOWN_TICKS\)/);
+  assert.match(ported, /player\.setDynamicProperty\(PORTAL_COOLDOWN_PROPERTY, reservation\)/);
+  assert.match(ported, /clearPortalReservation\(player, reservation\)/);
+  assert.match(customBlocks, /if \(portalCooldownActive\(player\)\) return;/);
+  assert.match(customBlocks, /if \(hasLinkedPortal\(block\)\)/);
+  assert.match(customBlocks, /await teleportLinkedPortal\(player, block\);\s*return;/);
 });

@@ -207,3 +207,53 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Replacement design**: the pure models expose rising plans, equal-weight attack candidates, source lifecycle gates, and a slab-based continuous projectile sweep. The runtime keeps per-projectile history, applies source-order side effects, exposes injectable contact-origin adapters, and falls back to the entity root when no server-side locator adapter exists. JimArena refreshes roster instances and stops both `SoundInstance` and `stopSound` fallbacks during reset.
 7. **Player-visible difference**: source gameplay timings, damage, impulses, lifecycle, recovery, conceptual sweep, and audio cleanup are deterministic; rendered-bone contact, exact melee hit locations, bossbar/camera packets, and exact Java audio attenuation remain adaptations.
 8. **Parity class**: `VALIDATED_APPROXIMATION` for source-verifiable gameplay and cleanup; `ENGINE_UNSUPPORTED` for exact rendered-bone and melee-impact transport.
+
+## A-025 — P1 custom-dimension policy and entry routing
+
+1. **Source feature**: the 13 registered Java dimensions, their dimension-type/generator/biome associations, entry variants, return routes, and protected-void orientation.
+2. **Source behavior**: the port preserves the source-backed policy values and routes entry through startup registration, destination readiness, safe landing, and explicit return adapters.
+3. **Source evidence**: `source_extracted/data/thebrokenscript/dimension_type/`, `source_extracted/data/thebrokenscript/worldgen/`, `decompiled/net/thebrokenscript/registry/TBSDimensions.java`, and `docs/P1_DIMENSION_POLICY.json`.
+4. **Bedrock limitation**: the supported `DimensionRegistry.registerCustomDimension` surface exposes a void generator and does not expose Java `noise_settings` or arbitrary custom `ChunkGenerator` registration.
+5. **Docs checked**: [Bedrock DimensionRegistry](https://github.com/MicrosoftDocs/minecraft-creator/blob/main/creator/ScriptAPI/minecraft/server/DimensionRegistry.md) and [Microsoft's custom dimension API tutorial](https://learn.microsoft.com/minecraft/creator/documents/scripting/custom-dimension-api-tutorial?view=minecraft-bedrock-stable).
+6. **Replacement design**: `dimension_policies.js` is the source-backed policy registry; `dimensions.js` uses its entry location/rotation and the existing readiness/safe-landing path.
+7. **Player-visible difference**: exact Java terrain/noise generation and every client-side environment setter remain unavailable; entry coordinates, protected-void yaw, registration IDs, and supported route behavior are validated.
+8. **Parity class**: `VALIDATED_HIGH_PARITY` for registration and supported routing; `VALIDATED_APPROXIMATION` for environment and terrain; exact noise/custom-generator behavior is `ENGINE_UNSUPPORTED`.
+
+## A-026 — P1 structure corpus and jigsaw conversion boundary
+
+1. **Source feature**: the complete source structure inventory, including 314 NBT templates, Shaft pools/connectors, Integrity Stage 2 assets, XCSF material, and custom processors.
+2. **Source behavior**: every source template has an explicit inventory status; the six Shaft templates are staged source-identical assets and the supported Shaft graph is validated separately.
+3. **Source evidence**: `tools/inventory_structure_corpus.py`, `tools/validate_jigsaw_worldgen.py`, `tools/validate_jigsaw_nbt_connectors.py`, and `docs/P1_PARITY_AUDIT.md`.
+4. **Bedrock limitation**: static tooling cannot execute Java custom generators/processors or compare generated worlds, and Bedrock has no one-to-one API for the remaining Java placement pipeline.
+5. **Replacement design**: source inventory, NBT parsing status, connector graph, pool metadata, and explicit conversion status are release-gated; supported templates remain available to the existing Bedrock worldgen adapters.
+6. **Player-visible difference**: Stage 2/XCSF/custom-processor placement and natural generation frequency/spacing are not claimed as exact without an engine world sample.
+7. **Parity class**: `VALIDATED` for corpus/graph inventory and supported staged assets; `VALIDATED_APPROXIMATION` for converted placement; runtime world comparison remains deferred.
+
+## A-027 — P1 block-entity and tag adapters
+
+1. **Source feature**: eight Java block-entity equivalents plus source block/item tags used by recipes, drops, placement, and scripted predicates.
+2. **Source behavior**: source membership and block-entity state contracts are inventoried; the deployed pack uses namespaced dynamic properties, marker/render adapters, and scripted handlers where Bedrock has no matching registry/state surface.
+3. **Source evidence**: `tools/validate_p1_parity.py`, the source block-entity registry/resources, and `docs/P1_PARITY_AUDIT.md`.
+4. **Bedrock limitation**: Java block-entity NBT/storage/tick semantics and item-tag registries are not universally expressible through the pinned Bedrock ABI.
+5. **Replacement design**: supported block tags, shears matching, persistence keys, render markers, and scripted interactions are explicit and validated; unsupported state is kept in the adapter layer rather than silently dropped.
+6. **Player-visible difference**: exact Java container/NBT internals and unexposed tag consumers remain implementation-specific adapters.
+7. **Parity class**: `VALIDATED_HIGH_PARITY` for source inventory and supported consumers; `VALIDATED_APPROXIMATION` for engine-specific block-entity/state behavior.
+
+## A-028 — P1 portal entity-scope adapter
+
+1. **Source feature**: portal controller/extender activation, linking, destination selection, safe arrival, cooldown, and incoming-entity handling.
+2. **Source behavior**: activation requires sneaking, the linker is not consumed, anchors and links persist, destination readiness is checked, safe fallback is used, and repeat entry is guarded for one tick.
+3. **Source evidence**: the source portal controller/extender classes and `BP/scripts/systems/ported_features.js`.
+4. **Bedrock limitation**: the current Script API route does not provide the Java portal tick sweep for every same-dimension living entity, nor a one-to-one item/projectile transfer hook.
+5. **Replacement design**: the shipped route handles player interaction, namespaced persisted anchors/links, readiness-gated teleport, safe landing, and persisted cooldown state.
+6. **Player-visible difference**: mobs, items, and projectiles do not claim Java portal parity; unavailable destination initialization falls back to the documented safe route.
+7. **Parity class**: `VALIDATED_HIGH_PARITY` for player linking/arrival/cooldown; `ENGINE_UNSUPPORTED` for the unexposed entity/item/projectile sweep.
+
+## A-029 — P1 direct command surface
+
+1. **Source feature**: the Java `tbs` root's direct `devmode [code]` and `reputation` commands, plus its separately gated `dev` command tree.
+2. **Source behavior**: `devmode` accepts `2018` or `544253`, reports the exact success/error messages, and attempts the corresponding 1000-entity spawn effect; `reputation` is player-only and reports the source reputation bands.
+3. **Replacement design**: Bedrock registers both direct commands as player-only `Admin` custom commands with `cheatsRequired: false`; the larger developer/regression surface remains on `/scriptevent tbs:*`.
+4. **Bedrock limitation**: Bedrock has no Java permission-level 4 ladder or one-to-one Brigadier `CommandSourceStack` position contract, so `Admin` and a player origin are the closest safe mappings.
+5. **Docs checked**: [Microsoft's CustomCommandRegistry](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/customcommandregistry?view=minecraft-bedrock-stable) and [CustomCommandParameter](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/customcommandparameter?view=minecraft-bedrock-stable).
+6. **Parity class**: `VALIDATED_HIGH_PARITY` for direct command validation/messages/effects; `VALIDATED_APPROXIMATION` for the permission/source-origin mapping and the unregistered Java `dev` tree.

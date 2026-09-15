@@ -11,6 +11,13 @@
       "minecraft:icon": "instability",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.instability"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:rarity": "rare",
+      "minecraft:record": {
+        "comparator_signal": 1,
+        "duration": 233.5,
+        "sound_event": "instability"
       }
     }
   }

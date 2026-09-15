@@ -1,9 +1,18 @@
 {
   "pools": [
     {
-      "rolls": 1,
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "survives_explosion"
+        }
+      ],
       "entries": [
-        { "type": "item", "name": "thebrokenscript:sideways_fence", "weight": 1 }
+        {
+          "type": "item",
+          "name": "minecraft:oak_fence",
+          "weight": 1
+        }
       ]
     }
   ]

@@ -1,9 +1,18 @@
 {
   "pools": [
     {
-      "rolls": 1,
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "survives_explosion"
+        }
+      ],
       "entries": [
-        { "type": "item", "name": "thebrokenscript:sideways_cobblestone_stairs", "weight": 1 }
+        {
+          "type": "item",
+          "name": "minecraft:cobblestone_stairs",
+          "weight": 1
+        }
       ]
     }
   ]

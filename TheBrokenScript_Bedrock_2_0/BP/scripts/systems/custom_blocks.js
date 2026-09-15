@@ -1,7 +1,11 @@
 import { BlockPermutation, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
-import { teleportLinkedPortal } from "./ported_features.js";
+import {
+  hasLinkedPortal,
+  portalCooldownActive,
+  teleportLinkedPortal,
+} from "./ported_features.js";
 import * as worldState from "./world_state.js";
 
 // Chunk 08: custom block components.
@@ -21,8 +25,12 @@ export function init(blockComponentRegistry) {
    * @param {import("@minecraft/server").BlockCustomComponent} handlers
    */
   function register(name, handlers) {
-    blockComponentRegistry.registerCustomComponent(name, handlers);
-    registered.push(name);
+    try {
+      blockComponentRegistry.registerCustomComponent(name, handlers);
+      registered.push(name);
+    } catch (error) {
+      logger.error(`custom_blocks: block component '${name}' registration failed`, error);
+    }
   }
 
   // physical_stacktrace — placed by TBE stalk; shows a glitch beat when placed/stepped near
@@ -143,6 +151,13 @@ export function init(blockComponentRegistry) {
 
 async function handlePortalControllerInteract(player, block) {
   try {
+    if (portalCooldownActive(player)) return;
+    // A linked controller owns the interaction even if preparation fails or a
+    // concurrent same-tick activation has already reserved the cooldown.
+    if (hasLinkedPortal(block)) {
+      await teleportLinkedPortal(player, block);
+      return;
+    }
     if (await teleportLinkedPortal(player, block)) return;
 
     try {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function read(relativePath) {
@@ -44,4 +44,18 @@ test("Java ALL semantics stay separate from the 13-realm registration contract",
 
   assert.match(dimensions, /export const ALL = \[\.\.\.JAVA_REGISTERED_REALM_NAMES\];/);
   assert.match(dimensions, /export const REGISTERED_CUSTOM_IDS = \[\.\.\.CUSTOM_DIMENSION_IDS\];/);
+});
+
+test("dimension policy adapters preserve source entry coordinates and rotation safely", async () => {
+  const policyPath = path.join(
+    ROOT,
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/dimension_policies.js",
+  );
+  const { getDimensionEntryLocation, getDimensionEntryRotation } = await import(
+    pathToFileURL(policyPath),
+  );
+
+  assert.deepEqual(getDimensionEntryLocation("protected_void"), { x: 11, y: 71, z: 6 });
+  assert.deepEqual(getDimensionEntryRotation("protected_void"), { x: 0, y: 180 });
+  assert.deepEqual(getDimensionEntryLocation("unknown"), { x: 0, y: 201, z: 0 });
 });

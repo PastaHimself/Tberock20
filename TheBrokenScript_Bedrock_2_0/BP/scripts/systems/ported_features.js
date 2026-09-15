@@ -10,45 +10,92 @@ import {
   firstHandCannonTarget,
   linkPortals,
   linkedPortal,
+  canEnterPortal,
+  portalCooldownUntil,
   portalKey,
 } from "./ported_feature_logic.js";
 
 const PORTAL_ANCHOR_PROPERTY = "tbs:portal_anchor_v1";
 const PORTAL_LINKS_PROPERTY = "tbs:portal_links_v1";
+const PORTAL_COOLDOWN_PROPERTY = "tbs:portal_cooldown_until";
+const PORTAL_COOLDOWN_TICKS = 1;
+const LIBRARY_BOOK_NUMBER_PROPERTY = "thebrokenscript:library_book_num";
 const HEART_CORRUPTION_UNTIL = "tbs:heart_corruption_until";
 const WHY_LEAVE_UNTIL = "tbs:why_leave_until";
 const HAND_CANNON_COOLDOWN_TICKS = 4;
+const LIBRARY_BOOK_MAX_ID = 250;
 const cannonReadyAt = new Map();
+const registered = [];
 
 export function init(itemComponentRegistry) {
-  itemComponentRegistry.registerCustomComponent("thebrokenscript:hand_cannon_use", {
+  function register(name, handlers) {
+    try {
+      itemComponentRegistry.registerCustomComponent(name, handlers);
+      registered.push(name);
+    } catch (error) {
+      logger.error(`ported_features: item component '${name}' registration failed`, error);
+    }
+  }
+
+  register("thebrokenscript:hand_cannon_use", {
     onUse(event) {
       system.run(() => fireHandCannon(event.source));
     },
   });
-  itemComponentRegistry.registerCustomComponent("thebrokenscript:polaroid_use", {
+  register("thebrokenscript:polaroid_use", {
     onUse(event) {
       system.run(() => {
         void showPolaroid(event.source);
       });
     },
   });
-  itemComponentRegistry.registerCustomComponent("thebrokenscript:portal_linker_use", {
+  register("thebrokenscript:portal_linker_use", {
     onUseOn(event) {
       system.run(() => usePortalLinker(event.source, event.block));
     },
   });
-  itemComponentRegistry.registerCustomComponent("thebrokenscript:desyncer_use", {
+  register("thebrokenscript:desyncer_use", {
     onUse(event) {
       system.run(() => toggleDesync(event.source));
     },
   });
-  itemComponentRegistry.registerCustomComponent("thebrokenscript:circuit_cave_place", {
+  register("thebrokenscript:circuit_cave_place", {
     onUseOn(event) {
       system.run(() => placeCircuitPainting(event.source, event.block, event.blockFace));
     },
   });
-  logger.info("ported_features: 5 item components registered");
+  register("thebrokenscript:revuxorfish_consume", {
+    onConsume(event) {
+      applyFoodEffect(event.source, "minecraft:wither", 240, 4);
+    },
+  });
+  register("thebrokenscript:faraway_salmon_consume", {
+    onConsume(event) {
+      applyFoodEffect(event.source, "minecraft:instant_damage", 2, 5);
+      applyFoodEffect(event.source, "minecraft:wither", 1000, 100);
+    },
+  });
+  register("thebrokenscript:n_use", {
+    onUse(event) {
+      system.run(() => consumeSelectedItem(event.source, "thebrokenscript:n"));
+    },
+  });
+  register("thebrokenscript:gore_use", {
+    onUse(event) {
+      system.run(() => consumeSelectedItem(event.source, "thebrokenscript:gore"));
+    },
+  });
+  register("thebrokenscript:torn_paper_use", {
+    onUse(event) {
+      system.run(() => void showTornPaper(event.source));
+    },
+  });
+  register("thebrokenscript:library_book_use", {
+    onUse(event) {
+      system.run(() => void showLibraryBook(event.source));
+    },
+  });
+  logger.info(`ported_features: ${registered.length}/11 item components registered`);
 }
 
 export function begin(scheduler) {
@@ -57,7 +104,7 @@ export function begin(scheduler) {
 
 export function clearTransientPlayerState(player, initialSpawn = false) {
   if (!isPlayer(player) || !initialSpawn) return;
-  for (const property of [PORTAL_ANCHOR_PROPERTY, HEART_CORRUPTION_UNTIL, WHY_LEAVE_UNTIL]) {
+  for (const property of [PORTAL_ANCHOR_PROPERTY, PORTAL_COOLDOWN_PROPERTY, HEART_CORRUPTION_UNTIL, WHY_LEAVE_UNTIL]) {
     try { player.setDynamicProperty(property, undefined); } catch {}
   }
 }
@@ -108,8 +155,57 @@ export async function showPolaroid(player) {
   }
 }
 
+export async function showTornPaper(player) {
+  if (!isPlayer(player)) return false;
+  try {
+    player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.5 });
+    await new ActionFormData()
+      .title("§fTorn Paper")
+      .body("§7The paper is torn and cannot be read.")
+      .button("Close")
+      .show(player);
+    return true;
+  } catch (err) {
+    logger.error("ported_features: torn paper form failed", err);
+    return false;
+  }
+}
+
+export async function showLibraryBook(player) {
+  if (!isPlayer(player)) return false;
+  const selected = selectedItem(player, "thebrokenscript:book");
+  if (!selected) return false;
+
+  let bookNumber = Number(selected.item.getDynamicProperty(LIBRARY_BOOK_NUMBER_PROPERTY));
+  if (!Number.isInteger(bookNumber) || bookNumber < 1 || bookNumber > LIBRARY_BOOK_MAX_ID) {
+    bookNumber = 1 + Math.floor(Math.random() * LIBRARY_BOOK_MAX_ID);
+    try {
+      // ItemStack dynamic properties are supported only on non-stackable items;
+      // book.json therefore pins this item to a one-item stack.
+      selected.item.setDynamicProperty(LIBRARY_BOOK_NUMBER_PROPERTY, bookNumber);
+      selected.inventory.setItem(selected.slot, selected.item);
+    } catch (err) {
+      logger.error("ported_features: library book state write failed", err);
+    }
+  }
+
+  try {
+    player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.2 });
+    await new ActionFormData()
+      .title("§8Library Book")
+      .body(`§7Source library book #${bookNumber}\n\n§8The full Java book screen is represented by this stable Bedrock form adapter.`)
+      .button("Close")
+      .show(player);
+    return true;
+  } catch (err) {
+    logger.error("ported_features: library book form failed", err);
+    return false;
+  }
+}
+
 export function usePortalLinker(player, block) {
   if (!isPlayer(player) || block?.typeId !== "thebrokenscript:portal_controller") return false;
+  if (player.isSneaking !== true) return false;
   const selected = blockReference(block);
   const previous = readPlayerJson(player, PORTAL_ANCHOR_PROPERTY);
 
@@ -134,10 +230,35 @@ export function usePortalLinker(player, block) {
   return true;
 }
 
+export function portalCooldownActive(player) {
+  if (!isPlayer(player)) return false;
+  const currentTick = Number(system.currentTick ?? 0);
+  const cooldownUntil = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
+  return !canEnterPortal(currentTick, cooldownUntil);
+}
+
+export function hasLinkedPortal(block) {
+  if (!block) return false;
+  return Boolean(linkedPortal(readPortalLinks(), blockReference(block)));
+}
+
 export async function teleportLinkedPortal(player, block) {
   if (!isPlayer(player) || !block) return false;
+  const currentTick = Number(system.currentTick ?? 0);
+  const cooldownUntil = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
+  if (!canEnterPortal(currentTick, cooldownUntil)) return false;
   const destination = linkedPortal(readPortalLinks(), blockReference(block));
   if (!destination) return false;
+
+  // Reserve the one-tick bounce guard before awaiting dimension preparation.
+  // This makes two same-tick interactions observe the same persisted lock.
+  const reservation = portalCooldownUntil(currentTick, PORTAL_COOLDOWN_TICKS);
+  try {
+    player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, reservation);
+  } catch (error) {
+    logger.error("ported_features: linked portal cooldown reservation failed", error);
+    return true;
+  }
 
   const teleported = await dimensions.teleportWhenReady(
     player,
@@ -149,8 +270,11 @@ export async function teleportLinkedPortal(player, block) {
     },
   );
   if (!teleported) {
+    clearPortalReservation(player, reservation);
     logger.error("ported_features: linked portal destination was not ready");
-    return false;
+    // A linked controller was handled, so its failure must not fall through to
+    // the unlinked clan_void destination.
+    return true;
   }
 
   try {
@@ -238,19 +362,43 @@ function placeCircuitPainting(player, block, face) {
     player.sendMessage("§cCircuit Cave must be placed on a wall.");
     return false;
   }
+  const selected = selectedItem(player, "thebrokenscript:circuit_cave_painting");
+  if (!selected) return false;
+  let original;
   try {
-    const painting = block.dimension.spawnEntity(
+    original = selected.item.clone();
+  } catch (error) {
+    logger.error("ported_features: circuit painting item snapshot failed", error);
+    return false;
+  }
+  let creative = false;
+  try { creative = player.getGameMode() === GameMode.Creative; } catch {}
+  if (!creative && !consumeSelectedItem(player, "thebrokenscript:circuit_cave_painting")) return false;
+
+  let painting;
+  try {
+    painting = block.dimension.spawnEntity(
       "thebrokenscript:circuit_cave_painting",
       placement.location,
     );
     painting.setRotation({ x: 0, y: placement.yaw });
-    consumeSelectedItem(player, "thebrokenscript:circuit_cave_painting");
     try { player.playSound("block.itemframe.add_item", { volume: 1.0, pitch: 1.0 }); } catch {}
     return true;
   } catch (err) {
+    try { painting?.remove(); } catch {}
+    try { selected.inventory.setItem(selected.slot, original); } catch (restoreError) {
+      logger.error("ported_features: circuit painting item restore failed", restoreError);
+    }
     logger.error("ported_features: circuit painting placement failed", err);
     return false;
   }
+}
+
+function clearPortalReservation(player, reservation) {
+  try {
+    const current = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
+    if (current === reservation) player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, undefined);
+  } catch {}
 }
 
 function tickPortedEffects() {
@@ -274,6 +422,11 @@ function tickPortedEffects() {
       } catch {}
     } else if (leaveUntil > 0) {
       try { player.setDynamicProperty(WHY_LEAVE_UNTIL, undefined); } catch {}
+    }
+
+    const cooldownUntil = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
+    if (cooldownUntil > 0 && cooldownUntil <= system.currentTick) {
+      try { player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, undefined); } catch {}
     }
   }
 }
@@ -317,20 +470,46 @@ function finiteDuration(value) {
 
 function consumeSelectedItem(player, expectedTypeId) {
   try {
-    if (player.getGameMode() === GameMode.Creative) return;
+    if (player.getGameMode() === GameMode.Creative) return false;
     const inventory = player.getComponent("minecraft:inventory")?.container;
-    if (!inventory) return;
+    if (!inventory) return false;
     const slot = player.selectedSlotIndex;
     const item = inventory.getItem(slot);
-    if (!item || item.typeId !== expectedTypeId) return;
+    if (!item || item.typeId !== expectedTypeId) return false;
     if (item.amount <= 1) {
       inventory.setItem(slot);
-      return;
+      return true;
     }
     item.amount -= 1;
     inventory.setItem(slot, item);
+    return true;
   } catch (err) {
-    logger.error("ported_features: failed to consume placed painting", err);
+    logger.error(`ported_features: failed to consume ${expectedTypeId}`, err);
+    return false;
+  }
+}
+
+function selectedItem(player, expectedTypeId) {
+  try {
+    const inventory = player.getComponent("minecraft:inventory")?.container;
+    if (!inventory) return undefined;
+    const slot = player.selectedSlotIndex;
+    const item = inventory.getItem(slot);
+    if (!item || item.typeId !== expectedTypeId) return undefined;
+    return { inventory, item, slot };
+  } catch {
+    return undefined;
+  }
+}
+
+function applyFoodEffect(player, effectId, duration, amplifier) {
+  if (!isPlayer(player)) return false;
+  try {
+    player.addEffect(effectId, duration, { amplifier, showParticles: true });
+    return true;
+  } catch (err) {
+    logger.error(`ported_features: ${effectId} food effect failed`, err);
+    return false;
   }
 }
 

@@ -2,10 +2,7 @@
   "format_version": "1.26.40",
   "minecraft:item": {
     "description": {
-      "identifier": "thebrokenscript:polaroid",
-      "menu_category": {
-        "category": "items"
-      }
+      "identifier": "thebrokenscript:polaroid"
     },
     "components": {
       "minecraft:icon": "polaroid",
@@ -19,7 +16,9 @@
         "use_duration": 0.1,
         "movement_modifier": 1.0
       },
-      "thebrokenscript:polaroid_use": {}
+      "thebrokenscript:polaroid_use": {},
+      "minecraft:rarity": "rare",
+      "minecraft:fire_resistant": true
     }
   }
 }
