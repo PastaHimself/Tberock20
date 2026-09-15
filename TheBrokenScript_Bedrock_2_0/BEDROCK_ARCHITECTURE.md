@@ -29,11 +29,11 @@ Namespace: `thebrokenscript` everywhere (see IDENTIFIER_MAP.json).
 |---|---|
 | `TheBrokenScript.class` bootstrap, `TBSEngineControl` | `src/bootstrap.ts`: startup event init, feature flags, error containment, logging |
 | `registry/*` (TBS* classes, 545 classes) | Data-driven JSON definitions + registry constants module mirroring every ID (IDENTIFIER_MAP is authoritative) |
-| `TBSEvents` (~91 handlers), `events/**` (97 classes) | Central event engine: `worldAfterEvents/worldBeforeEvents/system.runInterval` scheduler; 86 named horror events as source-backed contracts with source timing/probabilities |
+| `TBSEvents` (86 registered handlers), `events/**` (97 classes) | Central event engine: `worldAfterEvents/worldBeforeEvents/system.runInterval` scheduler; 86 named horror events as source-backed contracts with source timing/probabilities |
 | `TBSStoryEvents` (stages) | Story stage machine persisted in world dynamic properties; gates encounters/events |
 | `handlers/player`, `TBSDataAttachments` (player_base, player_variables, circuit_inhabited, interaction_tracker) | Per-player state service on dynamic properties; join/leave/death/respawn lifecycle hooks |
 | `handlers/audio`, `network/music` | Server-authoritative music/sfx dispatcher (playSound, music disc logic, synced cues) |
-| `handlers/chat`, `TBSChatResponses` (45) | Chat response engine: keyword triggers → scripted reactions (titles/sounds/entities) |
+| `handlers/chat`, `TBSChatResponses` (42 registered responses) | Chat response engine: keyword triggers → scripted reactions (titles/sounds/entities) |
 | `TBSSpawnConditions` (24 conditions) + `biome_modifier/spawns` (33) | Spawn director: event-driven + bounded-interval spawner reproducing condition predicates (light/distance/structure/player-state); native spawn_rules where sufficient |
 | `entity/**` (216 classes, 69 registered entities incl. variants) | BP entity JSONs + RP client entities reusing native-format geo/animations + per-entity controller modules implementing source AI as explicit state machines |
 | Stalking/observation AI (circuit_stare/stalk, siluet_stare, tbe_stalk, fever_stalk, null_watching, he_hallucination…) | Shared stalking framework (Chunk 04): LOS, last-known-position memory, observation timers, imperfect information, escalation/cooldowns, teleport governance |

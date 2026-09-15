@@ -1,7 +1,7 @@
 # Parity ledger reconciliation
 
 Audit date: **2026-09-15**  
-Repository baseline: `4956a0575da28cbec161773d8b7c4ef947b41550`  
+Repository baseline: `4bb5135fb508545227ffa110685e8aaca62ae36f`  
 Source inventory: `SOURCE_INVENTORY.json`  
 Component ledger: `SOURCE_MAP.json`
 
@@ -20,8 +20,9 @@ decision:
    in the same order with the same source IDs.
 2. Current entity, block, item, recipe, biome, particle, structure, script,
    and resource files are inspected from the live BP/RP tree.
-3. The current horror-event `H` handlers and weighted `TABLE` are parsed from
-   `BP/scripts/systems/horror_events.js`; handler/table drift is a failure.
+3. The current horror-event `H` handlers are parsed from
+   `BP/scripts/systems/horror_events.js` and compared with the ordered
+   SOURCE_EVENT_IDS registry; registry/adapter drift is a failure.
 4. Every row gets a terminal status/parity pair and at least one existing
    Bedrock-side artifact or evidence document. Missing evidence is a failure.
 5. Source-only, Java-only, and engine-limited behavior is recorded as

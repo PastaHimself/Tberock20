@@ -243,7 +243,7 @@ The row-level audit reconciles the live deployed tree at baseline `4956a0575da28
 
 - `912/912` source-map IDs match `SOURCE_INVENTORY.json`, with `0` unresolved status/parity values.
 - Current pack evidence includes `69` BP/RP entity pairs, `125` BP block JSON files (`123` source block rows plus two Bedrock fluid forms), `78` BP item JSON files (`76` direct source items plus Bedrock-only additions), `40` recipes, `15` biomes, `6` Shaft NBT templates, `72` BP JavaScript files, `34` current RP animation JSON files plus one `.old` source artifact, `181` OGG files, and `266` PNG files.
-- The `13` dimension rows resolve to startup Script API registrations rather than static `BP/dimensions` files. The `94` horror-event rows resolve to `79` live H/TABLE handlers, five story-threshold adapters, and ten explicitly excluded/unsupported source-only entries. The chat row records the current `13` live response keys alongside the separate source registration count.
+- The `13` dimension rows resolve to startup Script API registrations rather than static `BP/dimensions` files. The `94` horror-event rows resolve to `79` live H/TABLE handlers, five story-threshold adapters, and ten explicitly excluded/unsupported source-only entries. The chat row records the current `42` source response contracts alongside the separate source registration count.
 - `PARITY_MATRIX.md` now contains only terminal family rollups. `tools/reconcile_parity_ledgers.py --check`, `tools/validate_parity_ledgers.py`, `tools/validate_parity_source_map.py`, and `tools/validate_source_map_release.py` are the ledger gate; approximation and engine limits remain visible rather than being counted as exact parity.
 
 The audit uses the deployed BP copy because Chunk 38's integrated story-book adapter is present there while the authoring `src` copy is not yet synchronized. This is a ledger-authority decision, not a claim that the two trees are interchangeable.
@@ -253,6 +253,12 @@ The audit uses the deployed BP copy because Chunk 38's integrated story-book ada
 Chunk 40 resolves A-008. The Java `StoryEvents.tick()` contract was verified from the decompiled brokencore implementation and event classes: daylight disabled returns before event lookup; daylight enabled with no players keeps the saved time but still evaluates the exact persisted threshold; daylight enabled with players increments first and evaluates the new time. The Bedrock clock uses `world.gameRules.doDayLightCycle` and a shared pure model in both runtime copies. The threshold model preserves TXT days 5/10/15/20, coordinates day 6, null book day 12, and moon corruption days 24/32/38/48, all at `+1000` ticks, in chronological order.
 
 Focused story-clock regressions are green locally; the complete add-on workflow runs the same focused gate alongside the full Node suite, type-check, pack validators, parity reconciliation, diagnostics, Creator Tools validation, and packaging. A real Bedrock engine smoke run remains pending under the existing runtime-smoke gate.
+
+## Chunk 41 — Horror event and chat response parity
+
+Chunk 41 resolves item 6. The deployed runtime now registers all 86 source events and all 42 source chat responses in source order. Pure contracts cover the Java frequency curve, random-player selection, inverse-use weighted selection, invalid-candidate rerolls, chat normalization/alias order, full-message versus substring matching, response delivery scope, and response delays. Runtime adapters persist event use counts, guard deferred work with lifecycle tokens, invalidate on player/world lifecycle changes, keep normal chat additive, and leave Java-only OS/client UI behavior explicitly adapted.
+
+The focused horror event/chat regression suite and the complete release workflow are the validation boundary for this chunk. A real Bedrock engine smoke run remains pending under the existing runtime-smoke gate.
 
 ## Next chunk
 **Next source boundary.** Exact rendered bone world-position contact remains the next Fractured-specific adapter boundary. Exact Java shaders/OS/packet hooks, verified font glyph mapping, optional Nostalgia import, and NBT/XCSF tooling remain explicit engine/deferred items; none are hidden by the ledger reconciliation.
