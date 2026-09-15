@@ -82,6 +82,14 @@ function deleteTimers(e) {
 }
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z); }
 
+function targetTopY(entity) {
+  try {
+    const aabb = entity.getAABB();
+    if (Number.isFinite(aabb?.max?.y)) return aabb.max.y;
+  } catch {}
+  return entity.location.y + 1;
+}
+
 function getHealth(e) {
   try { return e.getComponent("minecraft:health")?.currentValue ?? 0; } catch { return 0; }
 }
@@ -723,11 +731,12 @@ function tickChord(e) {
     const origin = { x: e.location.x, y: e.location.y, z: e.location.z };
     const pr = spawnAt(e.dimension, "thebrokenscript:chord_projectile", origin);
     if (pr) {
+      const projectileY = Number.isFinite(pr.location?.y) ? pr.location.y : origin.y;
       registerChordProjectileLaunch(
         pr,
         {
           x: target.location.x - e.location.x,
-          y: target.location.y - e.location.y,
+          y: targetTopY(target) - projectileY,
           z: target.location.z - e.location.z,
         },
         e,

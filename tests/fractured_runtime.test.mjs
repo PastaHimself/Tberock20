@@ -44,6 +44,8 @@ test("runtime exposes one scheduler owner and one collision owner", async () => 
   assert.match(runtime, /applyProjectileDamage\(target, plan\.damage, state\.owner, rock, "thebrokenscript:rock"\)/);
   assert.match(runtime, /EquipmentSlot\.Chest/);
   assert.match(runtime, /EntityDamageCause\.projectile/);
+  const rockImpactBody = runtime.match(/function rockHitTargets\([\s\S]*?\n\}/)?.[0] ?? "";
+  assert.doesNotMatch(rockImpactBody, /\bbreak;/);
   assert.match(runtime, /fracturedRockImpactPlan/);
   assert.match(runtime, /fracturedAnimationEventPlan/);
   assert.match(runtime, /fracturedAnimationId/);

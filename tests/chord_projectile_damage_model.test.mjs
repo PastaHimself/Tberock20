@@ -21,6 +21,14 @@ test("Chord inherits the vanilla AbstractArrow damage formula and source launch 
   assert.equal(chordProjectileDifficultyId("normal"), 2);
   assert.equal(chordProjectileDifficultyId("hard"), 3);
 
+  for (const [difficultyId, expected] of [[0, 4], [1, 4.11], [2, 4.22], [3, 4.33]]) {
+    assert.equal(chordProjectileBaseDamageFromMob({
+      power: CHORD_PROJECTILE_SOURCE.baseDamageFromMob,
+      difficultyId,
+      randomDouble: () => 0.5,
+    }), expected);
+  }
+
   const samples = [0.9, 0.1];
   assert.ok(Math.abs(chordProjectileBaseDamageFromMob({
     power: CHORD_PROJECTILE_SOURCE.baseDamageFromMob,
@@ -44,5 +52,7 @@ test("Chord runtime resolves world difficulty and delegates damage to the pure f
   assert.match(runtime, /chordProjectileBaseDamageFromMob/);
   assert.match(runtime, /chordProjectileDifficultyId/);
   assert.match(runtime, /world\.getDifficulty\(\)/);
+  assert.match(runtime, /chordProjectileDamageOptions/);
+  assert.match(runtime, /ownerEntity/);
   assert.doesNotMatch(runtime, /CHORD_PROJECTILE_BEDROCK_ADAPTER\.entityHitDamage/);
 });
