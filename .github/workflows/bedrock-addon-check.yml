@@ -132,6 +132,17 @@ jobs:
         if: always()
         run: npm test
 
+      - name: Run Integrity boss parity gate
+        if: always()
+        run: >-
+          node --experimental-vm-modules --test
+          tests/integrity_arena_model.test.mjs
+          tests/integrity_encounter_model.test.mjs
+          tests/phase3_attack_model.test.mjs
+          tests/phase3_lifecycle_model.test.mjs
+          tests/integrity_runtime_model.test.mjs
+          tests/integrity_runtime_contract.test.mjs
+
       - name: Run entity-family fidelity regressions
         if: always()
         run: node --test tests/entity_family_fidelity.test.mjs

@@ -164,17 +164,19 @@ Evidence (2026-09-15): `BP/scripts/core/entity_family_registry.js` and its mirro
 
 ## 8. Integrity boss parity
 
-- [ ] Audit Phase 1 and Phase 2 directly from source; confirm no historical fabricated health-threshold transition logic remains.
-- [ ] Audit Phase 3 candidate generation, presets, arena boundary, attack selector, attack cooldowns, damage gates, mace parry, death timing, and cleanup against source.
-- [ ] Verify inclusive/exclusive random ranges exactly.
-- [ ] Verify GroundAttack/GroundArm target capture, spawn tick, owner semantics, impact geometry, stuck propagation, and destruction lifecycle.
-- [ ] Verify fireball/projectile collision and owner exclusion under lag and multiplayer.
-- [ ] Verify final cutscene timing model against Java even where camera/packet transport must be adapted.
-- [ ] Verify participant tracking/arena membership has no multiplayer leak or cross-player damage attribution errors.
+A checked item means the Java source audit and the Bedrock implementation/adaptation are complete. Java-only transport differences remain explicitly listed in [TheBrokenScript_Bedrock_2_0/docs/INTEGRITY_BOSS_PARITY.md](TheBrokenScript_Bedrock_2_0/docs/INTEGRITY_BOSS_PARITY.md).
+
+- [x] Audit Phase 1 and Phase 2 directly from source; confirm no historical fabricated health-threshold transition logic remains.
+- [x] Audit Phase 3 candidate generation, presets, arena boundary, attack selector, attack cooldowns, damage gates, mace parry, death timing, and cleanup against source.
+- [x] Verify inclusive/exclusive random ranges exactly.
+- [x] Verify GroundAttack/GroundArm target capture, spawn tick, owner semantics, impact geometry, stuck propagation, and destruction lifecycle.
+- [x] Verify fireball/projectile collision and owner exclusion under lag and multiplayer.
+- [x] Verify final cutscene timing model against Java even where camera/packet transport must be adapted.
+- [x] Verify participant tracking/arena membership has no multiplayer leak or cross-player damage attribution errors.
 
 ### Engine-limited Integrity behavior
 
-- [ ] Keep Java-only overlay/music packet, exact camera override, exact custom damage type, synchronized owner field, and exact AABB-contact differences explicitly documented until a better Bedrock API exists.
+- [x] Keep Java-only overlay/music packet, exact camera override, exact custom damage type, synchronized owner field, and exact AABB-contact differences explicitly documented until a better Bedrock API exists.
 
 ## 9. Jimmy / Fractured / FracturedRoam parity
 
