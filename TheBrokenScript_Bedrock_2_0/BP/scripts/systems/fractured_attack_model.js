@@ -8,6 +8,17 @@ export const FRACTURED_LIFECYCLE_SOURCE = Object.freeze({
   attackedCooldownTicks: 800,
 });
 
+export const FRACTURED_RISING_SOURCE = Object.freeze({
+  durationTicks: 149,
+  activeMinTick: 55,
+  activeMaxTick: 103,
+  radius: 30,
+  damage: 19,
+  knockback: 30,
+  groundedOnly: true,
+  sourceId: "thebrokenscript:jimmy_rise",
+});
+
 export const FRACTURED_ATTACKS = Object.freeze({
   noop: Object.freeze({ lengthTicks: -1, chance: 0, canMove: true }),
   stomp: Object.freeze({ lengthTicks: 78, chance: 1, canMove: false }),
@@ -57,6 +68,15 @@ export function fracturedRockBlockBurstPlan(origin = { x: 0, y: 0, z: 0 }) {
 
 const SELECTABLE_ATTACKS = Object.freeze(["stomp", "slam", "moonRockToss", "airLift"]);
 
+/** Returns the source candidate order and weights without adding a
+ * previous-attack exclusion that does not exist in JimAttackSelectorGoal. */
+export function fracturedAttackCandidates() {
+  return SELECTABLE_ATTACKS.map((attack) => ({
+    attack,
+    chance: FRACTURED_ATTACKS[attack].chance,
+  }));
+}
+
 /**
  * Mirrors JimAttackSelectorGoal.start(). `roll` is the random value before
  * multiplication by the sum of the equal source weights. The source's
@@ -70,13 +90,35 @@ export function chooseFracturedAttack({
 } = {}) {
   if (currentAttack !== "noop" || attackDelay > 0 || !targetPresent) return null;
   const normalizedRoll = Number.isFinite(roll) ? Math.max(0, Math.min(0.999999999999, roll)) : 0;
-  const totalWeight = SELECTABLE_ATTACKS.reduce((sum, attack) => sum + FRACTURED_ATTACKS[attack].chance, 0);
+  const candidates = fracturedAttackCandidates();
+  const totalWeight = candidates.reduce((sum, candidate) => sum + candidate.chance, 0);
   let remaining = normalizedRoll * totalWeight;
-  for (const attack of SELECTABLE_ATTACKS) {
-    remaining -= FRACTURED_ATTACKS[attack].chance;
-    if (remaining <= 0) return attack;
+  for (const candidate of candidates) {
+    remaining -= candidate.chance;
+    if (remaining <= 0) return candidate.attack;
   }
   return SELECTABLE_ATTACKS.at(-1);
+}
+
+/** Mirrors BaseFracturedEntity's post-decrement rising damage window. */
+export function fracturedRisingStep(currentTick = FRACTURED_RISING_SOURCE.durationTicks) {
+  const current = Math.max(0, Math.floor(Number(currentTick) || 0));
+  const tick = current > 0 ? current - 1 : 0;
+  return {
+    tick,
+    active: tick >= FRACTURED_RISING_SOURCE.activeMinTick &&
+      tick <= FRACTURED_RISING_SOURCE.activeMaxTick,
+  };
+}
+
+export function fracturedRisingImpactPlan() {
+  return {
+    sourceId: FRACTURED_RISING_SOURCE.sourceId,
+    radius: FRACTURED_RISING_SOURCE.radius,
+    damage: FRACTURED_RISING_SOURCE.damage,
+    knockback: FRACTURED_RISING_SOURCE.knockback,
+    groundedOnly: FRACTURED_RISING_SOURCE.groundedOnly,
+  };
 }
 
 /** Mirrors FracturedEntity.tick() and finishAttack(). */

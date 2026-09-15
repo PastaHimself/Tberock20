@@ -5,6 +5,7 @@ import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
 import {
   FRACTURED_ATTACKS,
   FRACTURED_LIFECYCLE_SOURCE,
+  FRACTURED_RISING_SOURCE,
   FRACTURED_SOURCE,
   chooseFracturedAttack,
   fracturedAttackStep,
@@ -13,14 +14,15 @@ import {
   fracturedRockBlockBurstPlan,
   fracturedRockFlightStep,
   fracturedRockImpactPlan,
+  fracturedRisingImpactPlan,
+  fracturedRisingStep,
 } from "../../systems/fractured_attack_model.js";
 import {
   FRACTURED_MULTIPART_SOURCE,
   fracturedPartHitPlan,
   fracturedRoamSwitchStep,
-  multipartAabbs,
   multipartPartDefinitions,
-  pointInsideAabb,
+  multipartProjectileHitPlan,
   shouldApplyMultipartArrowEffects,
 } from "../../systems/fractured_multipart_model.js";
 import {
@@ -31,6 +33,7 @@ import {
 import {
   FRACTURED_ROAM_SOURCE,
   fracturedRoamArenaPlan,
+  fracturedRoamArenaRosterStep,
   fracturedRoamBaseTick,
   fracturedRoamDespawnStep,
   fracturedRoamDigEligibility,
@@ -40,10 +43,12 @@ import {
   fracturedRoamMoveControlStep,
   fracturedRoamRandomInclusive,
   fracturedRoamRandomInt,
+  fracturedRoamRecoveryStep,
   fracturedRoamServerTimerStep,
   fracturedRoamSupportAhead,
   fracturedRoamSupportNear,
   fracturedRoamStrollDue,
+  fracturedRoamTargetRange,
 } from "../../systems/fractured_roam_model.js";
 
 const FRACTURED_TYPE = "thebrokenscript:fractured";
@@ -61,12 +66,17 @@ const ATTACK_TAG_PREFIX = "thebrokenscript.fractured_attack.";
 const MOVEMENT_ADAPTER_BLOCKS_PER_TICK = 0.075;
 const COLLISION_SUBSTEP_BLOCKS = 0.4;
 const ROAM_ARENA_SOURCE = fracturedRoamArenaPlan();
+const FRACTURED_RISING_SOURCE_ID = FRACTURED_RISING_SOURCE.sourceId;
 
 const fracturedStates = new Map();
+const fracturedLifecycleStates = new Map();
 const rockStates = new Map();
+const projectilePositions = new Map();
+const projectileEntities = new Map();
 const roamSwitchStates = new Map();
 const roamLifecycleStates = new Map();
 const roamArenaStates = new Map();
+const contactOriginAdapters = new Map();
 let damageHookInstalled = false;
 let spawnHookInstalled = false;
 
@@ -109,6 +119,35 @@ function getBodyYaw(entity) {
   }
 }
 
+/**
+ * Validates an optional rendered-bone adapter without depending on a future
+ * Bedrock API. The root position is the deterministic current fallback.
+ */
+export function resolveFracturedContactOrigin(entity, locator, fallback = entity?.location) {
+  try {
+    const value = typeof locator === "function" ? locator(entity) : null;
+    if (value && ["x", "y", "z"].every((axis) => Number.isFinite(value[axis]))) {
+      return { x: value.x, y: value.y, z: value.z };
+    }
+  } catch {}
+  if (fallback && ["x", "y", "z"].every((axis) => Number.isFinite(fallback[axis]))) {
+    return { x: fallback.x, y: fallback.y, z: fallback.z };
+  }
+  return null;
+}
+
+/** Registers a future locator/bone adapter; null removes the adapter. */
+export function registerFracturedContactOriginAdapter(locator, resolver) {
+  if (typeof locator !== "string" || !locator) return false;
+  if (typeof resolver === "function") contactOriginAdapters.set(locator, resolver);
+  else contactOriginAdapters.delete(locator);
+  return true;
+}
+
+function fracturedContactOrigin(entity, locator) {
+  return resolveFracturedContactOrigin(entity, contactOriginAdapters.get(locator), entity?.location);
+}
+
 function projectileImpactPoint(projectile) {
   if (!projectile) return null;
   const aabb = getAabb(projectile);
@@ -120,13 +159,32 @@ function projectileImpactPoint(projectile) {
   }
 }
 
-function projectileHitsMultipartPart(parent, projectile) {
-  const point = projectileImpactPoint(projectile);
-  if (!point) return null;
-  return multipartAabbs({
-    position: copyPosition(parent.location),
-    yawDegrees: getBodyYaw(parent),
-  }).find((part) => pointInsideAabb(point, part)) ?? null;
+function isTrackedProjectile(entity) {
+  return entity?.typeId === "minecraft:arrow" ||
+    entity?.typeId === "minecraft:spectral_arrow" ||
+    entity?.typeId === "minecraft:trident";
+}
+
+function rememberProjectileEntity(projectile) {
+  if (!isTrackedProjectile(projectile) || !isValid(projectile)) return;
+  projectileEntities.set(projectile.id, projectile);
+}
+
+function trackProjectilePositions() {
+  for (const [id, projectile] of projectileEntities) {
+    if (!isValid(projectile)) {
+      projectileEntities.delete(id);
+      projectilePositions.delete(id);
+      continue;
+    }
+    const position = projectileImpactPoint(projectile);
+    if (!position) {
+      projectileEntities.delete(id);
+      projectilePositions.delete(id);
+      continue;
+    }
+    projectilePositions.set(id, position);
+  }
 }
 
 function isEntityOnFire(entity) {
@@ -182,17 +240,22 @@ function roamMinimumBuildHeight(dimension) {
   }
 }
 
-function recoverFracturedRoamFromAir(entity, state) {
+function recoverFracturedFromAir(entity, state) {
   if (hasGroundSupport(entity)) {
     state.lastSafeGroundPosition = copyPosition(entity.location);
     state.airborneTicks = 0;
     return;
   }
 
-  state.airborneTicks += 1;
   const safe = state.lastSafeGroundPosition;
-  const fellTooFar = safe && safe.y - entity.location.y > 20;
-  if (!safe || (!fellTooFar && state.airborneTicks <= 40)) return;
+  const recovery = fracturedRoamRecoveryStep({
+    onGround: false,
+    airborneTicks: state.airborneTicks,
+    safeY: safe?.y ?? null,
+    currentY: entity.location.y,
+  });
+  state.airborneTicks = recovery.airborneTicks;
+  if (!recovery.recover) return;
 
   const surface = fracturedRoamFindSurfaceAhead({
     position: copyPosition(entity.location),
@@ -201,6 +264,7 @@ function recoverFracturedRoamFromAir(entity, state) {
     isAirAt: (position) => roamIsAirAt(entity.dimension, position),
   }) ?? safe;
   callEntity(entity, "clearVelocity");
+  callEntity(entity, "clearFallDistance");
   try { entity.teleport(surface); } catch { return; }
   state.lastSafeGroundPosition = copyPosition(surface);
   state.airborneTicks = 0;
@@ -236,10 +300,34 @@ function nearestPlayer(entity, maxDistance = 1000) {
   return closest;
 }
 
+function getFracturedLifecycleState(entity) {
+  let state = fracturedLifecycleStates.get(entity.id);
+  if (state) return state;
+  state = {
+    entity,
+    state: callEntity(entity, "hasTag", DEFEATED_TAG) === true ? "DEFEATED" : "RISING",
+    riseTicks: FRACTURED_RISING_SOURCE.durationTicks,
+    digTicks: FRACTURED_ROAM_SOURCE.digAnimationTicks,
+    despawnTicks: FRACTURED_ROAM_SOURCE.despawnAnimationTicks,
+    switchTicks: FRACTURED_ROAM_SOURCE.switchingTicks,
+    lastSafeGroundPosition: hasGroundSupport(entity) ? copyPosition(entity.location) : null,
+    airborneTicks: 0,
+    wanderTarget: null,
+    stuckTicks: 0,
+    lastPosition: copyPosition(entity.location),
+    presentationAnimation: null,
+  };
+  fracturedLifecycleStates.set(entity.id, state);
+  playFracturedSpawnSound(entity);
+  playFracturedPresentation(entity, state, false);
+  return state;
+}
+
 function getFracturedState(entity) {
   let state = fracturedStates.get(entity.id);
   if (state) return state;
   state = {
+    entity,
     attack: "noop",
     attackDelay: FRACTURED_LIFECYCLE_SOURCE.initialAttackDelayTicks,
     attackTicks: 0,
@@ -250,7 +338,7 @@ function getFracturedState(entity) {
     attackTag: null,
   };
   fracturedStates.set(entity.id, state);
-  playFracturedSpawnSound(entity);
+  getFracturedLifecycleState(entity);
   return state;
 }
 
@@ -319,9 +407,9 @@ function playFracturedPresentation(entity, state, moving) {
   callEntity(entity, "playAnimation", animationId);
 }
 
-function randomRoamTarget(entity) {
+function randomRoamTarget(entity, horizontalRange = fracturedRoamTargetRange("NORMAL")) {
   const angle = Math.random() * Math.PI * 2;
-  const radius = Math.random() * FRACTURED_ROAM_SOURCE.randomStrollHorizontalRange;
+  const radius = Math.random() * horizontalRange;
   return {
     x: entity.location.x + Math.cos(angle) * radius,
     y: entity.location.y + (Math.random() * FRACTURED_ROAM_SOURCE.randomStrollVerticalRange * 2 - FRACTURED_ROAM_SOURCE.randomStrollVerticalRange),
@@ -364,7 +452,7 @@ function tickFracturedRoamMovement(entity, state) {
       return;
     }
     if (!state.wanderTarget && fracturedRoamStrollDue(system.currentTick)) {
-      const target = randomRoamTarget(entity);
+      const target = randomRoamTarget(entity, fracturedRoamTargetRange("NORMAL"));
       if (fracturedRoamSupportNear({
         position: target,
         isAirAt: (position) => roamIsAirAt(entity.dimension, position),
@@ -425,7 +513,9 @@ function tickFracturedRoamMovement(entity, state) {
       state.navigationCooldown -= 1;
     }
   } else if (!target) {
-    if (!state.wanderTarget) state.wanderTarget = randomRoamTarget(entity);
+    if (!state.wanderTarget) {
+      state.wanderTarget = randomRoamTarget(entity, fracturedRoamTargetRange("UNDERGROUND"));
+    }
     if (state.navigationCooldown <= 0) {
       state.navigationCooldown = fracturedRoamRandomInt(
         FRACTURED_ROAM_SOURCE.navigationCooldownMinTicks,
@@ -448,23 +538,13 @@ function tickFracturedRoamMovement(entity, state) {
 function tickFracturedRoamLifecycle(entity) {
   const state = getFracturedRoamLifecycleState(entity);
   const previousState = state.state;
-  recoverFracturedRoamFromAir(entity, state);
+  recoverFracturedFromAir(entity, state);
   if (state.state === "SWITCHING") {
     playFracturedPresentation(entity, state, false);
     return true;
   }
 
-  const baseStep = fracturedRoamBaseTick({
-    state: state.state,
-    riseTicks: state.riseTicks,
-    digTicks: state.digTicks,
-    despawnTicks: state.despawnTicks,
-  });
-  state.state = baseStep.state;
-  state.riseTicks = baseStep.riseTicks;
-  state.digTicks = baseStep.digTicks;
-  state.despawnTicks = baseStep.despawnTicks;
-  if (baseStep.discarded) {
+  if (!tickFracturedBaseLifecycle(entity, state)) {
     safeRemove(entity);
     roamLifecycleStates.delete(entity.id);
     return false;
@@ -527,6 +607,7 @@ function tickFracturedRoamLifecycle(entity) {
 
 function removeFracturedState(entity) {
   fracturedStates.delete(entity?.id);
+  fracturedLifecycleStates.delete(entity?.id);
 }
 
 function removeRockState(entity) {
@@ -560,14 +641,25 @@ function playersNearArena(dimension, center) {
 function refreshArenaPlayers(arena) {
   let players = [];
   try { players = world.getAllPlayers(); } catch { return []; }
-  const current = new Map();
+  const candidates = [];
   for (const player of players) {
     try {
-      if (isValid(player) && arena.playerIds.has(player.id)) current.set(player.id, player);
+      const sameArenaRoster = arena.playerIds.has(player.id) ||
+        (player.name && arena.playerNames?.has(player.name));
+      if (isValid(player) && player.dimension.id === arena.dimension.id && sameArenaRoster) {
+        candidates.push(player);
+      }
     } catch {}
   }
-  arena.players = current;
-  return [...current.values()];
+  const rosterStep = fracturedRoamArenaRosterStep({
+    previous: arena.players,
+    current: candidates,
+  });
+  arena.players = rosterStep.roster;
+  for (const player of arena.players.values()) {
+    if (player?.id != null) arena.playerIds.add(player.id);
+  }
+  return [...arena.players.values()];
 }
 
 function arenaHasLivingPlayers(arena) {
@@ -584,6 +676,7 @@ function playArenaSound(arena, sound) {
     try {
       const instance = player.playSound(sound, { volume: 1, pitch: 1 });
       if (instance && typeof instance.stop === "function") arena.soundInstances.push(instance);
+      else if (typeof player.stopSound === "function") arena.soundStops.push({ player, sound });
     } catch {}
   }
 }
@@ -592,7 +685,11 @@ function stopArenaSounds(arena) {
   for (const instance of arena.soundInstances ?? []) {
     try { instance.stop(); } catch {}
   }
+  for (const { player, sound } of arena.soundStops ?? []) {
+    try { player.stopSound(sound); } catch {}
+  }
   arena.soundInstances = [];
+  arena.soundStops = [];
 }
 
 function spawnArenaSubAnomalies(arena) {
@@ -632,15 +729,20 @@ function startFracturedRoamArena(entity) {
     return null;
   }
   if (!jimmy) return null;
+  // Ensure the source RISING lifecycle is initialized even when the engine's
+  // after-spawn event is delayed or unavailable for this entity.
+  getFracturedState(jimmy);
 
   const arena = {
     dimension: entity.dimension,
     center,
     jimmy,
     playerIds: new Set(players.map((player) => player.id)),
+    playerNames: new Set(players.map((player) => player.name).filter(Boolean)),
     players: new Map(players.map((player) => [player.id, player])),
     subAnomalies: [],
     soundInstances: [],
+    soundStops: [],
     introTicks: ROAM_ARENA_SOURCE.startMusicTicks,
     musicScheduled: false,
     musicStarted: false,
@@ -707,7 +809,14 @@ function tickFracturedRoamSwitch(entity, state) {
   state.switchTicks = switchStep.switchTicks;
   if (!switchStep.promote) return;
   const fractured = startFracturedRoamArena(entity);
-  if (!fractured) return;
+  if (!fractured) {
+    const lifecycle = getFracturedRoamLifecycleState(entity);
+    lifecycle.state = "NORMAL";
+    callEntity(entity, "removeTag", ROAM_SWITCH_TAG);
+    roamSwitchStates.delete(entity.id);
+    playFracturedPresentation(entity, lifecycle, false);
+    return;
+  }
   safeRemove(entity);
   roamSwitchStates.delete(entity.id);
   roamLifecycleStates.delete(entity.id);
@@ -746,6 +855,8 @@ function setDefeated(entity, state) {
   state.emitted.clear();
   setAttackTag(entity, state, "noop");
   callEntity(entity, "addTag", DEFEATED_TAG);
+  const lifecycle = getFracturedLifecycleState(entity);
+  lifecycle.state = "DEFEATED";
   // Java switches to BaseFracturedEntity.JimmyStates.DEFEATED and the death
   // controller plays Loss. Bedrock has no server-side GeckoLib controller, but
   // its playAnimation bridge can start the same resource-pack animation.
@@ -815,7 +926,15 @@ function applyRadialKnockback(target, origin, strength) {
   }
 }
 
-function playerPulse(entity, center, plan, knockbackMode = "view") {
+function playerPulse(
+  entity,
+  center,
+  plan,
+  knockbackMode = "view",
+  sourceId = plan?.sourceId ?? "thebrokenscript:jimmy_stomp",
+  requireDamageAcceptance = false,
+) {
+  if (!center || !plan) return;
   let players = [];
   try { players = world.getAllPlayers(); } catch { return; }
   for (const player of players) {
@@ -823,11 +942,43 @@ function playerPulse(entity, center, plan, knockbackMode = "view") {
       if (!isValid(player) || player.dimension.id !== entity.dimension.id) continue;
       if (plan.groundedOnly && !hasGroundSupport(player)) continue;
       if (distance(player.location, center) > plan.radius) continue;
-      applyDamage(player, plan.damage, entity, null, "thebrokenscript:jimmy_stomp");
+      const accepted = applyDamage(player, plan.damage, entity, null, sourceId);
+      if (requireDamageAcceptance && !accepted) continue;
       if (knockbackMode === "radial") applyRadialKnockback(player, center, plan.knockback);
       else applyViewKnockback(player, plan.knockback);
     } catch {}
   }
+}
+
+function emitFracturedRisingPulse(entity, state) {
+  const plan = fracturedRisingImpactPlan();
+  playerPulse(
+    entity,
+    copyPosition(entity.location),
+    plan,
+    "view",
+    FRACTURED_RISING_SOURCE_ID,
+    true,
+  );
+  state.lastRisingPulseTick = system.currentTick;
+}
+
+function tickFracturedBaseLifecycle(entity, state) {
+  const previousState = state.state;
+  const risingStep = state.state === "RISING" ? fracturedRisingStep(state.riseTicks) : null;
+  const baseStep = fracturedRoamBaseTick({
+    state: state.state,
+    riseTicks: state.riseTicks,
+    digTicks: state.digTicks,
+    despawnTicks: state.despawnTicks,
+  });
+  state.state = baseStep.state;
+  state.riseTicks = baseStep.riseTicks;
+  state.digTicks = baseStep.digTicks;
+  state.despawnTicks = baseStep.despawnTicks;
+  if (risingStep?.active && state.state === "RISING") emitFracturedRisingPulse(entity, state);
+  if (state.state !== previousState) playFracturedPresentation(entity, state, false);
+  return !baseStep.discarded;
 }
 
 function rotatedStompPosition(entity) {
@@ -844,9 +995,12 @@ function rotatedStompPosition(entity) {
 
 function sameCenterClawPositions(entity) {
   // The two Java slam packets carry the world positions of the two claw bones.
-  // With no script-visible Bedrock bone API, preserving the two-packet damage
-  // count at the entity anchor is the least speculative spatial adapter.
-  return [copyPosition(entity.location), copyPosition(entity.location)];
+  // Current Bedrock has no server-side locator getter, so the resolver falls
+  // back to the entity anchor while preserving the two-packet damage count.
+  return [
+    fracturedContactOrigin(entity, "right_l_claw"),
+    fracturedContactOrigin(entity, "left_l_claw"),
+  ].filter(Boolean);
 }
 
 function emitAttackEffect(entity, state, attack, target) {
@@ -867,7 +1021,7 @@ function emitAttackEffect(entity, state, attack, target) {
     const direct = fracturedImpactPlan("stomp");
     playerPulse(entity, rotatedStompPosition(entity), direct, "radial");
     // SingleStomp is a separate animation keyframe packet in the source.
-    playerPulse(entity, copyPosition(entity.location), fracturedImpactPlan("bigStomp"));
+    playerPulse(entity, fracturedContactOrigin(entity, "right_f_tarsus"), fracturedImpactPlan("bigStomp"));
     return;
   }
   if (attack === "slam") {
@@ -876,13 +1030,13 @@ function emitAttackEffect(entity, state, attack, target) {
     return;
   }
   if (attack === "moonRockToss") {
-    const origin = copyPosition(entity.location);
+    const origin = fracturedContactOrigin(entity, "ROCK") ?? copyPosition(entity.location);
     const targetPoint = targetPointAtHalfHeight(target);
     spawnRock(entity, origin, targetPoint, FRACTURED_SOURCE.rock.throwSpeed);
     return;
   }
   if (attack === "airLift") {
-    const origin = copyPosition(entity.location);
+    const origin = fracturedContactOrigin(entity, "ROCK") ?? copyPosition(entity.location);
     const rock = spawnRock(entity, origin, null, 0);
     if (rock) {
       const rockState = getRockState(rock);
@@ -915,6 +1069,13 @@ function advanceFracturedAttack(entity, state, target) {
     state.attack = step.nextAttack;
     state.emitted.clear();
     setAttackTag(entity, state, state.attack);
+    if (currentAttack !== "noop") {
+      const lifecycle = getFracturedLifecycleState(entity);
+      if (lifecycle.state === "ATTACKING") {
+        lifecycle.state = "NORMAL";
+        playFracturedPresentation(entity, lifecycle, false);
+      }
+    }
   }
 }
 
@@ -930,6 +1091,7 @@ function beginFracturedAttack(entity, state, target) {
   state.attackTicks = 0;
   state.attackDelay = 0;
   state.emitted.clear();
+  getFracturedLifecycleState(entity).state = "ATTACKING";
   setAttackTag(entity, state, attack);
   return true;
 }
@@ -950,8 +1112,16 @@ function approach(entity, target) {
 
 function tickFractured(entity) {
   const state = getFracturedState(entity);
+  const lifecycle = getFracturedLifecycleState(entity);
   if (state.defeated || callEntity(entity, "hasTag", DEFEATED_TAG) === true) {
     state.defeated = true;
+    lifecycle.state = "DEFEATED";
+    return;
+  }
+
+  recoverFracturedFromAir(entity, lifecycle);
+  if (!tickFracturedBaseLifecycle(entity, lifecycle)) {
+    fracturedLifecycleStates.delete(entity.id);
     return;
   }
 
@@ -1016,7 +1186,18 @@ function installDamageHook() {
       }
       if (source?.cause === EntityDamageCause.projectile) {
         const projectile = source.damagingProjectile;
-        const matchedPart = projectileHitsMultipartPart(entity, projectile);
+        rememberProjectileEntity(projectile);
+        const impact = projectileImpactPoint(projectile);
+        const previous = projectile?.id ? projectilePositions.get(projectile.id) : null;
+        const multipartHit = impact
+          ? multipartProjectileHitPlan({
+            position: copyPosition(entity.location),
+            yawDegrees: getBodyYaw(entity),
+            from: previous ?? impact,
+            to: impact,
+          })
+          : { hit: false, part: null };
+        const matchedPart = multipartHit.hit ? multipartHit.part : null;
         const roamLifecycle = isRoam ? getFracturedRoamLifecycleState(entity) : null;
         const plan = fracturedPartHitPlan({
           parentType: entity.typeId,
@@ -1057,6 +1238,7 @@ function installSpawnHook() {
       if (entity?.typeId === ROCK_TYPE) getRockState(entity);
       if (entity?.typeId === FRACTURED_TYPE) getFracturedState(entity);
       if (entity?.typeId === FRACTURED_ROAM_TYPE) getFracturedRoamLifecycleState(entity);
+      rememberProjectileEntity(entity);
     });
   } catch (error) {
     logger.warn(`fractured spawn hook unavailable: ${error}`);
@@ -1289,10 +1471,14 @@ function tickDimension(dimension) {
 
 function onTick() {
   for (const dimension of dimensionsToTick()) tickDimension(dimension);
+  trackProjectilePositions();
   tickRoamSwitchStates();
   tickFracturedRoamArenas();
   for (const [id, state] of fracturedStates) {
-    if (!state) fracturedStates.delete(id);
+    if (!state?.entity || !isValid(state.entity)) {
+      fracturedStates.delete(id);
+      fracturedLifecycleStates.delete(id);
+    }
   }
   for (const [id, state] of roamLifecycleStates) {
     if (!state?.entity || !isValid(state.entity)) roamLifecycleStates.delete(id);
@@ -1336,6 +1522,12 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
   fracturedRoamType: FRACTURED_ROAM_TYPE,
   rockType: ROCK_TYPE,
   multipartPartCount: multipartPartDefinitions().length,
+  risingDurationTicks: FRACTURED_RISING_SOURCE.durationTicks,
+  risingActiveWindow: [
+    FRACTURED_RISING_SOURCE.activeMinTick,
+    FRACTURED_RISING_SOURCE.activeMaxTick,
+  ],
+  risingSourceId: FRACTURED_RISING_SOURCE.sourceId,
   roamRiseTicks: FRACTURED_ROAM_SOURCE.riseTicks,
   roamServerTimerTicks: FRACTURED_ROAM_SOURCE.serverTimerTicks,
   roamDigAnimationTicks: FRACTURED_ROAM_SOURCE.digAnimationTicks,
@@ -1354,6 +1546,7 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
     FRACTURED_ROAM_SOURCE.digCooldownMaxExclusive,
   ],
   roamRandomStrollHorizontalRange: FRACTURED_ROAM_SOURCE.randomStrollHorizontalRange,
+  roamUndergroundRandomHorizontalRange: FRACTURED_ROAM_SOURCE.undergroundRandomHorizontalRange,
   roamRandomStrollVerticalRange: FRACTURED_ROAM_SOURCE.randomStrollVerticalRange,
   roamSupportDepth: FRACTURED_ROAM_SOURCE.strollSupportDepth,
   roamSupportLookahead: FRACTURED_ROAM_SOURCE.strollSupportLookahead,
@@ -1372,6 +1565,10 @@ export const FRACTURED_RUNTIME_SOURCE = Object.freeze({
   collisionSubstepBlocks: COLLISION_SUBSTEP_BLOCKS,
   movementAdapterBlocksPerTick: MOVEMENT_ADAPTER_BLOCKS_PER_TICK,
   usesSourceAttackModel: true,
+  usesSourceRisingModel: true,
+  usesFracturedLifecycleState: true,
+  usesMultipartProjectileSweep: true,
+  usesFracturedContactOriginAdapter: true,
   usesSingleRockRuntimeOwner: true,
   usesSourceRoamLifecycleModel: true,
   usesSourceRoamSurfaceRecovery: true,
