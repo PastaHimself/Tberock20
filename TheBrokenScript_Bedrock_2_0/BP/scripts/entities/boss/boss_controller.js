@@ -47,11 +47,12 @@ function installDeathHook() {
 }
 
 // ── constants from decompiled sources ──────────────────────────────────────
-// Integrity phase advancement is owned by Arena/Phase source semantics, not HP
-// fractions. Source-backed arena constants/predicates live in integrity_arena_model.js;
-// automatic arena startup remains disabled until its Java callsite is recovered.
-// Phase 3 ring spawning and boundary countdown are wired below. The Java
-// participant roster/transfer and custom camera packets remain engine gaps.
+// Integrity phase advancement and participant transfer are owned by the
+// source-backed Arena/Phase adapter in integrity_runtime.js. This file keeps
+// legacy entity-family hooks for compatibility; the shipped arena path delegates
+// Integrity P1–P3 lifecycle and combat to the dedicated runtimes.
+// Custom overlay/music/camera packets and rendered contact details remain
+// documented Bedrock adapters.
 // Fractured, Rock, and FracturedRoam are owned by the dedicated source-specific runtime.
 // murderfur: Kerfur pet — follows nearest player, meow pitch 0.9-1.2
 // fever: flying chaser 10 dmg + blindness; fever_stalk static then summons fever
@@ -355,12 +356,14 @@ function tickEntity(e) {
 
 // ── Integrity phases 1/2 ─────────────────────────────────────────────────────
 function tickIntegrityEarly(e) {
+  // Arena phase orchestration and Phase 2 combat live in integrity_runtime.js.
+  // Keep this compatibility hook side-effect free so the old entity-family
+  // controller cannot invent hover/melee behavior or health-based transitions.
   if (!timers.has(e.id)) timers.set(e.id, { init: 1 });
-  // Phase 1 is a no-AI crawl-out entity. Phase 2's source navigation and
-  // continuous melee adapter are owned by integrity_runtime.js.
 }
 
-// ── Integrity phase 3 ────────────────────────────────────────────────────────
+// ── Legacy Integrity phase 3 compatibility hook ──────────────────────────────
+// The active arena path is owned by entities/boss/phase3_runtime.js.
 function tickIntegrityP3(e) {
   let phase3State = timers.get(e.id);
   if (!phase3State?.phase3) {

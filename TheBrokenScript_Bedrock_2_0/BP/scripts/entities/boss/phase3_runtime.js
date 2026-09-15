@@ -641,8 +641,9 @@ function maybeSelectAttack(entity, state, target) {
 }
 
 function tickNoopMelee(entity) {
-  // NoopAttack.java is the idle fallback: one entity-attack pulse every five
-  // attack ticks, with the source's four-damage value and five-block radius.
+  // NoopAttack.java checks the entity tick modulo five, ignores a stuck boss,
+  // and applies four damage to every player inside the five-block radius.
+  if (system.currentTick % 5 !== 0 || isStuck(entity)) return;
   const target = nearestPlayer(entity);
   if (!target || distance(entity.location, target.location) > 5) return;
   applyEntityAttack(entity, target, 4);
@@ -702,7 +703,7 @@ function tickPhase3(entity) {
   if (state.attackDelay > 0) return;
   if (state.currentAttack === PHASE3_ATTACK.NOOP) {
     state.attackTicks += 1;
-    if (state.attackTicks % 5 === 0) tickNoopMelee(entity);
+    tickNoopMelee(entity);
     return;
   }
 

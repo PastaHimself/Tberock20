@@ -233,7 +233,9 @@ function corruptNextTerrain() {
   const dimension = safeDimension(state.originDimensionId);
   if (!dimension || !partial) return;
   try {
-    const block = dimension.getBlock(partial);
+    // TerrainCorrupter stores partial X/Z positions; resolve the surface
+    // block before applying the explicit Bedrock replacement adapter.
+    const block = dimension.getTopmostBlock({ x: partial.x, z: partial.z });
     if (!block || block.typeId === "thebrokenscript:corrupted_command_block") return;
     const replacement = TERRAIN_CORRUPT_REPLACEMENTS[
       Math.floor(Math.random() * TERRAIN_CORRUPT_REPLACEMENTS.length)
@@ -277,8 +279,11 @@ function integrityEntity(typeId, dimensionId = null) {
   }
   for (const dimension of allArenaDimensions()) {
     try {
-      const entity = dimension.getEntities({ type: typeId })[0];
-      if (entity && isValid(entity) && (!dimensionId || dimension.id === dimensionId)) return entity;
+      const entity = dimension.getEntities({ type: typeId }).find((candidate) => (
+        isValid(candidate)
+        && (!dimensionId || candidate.dimension?.id === dimensionId)
+      ));
+      if (entity) return entity;
     } catch {}
   }
   return null;
@@ -622,6 +627,7 @@ function tickPhase3() {
 
 function transitionToPhase2() {
   if (!state || state.phase !== INTEGRITY_PHASE.PHASE_1) return false;
+  if (!safeDimension(PHASE2_DIMENSION)) return false;
   removePhase1Entities();
   state.phaseTick = 0;
   state.currentFloorId = null;
@@ -636,6 +642,8 @@ function transitionToPhase2() {
 
 function transitionToPhase3() {
   if (!state || state.phase !== INTEGRITY_PHASE.PHASE_2) return false;
+  const dimension = safeDimension(PHASE3_DIMENSION);
+  if (!dimension) return false;
   removePhase2Integrity();
   state.phaseTick = 0;
   state.currentFloorId = null;
@@ -643,8 +651,6 @@ function transitionToPhase3() {
   state.integrityId = null;
   state.phase3DeathObserved = false;
   bossHooks.setArenaState(true, false);
-  const dimension = safeDimension(PHASE3_DIMENSION);
-  if (!dimension) return false;
   const integrity = spawnAt(dimension, P3_ENTITY, PHASE3_SOURCE.center);
   if (!integrity) return false;
   state.integrityId = integrity.id;
@@ -785,9 +791,12 @@ export function start(sourcePlayer, requestedPhase = "p1") {
   bossHooks.setArenaParticipants(state.participantIds);
 
   const normalized = String(requestedPhase).toLowerCase();
-  if (normalized === "p3" || normalized === "phase3") return transitionToPhase3();
-  if (normalized === "p2" || normalized === "phase2") return transitionToPhase2();
-  return startPhase1();
+  let started = true;
+  if (normalized === "p3" || normalized === "phase3") started = transitionToPhase3();
+  else if (normalized === "p2" || normalized === "phase2") started = transitionToPhase2();
+  else started = startPhase1();
+  if (!started) cleanupEncounter();
+  return started;
 }
 
 export function stop() {
@@ -802,9 +811,11 @@ export function stop() {
 
 export function next() {
   if (!state) return false;
-  if (state.phase === INTEGRITY_PHASE.PHASE_1) return transitionToPhase2();
-  if (state.phase === INTEGRITY_PHASE.PHASE_2) return transitionToPhase3();
-  return false;
+  let advanced = false;
+  if (state.phase === INTEGRITY_PHASE.PHASE_1) advanced = transitionToPhase2();
+  else if (state.phase === INTEGRITY_PHASE.PHASE_2) advanced = transitionToPhase3();
+  if (!advanced) cleanupEncounter();
+  return advanced;
 }
 
 export function status() {
