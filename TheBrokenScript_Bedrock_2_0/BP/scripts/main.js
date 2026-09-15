@@ -101,6 +101,7 @@ function onWorldLoad() {
         (ev) => {
             logger.debug(`playerLeave ${ev.playerName} (${ev.playerId})`);
             entityRefs.invalidateEntity(ev.playerId);
+            fracturedRuntime.onPlayerLeave(ev.playerId, ev.playerName);
             horrorEvents.clearPlayer(ev.playerId);
             horrorChat.clearPlayer(ev.playerId);
         }
@@ -110,6 +111,7 @@ function onWorldLoad() {
         "core.playerDimensionChange",
         "lifecycle",
         (ev) => {
+            fracturedRuntime.onPlayerDimensionChange(ev.player);
             horrorEvents.clearPlayer(ev.player);
             horrorChat.clearPlayer(ev.player);
             logger.debug(`playerDimensionChange ${ev.player.name} -> ${ev.toDimension?.id ?? "unknown"}`);
@@ -142,6 +144,7 @@ function onWorldLoad() {
         (ev) => {
             entityRefs.invalidateEntity(ev.deadEntity.id);
             if (ev.deadEntity.typeId !== "minecraft:player") return;
+            fracturedRuntime.onPlayerDeath(ev.deadEntity);
             horrorEvents.clearPlayer(ev.deadEntity);
             horrorChat.clearPlayer(ev.deadEntity);
             logger.debug(`player death: ${ev.deadEntity.name} source=${ev.damageSource?.cause ?? "unknown"}`);

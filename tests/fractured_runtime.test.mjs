@@ -94,12 +94,21 @@ test("Rock block impact is wired to the source-counted custom particle emitter",
 
 test("Fractured audio retains SoundInstance handles and stops arena music on reset", async () => {
   const runtime = await readFile(runtimePath, "utf8");
+  const main = await readFile(mainPath, "utf8");
   assert.match(runtime, /soundInstances: \[\]/);
+  assert.match(runtime, /soundInstanceOwners: new Map\(\)/);
   assert.match(runtime, /const instance = player\.playSound\(sound/);
   assert.match(runtime, /arena\.soundInstances\.push\(instance\)/);
+  assert.match(runtime, /stopArenaSoundsForPlayer/);
   assert.match(runtime, /function stopArenaSounds\(arena\)/);
   assert.match(runtime, /instance\.stop\(\)/);
   assert.match(runtime, /stopArenaSounds\(arena\)/);
+  assert.match(runtime, /export function onPlayerLeave/);
+  assert.match(runtime, /export function onPlayerDimensionChange/);
+  assert.match(runtime, /export function onPlayerDeath/);
+  assert.match(main, /fracturedRuntime\.onPlayerLeave\(ev\.playerId, ev\.playerName\)/);
+  assert.match(main, /fracturedRuntime\.onPlayerDimensionChange\(ev\.player\)/);
+  assert.match(main, /fracturedRuntime\.onPlayerDeath\(ev\.deadEntity\)/);
   assert.match(runtime, /ROAM_ARENA_SOURCE\.introSound/);
   assert.match(runtime, /jimmy\.spawn/);
   assert.match(runtime, /fracturedRoamArenaRosterStep/);
