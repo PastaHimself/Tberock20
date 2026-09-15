@@ -29,7 +29,7 @@ Namespace: `thebrokenscript` everywhere (see IDENTIFIER_MAP.json).
 |---|---|
 | `TheBrokenScript.class` bootstrap, `TBSEngineControl` | `src/bootstrap.ts`: startup event init, feature flags, error containment, logging |
 | `registry/*` (TBS* classes, 545 classes) | Data-driven JSON definitions + registry constants module mirroring every ID (IDENTIFIER_MAP is authoritative) |
-| `TBSEvents` (~91 handlers), `events/**` (97 classes) | Central event engine: `worldAfterEvents/worldBeforeEvents/system.runInterval` scheduler; ~94 named horror events as data+handler modules with source timing/probabilities |
+| `TBSEvents` (~91 handlers), `events/**` (97 classes) | Central event engine: `worldAfterEvents/worldBeforeEvents/system.runInterval` scheduler; 86 named horror events as source-backed contracts with source timing/probabilities |
 | `TBSStoryEvents` (stages) | Story stage machine persisted in world dynamic properties; gates encounters/events |
 | `handlers/player`, `TBSDataAttachments` (player_base, player_variables, circuit_inhabited, interaction_tracker) | Per-player state service on dynamic properties; join/leave/death/respawn lifecycle hooks |
 | `handlers/audio`, `network/music` | Server-authoritative music/sfx dispatcher (playSound, music disc logic, synced cues) |

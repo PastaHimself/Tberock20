@@ -125,13 +125,18 @@ and the `persistent state parity` JavaScript/Python test suites. The validator a
 
 ## 6. Horror events and chat responses
 
-- [ ] Enumerate every Java event and chat response from source, including registration conditions and aliases.
-- [ ] Compare Java probability, cooldown, delay, player selection, world/dimension gates, and mutual exclusion rules.
-- [ ] Verify the implemented weighted event pool has the same effective selection behavior as Java, not merely similar weights.
-- [ ] Verify every event's cleanup path after player death, dimension change, disconnect, or server reload.
-- [x] Resolve the **45-source-response vs 14-implemented-response** documentation discrepancy through source inspection; do not assume either count means 31 missing features until aliases/unreachable/dead source entries are checked.
-  - Evidence (2026-09-12): `tests/horror_chat_registration_audit.test.mjs` derives 42 registered Java chat-response IDs from `decompiled/.../TBSChatResponses.java` and 13 generic Bedrock response keys from `horror_chat.js`. Those counts describe different units and are not a parity denominator; per-response trigger/gate/delay auditing remains open.
-- [ ] Verify exact trigger normalization: casing, whitespace, punctuation, substrings/whole-message behavior, cooldowns, and whether the sender or all players receive side effects.
+- [x] Enumerate every Java event and chat response from source, including registration conditions and aliases.
+- [x] Compare Java probability, cooldown, delay, player selection, world/dimension gates, and mutual exclusion rules.
+- [x] Verify the implemented weighted event pool has the same effective selection behavior as Java, not merely similar weights.
+- [x] Verify every event's cleanup path after player death, dimension change, disconnect, or server reload.
+- [x] Resolve the 45-source-response vs 14-implemented-response documentation discrepancy through source inspection; aliases and registration units are now explicit.
+  - Evidence (2026-09-15): horror_chat_registration_audit.test.mjs derives 42 registered Java chat-response IDs and the shared Bedrock registry contains the same 42 ordered response contracts. The source registry count is not confused with alias count or runtime handler count.
+- [x] Verify exact trigger normalization: casing, whitespace, punctuation, substrings/whole-message behavior, cooldowns, and whether the sender or all players receive side effects.
+  - Evidence (2026-09-15): horror_chat_model.js reproduces ASCII-alphanumeric cleaning, full-message defaults, the source substring response, case-sensitive exceptions, and exact alias order. horror_chat.js uses a read-only before-chat subscription, defers effects through system.run/runTimeout, broadcasts normal responses, keeps Fever responses sender-only, and leaves the player's chat uncanceled.
+- [x] Verify event scheduling and selection semantics against Java.
+  - Evidence (2026-09-15): horror_event_model.js covers the Java 24000-tick frequency curve, random-player selection, inverse-times-used weighting, invalid-candidate rerolls, and persisted 86-entry use counts.
+- [x] Verify event lifecycle invalidation after disconnect, spawn/respawn, dimension change, death, and reload.
+  - Evidence (2026-09-15): horror_lifecycle_model.js tokens guard delayed callbacks; the event/chat adapters subscribe to the available Bedrock lifecycle signals and clear transient timestamps/handles on invalidation.
 
 ---
 

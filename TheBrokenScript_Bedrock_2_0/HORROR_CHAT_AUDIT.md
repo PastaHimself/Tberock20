@@ -1,40 +1,46 @@
 # Horror events and chat responses audit
 
-This audit is intentionally registration-focused. Repository-backed Java/decompiled code is the behavioral oracle; registration counts are not treated as feature-parity counts.
+This audit records the source-backed registration and runtime contract for item 6. The Java/decompiled registry is the behavior oracle; alias count, response count, and runtime adapter count are kept as separate concepts.
 
-## Chat-response count discrepancy
+## Source registration coverage
 
-`decompiled/net/thebrokenscript/registry/TBSChatResponses.java` registers **42** chat-response objects, not 45. The registered ids are:
+- 86 Java event registrations are represented in BP/scripts/systems/horror_events.js and the ordered contracts in BP/scripts/shared/horror_event_model.js.
+- 42 Java chat-response registrations are represented in BP/scripts/shared/horror_chat_model.js.
+- The source response registry is not the same unit as the historical 45 handlers label or the former generic Bedrock-key count. The parity denominator is the 42 ordered source registrations, with their aliases and response-specific gates attached.
 
-`can_you_see_me`, `circuit`, `clan_build`, `entity_303`, `follow`, `friend`, `fuck_you`, `hello`, `herobrine`, `how_can_i_help_you`, `integrity`, `niw`, `null`, `ram2die`, `revuxor`, `steve`, `the_broken_end`, `void`, `what_do_you_want`, `who_are_you`, `i_am_scared`, `blackout`, `cal`, `catfish`, `overlord`, `whyer`, `dyexd`, `null_structure_positive`, `null_structure_negative`, `sorry`, `lucid`, `clanbase_curved`, `hello_structure`, `fever_hello`, `fever_where`, `fever_what`, `fever_who`, `fever_insult`, `fever_want`, `fever_sky`, `fever_homes`, `freebird`.
+Event IDs, in source order:
 
-`BP/scripts/systems/horror_chat.js` currently has **13** generic Bedrock response keys:
+bsod, can_someone_hear_me, close_menu, damage, doors, explode_base, eyes, false_villager, giift, give_disc_11, heartbeat, hungry, jframe_1, jframe_2, jframe_3, jframe_4, jframe_5, lava_cast, look_and_damage, madness_1, moon_glitch, moon_phase, noop, null_book, nulled_gui, null_interface_trigger, null_invade_base, nullnullnull_advancement, null_particle, null_scare, null_title, obfuscated_sign, opengl_error, paranoia, place_all_dead, place_bedrock, place_cave_air, place_empty, place_flowing_water, place_hello, place_lava, place_netherrack, place_oak_sign, place_redstone_torch, place_water, play_sound, push, random_song, reset_rotation, set_do_daylight_cycle, set_on_fire, set_random_time_of_day, set_time, shadow_bug, strike_lightning, text, why_cant_you_leave, wrong_overlay, hallucination, title_event, experience, aberration, breathe, keep_playing, null_whisper, behind_you, run, cave, null_is_near, stare_at_player, psst_event, gamma, null_getting_achievement, rejoin, sky_blue, txt, inventory_corruption, door, tbe_curious, entity_discard, stick, coord, screen_dupe, isolation, fake_disconnect, collinlock.
 
-`null`, `herobrine`, `the_broken_end`, `integrity`, `circuit`, `hello`, `friend`, `who_are_you`, `what_do_you_want`, `i_am_scared`, `void`, `steve`, `sorry`.
+Chat response IDs, in source order:
 
-These numbers are not comparable units. A Java registration points to a `ChatResponse` class that owns its own trigger aliases, `isFullMessage`, case sensitivity, delay and `shouldExecute` gates. For example, `HelloResponse` alone has 40 full-message aliases, is case-insensitive, uses a 100-tick delay, requires the source `isNullHere` state, excludes Limbo, and excludes a nearby `watching` null structure. The Bedrock table instead performs one exact lookup after `toLowerCase().trim()` and currently does not reproduce those per-response gates/delays. Therefore the prior “45 source responses vs 14 implemented” wording must not be interpreted as a feature deficit, and adding aliases without their source conditions would be incorrect.
+can_you_see_me, circuit, clan_build, entity_303, follow, friend, fuck_you, hello, herobrine, how_can_i_help_you, integrity, niw, null, ram2die, revuxor, steve, the_broken_end, void, what_do_you_want, who_are_you, i_am_scared, blackout, cal, catfish, overlord, whyer, dyexd, null_structure_positive, null_structure_negative, sorry, lucid, clanbase_curved, hello_structure, fever_hello, fever_where, fever_what, fever_who, fever_insult, fever_want, fever_sky, fever_homes, freebird.
 
-The focused regression test `tests/horror_chat_registration_audit.test.mjs` pins the actual 42/13 registry/rule counts and current exact Bedrock normalization so future audits cannot silently regress to the stale 45/14 comparison.
+## Event scheduling and selection
 
-## Horror-event registration
+The source frequency curve is evaluated every server tick from absolute world time: a quadratic curve before day 55, a logarithmic continuation after day 55, capped at seven event ticks per day. Bedrock preserves the resulting frequency contribution, the 24000-tick base frequency, random-player selection, and source class/dimension/arena gates.
 
-`decompiled/net/thebrokenscript/registry/TBSEvents.java` registers **86** named source events. `BP/scripts/systems/horror_events.js` currently places **79** unique ids in its ambient `TABLE`. The Bedrock ambient scheduler runs every 200 ticks, returns immediately with no players or while `tbs:arenaActive` is true, makes two distinct-id attempts per tick, checks the table gate (`null`, `nullHere`, `moon`, or always), and then applies the selected handler to every online player.
+The event picker uses the source registry order and weight / max(1, timesUsed) for each candidate. It rerolls invalid candidates, increments only a successfully selected event, and persists the 86-entry use-count ledger in world state. moon_phase retains source weight 5; isolation is source weight 0.
 
-The Bedrock gate mapping is:
+## Chat matching and delivery
 
-- `null`: `isNullHere || hasNullSpawned`
-- `nullHere`: `isNullHere`
-- `moon`: `hasMoonCorrupted`
-- `null` JavaScript value: always eligible
+Java chat matching removes every non-ASCII-alphanumeric character, flattens whitespace, and compares cleaned aliases in registration order. Full-message matching is the default; who_are_you is the source substring exception. The null and Lucy B. Locks responses retain source case sensitivity. Fever aliases are gated to the limbo dimension and are delivered only to the sender.
 
-Manual `fire(id)` bypasses those scheduler gates and executes the named Bedrock handler for every online player. This distinction is intentional in the audit: manual command exposure is not evidence that the ambient Java registration conditions are matched.
+All ordinary response text is additive: the before-chat callback does not set event.cancel. Effects are deferred through system.run and system.runTimeout; delayed callbacks re-check their lifecycle token before touching a player or dimension. State-only and staged responses intentionally stay silent when their source handler has no ordinary chat line.
 
-As with chat, **86 vs 79 is not by itself evidence of seven missing features**. Some Java events are UI/desktop adapters or are driven elsewhere in the Bedrock port. No runtime mechanic, probability, cooldown, delay, player-selection rule, cleanup path, alias, or dimension gate is changed by this audit unless the corresponding Java implementation establishes it.
+## Lifecycle and engine boundary
 
-## Bedrock API validation
+Leave, spawn/respawn, death, dimension-change, and world reload invalidate response/event callbacks and clear transient timestamp maps. The adapter also checks API object validity before delayed world/entity operations.
 
-The pack is pinned to `@minecraft/server` `2.11.0-beta`. Bedrock Wiki's indexed Microsoft Creator API definitions confirm `ChatSendBeforeEvent.message`, `sender`, and cancellable `cancel`, and `Player.sendMessage`. Microsoft Learn's event guidance shows `world.beforeEvents.chatSend.subscribe(...)`; `System.runTimeout` is available for tick-delayed work. The current chat handler uses `system.run(...)` to defer the response out of the before-event callback, which is compatible with the documented before-event write restrictions.
+Bedrock cannot reproduce Java OS window-title mutation, client-only shader/packet hooks, exact custom GUI screens, or full desktop rendering. Those surfaces are documented as explicit approximations; the event registry, chat normalization, delivery semantics, scheduling, gates, and cleanup paths are not left as count-only placeholders.
 
-## Scope decision
+## Required validation
 
-No Java response was promoted to a Bedrock runtime alias in this change because the inspected source demonstrates that aliases are coupled to class-specific execution conditions and delays. The evidence-backed fix is the count/normalization regression guard plus this audit record; runtime parity work must port each response/event from its concrete Java class rather than infer behavior from registration counts.
+- node --experimental-vm-modules --test tests/horror_*test.mjs tests/commands_operator_dev.test.mjs
+- npm run typecheck
+- python tools/reconcile_parity_ledgers.py --check
+- python tools/audit_source_to_runtime.py --check
+- python tools/validate_addon.py
+- python tools/validate_resource_links.py
+- python tools/validate_mcstructures.py
+- GitHub Actions workflow bedrock-addon-check.yml

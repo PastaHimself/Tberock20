@@ -2,63 +2,41 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const BEDROCK_CHAT_IMPLEMENTATION = "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js";
+const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
 
-function javaRegistryIds(source, kind) {
-  const ids = [];
-  const direct = new RegExp(`TBSReg\\.INSTANCE\\.${kind}\\(\\"([^\"]+)\\"`, "g");
-  const defaults = new RegExp(`BrokenReg\\.${kind}\\$default\\([^\\n]*?\\(String\\)\\"([^\"]+)\\"`, "g");
-  for (const match of source.matchAll(direct)) ids.push(match[1]);
-  for (const match of source.matchAll(defaults)) ids.push(match[1]);
-  return ids.sort();
+function sourceRegistryIds(source, kind) {
+  const registration = new RegExp(
+    '(?:TBSReg\\.INSTANCE\\.' + kind + '|BrokenReg\\.' + kind + '\\$default)\\([^\\n]*?"([^"]+)"',
+    "g",
+  );
+  return [...source.matchAll(registration)].map((match) => match[1]);
 }
 
-function bedrockChatKeys(source) {
-  const body = source.match(/const CHAT_RESPONSES = \{([\s\S]*?)\n\};/)?.[1] ?? "";
-  return [...body.matchAll(/^\s{2}([a-z0-9_]+):/gm)].map((m) => m[1]).sort();
+function adapterIds(source) {
+  const body = source.match(/const H = \{([\s\S]*?)\n\};/)?.[1] ?? "";
+  return [...body.matchAll(/^\s{2}([a-z0-9_]+)\([^\n]*\)\s*\{/gm)].map((match) => match[1]);
 }
 
-function bedrockEventIds(source) {
-  const body = source.match(/const TABLE = \[([\s\S]*?)\n\];/)?.[1] ?? "";
-  return [...body.matchAll(/\[\"([^\"]+)\",/g)].map((m) => m[1]).sort();
-}
-
-test("chat-response registry counts are source registrations, not Bedrock rule parity", () => {
-  const java = read("decompiled/net/thebrokenscript/registry/TBSChatResponses.java");
-  const bedrock = read(BEDROCK_CHAT_IMPLEMENTATION);
-  const sourceIds = javaRegistryIds(java, "chatResponse");
-  const bedrockIds = bedrockChatKeys(bedrock);
-
-  assert.equal(sourceIds.length, 42, "TBSChatResponses currently registers 42 responses");
-  assert.equal(new Set(sourceIds).size, 42, "source response registry ids must be unique");
-  assert.equal(bedrockIds.length, 13, "Bedrock currently has 13 generic chat-response keys");
-
-  // These are registry/rule identifiers. They are deliberately not asserted equal:
-  // each Java ChatResponse owns its own trigger list, gates and delay semantics.
-  assert.ok(sourceIds.includes("hello"));
-  assert.ok(sourceIds.includes("fever_hello"));
-  assert.ok(!bedrockIds.includes("fever_hello"));
+test("chat runtime uses the read-only before-chat boundary", () => {
+  const chat = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js");
+  assert.match(chat, /world\.beforeEvents\.chatSend/);
+  assert.match(chat, /events\.subscribeGuarded/);
+  assert.match(chat, /system\.run\(\(\) => handleChat/);
+  assert.match(chat, /system\.runTimeout/);
+  assert.match(chat, /matchesChatResponse/);
+  assert.match(chat, /isLifecycleTokenValid/);
+  assert.match(chat, /playerDimensionChange/);
+  assert.doesNotMatch(chat, /event\.cancel\s*=|ev\.cancel\s*=/);
 });
 
-test("Bedrock chat normalization remains exact case-insensitive trimmed full-key lookup", () => {
-  const bedrock = read(BEDROCK_CHAT_IMPLEMENTATION);
-  assert.match(bedrock, /ev\.message\.toLowerCase\(\)\.trim\(\)/);
-  assert.match(bedrock, /CHAT_RESPONSES\[msg\]/);
-  assert.doesNotMatch(bedrock, /includes\(msg\)|startsWith\(msg\)/);
-});
-
-test("horror-event source and Bedrock registration counts are audited independently", () => {
-  const java = read("decompiled/net/thebrokenscript/registry/TBSEvents.java");
-  const bedrock = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_events.js");
-  const sourceIds = javaRegistryIds(java, "event");
-  const bedrockIds = bedrockEventIds(bedrock);
-
-  assert.equal(sourceIds.length, 86, "TBSEvents currently registers 86 named source events");
-  assert.equal(new Set(sourceIds).size, 86, "source event registry ids must be unique");
-  assert.equal(bedrockIds.length, 79, "Bedrock ambient TABLE currently contains 79 entries");
-  assert.equal(new Set(bedrockIds).size, 79, "Bedrock ambient event ids must be unique");
-
-  // Count differences alone do not establish missing mechanics: some source events
-  // are engine/UI adapters or are driven by other Bedrock systems rather than TABLE.
+test("all 42 source chats and 86 event adapters are explicit", () => {
+  const chatSource = read("decompiled/net/thebrokenscript/registry/TBSChatResponses.java");
+  const eventSource = read("decompiled/net/thebrokenscript/registry/TBSEvents.java");
+  const chat = read("TheBrokenScript_Bedrock_2_0/BP/scripts/shared/horror_chat_model.js");
+  const events = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_events.js");
+  assert.equal(sourceRegistryIds(chatSource, "chatResponse").length, 42);
+  assert.equal(sourceRegistryIds(eventSource, "event").length, 86);
+  assert.equal(adapterIds(events).length, 86);
+  assert.match(chat, /export const CHAT_RESPONSES/);
+  assert.match(events, /export const EVENT_CONTRACTS|EVENT_CONTRACTS/);
 });

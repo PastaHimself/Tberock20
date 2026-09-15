@@ -1,6 +1,6 @@
 # Parity ledger reconciliation
 
-Audit date: **2026-09-13**  
+Audit date: **2026-09-15**  
 Repository baseline: `4956a0575da28cbec161773d8b7c4ef947b41550`  
 Source inventory: `SOURCE_INVENTORY.json`  
 Component ledger: `SOURCE_MAP.json`
@@ -54,10 +54,10 @@ The 912 source IDs resolve as follows:
 | Unresolved status/parity values | 0 |
 | `ported/full` | 42 |
 | `ported/high` | 25 |
-| `ported/approximation` | 753 |
-| `blocked/unsupported` | 63 |
-| `excluded/full` | 15 |
-| `excluded/unsupported` | 14 |
+| `ported/approximation` | 758 |
+| `blocked/unsupported` | 61 |
+| `excluded/full` | 13 |
+| `excluded/unsupported` | 13 |
 
 Current deployed tree evidence includes:
 
@@ -71,8 +71,8 @@ Current deployed tree evidence includes:
   `.old` source artifact, 181 OGG files, and 266 PNG files;
 - 13 logical custom dimensions registered by the startup Script API rather than
   static `BP/dimensions` files; and
-- 79 current horror-event `H`/`TABLE` entries, plus the story-threshold and
-  source-only decisions needed to reconcile the 94 event rows.
+- 86 current source-backed horror-event H entries, plus the story-threshold and
+  source-only decisions needed to reconcile the remaining source rows.
 
 ## Deliberate exceptions
 
@@ -81,7 +81,7 @@ Current deployed tree evidence includes:
   requires GameProfile/skin/session and client-packet behavior. `entity.liberty`
   is `excluded/full` because the source `LibrarianHandler` creates a vanilla
   Allay named Liberty rather than a TBS registry entity.
-- The current chat runtime has 13 live response keys. The source inventory row
+- The current chat runtime carries all 42 ordered source response contracts. The source inventory row
   records the separate 45-response registration surface; the chat audit does
   not treat those counts as the same denominator.
 - Five story event rows are represented by the current story clock/state/book

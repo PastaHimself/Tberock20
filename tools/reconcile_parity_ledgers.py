@@ -27,8 +27,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ADDON = ROOT / "TheBrokenScript_Bedrock_2_0"
 SOURCE_MAP = ADDON / "SOURCE_MAP.json"
 SOURCE_INVENTORY = ADDON / "SOURCE_INVENTORY.json"
-AUDIT_DATE = "2026-09-13"
-AUDIT_COMMIT = "4956a0575da28cbec161773d8b7c4ef947b41550"
+AUDIT_DATE = "2026-09-15"
+AUDIT_COMMIT = "4bb5135fb508545227ffa110685e8aaca62ae36f"
 
 TERMINAL = {
     ("ported", "full"),
@@ -124,26 +124,37 @@ def choose_entity_controller(key: str) -> list[str]:
 
 
 def current_horror_event_keys() -> tuple[set[str], set[str]]:
-    path = ADDON / "BP/scripts/systems/horror_events.js"
-    text = path.read_text(encoding="utf-8")
+    runtime_path = ADDON / "BP/scripts/systems/horror_events.js"
+    model_path = ADDON / "BP/scripts/shared/horror_event_model.js"
+    runtime_text = runtime_path.read_text(encoding="utf-8")
+    model_text = model_path.read_text(encoding="utf-8")
     try:
-        handlers_start = text.index("const H = {") + len("const H = {")
-        handlers_end = text.index("\n};\n\nfunction setFakeMoonTexture", handlers_start)
-        handlers_text = text[handlers_start:handlers_end]
-        table_text = text.split("const TABLE = [", 1)[1].split("];", 1)[0]
-    except IndexError as exc:
-        raise ReconciliationError("could not locate H/TABLE in horror_events.js") from exc
-    handlers = set(re.findall(r"^\s{2}([A-Za-z0-9_]+)\(p\)", handlers_text, re.MULTILINE))
-    table = set(re.findall(r'\["([A-Za-z0-9_]+)"\s*,', table_text))
-    if handlers != table:
-        missing_handlers = sorted(table - handlers)
-        missing_table = sorted(handlers - table)
+        handlers_start = runtime_text.index("const H = {") + len("const H = {")
+        handlers_end = runtime_text.index("\n};\n\nfunction subscribeLifecycle", handlers_start)
+        registry_start = model_text.index("export const SOURCE_EVENT_IDS")
+        registry_end = model_text.index("]);", registry_start)
+    except ValueError as exc:
         raise ReconciliationError(
-            f"horror event H/TABLE drift: missing handlers={missing_handlers}; "
-            f"missing table entries={missing_table}"
+            "could not locate the source-backed horror event registry or H adapter"
+        ) from exc
+    handlers_text = runtime_text[handlers_start:handlers_end]
+    registry_text = model_text[registry_start:registry_end]
+    handlers = set(
+        re.findall(
+            r"^\s{2}([A-Za-z0-9_]+)\(p(?:,[^)]*)?\)\s*\{",
+            handlers_text,
+            re.MULTILINE,
         )
-    return handlers, table
-
+    )
+    registry = set(re.findall(r'"([a-z0-9_]+)"', registry_text))
+    if handlers != registry:
+        missing_handlers = sorted(registry - handlers)
+        missing_registry = sorted(handlers - registry)
+        raise ReconciliationError(
+            f"horror event H/source-registry drift: missing handlers={missing_handlers}; "
+            f"missing registry entries={missing_registry}"
+        )
+    return handlers, registry
 
 def decide(
     row: dict[str, Any],
@@ -342,7 +353,7 @@ def reconcile_horror_event(row: dict[str, Any], key: str, current_events: set[st
                 "BP/scripts/systems/event_frequency.js",
                 "RP/texts/en_US.lang",
             ],
-            notes="Source event id is present in the live H/TABLE event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations.",
+            notes="Source event id is present in the live source-backed H event pool; timing, gating, native API calls, and desktop-facing effects use the documented Bedrock adaptations.",
         )
     elif key in STORY_EVENT_KEYS:
         files = STORY_EVENT_FILES
@@ -659,7 +670,7 @@ def reconcile_row(row: dict[str, Any], current_events: set[str]) -> None:
             parity="approximation",
             identifier="script:horror-chat",
             files=["BP/scripts/systems/horror_chat.js", "HORROR_CHAT_AUDIT.md", "RP/texts/en_US.lang"],
-            notes="Current Bedrock keyword responses are reconciled against the chat audit; 13 live keys are not overstated as one-to-one parity with every source response registration.",
+            notes="Current Bedrock keyword responses are reconciled against the chat audit; 42 source response contracts are not overstated as one-to-one parity with every source response registration.",
         )
     elif category == "event_engine":
         decide(
@@ -668,7 +679,7 @@ def reconcile_row(row: dict[str, Any], current_events: set[str]) -> None:
             parity="approximation",
             identifier="script:horror-event-engine",
             files=["BP/scripts/systems/horror_events.js", "BP/scripts/systems/event_frequency.js", "BP/scripts/systems/story_events.js", "HORROR_CHAT_AUDIT.md"],
-            notes="The live H/TABLE pool, event frequency gates, and story thresholds are present; source event registration count and desktop/client hooks are reconciled as explicit adapters.",
+            notes="The live source-backed H pool, event frequency gates, and story thresholds are present; source event registration semantics and desktop/client hooks are reconciled as explicit adapters.",
         )
     elif category == "code_entrypoint":
         decide(
@@ -1014,8 +1025,8 @@ def reconcile_payload(payload: dict[str, Any]) -> dict[str, Any]:
         raise ReconciliationError("SOURCE_MAP.json row order/IDs differ from SOURCE_INVENTORY.json")
 
     current_events, _ = current_horror_event_keys()
-    if len(current_events) != 79:
-        raise ReconciliationError(f"expected 79 current H/TABLE events, found {len(current_events)}")
+    if len(current_events) != 86:
+        raise ReconciliationError(f"expected 86 current source-backed H events, found {len(current_events)}")
 
     for row in map_rows:
         if not isinstance(row, dict):

@@ -12914,7 +12914,7 @@
                         "source_id":  "registry.chat_responses",
                         "category":  "chat_system",
                         "source_paths":  [
-                                             "TBSChatResponses (45 response handlers)"
+                                             "TBSChatResponses (42 registered response handlers)"
                                          ],
                         "dependencies":  [
                                              "events.story",

@@ -1,6 +1,6 @@
 ﻿# PORT_PROGRESS.md
 
-Last updated: 2026-09-13 (Chunk 40 — story clock and day-cycle parity)
+Last updated: 2026-09-15 (Chunk 41 — horror events and chat response parity)
 
 ## Project facts
 - Source mod: **The Broken Script 2.0** — `thebrokenscript-neoforge-2.0.0+mc1.21.1-build.3084.jar` (supplied as 9 decompressed chunk zips)
@@ -11,9 +11,9 @@ Last updated: 2026-09-13 (Chunk 40 — story clock and day-cycle parity)
 - Namespace: `thebrokenscript`
 
 ## Current chunk
-**Chunk 40 complete — story clock and day-cycle parity**
+**Chunk 41 complete — source-backed horror events and chat response parity**
 
-The story clock now matches the decompiled Java dispatcher’s daylight/player gate. The deployed `BP/` and authoring `src/` clocks read the pinned Script API’s `world.gameRules.doDayLightCycle` boolean, pause dispatch when daylight cycling is disabled, preserve persisted-time dispatch when daylight is enabled but no players are online, and advance by one tick before dispatch when players are online. The source-backed schedule centralizes all ten exact day-plus-1000 thresholds and is covered by focused regressions. The 912-row parity ledgers remain reconciled and the repeatable check is `python tools/reconcile_parity_ledgers.py --check`.
+Item 6 is complete at the source-contract level. The deployed Bedrock runtime now carries all 86 ordered Java event registrations and all 42 ordered Java chat-response registrations. Event dispatch follows the source frequency curve, random-player selection, inverse-times-used weighting, invalid-candidate rerolls, persistent use ledger, source class gates, and lifecycle invalidation. Chat matching follows source punctuation cleaning, alias order, full-message/substring/case rules, delayed delivery, additive before-chat handling, world-vs-sender delivery, and response-specific side effects. Bedrock-only limitations such as OS title/window mutation and Java client UI/shader hooks remain explicit adaptations. The focused contract suite runs in the release workflow alongside the complete Node, Python, syntax, packaging, and asset validation gates.
 
 ## Chunk state
 | Chunk | State |
@@ -35,7 +35,7 @@ The story clock now matches the decompiled Java dispatcher’s daylight/player g
 | 09 Items (192) + fluids approximation | **completed** (76 true items defined w/ icons/food/stacking, plush textures copied 39, item_texture 68→101, void_goop_still/flow fluid blocks, null_book signed written-book story adapter at day 12+1000 with bounded delivery retry (Chunk 38)) |
 | 10 Dimensions (13) & portals | **completed** (13 logical IDs registered from `BP/scripts/systems/dimension_ids.js`/`dimensions.js`; safe landing adapter; follow → clan_void/null_torture teleport; portal_controller interact → clan_void Y:201) |
 | 11 Worldgen (15 biomes, structures, shaft, xcsf→mcstructure) | **completed** (15/15 BP biomes + 15 RP client biome files; procedural Shaft/Hallway builders; six current Shaft NBT templates and native pools; 305-NBT corpus + XCSF placement remain explicit limitations; spawn rules reconciled) |
-| 12 Events & horror choreography (94) | **completed** (current `horror_events.js` has 79 H/TABLE entries at 200 ticks; story thresholds and source-only/unsupported event rows are explicit in `SOURCE_MAP.json`; Arena suppression and Bedrock title/overlay adapters remain documented) |
+| 12 Events & horror choreography (86 registered events) | **completed** (86 ordered source-backed H adapters, source frequency curve, inverse-use weighted picker, persistent ledger, event gates, and lifecycle cleanup; desktop/client-only effects remain explicit adaptations)
 | 13 Progression/recipes/loot/tags/commands | **completed** (40/40 recipes; 126 current loot files; five progression rows; script command surface; current `horror_chat.js` has 13 live response keys, reconciled against the 45-source registration row without treating the counts as the same unit) |
 | 14 Presentation completion | **completed** (tbs_slab/stairs/wall geometries wired into 16 blocks w/ collision; tbs_humanoid geo on faraway/deceiver/xxram_2die; boss death hook — integrity_dies + Arena teardown; manifest owner-pinned version respected) |
 | 15 Integration | **completed** (tools/integration_audit.ps1 — 7 families, 12 dims, 103 identifier classifications, 22 world_state keys all PASS; fixed 3 wrong sound ids + 1 syntax error found by audit) |
