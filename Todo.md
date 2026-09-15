@@ -50,7 +50,7 @@ The former stale rollups covered the following families; each is now reconciled 
 - [x] dimensions and portals (Chunk 10);
 - [x] biomes/worldgen/spawn modifiers (Chunk 11);
 - [x] events and horror choreography (Chunk 12);
-- [x] chat responses (Chunk 13 reports 14 implemented while the matrix identifies a 45-response source family — verified source coverage, aliases, and unreachable/dead entries before deciding whether anything is missing);
+- [x] chat responses (the former Chunk 13 14-key snapshot and 45-response matrix row are reconciled against the 42-entry Java registry and ordered Bedrock rule definitions);
 - [x] recipes, loot, tags, advancements, commands (Chunk 13);
 - [x] presentation/UI/music/config families (Chunks 14 and 20);
 - [x] bosses previously marked `in_progress` even though later chunks substantially extended Phase 3/Jimmy/Fractured behavior.
@@ -125,13 +125,15 @@ and the `persistent state parity` JavaScript/Python test suites. The validator a
 
 ## 6. Horror events and chat responses
 
-- [ ] Enumerate every Java event and chat response from source, including registration conditions and aliases.
-- [ ] Compare Java probability, cooldown, delay, player selection, world/dimension gates, and mutual exclusion rules.
-- [ ] Verify the implemented weighted event pool has the same effective selection behavior as Java, not merely similar weights.
-- [ ] Verify every event's cleanup path after player death, dimension change, disconnect, or server reload.
+- [x] Enumerate every Java event and chat response from source, including registration conditions and aliases.
+- [x] Compare Java probability, cooldown, delay, player selection, world/dimension gates, and mutual exclusion rules.
+- [x] Verify the implemented weighted event pool has the same effective selection behavior as Java, not merely similar weights.
+- [x] Verify every event's cleanup path after player death, dimension change, disconnect, or server reload.
 - [x] Resolve the **45-source-response vs 14-implemented-response** documentation discrepancy through source inspection; do not assume either count means 31 missing features until aliases/unreachable/dead source entries are checked.
-  - Evidence (2026-09-12): `tests/horror_chat_registration_audit.test.mjs` derives 42 registered Java chat-response IDs from `decompiled/.../TBSChatResponses.java` and 13 generic Bedrock response keys from `horror_chat.js`. Those counts describe different units and are not a parity denominator; per-response trigger/gate/delay auditing remains open.
-- [ ] Verify exact trigger normalization: casing, whitespace, punctuation, substrings/whole-message behavior, cooldowns, and whether the sender or all players receive side effects.
+  - Evidence (2026-09-15): `tests/horror_chat_registration_audit.test.mjs` compares the 42 registered Java IDs with the same ordered 42-entry Bedrock rule registry; the former 45/14 wording was a stale cross-snapshot comparison.
+- [x] Verify exact trigger normalization: casing, whitespace, punctuation, substrings/whole-message behavior, cooldowns, and whether the sender or all players receive side effects.
+
+Evidence (2026-09-15): `BP/scripts/systems/horror_rules.js` records all 86 event definitions and 42 chat definitions, including source classes, aliases, gates, delays, weights, and delivery. `horror_events.js` selects one uniform player per tick at `2.9166666e-4` and uses persistent inverse-count effective weights; `horror_chat.js` preserves source-order first-match normalization and delayed sender/broadcast effects. `main.js` clears both delayed-work registries on player death, disconnect, dimension change, and world reload. Focused coverage is in `tests/horror_rules.test.mjs` and `tests/horror_chat_registration_audit.test.mjs`; JavaScript, TypeScript, Python, add-on, resource-link, Jigsaw, mcstructure, source-audit, and parity-ledger checks pass locally. Java desktop/shader/window effects and NullStructureBlockEntity aftermath/fate metadata remain explicit Bedrock approximations in `HORROR_CHAT_AUDIT.md`.
 
 ---
 

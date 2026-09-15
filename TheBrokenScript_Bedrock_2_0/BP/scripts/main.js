@@ -101,6 +101,18 @@ function onWorldLoad() {
         (ev) => {
             logger.debug(`playerLeave ${ev.playerName} (${ev.playerId})`);
             entityRefs.invalidateEntity(ev.playerId);
+            horrorEvents.clearPlayer(ev.playerId);
+            horrorChat.clearPlayer(ev.playerId);
+        }
+    );
+    events.subscribeGuarded(
+        world.afterEvents.playerDimensionChange,
+        "core.playerDimensionChange",
+        "lifecycle",
+        (ev) => {
+            horrorEvents.clearPlayer(ev.player);
+            horrorChat.clearPlayer(ev.player);
+            logger.debug(`playerDimensionChange ${ev.player.name} -> ${ev.toDimension?.id ?? "unknown"}`);
         }
     );
     events.subscribeGuarded(
@@ -130,6 +142,8 @@ function onWorldLoad() {
         (ev) => {
             entityRefs.invalidateEntity(ev.deadEntity.id);
             if (ev.deadEntity.typeId !== "minecraft:player") return;
+            horrorEvents.clearPlayer(ev.deadEntity);
+            horrorChat.clearPlayer(ev.deadEntity);
             logger.debug(`player death: ${ev.deadEntity.name} source=${ev.damageSource?.cause ?? "unknown"}`);
         }
     );
