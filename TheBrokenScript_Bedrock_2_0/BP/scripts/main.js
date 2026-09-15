@@ -26,6 +26,7 @@ import * as miscSpawnRules from "./entities/misc/misc_spawn_rules.js";
 import * as stalkController from "./entities/stalk/stalk_controller.js";
 import * as stalkSpawnRules from "./entities/stalk/stalk_spawn_rules.js";
 import * as bossController from "./entities/boss/boss_controller.js";
+import * as integrityRuntime from "./entities/boss/integrity_runtime.js";
 import * as phase3Runtime from "./entities/boss/phase3_runtime.js";
 import * as chordProjectileRuntime from "./entities/boss/chord_projectile_runtime.js";
 import * as fracturedRuntime from "./entities/boss/fractured_runtime.js";
@@ -76,6 +77,7 @@ function onWorldLoad() {
     bossSpawnRules.register();
     bossController.begin(scheduler);
     phase3Runtime.begin(scheduler);
+    integrityRuntime.begin(scheduler);
     chordProjectileRuntime.begin(scheduler);
     fracturedRuntime.begin(scheduler);
     horrorEvents.begin(scheduler);

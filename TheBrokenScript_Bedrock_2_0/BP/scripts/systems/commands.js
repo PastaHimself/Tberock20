@@ -1,10 +1,10 @@
 import {
   CommandPermissionLevel,
   CustomCommandStatus,
-  world,
   system
 } from "@minecraft/server";
 import * as horrorEvents from "./horror_events.js";
+import * as integrityRuntime from "../entities/boss/integrity_runtime.js";
 import * as dimensions from "./dimensions.js";
 import * as worldgenStructures from "./worldgen_structures.js";
 import * as progression from "./progression.js";
@@ -90,7 +90,7 @@ function handleCommand(ev) {
       reply(ev, [
         "§8--- The Broken Script commands ---",
         "§7/scriptevent tbs:fire <event>",
-        "§7/scriptevent tbs:arena <start|stop>",
+        "§7/scriptevent tbs:arena <start|stop|next>",
         "§7/scriptevent tbs:shaft",
         "§7/scriptevent tbs:dim <dimension>",
         "§7/scriptevent tbs:adv <advancement>",
@@ -106,10 +106,19 @@ function handleCommand(ev) {
       reply(ev, `§7${horrorEvents.EVENT_COUNT} events registered`);
       break;
     case "arena": {
-      const on = parts[0] === "start";
-      world.setDynamicProperty("tbs:arenaActive", on);
-      world.setDynamicProperty("tbs:arenaPhase1", on && parts[1] !== "p3");
-      reply(ev, on ? "§5Arena started" : "§5Arena stopped");
+      const action = parts[0];
+      if (action === "start") {
+        const ok = integrityRuntime.start(player, parts[1] ?? "p1");
+        reply(ev, ok ? "§5Integrity arena started" : "§cIntegrity arena could not start");
+      } else if (action === "stop") {
+        const ok = integrityRuntime.stop();
+        reply(ev, ok ? "§5Integrity arena stopped" : "§7Integrity arena is not active");
+      } else if (action === "next") {
+        const ok = integrityRuntime.next();
+        reply(ev, ok ? "§5Integrity arena advanced" : "§7Integrity arena cannot advance");
+      } else {
+        reply(ev, "§7usage: /scriptevent tbs:arena <start|stop|next>");
+      }
       break;
     }
     case "shaft": {

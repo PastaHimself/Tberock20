@@ -105,7 +105,7 @@ export function phase2PlayerStep({ y, currentFloorId = null } = {}) {
     recoveryTeleport: phase2NeedsRecoveryTeleport(y),
     floorId: floor?.id ?? null,
     eligibleForIntegrity: phase2EligibleForLowestPlayer(y),
-    floorChanged: floor?.id !== null && floor?.id !== currentFloorId,
+    floorChanged: floor?.id !== undefined && floor?.id !== currentFloorId,
   };
 }
 

@@ -36,6 +36,7 @@ import {
 } from "../../systems/phase3_attack_model.js";
 
 const RUNTIME_FAMILY = "thebrokenscript_phase3_runtime";
+const ARENA_TAG = "thebrokenscript.integrity_arena";
 const DYING_TAG = "thebrokenscript.dying";
 const states = new Map();
 const armOwners = new Map();
@@ -126,12 +127,19 @@ function runtimeEntities(dim) {
   try { return dim.getEntities({ families: [RUNTIME_FAMILY] }); } catch { return []; }
 }
 
+function tagArenaEntity(entity) {
+  if (!entity) return;
+  callEntityMethod(entity, "addTag", ARENA_TAG);
+}
+
+
 function nearestPlayer(entity, fixedId = null) {
   let players = [];
   try { players = world.getAllPlayers(); } catch { return null; }
   const candidates = players.filter((player) => {
     try {
       if (player.dimension.id !== entity.dimension.id || !isLiving(player)) return false;
+      if (!bossHooks.isArenaParticipant(player)) return false;
       return fixedId === null || player.id === fixedId;
     } catch {
       return false;
@@ -142,7 +150,13 @@ function nearestPlayer(entity, fixedId = null) {
 }
 
 function spawnAt(dim, typeId, loc) {
-  try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+  try {
+    const entity = dim.spawnEntity(typeId, loc);
+    tagArenaEntity(entity);
+    return entity;
+  } catch {
+    return undefined;
+  }
 }
 
 function removeEntity(entity) {
@@ -366,7 +380,12 @@ function phase3Players(entity) {
   try { players = world.getAllPlayers(); } catch { return []; }
   return players
     .filter((player) => {
-      try { return player.dimension.id === entity.dimension.id; } catch { return false; }
+      try {
+        return player.dimension.id === entity.dimension.id
+          && bossHooks.isArenaParticipant(player);
+      } catch {
+        return false;
+      }
     })
     .map((player) => ({ id: player.id, entity: player }));
 }
@@ -536,7 +555,11 @@ function tickTentacleSwipe(entity, state) {
   let players = [];
   try { players = world.getAllPlayers(); } catch { return; }
   const candidates = players
-    .filter((player) => player.dimension.id === entity.dimension.id && isLiving(player))
+    .filter((player) => (
+      player.dimension.id === entity.dimension.id
+      && isLiving(player)
+      && bossHooks.isArenaParticipant(player)
+    ))
     .map((player) => ({ id: player.id, entity: player, position: player.location }));
   const impacts = tentacleSwipeImpactPlan({ center, players: candidates });
   for (const impact of impacts) {
@@ -617,6 +640,14 @@ function maybeSelectAttack(entity, state, target) {
   }
 }
 
+function tickNoopMelee(entity) {
+  // NoopAttack.java is the idle fallback: one entity-attack pulse every five
+  // attack ticks, with the source's four-damage value and five-block radius.
+  const target = nearestPlayer(entity);
+  if (!target || distance(entity.location, target.location) > 5) return;
+  applyEntityAttack(entity, target, 4);
+}
+
 function tickPhase3(entity) {
   const state = states.get(entity.id)?.phase3 ? states.get(entity.id) : initPhase3(entity);
 
@@ -668,7 +699,12 @@ function tickPhase3(entity) {
   if (state.hurtFrames > 0) state.hurtFrames -= 1;
   if (state.maceParryCooldown > 0) state.maceParryCooldown -= 1;
   maybeSelectAttack(entity, state, target);
-  if (state.currentAttack === PHASE3_ATTACK.NOOP || state.attackDelay > 0) return;
+  if (state.attackDelay > 0) return;
+  if (state.currentAttack === PHASE3_ATTACK.NOOP) {
+    state.attackTicks += 1;
+    if (state.attackTicks % 5 === 0) tickNoopMelee(entity);
+    return;
+  }
 
   state.attackTicks += 1;
   if (state.currentAttack === PHASE3_ATTACK.GROUND_ATTACK) tickGroundAttack(entity, state);
@@ -712,7 +748,11 @@ function tickGroundArm(arm) {
   if (!step.impact || !owner) return;
 
   const candidates = nearby(arm, GROUND_ARM_SOURCE.impactRadius)
-    .filter((entity) => entity.typeId === "minecraft:player" && isLiving(entity))
+    .filter((entity) => (
+      entity.typeId === "minecraft:player"
+      && isLiving(entity)
+      && bossHooks.isArenaParticipant(entity)
+    ))
     .map((player) => ({
       id: player.id,
       entity: player,
@@ -762,6 +802,7 @@ function fireballEntityHit(fireball, projectile) {
       entity.id !== fireball.id
       && entity.id !== projectile.ownerId
       && isLiving(entity)
+      && bossHooks.isArenaParticipant(entity)
     ));
   return targets[0] ?? null;
 }
@@ -820,7 +861,11 @@ function applyStage3InverseGravity(players) {
   if (!gravityActiveThisTick) return;
   for (const player of players) {
     try {
-      if (player.dimension.id !== GRAVITY_ATTACK_SOURCE.stage3Dimension || !isLiving(player)) continue;
+      if (
+        player.dimension.id !== GRAVITY_ATTACK_SOURCE.stage3Dimension
+        || !isLiving(player)
+        || !bossHooks.isArenaParticipant(player)
+      ) continue;
       // Java replaces Player#getDefaultGravity with -0.0125 while the global
       // Phase 3 gravity flag is active. Script API has no player gravity setter,
       // so add the equivalent upward velocity increment exactly once per tick.

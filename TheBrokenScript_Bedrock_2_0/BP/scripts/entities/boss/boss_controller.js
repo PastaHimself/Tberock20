@@ -355,19 +355,9 @@ function tickEntity(e) {
 
 // ── Integrity phases 1/2 ─────────────────────────────────────────────────────
 function tickIntegrityEarly(e) {
-  if (!timers.has(e.id)) {
-    timers.set(e.id, { init: 1 });
-    bossHooks.setArenaState(true, e.typeId === "thebrokenscript:integrity_phase_1");
-    tryPlayAt(e.dimension, e.location, "thebrokenscript:integrity_watching", 10, 2);
-  }
-  // hover bob for giant body
-  if (system.currentTick % 20 === 0 && e.typeId === "thebrokenscript:integrity_phase_1") {
-    try { e.teleport({ x: e.location.x, y: e.location.y + 0.08, z: e.location.z }); } catch {}
-  }
-  meleePulse(e, e.typeId === "thebrokenscript:integrity_phase_1" ? 50 : 25, 6);
-
-  // Do not transition Integrity phases from health here. Java Arena/Phase logic
-  // owns those transitions; the old 50%/40% thresholds were fabricated.
+  if (!timers.has(e.id)) timers.set(e.id, { init: 1 });
+  // Phase 1 is a no-AI crawl-out entity. Phase 2's source navigation and
+  // continuous melee adapter are owned by integrity_runtime.js.
 }
 
 // ── Integrity phase 3 ────────────────────────────────────────────────────────
