@@ -97,6 +97,10 @@ jobs:
         if: always()
         run: python tools/validate_resource_links.py --report artifacts/resource-link-validation.json
 
+      - name: Validate presentation and player-visible timing
+        if: always()
+        run: python tools/validate_presentation.py --report artifacts/presentation-validation.json
+
       - name: Validate Jigsaw worldgen definitions
         if: always()
         run: python tools/validate_jigsaw_worldgen.py

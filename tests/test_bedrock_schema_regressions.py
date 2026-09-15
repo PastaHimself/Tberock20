@@ -96,6 +96,12 @@ class BedrockSchemaRegressionTests(unittest.TestCase):
                 )
             animations = document.get("animations")
             if not isinstance(animations, dict) or not animations:
+                source_path = ROOT / "source_extracted/assets/thebrokenscript/animations" / path.name
+                source_animations = {}
+                if source_path.is_file():
+                    source_animations = read_json(source_path).get("animations", {})
+                if animations == {} and source_animations == {}:
+                    continue
                 animation_issues.append(f"{path.name}: empty or missing animations")
                 continue
             for animation_name, animation in animations.items():
