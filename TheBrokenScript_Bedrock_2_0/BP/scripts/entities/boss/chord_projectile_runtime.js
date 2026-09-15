@@ -1,4 +1,4 @@
-import { EntityDamageCause, GameMode, world } from "@minecraft/server";
+import { GameMode, world } from "@minecraft/server";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import {
@@ -6,6 +6,7 @@ import {
   CHORD_PROJECTILE_SOURCE,
   chordProjectileBlockHitStep,
   chordProjectileBaseDamageFromMob,
+  chordProjectileDamageOptions,
   chordProjectileDifficultyId,
   chordProjectileDirection,
   chordProjectileEntityImpactPlan,
@@ -48,6 +49,7 @@ function applyLaunchToState(state, launch) {
   state.launchRegistered = true;
   state.direction = launch.direction;
   state.ownerId = launch.ownerId;
+  state.ownerEntity = launch.ownerEntity;
   state.initialPosition = copyPosition(launch.initialPosition);
 }
 
@@ -61,6 +63,7 @@ function initState(entity) {
     launchRegistered: Boolean(launch),
     direction: launch?.direction ?? null,
     ownerId: launch?.ownerId ?? null,
+    ownerEntity: launch?.ownerEntity ?? null,
     groundedPosition: null,
     discardTicksRemaining: null,
     entityImpact: false,
@@ -287,17 +290,14 @@ function currentDifficultyId() {
   try { return chordProjectileDifficultyId(world.getDifficulty()); } catch { return 0; }
 }
 
-function applyProjectileDamage(projectile, target) {
+function applyProjectileDamage(projectile, target, state) {
   const damage = chordProjectileBaseDamageFromMob({
     power: CHORD_PROJECTILE_SOURCE.baseDamageFromMob,
     difficultyId: currentDifficultyId(),
     randomDouble: Math.random,
   });
   try {
-    target.applyDamage(damage, {
-      cause: EntityDamageCause.projectile,
-      damagingEntity: projectile,
-    });
+    target.applyDamage(damage, chordProjectileDamageOptions(state.ownerEntity, projectile));
     return;
   } catch {}
   try { target.applyDamage(damage); } catch {}
@@ -308,7 +308,7 @@ function handleEntityImpact(projectile, target, state, impactPosition) {
     targetType: target.typeId,
     isCreativePlayer: isCreativePlayer(target),
   });
-  if (plan.applyDamage) applyProjectileDamage(projectile, target);
+  if (plan.applyDamage) applyProjectileDamage(projectile, target, state);
   if (plan.restoreGravity) triggerGravityRestoration(projectile, state);
   if (plan.discard) {
     removeProjectile(projectile);
@@ -423,6 +423,7 @@ export function registerChordProjectileLaunch(projectile, vector, owner, initial
   const launch = {
     direction,
     ownerId: owner?.id ?? null,
+    ownerEntity: owner ?? null,
     initialPosition: copyPosition(initialPosition),
   };
   const state = states.get(projectile.id);

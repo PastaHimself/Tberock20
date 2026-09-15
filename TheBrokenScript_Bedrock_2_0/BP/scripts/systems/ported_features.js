@@ -4,6 +4,7 @@ import { logger } from "../core/logging.js";
 import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
+import { applyDamageWithSource } from "./damage_source_runtime.js";
 import {
   HAND_CANNON_RANGE,
   circuitPaintingPlacement,
@@ -79,7 +80,7 @@ export function fireHandCannon(player) {
     });
     const target = firstHandCannonTarget(hits, player.id);
     if (!target) return true;
-    target.applyDamage(25, {
+    applyDamageWithSource(target, 25, "thebrokenscript:hand_cannon_damage", {
       cause: EntityDamageCause.magic,
       damagingEntity: player,
     });

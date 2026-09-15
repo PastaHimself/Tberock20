@@ -11,10 +11,19 @@ async function source(path) {
 test("runtime damage adapter preserves native attribution and a same-tick custom source ledger", async () => {
   const runtime = await source("BP/scripts/systems/damage_source_runtime.js");
   assert.match(runtime, /damageSourcePlan\(sourceId/);
-  assert.match(runtime, /cause: plan\.cause/);
-  assert.match(runtime, /options\.damagingEntity/);
-  assert.match(runtime, /options\.damagingProjectile/);
+  assert.match(runtime, /damageSourceApplyOptions\(plan\)/);
+  assert.match(runtime, /pruneDamageLedger/);
+  assert.match(runtime, /system\.runInterval/);
+  assert.match(runtime, /getPortedDamageSources/);
   assert.match(runtime, /getLastPortedDamageSource/);
+  assert.doesNotMatch(runtime, /cause = EntityDamageCause\.override/);
+});
+
+test("hand cannon damage goes through the custom source adapter", async () => {
+  const runtime = await source("BP/scripts/systems/ported_features.js");
+  assert.match(runtime, /applyDamageWithSource/);
+  assert.match(runtime, /thebrokenscript:hand_cannon_damage/);
+  assert.doesNotMatch(runtime, /target\.applyDamage\(25,\s*\{\s*cause: EntityDamageCause\.magic/);
 });
 
 test("source-specific combat runtimes route recovered custom damage ids", async () => {

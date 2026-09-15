@@ -10,6 +10,7 @@ import {
   CHORD_PROJECTILE_VANILLA_ARROW_DAMAGE,
   chordProjectileBlockHitStep,
   chordProjectileBaseDamageFromMob,
+  chordProjectileDamageOptions,
   chordProjectileDirection,
   chordProjectileEntityImpactPlan,
   chordProjectileDifficultyId,
@@ -57,6 +58,18 @@ test("Chord projectile preserves vanilla AbstractArrow difficulty damage", () =>
     difficultyId: 2,
     randomDouble: () => samples.shift(),
   }) - 4.6794) < 1e-12);
+});
+
+test("Chord projectile uses the documented projectile attribution payload", () => {
+  const owner = { id: "chord-owner" };
+  const projectile = { id: "chord-projectile" };
+  assert.deepEqual(chordProjectileDamageOptions(owner, projectile), {
+    damagingEntity: owner,
+    damagingProjectile: projectile,
+  });
+  assert.deepEqual(chordProjectileDamageOptions(null, projectile), {
+    damagingProjectile: projectile,
+  });
 });
 
 test("Chord projectile entity impacts preserve the Java branch order", () => {
@@ -191,9 +204,12 @@ test("Chord projectile runtime is wired after the boss tick and entity stays tra
   assert.match(runtime, /chordProjectileBlockHitStep/);
   assert.match(runtime, /launchRegistered/);
   assert.match(runtime, /chordProjectileGroundedOffset/);
-  assert.match(runtime, /EntityDamageCause\.projectile/);
+  assert.match(runtime, /chordProjectileDamageOptions/);
   assert.match(runtime, /GameMode\.Creative/);
   assert.match(runtime, /GRAVITY_RESTORE_EVENT/);
   assert.match(runtime, /triggerEvent\(GRAVITY_RESTORE_EVENT\)/);
   assert.match(runtime, /applyDamage\(/);
+  assert.match(boss, /targetTopY/);
+  assert.match(boss, /entity\.getAABB\(\)/);
+  assert.match(boss, /projectileY/);
 });

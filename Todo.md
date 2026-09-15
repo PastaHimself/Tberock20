@@ -194,11 +194,13 @@ Evidence (2026-09-15): `fractured_attack_model.js`, `fractured_animation_model.j
 
 ## 10. Projectiles and damage
 
-- [ ] Compare every custom projectile's launch origin, speed, inaccuracy, gravity, collision sweep, max distance/lifetime, impact branch ordering, owner exclusion, and cleanup.
-- [ ] Verify Chord's inherited Java arrow-damage formula over every Bedrock difficulty setting.
-- [ ] Verify Bedrock damage causes do not accidentally change armor, shield, invulnerability, totem, knockback, or attribution behavior compared with each Java custom damage type.
-- [ ] Confirm every one of the 15 custom Java damage definitions has a documented Bedrock mapping and that gameplay code consistently uses that mapping.
-- [ ] Test simultaneous same-tick damage from multiple sources/players for attribution-ledger collisions.
+- [x] Compare every custom projectile's launch origin, speed, inaccuracy, gravity, collision sweep, max distance/lifetime, impact branch ordering, owner exclusion, and cleanup.
+- [x] Verify Chord's inherited Java arrow-damage formula over every Bedrock difficulty setting.
+- [~] Verify Bedrock damage causes do not accidentally change armor, shield, invulnerability, totem, knockback, or attribution behavior compared with each Java custom damage type.
+- [x] Confirm every one of the 15 custom Java damage definitions has a documented Bedrock mapping and that gameplay code consistently uses that mapping.
+- [x] Test simultaneous same-tick damage from multiple sources/players for attribution-ledger collisions.
+
+Evidence (2026-09-15): the Chord, Integrity fireball, and Jimmy Rock source constants and runtime wiring are covered by tests/chord_projectile_model.test.mjs, tests/chord_projectile_damage_model.test.mjs, tests/phase3_attack_model.test.mjs, and tests/fractured_runtime.test.mjs. tests/damage_source_parity.test.mjs compares all 15 extracted Java definitions and six bypass/no-knockback tags against damage_source_model.js; tests/damage_source_ledger_model.test.mjs covers ordered same-tick records and expiry. The remaining custom damage bypass/death-message/exhaustion/scaling behavior is explicitly engine-limited and documented in ADAPTATION_NOTES.md A-018/A-025 and KNOWN_LIMITATIONS.md item 17.
 
 ---
 

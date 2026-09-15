@@ -111,7 +111,7 @@ export const FIREBALL_BEDROCK_ADAPTER = Object.freeze({
   runtimeStatus: "adapted_animation_keyframe",
   launchTick: 1,
   muzzleHeightFromFeet: 16,
-  playerTargetCenterHeight: 0.9,
+  playerTargetCenterHeight: 0.5,
   collisionRadius: 1,
   maxLifetimeTicks: 200,
 });
@@ -168,6 +168,14 @@ export function fireballSegmentHitPlan({
     .map((target) => ({ id: target.id, t: segmentAabbContact(from, to, target.aabb, radius) }))
     .filter((hit) => hit.t !== null)
     .sort((left, right) => left.t - right.t || left.id.localeCompare(right.id))[0] ?? null;
+}
+
+export function fireballImpactPlan({ blockHitT = null, entityHitT = null } = {}) {
+  const block = Number.isFinite(blockHitT) && blockHitT >= 0 ? blockHitT : null;
+  const entity = Number.isFinite(entityHitT) && entityHitT >= 0 ? entityHitT : null;
+  if (block !== null && (entity === null || block <= entity)) return "block";
+  if (entity !== null) return "entity";
+  return null;
 }
 
 /**
