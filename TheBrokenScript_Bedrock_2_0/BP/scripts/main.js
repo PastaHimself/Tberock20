@@ -38,6 +38,7 @@ import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
 import * as dimensions from "./systems/dimensions.js";
 import * as portedFeatures from "./systems/ported_features.js";
+import * as perf from "./systems/perf.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
 function onStartup(event) {
@@ -52,6 +53,8 @@ function onStartup(event) {
 }
 
 function onWorldLoad() {
+    perf.reset();
+    dimensions.resetCache();
     state.init();
     worldState.init();
     scheduler.begin();

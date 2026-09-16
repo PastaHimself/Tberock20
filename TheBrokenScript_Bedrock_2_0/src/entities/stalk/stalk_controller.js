@@ -96,7 +96,7 @@ function tickCurved(e) {
       setNum(e, "transformed", 1);
       // melee pulses while transformed
       system.runInterval(() => {
-        if (!e.isValid()) return;
+        if (!e.isValid) return;
         const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 4);
         if (target) {
           try { target.applyDamage(7, { cause: "entityAttack", damagingEntity: e }); } catch { try { target.applyDamage(7); } catch {} }

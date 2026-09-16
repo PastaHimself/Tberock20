@@ -335,36 +335,38 @@ Evidence (2026-09-15): `tools/validate_presentation.py` compares the 35 source/d
 
 ## 23. Expand source-backed regression tests
 
-- [ ] Add pure-model tests for every mechanic with meaningful constants/timers/state transitions.
-- [ ] Add boundary tests for every inclusive/exclusive random range and tick threshold.
-- [ ] Add tests for negative conditions, not only successful activation.
-- [ ] Add persistence serialization/default/migration tests.
-- [ ] Add multiplayer ownership/selection model tests where engine-independent.
-- [ ] Add source-table snapshot tests so accidental constant drift is obvious in diffs.
-- [ ] Add tests that compare source-derived registries/counts against Bedrock definitions where 1:1 mapping is expected.
+- [~] Add pure-model tests for every mechanic with meaningful constants/timers/state transitions.
+- [~] Add boundary tests for every inclusive/exclusive random range and tick threshold.
+- [~] Add tests for negative conditions, not only successful activation.
+- [x] Add persistence serialization/default/migration tests.
+- [x] Add multiplayer ownership/selection model tests where engine-independent.
+- [x] Add source-table snapshot tests so accidental constant drift is obvious in diffs.
+- [x] Add tests that compare source-derived registries/counts against Bedrock definitions where 1:1 mapping is expected.
 
 ## 24. Randomness parity
 
-- [ ] Identify every Java RNG source and whether it uses world/entity/local randomness.
-- [ ] Verify Bedrock calls occur in equivalent order so probabilities are not unintentionally biased.
-- [ ] Verify weighted selectors preserve Java's exact candidate filtering before random selection.
-- [ ] For tests, use injectable/deterministic RNG without changing production probability behavior.
+- [x] Identify every Java RNG source and whether it uses world/entity/local randomness.
+- [x] Verify Bedrock calls occur in equivalent order so probabilities are not unintentionally biased.
+- [x] Verify weighted selectors preserve Java's exact candidate filtering before random selection.
+- [x] For tests, use injectable/deterministic RNG without changing production probability behavior.
 
 ## 25. Performance without behavior loss
 
-- [ ] Profile all 1-tick controllers and world/entity scans in realistic multiplayer/entity counts.
-- [ ] Preserve Java timing when optimizing scans/caches.
-- [ ] Verify cached dimension/entity handles are invalidated correctly after unload/removal.
-- [ ] Avoid reducing particle counts, scan frequency, AI frequency, or event checks solely for performance unless the resulting difference is explicitly accepted/documented.
-- [ ] Add defensive budgets where Bedrock engine limits require them, with parity impact documented.
+- [~] Profile all 1-tick controllers and world/entity scans in realistic multiplayer/entity counts.
+- [x] Preserve Java timing when optimizing scans/caches.
+- [x] Verify cached dimension/entity handles are invalidated correctly after unload/removal.
+- [x] Avoid reducing particle counts, scan frequency, AI frequency, or event checks solely for performance unless the resulting difference is explicitly accepted/documented.
+- [~] Add defensive budgets where Bedrock engine limits require them, with parity impact documented.
 
 ## 26. Script API/version safety
 
-- [ ] Keep the manifest/runtime/npm type versions aligned with `API_AUDIT.md`.
-- [ ] Do not silently migrate from the selected beta ABI to stable/latest.
-- [ ] On every Bedrock/API upgrade, re-check old `ENGINE_UNSUPPORTED` and approximation entries for newly available APIs.
-- [ ] Run full static validation plus in-game smoke tests before declaring a new runtime supported.
-- [ ] Update API/compatibility docs in the same change as a version migration.
+- [x] Keep the manifest/runtime/npm type versions aligned with `API_AUDIT.md`.
+- [x] Do not silently migrate from the selected beta ABI to stable/latest.
+- [~] On every Bedrock/API upgrade, re-check old `ENGINE_UNSUPPORTED` and approximation entries for newly available APIs.
+- [~] Run full static validation plus in-game smoke tests before declaring a new runtime supported.
+- [x] Update API/compatibility docs in the same change as a version migration.
+
+P2 evidence (2026-09-16): `tests/random_determinism.test.mjs`, `tests/horror_event_model.test.mjs`, `tests/perf_model.test.mjs`, `tests/p2_source_snapshot.test.mjs`, and the existing persistence/story/targeting models cover source-backed constants, boundaries, negative paths, persistence, multiplayer selection, and registry drift. `tests/fixtures/p2_source_snapshot.json` snapshots source events/chats, entity families, persistence schemas/defaults, story thresholds, and source-map counts; the test resolves every shipped entity, including the documented `null_chase` alias. `tools/audit_randomness.py --check` inventories 492 Java draws, 266 Java source expressions, and 157 Bedrock `Math.random()` callsites across 25 runtime files, and `horror_event_model.js` locks the Java picker draw order and candidate filtering with an injectable RNG. `tools/profile_p2_scans.mjs --check` exercises idle, solo, small-multiplayer, large-multiplayer, and stress-multiplayer synthetic workloads while asserting unchanged controller dispatch and entity-scan work. The dimension/player caches have explicit invalidation/reset paths, stable-ID entity references are invalidated on player leave/death, and runtime adapters do not call the undocumented `Dimension.isValid()` method. `tools/validate_p2_contract.py --check` and the pinned `package-lock.json` enforce the current 1.26.50 preview beta ABI. The `[~]` entries remain intentionally partial because no Bedrock engine profiler or in-game runtime smoke report was available in this environment; this change does not declare a new runtime supported.
 
 ---
 

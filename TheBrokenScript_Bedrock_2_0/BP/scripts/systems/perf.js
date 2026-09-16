@@ -1,31 +1,28 @@
 import { world } from "@minecraft/server";
+import {
+    createDimensionHandleCache,
+    createPlayerPresenceCache,
+} from "./perf_model.js";
 
 // Chunk 16 perf helpers: shared caches so 1-tick controllers avoid redundant
 // world.getAllPlayers()/getDimension calls when idle.
 
-let lastPlayerCheckTick = -1;
-let lastHasPlayers = false;
-const dimCache = new Map();
+const playerPresence = createPlayerPresenceCache(() => world.getAllPlayers());
+const dimensionHandles = createDimensionHandleCache((name) => world.getDimension(name));
 
 export function hasPlayers(currentTick) {
-  if (currentTick !== lastPlayerCheckTick) {
-    try { lastHasPlayers = world.getAllPlayers().length > 0; } catch { lastHasPlayers = false; }
-    lastPlayerCheckTick = currentTick;
-  }
-  return lastHasPlayers;
+  return playerPresence.hasPlayers(currentTick);
 }
 
 export function dim(name) {
-  if (dimCache.has(name)) {
-    const d = dimCache.get(name);
-    try { if (d.isValid?.() !== false) return d; } catch {}
-    dimCache.delete(name);
-  }
-  try {
-    const d = world.getDimension(name);
-    dimCache.set(name, d);
-    return d;
-  } catch {
-    return undefined;
-  }
+  return dimensionHandles.get(name);
+}
+
+export function invalidateDimension(name) {
+  return dimensionHandles.invalidate(name);
+}
+
+export function reset() {
+  playerPresence.reset();
+  dimensionHandles.clear();
 }

@@ -48,8 +48,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Minecraft Bedrock beta Script API typings
-        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Minecraft Bedrock beta Script API typings (pinned)
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Validate runtime smoke-test matrix
         run: python tools/validate_runtime_smoke_matrix.py tests/runtime-smoke/matrix.json
@@ -72,6 +72,28 @@ jobs:
 
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Validate P2 Script API and version contract
+        run: python tools/validate_p2_contract.py --check --report artifacts/p2-contract-validation.json
+
+      - name: Audit P2 Java and Bedrock randomness provenance
+        run: >-
+          python tools/audit_randomness.py
+          --check
+          --report artifacts/randomness-audit.json
+          --markdown artifacts/randomness-audit.md
+
+      - name: Run P2 deterministic parity and cache regressions
+        run: >-
+          node --experimental-vm-modules --test
+          tests/horror_event_model.test.mjs
+          tests/random_determinism.test.mjs
+          tests/perf_model.test.mjs
+          tests/p2_source_snapshot.test.mjs
+          tests/p2_profile.test.mjs
+
+      - name: Profile P2 1-tick scan workload
+        run: node tools/profile_p2_scans.mjs --check
 
       - name: Validate selected P1 content and dimension parity
         run: python tools/validate_p1_parity.py --check --report artifacts/p1-parity-validation.json

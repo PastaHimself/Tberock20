@@ -15,7 +15,7 @@ Multiplayer-safety and performance audit of all runtime loops, plus targeted opt
 | story_time threshold check | 100t heartbeat cadence | single compare | OK |
 
 ## Changes
-- **`src/systems/perf.js`** — per-tick cached `hasPlayers(tick)` and `dim(name)` handle cache (`isValid` revalidation)
+- **`src/systems/perf.js`** — per-tick cached `hasPlayers(tick)` and `dim(name)` handle cache with explicit invalidation/reset (the Dimension API has no `isValid` handle method)
 - **5 one-tick controllers** (tbe/humanoid/misc/stalk/boss) now short-circuit when no players are online — eliminates all family `getEntities` scans on idle servers/realms
 - **tbe/boss controllers** use cached dimension handles instead of rebuilding the dims array every tick
 - Multiplayer review findings (no code change needed): timers are per-entity-id maps; entityDie/entityHurt hooks each guard typeId before acting; player state uses per-player dynamic properties; horror events intentionally broadcast to all players (matches source behavior); commands gate on `sourceEntity.typeId === "minecraft:player"`; known shared-state nit in legacy null_controller (`isHereApproach` module counter) is benign — single consumer.

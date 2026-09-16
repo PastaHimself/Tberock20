@@ -11,6 +11,7 @@ import {
   normalizeDimensionId
 } from "./dimension_ids.js";
 import { ensureDimensionReady } from "./dimension_generation.js";
+import { createDimensionHandleCache } from "./perf_model.js";
 import {
   getDimensionEntryLocation as readDimensionEntryLocation,
   getDimensionEntryRotation as readDimensionEntryRotation,
@@ -24,7 +25,10 @@ export const NIGHTMARES = ["library", "concrete", "limbo", "nothing"];
 export const SUPPORTED = [...VANILLA_DIMENSION_IDS, ...CUSTOM_REALM_NAMES];
 export const REGISTERED_CUSTOM_IDS = [...CUSTOM_DIMENSION_IDS];
 
-const handles = new Map();
+const handles = createDimensionHandleCache(
+  (name) => world.getDimension(name),
+  (error, name) => logger.error(`dimensions: cannot resolve dimension '${name}'`, error),
+);
 const warnedUnregistered = new Set();
 const registeredCustom = new Set();
 let registrationAttempted = false;
@@ -84,23 +88,16 @@ export function get(id) {
     return undefined;
   }
 
-  if (handles.has(normalized)) {
-    const handle = handles.get(normalized);
-    try {
-      if (handle?.isValid?.() !== false) return handle;
-    } catch {
-      handles.delete(normalized);
-    }
-  }
+  return handles.get(normalized);
+}
 
-  try {
-    const dimension = world.getDimension(normalized);
-    handles.set(normalized, dimension);
-    return dimension;
-  } catch (error) {
-    logger.error(`dimensions: cannot resolve dimension '${normalized}'`, error);
-    return undefined;
-  }
+export function invalidateDimension(id) {
+  const normalized = normalizeDimensionId(id);
+  return normalized ? handles.invalidate(normalized) : false;
+}
+
+export function resetCache() {
+  handles.clear();
 }
 
 /**
@@ -108,18 +105,19 @@ export function get(id) {
  * teleportWhenReady so the target region is loaded and has safe footing first.
  */
 export function teleportTo(entity, dimId, location) {
-  const dim = get(dimId);
+  const normalized = normalizeDimensionId(dimId);
+  const dim = get(normalized);
   if (!dim) return false;
 
   try {
-    const normalized = normalizeDimensionId(dimId);
     entity.teleport(
       location ?? readDimensionEntryLocation(normalized),
       teleportOptions(normalized, dim),
     );
     return true;
   } catch (error) {
-    logger.error(`dimensions: teleport to '${normalizeDimensionId(dimId) || dimId}' failed`, error);
+    invalidateDimension(normalized);
+    logger.error(`dimensions: teleport to '${normalized || dimId}' failed`, error);
     return false;
   }
 }
@@ -150,6 +148,7 @@ export async function teleportWhenReady(entity, dimId, location) {
     entity.teleport(target, teleportOptions(normalized, dim));
     return true;
   } catch (error) {
+    invalidateDimension(normalized);
     logger.error(`dimensions: ready teleport to '${normalized || dimId}' failed`, error);
     return false;
   }

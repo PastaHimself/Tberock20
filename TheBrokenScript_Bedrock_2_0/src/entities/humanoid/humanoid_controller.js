@@ -243,7 +243,7 @@ function tickSiluet(e) {
 function tickSiluetStare(e) {
   // base siluet layer first (mirrors super.baseTick())
   tickSiluet(e);
-  if (!e.isValid()) return;
+  if (!e.isValid) return;
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 620);
   if (!player) return;
   try { e.lookAt?.(player.location); } catch {}
@@ -345,7 +345,7 @@ function tickHallucination(e) {
 
   if (looked) {
     // still armed? owner disconnected check approximated by validity
-    if (ownerEnt && ownerEnt.isValid()) {
+    if (ownerEnt && ownerEnt.isValid) {
       // chase at ~1.4 speed → 0.07 blocks/tick teleport-step
       const dx = ownerEnt.location.x - e.location.x;
       const dy = ownerEnt.location.y - e.location.y;

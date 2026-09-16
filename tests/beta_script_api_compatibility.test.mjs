@@ -20,7 +20,7 @@ test("runtime scripts avoid APIs removed from the current beta module", async ()
   const forbidden = [
     ["runCommandAsync", /\.runCommandAsync\(/g],
     ["World.getTime", /\bworld\.getTime(?:\?\.)?\(/g],
-    ["Entity.isValid()", /\.isValid\(\)/g],
+    ["Entity.isValid()", /\.isValid(?:\?\.)?\s*\(\)/g],
     ["raw entityAttack cause", /cause:\s*["']entityAttack["']/g],
     ["raw GameMode value", /\bgm\s*[!=]==?\s*(?:["'](?:creative|spectator)["']|[13])\b/g],
     ["legacy four-argument applyKnockback", /\.applyKnockback\(\s*[^,\n]+,\s*[^,\n]+,\s*[^,\n]+,\s*[^)\n]+\)/g],
