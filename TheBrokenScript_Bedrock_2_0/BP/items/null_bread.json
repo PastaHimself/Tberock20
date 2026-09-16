@@ -13,13 +13,14 @@
         "value": "item.thebrokenscript.null_bread"
       },
       "minecraft:food": {
-        "nutrition": 4,
-        "saturation_modifier": 0.6,
+        "nutrition": -2,
+        "saturation_modifier": 0,
         "can_always_eat": true
       },
       "minecraft:use_animation": "eat",
       "minecraft:use_modifiers": {
-        "use_duration": 1.6,
+        "start_using": "always",
+        "use_duration": 0.8,
         "movement_modifier": 0.35
       }
     }

@@ -1,0 +1,7 @@
+{
+  "pools": [{
+    "rolls": 1,
+    "conditions": [{ "condition": "survives_explosion" }],
+    "entries": [{ "type": "item", "name": "thebrokenscript:dominik_plush", "weight": 1 }]
+  }]
+}

@@ -7,11 +7,19 @@ import { hasPersistedAdvancement, persistAdvancement } from "./progression_state
 // line + per-player dynamic property. Source roster: TBSAdvancements.java.
 
 export const ADVANCEMENTS = {
-  can_someone_hear_me: "Can Someone Hear Me?",
-  can_you_see_me: "Can You See Me?",
+  can_someone_hear_me: "Go away",
+  can_you_see_me: "Here I am.",
   nullnullnull: "nullnullnull",
-  you_ve_brought_it_upon_yourself: "You've Brought It Upon Yourself",
-  polaroid_craft: "Say Cheese!"
+  you_ve_brought_it_upon_yourself: "You've brought it upon yourself.",
+  polaroid_craft: "Look at the bigger picture"
+};
+
+export const ADVANCEMENT_DESCRIPTIONS = {
+  can_someone_hear_me: "This place is not for you.",
+  can_you_see_me: "Can you see me?",
+  nullnullnull: "nullnullnull",
+  you_ve_brought_it_upon_yourself: "It was your fault.",
+  polaroid_craft: "A memory."
 };
 
 const awarded = new Set();
@@ -62,6 +70,8 @@ export function award(playerOrId, id) {
     player.onScreenDisplay.setTitle("§8Advancement Made§r §7— " + label, {
       fadeInDuration: 5, stayDuration: 50, fadeOutDuration: 10
     });
+    const description = ADVANCEMENT_DESCRIPTIONS[id];
+    if (description) player.sendMessage(`§7${description}`);
   } catch {}
 
   logger.info(`progression: advancement '${id}' awarded to player ${player.id ?? player.name ?? "unknown"}`);

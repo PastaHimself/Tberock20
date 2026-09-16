@@ -11,6 +11,16 @@
       "minecraft:icon": "eldritch_cod",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.eldritch_cod"
+      },
+      "minecraft:food": {
+        "nutrition": 2,
+        "saturation_modifier": 0.1
+      },
+      "minecraft:use_animation": "eat",
+      "minecraft:use_modifiers": {
+        "start_using": "always",
+        "use_duration": 1.6,
+        "movement_modifier": 0.35
       }
     }
   }

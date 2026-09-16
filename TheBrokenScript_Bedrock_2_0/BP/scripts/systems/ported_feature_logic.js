@@ -1,4 +1,13 @@
 export const HAND_CANNON_RANGE = 100;
+export const PORTAL_COOLDOWN_TICKS = 1;
+
+export function canEnterPortal(currentTick, cooldownUntil) {
+  return Number(currentTick) >= Number(cooldownUntil ?? 0);
+}
+
+export function portalCooldownUntil(currentTick, cooldownTicks = PORTAL_COOLDOWN_TICKS) {
+  return Number(currentTick) + Math.max(1, Math.floor(Number(cooldownTicks)));
+}
 
 export function firstHandCannonTarget(hits, shooterId) {
   for (const hit of hits ?? []) {
