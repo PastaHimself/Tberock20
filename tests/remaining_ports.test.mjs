@@ -206,4 +206,7 @@ test("circuit cave painting surrogate has a complete BP/RP entity chain", async 
 
   const runtime = await readFile(path.join(bpRoot, "scripts/systems/ported_features.js"), "utf8");
   assert.match(runtime, /consumeSelectedItem\(player, "thebrokenscript:circuit_cave_painting"\)/);
+  assert.match(runtime, /original = selected\.item\.clone\(\)/);
+  assert.match(runtime, /painting\?\.remove\(\)/);
+  assert.match(runtime, /selected\.inventory\.setItem\(selected\.slot, original\)/);
 });

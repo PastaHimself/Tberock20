@@ -2,10 +2,7 @@
   "format_version": "1.26.40",
   "minecraft:item": {
     "description": {
-      "identifier": "thebrokenscript:hand_cannon",
-      "menu_category": {
-        "category": "items"
-      }
+      "identifier": "thebrokenscript:hand_cannon"
     },
     "components": {
       "minecraft:icon": "hand_cannon",

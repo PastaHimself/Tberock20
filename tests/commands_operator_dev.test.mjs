@@ -29,6 +29,20 @@ test("Bedrock production reputation command preserves source gate and player req
   assert.match(main, /commands\.register\(event\.customCommandRegistry\)/);
 });
 
+test("Bedrock devmode preserves the Java codes, permission gate, and spawn effects", async () => {
+  const commands = await read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/commands.js");
+  assert.match(commands, /name: "tbs:devmode"/);
+  assert.match(commands, /description: "devmode \[code\]"/);
+  assert.match(commands, /mandatoryParameters: \[\s*\{ name: "code", type: CustomCommandParamType\.String \}/);
+  assert.match(commands, /DEV_MODE_SPAWN_COUNT = 1000/);
+  assert.match(commands, /"2018": "thebrokenscript:circuit"/);
+  assert.match(commands, /"544253": "thebrokenscript:the_broken_end"/);
+  assert.match(commands, /message: "Dev mode code is invalid!"/);
+  assert.match(commands, /permissionLevel: CommandPermissionLevel\.Admin/);
+  assert.match(commands, /cheatsRequired: false/);
+  assert.match(commands, /player\.dimension\.spawnEntity\(entityTypeId, location\)/);
+});
+
 test("Bedrock dev hooks are separate from player-facing horror chat", async () => {
   const commands = await read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/commands.js");
   const chat = await read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js");

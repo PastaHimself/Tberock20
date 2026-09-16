@@ -5,6 +5,7 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:arenaActive": Object.freeze({ scope: "world", persistence: "persistent", owner: "arena" }),
     "tbs:arenaPhase1": Object.freeze({ scope: "world", persistence: "persistent", owner: "arena" }),
     "tbs:portal_anchor_v1": Object.freeze({ scope: "player", persistence: "transient", clear: "player-spawn" }),
+    "tbs:portal_cooldown_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
     "tbs:portal_links_v1": Object.freeze({ scope: "world", persistence: "persistent", owner: "portal-link" }),
     "tbs:heart_corruption_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
     "tbs:why_leave_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),

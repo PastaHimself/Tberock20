@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - codex/full-port-audit-structures-2026-08-29
+      - "codex/**"
     tags:
       - "v*"
   pull_request:
@@ -72,6 +72,9 @@ jobs:
 
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Validate selected P1 content and dimension parity
+        run: python tools/validate_p1_parity.py --check --report artifacts/p1-parity-validation.json
 
       - name: Validate persistent state parity
         run: python tools/validate_persistent_state.py --report artifacts/persistent-state-validation.json
