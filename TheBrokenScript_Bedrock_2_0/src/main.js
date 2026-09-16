@@ -31,12 +31,16 @@ import { init as initCustomBlocks } from "./systems/custom_blocks.js";
 import * as horrorEvents from "./systems/horror_events.js";
 import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
+import * as dimensions from "./systems/dimensions.js";
+import * as perf from "./systems/perf.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
 }
 
 function onWorldLoad() {
+    perf.reset();
+    dimensions.resetCache();
     state.init();
     worldState.init();
     scheduler.begin();

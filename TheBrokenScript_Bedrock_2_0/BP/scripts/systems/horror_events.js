@@ -9,9 +9,8 @@ import { spawnSourceParticle } from "./particle_runtime.js";
 import {
   EVENT_FREQUENCY,
   SOURCE_EVENT_DEFINITIONS,
-  isEventEligible,
-  selectWeightedEvent,
 } from "./horror_rules.js";
+import { chooseHorrorEvent } from "./horror_event_model.js";
 
 // Source EventEngine semantics:
 //   * one server tick attempt;
@@ -392,7 +391,7 @@ function moonPhase() {
   return undefined;
 }
 
-function eventContext(player, players) {
+function eventContext(player, players, randomBoolean) {
   const time = worldTimeOfDay();
   let survival = true;
   try { survival = typeof player.getGameMode !== "function" || player.getGameMode() === GameMode.Survival; } catch (err) { reportAdapterFailure("game-mode", err); }
@@ -419,7 +418,7 @@ function eventContext(player, players) {
     moonStage: worldState.get("moonStage"),
     moonGlitchDuration: playerState.get(player, "moonGlitchDuration"),
     hasCuriousEntity: curious,
-    randomBoolean: Math.random() < 0.5,
+    randomBoolean,
     playerCount: players.length,
     showCoords: playerState.get(player, "showCoords"),
     inventoryCorruptionProgressed: worldState.get("inventoryCorruptionProgressed"),
@@ -445,22 +444,24 @@ function bossArenaActive() {
 
 function tick() {
   const players = world.getAllPlayers();
-  if (players.length === 0 || bossArenaActive()) return;
+  if (players.length === 0) return;
 
-  const target = players[Math.floor(Math.random() * players.length)];
-  if (!target) return;
-  const context = eventContext(target, players);
-  if (!context.enabled || Math.random() >= EVENT_FREQUENCY) return;
-
-  const eligible = SOURCE_EVENT_DEFINITIONS.filter((definition) =>
-    H[definition.id] && isEventEligible(definition, context),
-  );
-  const selected = selectWeightedEvent(eligible, readEventWeights());
+  const selection = chooseHorrorEvent({
+    players,
+    eventDefinitions: SOURCE_EVENT_DEFINITIONS,
+    eventFrequency: EVENT_FREQUENCY,
+    arenaActive: bossArenaActive(),
+    getEventWeights: readEventWeights,
+    random01: Math.random,
+    hasHandler: (id) => typeof H[id] === "function",
+    buildContext: (target, allPlayers, randomBoolean) => eventContext(target, allPlayers, randomBoolean),
+  });
+  const selected = selection.selected;
   if (!selected) return;
 
-  const weights = readEventWeights();
+  const weights = selection.weights ?? readEventWeights();
   recordEventWeight(selected.id, weights);
-  try { H[selected.id](target); } catch (err) { reportHandlerFailure(selected.id, err); }
+  try { H[selected.id](selection.target); } catch (err) { reportHandlerFailure(selected.id, err); }
 }
 
 export function begin(scheduler) {
