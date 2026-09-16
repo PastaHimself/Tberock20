@@ -675,7 +675,13 @@ function playArenaSound(arena, sound) {
   for (const player of arena.players.values()) {
     try {
       const instance = player.playSound(sound, { volume: 1, pitch: 1 });
-      if (instance && typeof instance.stop === "function") arena.soundInstances.push(instance);
+      if (instance && typeof instance.stop === "function") {
+        arena.soundInstances.push(instance);
+        arena.soundInstanceOwners.set(instance, {
+          id: player.id ?? null,
+          name: player.name ?? null,
+        });
+      }
       else if (typeof player.stopSound === "function") arena.soundStops.push({ player, sound });
     } catch {}
   }
@@ -690,6 +696,69 @@ function stopArenaSounds(arena) {
   }
   arena.soundInstances = [];
   arena.soundStops = [];
+  arena.soundInstanceOwners?.clear();
+}
+
+function playerIdentity(playerOrId, playerName = null) {
+  if (playerOrId && typeof playerOrId === "object") {
+    return { id: playerOrId.id ?? null, name: playerOrId.name ?? null };
+  }
+  return { id: playerOrId ?? null, name: playerName ?? null };
+}
+
+function identityMatches(player, identity) {
+  if (!player || !identity) return false;
+  return (identity.id != null && player.id === identity.id) ||
+    (identity.name != null && player.name === identity.name);
+}
+
+function stopArenaSoundsForPlayer(arena, identity) {
+  const remainingInstances = [];
+  for (const instance of arena.soundInstances ?? []) {
+    const owner = arena.soundInstanceOwners?.get(instance);
+    if (identityMatches(owner, identity)) {
+      try { instance.stop(); } catch {}
+      arena.soundInstanceOwners?.delete(instance);
+    } else {
+      remainingInstances.push(instance);
+    }
+  }
+  arena.soundInstances = remainingInstances;
+
+  const remainingStops = [];
+  for (const entry of arena.soundStops ?? []) {
+    if (identityMatches(entry.player, identity)) {
+      try { entry.player.stopSound(entry.sound); } catch {}
+    } else {
+      remainingStops.push(entry);
+    }
+  }
+  arena.soundStops = remainingStops;
+}
+
+function detachPlayerFromArena(arena, identity) {
+  let detached = false;
+  for (const [key, player] of arena.players) {
+    if (key === identity.id || identityMatches(player, identity)) {
+      arena.players.delete(key);
+      detached = true;
+    }
+  }
+  if (identity.id != null) arena.playerIds.delete(identity.id);
+  if (identity.name != null) arena.playerNames.delete(identity.name);
+  if (detached) stopArenaSoundsForPlayer(arena, identity);
+  return detached;
+}
+
+function detachPlayerFromArenas(playerOrId, playerName = null) {
+  const identity = playerIdentity(playerOrId, playerName);
+  let detached = 0;
+  for (const arena of [...roamArenaStates.values()]) {
+    if (!detachPlayerFromArena(arena, identity)) continue;
+    detached += 1;
+    if (arena.players.size === 0) resetFracturedRoamArena(arena);
+  }
+  return detached;
 }
 
 function spawnArenaSubAnomalies(arena) {
@@ -742,6 +811,7 @@ function startFracturedRoamArena(entity) {
     players: new Map(players.map((player) => [player.id, player])),
     subAnomalies: [],
     soundInstances: [],
+    soundInstanceOwners: new Map(),
     soundStops: [],
     introTicks: ROAM_ARENA_SOURCE.startMusicTicks,
     musicScheduled: false,
@@ -766,8 +836,25 @@ function resetFracturedRoamArena(arena) {
   for (const subAnomaly of arena.subAnomalies ?? []) safeRemove(subAnomaly);
   roamArenaStates.delete(arena.jimmy?.id);
   arena.players.clear();
+  arena.playerIds.clear();
+  arena.playerNames.clear();
   // The Java bossbar remains unsupported, but SoundInstance.stop preserves the
   // source AudioFader cleanup for the intro and looping arena tracks.
+}
+
+/** Stop arena audio and remove a player who disconnected before the next tick. */
+export function onPlayerLeave(playerId, playerName = null) {
+  return detachPlayerFromArenas(playerId, playerName);
+}
+
+/** Stop arena audio when a participant changes dimension. */
+export function onPlayerDimensionChange(player) {
+  return detachPlayerFromArenas(player);
+}
+
+/** Stop arena audio and remove a participant on death. */
+export function onPlayerDeath(player) {
+  return detachPlayerFromArenas(player);
 }
 
 function tickFracturedRoamArenas() {
@@ -1484,7 +1571,7 @@ function onTick() {
     if (!state?.entity || !isValid(state.entity)) roamLifecycleStates.delete(id);
   }
   for (const [id, arena] of roamArenaStates) {
-    if (!arena?.jimmy || !isValid(arena.jimmy)) roamArenaStates.delete(id);
+    if (!arena?.jimmy || !isValid(arena.jimmy)) resetFracturedRoamArena(arena);
   }
 }
 

@@ -442,8 +442,12 @@ def _item_behavior_contract(repo: Path) -> dict[str, Any]:
     for name, contract in RECORD_ITEM_CONTRACTS.items():
         expect(name, "minecraft:max_stack_size", 1)
         expect(name, "minecraft:rarity", contract["rarity"])
+        # Java's extracted comparator output is 15. The ten P1 presentation
+        # record adapters saturate that value at Bedrock's maximum of 13;
+        # Lilly's existing script-only theme records retain their main-branch
+        # default signal of 1.
         expected_record = {
-            "comparator_signal": 1,
+            "comparator_signal": 1 if name in {"lilly", "lilly_v2"} else 13,
             "duration": contract["duration"],
             "sound_event": contract["sound_event"],
         }

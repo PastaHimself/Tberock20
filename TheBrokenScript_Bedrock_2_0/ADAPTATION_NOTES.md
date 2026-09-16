@@ -208,7 +208,6 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 7. **Player-visible difference**: source gameplay timings, damage, impulses, lifecycle, recovery, conceptual sweep, and audio cleanup are deterministic; rendered-bone contact, exact melee hit locations, bossbar/camera packets, and exact Java audio attenuation remain adaptations.
 8. **Parity class**: `VALIDATED_APPROXIMATION` for source-verifiable gameplay and cleanup; `ENGINE_UNSUPPORTED` for exact rendered-bone and melee-impact transport.
 
-<<<<<<< /tmp/tmpnyrtteup/main
 ## A-025 — Projectiles and damage parity audit
 
 1. **Source feature**: the custom Chord projectile, Integrity fireball, Jimmy Rock projectile, inherited Chord/engine arrow damage, and all 15 Java custom damage types.
@@ -218,8 +217,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Docs checked**: [Entity.applyDamage](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entityapplydamageoptions?view=minecraft-bedrock-stable), [EntityApplyDamageByProjectileOptions](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entityapplydamagebyprojectileoptions?view=minecraft-bedrock-stable), [EntityDamageSource](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entitydamagesource?view=minecraft-bedrock-stable), [EntityHurtBeforeEvent](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entityhurtbeforeevent?view=minecraft-bedrock-stable), and [EntityDamageCause](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entitydamagecause?view=minecraft-bedrock-stable).
 6. **Player-visible difference**: Bedrock cannot register the Java damage-type ids or enforce their custom death-message, exhaustion/scaling, armor/effect/invulnerability/shield/totem bypass, and no-knockback metadata through Entity.applyDamage(). Fireball animation-bone origin and engine-owned lifetime remain adapters; grounded renderer offsets and continuous collision are also not byte-for-byte Java projectile behavior.
 7. **Parity class**: VALIDATED_APPROXIMATION for source constants, branch ordering, owner exclusion, cleanup, native attribution, all-15 catalog/tag parity, and same-tick ledger isolation; exact custom damage-type semantics and Java-only projectile transport remain ENGINE_UNSUPPORTED.
-=======
-## A-025 — P1 custom-dimension policy and entry routing
+## A-026 — P1 custom-dimension policy and entry routing
 
 1. **Source feature**: the 13 registered Java dimensions, their dimension-type/generator/biome associations, entry variants, return routes, and protected-void orientation.
 2. **Source behavior**: the port preserves the source-backed policy values and routes entry through startup registration, destination readiness, safe landing, and explicit return adapters.
@@ -230,7 +228,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 7. **Player-visible difference**: exact Java terrain/noise generation and every client-side environment setter remain unavailable; entry coordinates, protected-void yaw, registration IDs, and supported route behavior are validated.
 8. **Parity class**: `VALIDATED_HIGH_PARITY` for registration and supported routing; `VALIDATED_APPROXIMATION` for environment and terrain; exact noise/custom-generator behavior is `ENGINE_UNSUPPORTED`.
 
-## A-026 — P1 structure corpus and jigsaw conversion boundary
+## A-027 — P1 structure corpus and jigsaw conversion boundary
 
 1. **Source feature**: the complete source structure inventory, including 314 NBT templates, Shaft pools/connectors, Integrity Stage 2 assets, XCSF material, and custom processors.
 2. **Source behavior**: every source template has an explicit inventory status; the six Shaft templates are staged source-identical assets and the supported Shaft graph is validated separately.
@@ -240,7 +238,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: Stage 2/XCSF/custom-processor placement and natural generation frequency/spacing are not claimed as exact without an engine world sample.
 7. **Parity class**: `VALIDATED` for corpus/graph inventory and supported staged assets; `VALIDATED_APPROXIMATION` for converted placement; runtime world comparison remains deferred.
 
-## A-027 — P1 block-entity and tag adapters
+## A-028 — P1 block-entity and tag adapters
 
 1. **Source feature**: eight Java block-entity equivalents plus source block/item tags used by recipes, drops, placement, and scripted predicates.
 2. **Source behavior**: source membership and block-entity state contracts are inventoried; the deployed pack uses namespaced dynamic properties, marker/render adapters, and scripted handlers where Bedrock has no matching registry/state surface.
@@ -250,7 +248,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: exact Java container/NBT internals and unexposed tag consumers remain implementation-specific adapters.
 7. **Parity class**: `VALIDATED_HIGH_PARITY` for source inventory and supported consumers; `VALIDATED_APPROXIMATION` for engine-specific block-entity/state behavior.
 
-## A-028 — P1 portal entity-scope adapter
+## A-029 — P1 portal entity-scope adapter
 
 1. **Source feature**: portal controller/extender activation, linking, destination selection, safe arrival, cooldown, and incoming-entity handling.
 2. **Source behavior**: activation requires sneaking, the linker is not consumed, anchors and links persist, destination readiness is checked, safe fallback is used, and repeat entry is guarded for one tick.
@@ -260,7 +258,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 6. **Player-visible difference**: mobs, items, and projectiles do not claim Java portal parity; unavailable destination initialization falls back to the documented safe route.
 7. **Parity class**: `VALIDATED_HIGH_PARITY` for player linking/arrival/cooldown; `ENGINE_UNSUPPORTED` for the unexposed entity/item/projectile sweep.
 
-## A-029 — P1 direct command surface
+## A-030 — P1 direct command surface
 
 1. **Source feature**: the Java `tbs` root's direct `devmode [code]` and `reputation` commands, plus its separately gated `dev` command tree.
 2. **Source behavior**: `devmode` accepts `2018` or `544253`, reports the exact success/error messages, and attempts the corresponding 1000-entity spawn effect; `reputation` is player-only and reports the source reputation bands.
@@ -269,7 +267,7 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Docs checked**: [Microsoft's CustomCommandRegistry](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/customcommandregistry?view=minecraft-bedrock-stable) and [CustomCommandParameter](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/customcommandparameter?view=minecraft-bedrock-stable).
 6. **Parity class**: `VALIDATED_HIGH_PARITY` for direct command validation/messages/effects; `VALIDATED_APPROXIMATION` for the permission/source-origin mapping and the unregistered Java `dev` tree.
 
-## A-030 — P1 vanilla loot output identifiers
+## A-031 — P1 vanilla loot output identifiers
 
 1. **Source feature**: the `sideways_cobblestone_stairs` and `ud_oak_door` block loot tables.
 2. **Source behavior**: the Java tables drop `minecraft:cobblestone_stairs` and `minecraft:oak_door`, respectively, after the source explosion-survival condition.
@@ -278,4 +276,13 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: the tables keep the source condition and weight but route the output through `thebrokenscript:sideways_cobblestone_stairs` and `thebrokenscript:ud_oak_door`; `validate_p1_parity.py` release-gates both explicit mappings.
 6. **Player-visible difference**: breaking these custom blocks returns the pack's custom block form instead of an unresolved vanilla item identifier.
 7. **Parity class**: `VALIDATED_APPROXIMATION`; source table structure and intent are preserved, with the output identifier represented by a documented Bedrock adapter.
->>>>>>> /tmp/tmpnyrtteup/ours
+
+## A-032 — Presentation and player-visible timing audit
+
+1. **Source feature**: the P1 presentation surface: Java animation/controller resources and model references, particle definitions/providers/callsites, `jukebox_song` definitions and music items, the ten `TBSMenus` registrations, VHS/UI resources, and Integrity/Fractured camera and audio adapters.
+2. **Source evidence**: `source_extracted/assets/thebrokenscript/animations` (35 files/197 entries), `source_extracted/assets/thebrokenscript/particles` (9 definitions), `source_extracted/data/thebrokenscript/jukebox_song` (12 songs), `source_extracted/assets/thebrokenscript/sounds.json`, `decompiled/net/thebrokenscript/registry/TBSMenus.java`, the current `BP/` presentation runtimes, and the current `RP/` animation/audio/UI trees.
+3. **Validation**: `tools/validate_presentation.py` compares animation names/lengths/loop flags and model references, particle identifiers/resources/lifetimes/counts, inventories extracted provider/callsite families, compares every shared sound cue, verifies all 12 songs, all 10 record items, all ten Java menu registrations, the three UI files, overlay scope, and supported camera calls. The check is run by the existing `bedrock-addon-check` workflow and has focused mutation tests for a missing animation and incorrect record timing.
+4. **Replacement design**: the missing deployed `chord_projectile.animation.json` resource is restored; Fractured presentation uses source-derived 20 Hz event timing and guarded `playAnimation` calls; particle resources and the extracted seven-provider callsite inventory are checked, with generic event bridges for `null_particle`, `eyes`, and `particle_of_curved` plus the 400-particle Rock adapter; ten Bedrock record components use source durations and bare `sound_definitions.json` keys; the two Lilly themes remain script-only; and arena `SoundInstance` handles are owned per player and stopped on reset, leave, death, and dimension change.
+5. **Player-visible difference**: Bedrock's record comparator signal is capped at 13, so the source value is adapted rather than overstated. Java provider/callsite families without a dedicated Bedrock runtime bridge remain explicit follow-up work, and `video/alpha3` remains an intentional source-only sound cue. Java GeckoLib controller transitions, server-visible rendered-bone transforms, exact melee/contact origins, FancyAudio fading/attenuation and reload mixing, actual network disconnects, custom glyph pages, and the Java GLSL pipeline remain engine-specific or blocked. The VHS layer is statically HUD-scoped, but multiplayer/menu isolation still needs an in-game smoke check.
+6. **Docs checked**: [Entity.playAnimation](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/entity?view=minecraft-bedrock-stable), [animation overview](https://learn.microsoft.com/minecraft/creator/documents/animations/animationsoverview?view=minecraft-bedrock-stable), [Dimension.spawnParticle](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/dimension?view=minecraft-bedrock-stable), [custom sounds](https://learn.microsoft.com/minecraft/creator/documents/addcustomsounds?view=minecraft-bedrock-stable), [`minecraft:record`](https://learn.microsoft.com/minecraft/creator/reference/content/itemreference/examples/itemcomponents/minecraft_record?view=minecraft-bedrock-stable), [1.26.30 technical updates](https://learn.microsoft.com/minecraft/creator/documents/update1.26.30?view=minecraft-bedrock-stable#experimental-technical-updates), and the [Camera Script API](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/camera?view=minecraft-bedrock-stable).
+7. **Parity class**: `VALIDATED_APPROXIMATION` for source inventory, resource/timing contracts, supported runtime bridges, and cleanup hooks; `ENGINE_UNSUPPORTED` or `DEFERRED_UNSAFE` for exact Java controller/render-bone, custom-font, shader, audio-mixer, and multiplayer rendering behavior.

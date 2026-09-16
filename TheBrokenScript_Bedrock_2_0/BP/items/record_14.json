@@ -15,8 +15,8 @@
       "minecraft:max_stack_size": 1,
       "minecraft:rarity": "rare",
       "minecraft:record": {
-        "comparator_signal": 1,
-        "duration": 61,
+        "comparator_signal": 13,
+        "duration": 61.0,
         "sound_event": "record14"
       }
     }

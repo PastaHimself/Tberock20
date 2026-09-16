@@ -1,7 +1,7 @@
 {
   "namespace": "hud",
   "hud_screen": {
-    "render_only_when_topmost": false,
+    "render_only_when_topmost": true,
     "$additional_screen_content": "vhs_overlay.root"
   }
 }

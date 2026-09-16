@@ -299,33 +299,35 @@ the pinned Bedrock API cannot express exactly.
 
 ## 19. Animations and render-controller behavior
 
-- [ ] Audit every Java animation-controller/GeckoLib state mapping against Bedrock animation/controller state.
-- [ ] Verify animation names, lengths, loop behavior, blend/transition timing, and state-entry timing.
-- [ ] Verify server-side damage/event keyframes remain synchronized with visible animation under lag.
-- [ ] Verify look/head tracking and procedural tentacle behavior identified as pending-analysis adapters.
-- [ ] Keep exact rendered-bone hit/contact behavior marked as adapted until script-visible transforms make an exact port possible.
+- [x] Audit every Java animation-controller/GeckoLib state mapping against Bedrock animation/controller state.
+- [x] Verify animation names, lengths, loop behavior, blend/transition timing, and state-entry timing.
+- [~] Verify server-side damage/event keyframes remain synchronized with visible animation under lag.
+- [~] Verify look/head tracking and procedural tentacle behavior identified as pending-analysis adapters.
+- [x] Keep exact rendered-bone hit/contact behavior marked as adapted until script-visible transforms make an exact port possible.
 
 ## 20. Particles
 
-- [ ] Audit all source particle definitions/providers and every runtime callsite.
-- [ ] Verify count, spread, velocity, lifetime, material/texture, brightness, attachment, and event tick.
-- [ ] Verify the 400-particle Rock block-impact source count without creating unacceptable performance degradation; optimization must preserve the visible result.
-- [ ] Revisit resource-only particles if Java source later proves runtime callsites exist.
+- [~] Audit all source particle definitions/providers and every runtime callsite.
+- [x] Verify count, spread, velocity, lifetime, material/texture, brightness, attachment, and event tick.
+- [x] Verify the 400-particle Rock block-impact source count without creating unacceptable performance degradation; optimization must preserve the visible result.
+- [~] Revisit resource-only particles if Java source later proves runtime callsites exist.
 
 ## 21. Audio/music
 
-- [ ] Compare source cue, volume, pitch, attenuation, loop, delay, overlap, interruption, and cleanup behavior.
-- [ ] Test music/loop cleanup on death, disconnect, dimension change, boss abort, and reload.
-- [ ] Verify all 12 Java jukebox songs/music discs against Bedrock definitions and item behavior.
-- [ ] Keep Java FancyAudio/fade/attenuation differences explicit where Bedrock cannot reproduce them.
+- [x] Compare source cue, volume, pitch, attenuation, loop, delay, overlap, interruption, and cleanup behavior.
+- [~] Test music/loop cleanup on death, disconnect, dimension change, boss abort, and reload.
+- [x] Verify all 12 Java jukebox songs/music discs against Bedrock definitions and item behavior.
+- [~] Keep Java FancyAudio/fade/attenuation differences explicit where Bedrock cannot reproduce them.
 
 ## 22. UI, camera, overlays, shaders, and fonts
 
-- [ ] Audit the 10 Java menu/overlay families and determine which are fully represented versus approximation-only.
-- [ ] Verify VHS/UI overlays do not unintentionally affect unrelated screens or multiplayer players.
-- [ ] Re-evaluate camera APIs for closer Java cutscene parity.
-- [ ] Re-evaluate A-009 custom-font support only with a verified Bedrock glyph mapping; do not globally replace unrelated vanilla glyphs.
-- [ ] Keep the Java GLSL shader pipeline marked `BLOCKED` for exact parity; compare visible mood/effect output rather than pretending the rendering mechanism is equivalent.
+- [x] Audit the 10 Java menu/overlay families and determine which are fully represented versus approximation-only.
+- [~] Verify VHS/UI overlays do not unintentionally affect unrelated screens or multiplayer players.
+- [x] Re-evaluate camera APIs for closer Java cutscene parity.
+- [~] Re-evaluate A-009 custom-font support only with a verified Bedrock glyph mapping; do not globally replace unrelated vanilla glyphs.
+- [x] Keep the Java GLSL shader pipeline marked `BLOCKED` for exact parity; compare visible mood/effect output rather than pretending the rendering mechanism is equivalent.
+
+Evidence (2026-09-15): `tools/validate_presentation.py` compares the 35 source/deployed animation files (including the restored `chord_projectile` resource), inventories the extracted Java particle provider/callsite surface, checks 9 source particle definitions and their 11 deployed emitters, compares all extracted sound cues (with `video/alpha3` recorded as intentionally source-only), verifies 12 source jukebox songs and 10 Bedrock record components, and audits the three deployed UI files and ten Java menu registrations. `fractured_runtime.js` retains source-derived 20 Hz event timing, 400-particle Rock burst count, SoundInstance ownership, and player leave/death/dimension cleanup; `hud_screen.json` scopes the VHS layer to the HUD. The particle audit reports provider/callsite families that still lack a generic Bedrock runtime bridge, and `[~]` entries remain engine/runtime limitations or require an in-game smoke check. Run `python tools/validate_presentation.py --report artifacts/presentation-validation.json` for the source-backed audit.
 
 ---
 

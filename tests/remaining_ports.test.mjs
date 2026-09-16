@@ -36,6 +36,11 @@ test("VHS UI uses a valid additional HUD control and declares every source textu
   assert.ok(overlay, "VHS overlay definition must exist");
   assert.ok(defs.ui_defs.includes("ui/vhs_overlay.json"));
   assert.equal(hud.hud_screen?.$additional_screen_content, "vhs_overlay.root");
+  assert.equal(
+    hud.hud_screen?.render_only_when_topmost,
+    true,
+    "the VHS layer must stay scoped to the HUD instead of rendering over menus",
+  );
   assert.equal(hud.root_panel, undefined, "cross-namespace modifications must not be used");
 
   const textures = [...JSON.stringify(overlay).matchAll(/textures\/ui\/vhs\/[a-z0-9_]+/g)]
