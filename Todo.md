@@ -157,12 +157,12 @@ For each entity, compare source and Bedrock side-by-side:
 
 - [x] Revisit gaze-cone approximations where Java uses more exact view/visibility tests.
 - [~] Revisit dimension-teleport approximations in Null behavior.
-- [ ] Revisit maze door/block-breaking behavior that was skipped or approximated.
-- [ ] Revisit flying FOV/sneak behavior.
-- [ ] Revisit chunk-removal/chunk-operation surrogates and confirm the closest safe observable behavior.
+- [~] Revisit maze door/block-breaking behavior that was skipped or approximated.
+- [~] Revisit flying FOV/sneak behavior.
+- [~] Revisit chunk-removal/chunk-operation surrogates and confirm the closest safe observable behavior.
 - [~] Verify all spawn-director rules against the source conditions rather than relying solely on the historical Chunk 17 category audit.
 
-Evidence (2026-09-15): `BP/scripts/core/entity_family_registry.js` and its mirrored `src` contract inventory all 69 shipped BP entities exactly once and point each family to source roots, controller, spawn, and render surfaces. `tests/entity_family_fidelity.test.mjs` covers registry completeness, render/runtime links, cross-dimension and spectator filtering, hitbox-aware ray visibility, blocked gaze rays, and supported sky-light gates. The shared targeting/gaze/visibility services are used by the family controllers, and the spawn director now evaluates the legacy `players[0]` rule contract once per player while retaining one-successful-spawn pacing. Java-only multipart/render/chunk behavior remains explicitly classified as an adaptation in `ADAPTATION_NOTES.md` A-023; a real Bedrock engine smoke report is still required before claiming exact runtime parity.
+Evidence (2026-09-16): `decompiled/net/thebrokenscript/entity/nullent/{NullMazeEntity,NullFlyingEntity}.java`, `decompiled/net/thebrokenscript/api/entity/ai/null_maze/MazeHitGoal.java`, the decompiled gaze helpers, and the chunk-removal/force-load classes were traced into `BP/scripts/entities/null/null_source_controller.js`, `BP/scripts/systems/{null_pursuit_model,door_runtime,chunk_remover_model,chunk_remover_runtime,modified_chunks}.js`, the entity/block JSON, and `misc_spawn_rules.js`. `tests/source_backed_maze_flying_chunk_models.test.mjs` covers source constants, strict thresholds, random branches, target memory, FOV/gaze, sneak-at-both-times, cooldown, chunk gates, vertical section planning, and reload-safe ledger state; `tests/source_backed_runtime_wiring.test.mjs` checks bootstrap ownership, API wiring, entity/block contracts, and source-map/document evidence. `npm run typecheck` and the focused source-backed tests pass. The three entries remain `[~]` because collision/navigation/damage/sound/custom-permutation behavior, client FOV transport, multiplayer/reload behavior, and chunk-engine effects still require a real Bedrock 1.26.50 Preview smoke report; Java-only pathfinding, door geometry, raw chunk storage, and forced-ticket operations are documented as adaptations/engine limitations in `ADAPTATION_NOTES.md` A-033/A-034 and `KNOWN_LIMITATIONS.md` 26–27.
 
 ## 8. Integrity boss parity
 

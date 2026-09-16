@@ -168,7 +168,7 @@ function nullMessage(definition) {
   return `<null> ${definition.message}`;
 }
 
-function changeReputation(player, amount) {
+export function changeReputation(player, amount) {
   try {
     const delta = Number(amount);
     const next = Math.max(0, Math.min(100, Number(playerState.get(player, "entityReputation")) + delta));

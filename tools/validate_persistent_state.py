@@ -226,9 +226,22 @@ def validate(root: Path) -> list[str]:
             continue
         java_source = read_text(java_candidates[0])
         save_key = re.escape(evidence["save_key"])
-        if not re.search(rf'put[A-Za-z]+\("{save_key}"', java_source):
+        # Entity fields in the source sometimes use a private constant for
+        # the NBT key (`putInt(NATURAL_DESPAWN, ...)`) rather than repeating
+        # the literal. Resolve that narrow pattern so declared Bedrock
+        # dynamic-property adapters can cite the actual source save contract.
+        key_constants = {
+            match.group("name")
+            for match in re.finditer(
+                rf'private\s+static\s+final\s+String\s+(?P<name>\w+)\s*=\s*"{save_key}"',
+                java_source,
+            )
+        }
+        put_pattern = rf'put[A-Za-z]+\((?:"{save_key}"|{"|".join(map(re.escape, key_constants)) or r"(?!)"})'
+        get_pattern = rf'get[A-Za-z]+\((?:"{save_key}"|{"|".join(map(re.escape, key_constants)) or r"(?!)"})'
+        if not re.search(put_pattern, java_source):
             errors.append(f"{key}: Java class does not save '{evidence['save_key']}'")
-        if not re.search(rf'get[A-Za-z]+\("{save_key}"', java_source):
+        if not re.search(get_pattern, java_source):
             errors.append(f"{key}: Java class does not load '{evidence['save_key']}'")
 
     raw_properties: dict[str, set[str]] = defaultdict(set)

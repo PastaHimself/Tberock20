@@ -123,6 +123,35 @@ def choose_entity_controller(key: str) -> list[str]:
     ]
 
 
+def source_backed_followup_files(category: str, key: str) -> list[str]:
+    """Return evidence files for the recovered Null/chunk source slice."""
+
+    if category == "entity" and key == "null_maze":
+        return [
+            "BP/scripts/entities/null/null_source_controller.js",
+            "BP/scripts/systems/null_pursuit_model.js",
+            "BP/scripts/systems/ai/gaze.js",
+            "BP/scripts/systems/door_runtime.js",
+            "ADAPTATION_NOTES.md",
+        ]
+    if category == "entity" and key == "null_flying":
+        return [
+            "BP/scripts/entities/null/null_source_controller.js",
+            "BP/scripts/systems/null_pursuit_model.js",
+            "BP/scripts/systems/ai/gaze.js",
+            "ADAPTATION_NOTES.md",
+        ]
+    if category == "entity" and key == "chunk_remover":
+        return [
+            "BP/scripts/entities/misc/misc_spawn_rules.js",
+            "BP/scripts/systems/chunk_remover_model.js",
+            "BP/scripts/systems/chunk_remover_runtime.js",
+            "BP/scripts/systems/modified_chunks.js",
+            "ADAPTATION_NOTES.md",
+        ]
+    return []
+
+
 def current_horror_event_keys() -> tuple[set[str], set[str]]:
     path = ADDON / "BP/scripts/systems/horror_events.js"
     text = path.read_text(encoding="utf-8")
@@ -314,6 +343,7 @@ def reconcile_entity(row: dict[str, Any], key: str) -> None:
             f"BP/entities/{bedrock_key}.json",
             f"RP/entity/{bedrock_key}.entity.json",
             *choose_entity_controller(key),
+            *source_backed_followup_files("entity", key),
         ],
         notes="Source entity resolves to the current BP/RP pair and its controller/spawn family; AI, pathfinding, and client presentation differences remain explicit Bedrock adaptations.",
     )
@@ -422,6 +452,56 @@ def reconcile_code_package(row: dict[str, Any], key: str) -> None:
             notes="Optional Java client/mod compatibility integration is outside the Bedrock add-on runtime; no equivalent is claimed.",
         )
         return
+    if source_id == "code.api/entity/ai/null_maze":
+        decide(
+            row,
+            status="ported",
+            parity="approximation",
+            identifier="script:null-maze-source-adapter",
+            files=[
+                "BP/entities/null_maze.json",
+                "BP/scripts/entities/null/null_source_controller.js",
+                "BP/scripts/systems/null_pursuit_model.js",
+                "BP/scripts/systems/ai/gaze.js",
+                "BP/scripts/systems/door_runtime.js",
+                "ADAPTATION_NOTES.md",
+            ],
+            notes="MazeHitGoal and the source targeting/pathfinding helpers are represented by the native AI contract plus the source-backed controller/model; Java custom pathfinder and damage/swing hooks remain explicit adapters.",
+        )
+        return
+    if source_id == "code.entity/maze":
+        decide(
+            row,
+            status="ported",
+            parity="approximation",
+            identifier="script:null-maze-runtime",
+            files=[
+                "BP/entities/null_maze.json",
+                "BP/scripts/entities/null/null_source_controller.js",
+                "BP/scripts/systems/null_pursuit_model.js",
+                "BP/scripts/systems/door_runtime.js",
+                "BEDROCK_COMPATIBILITY.md",
+            ],
+            notes="The source Null Maze entity lifecycle, light/block/door side effects, timers, and supported goal flags are reconciled to the deployed BP runtime; Java-only navigation internals remain documented.",
+        )
+        return
+    if source_id == "code.world/chunk":
+        decide(
+            row,
+            status="ported",
+            parity="approximation",
+            identifier="script:chunk-operation-surrogate",
+            files=[
+                "BP/scripts/systems/chunk_remover_model.js",
+                "BP/scripts/systems/chunk_remover_runtime.js",
+                "BP/scripts/systems/modified_chunks.js",
+                "BP/scripts/entities/misc/misc_spawn_rules.js",
+                "BP/scripts/systems/commands.js",
+                "BEDROCK_COMPATIBILITY.md",
+            ],
+            notes="Source chunk gates, random operations, persistent modified-chunk guard, command clear, and loaded block/entity observable effects are represented by supported Bedrock operations; raw section/ticket/packet internals remain engine-limited.",
+        )
+        return
     if (
         source_id.startswith("code.mixins")
         or source_id.startswith("code.neoforge")
@@ -500,6 +580,20 @@ def reconcile_spawn_rule(row: dict[str, Any], key: str) -> None:
         )
         return
     controller = choose_entity_controller(key)
+    if key == "chunk_remover":
+        controller += [
+            "BP/scripts/entities/misc/misc_spawn_rules.js",
+            "BP/scripts/systems/chunk_remover_model.js",
+            "BP/scripts/systems/chunk_remover_runtime.js",
+            "BP/scripts/systems/modified_chunks.js",
+            "BEDROCK_COMPATIBILITY.md",
+        ]
+    elif key in {"null_maze", "null_flying"}:
+        controller += [
+            "BP/scripts/entities/null/null_source_controller.js",
+            "BP/scripts/systems/null_pursuit_model.js",
+            "BP/scripts/systems/ai/gaze.js",
+        ]
     decide(
         row,
         status="ported",
