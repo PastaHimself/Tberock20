@@ -24,6 +24,7 @@
         "damage": 10
       },
       "minecraft:persistent": {},
+      "minecraft:fire_immune": {},
       "minecraft:physics": {},
       "minecraft:movement.basic": {},
       "minecraft:navigation.walk": {
