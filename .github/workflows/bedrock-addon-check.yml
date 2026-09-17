@@ -52,31 +52,28 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Validate runtime smoke-test matrix
+        if: always()
         run: python tools/validate_runtime_smoke_matrix.py tests/runtime-smoke/matrix.json
 
       - name: Validate runtime smoke report when present
-        if: ${{ hashFiles('tests/runtime-smoke/latest-report.json') != '' }}
+        if: ${{ always() && hashFiles('tests/runtime-smoke/latest-report.json') != '' }}
         run: >-
           python tools/validate_runtime_smoke_report.py
           tests/runtime-smoke/latest-report.json
           --matrix tests/runtime-smoke/matrix.json
 
-      - name: Require complete runtime smoke report for release
-        if: ${{ inputs.enforce_runtime_smoke || startsWith(github.ref, 'refs/tags/v') }}
-        run: >-
-          test -f tests/runtime-smoke/latest-report.json &&
-          python tools/validate_runtime_smoke_report.py
-          tests/runtime-smoke/latest-report.json
-          --matrix tests/runtime-smoke/matrix.json
-          --require-complete
-
+      # Keep the static suite running even if one validator fails so every CI run
+      # reports the complete set of actionable failures instead of stopping early.
       - name: Run validator unit tests
+        if: always()
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Validate P2 Script API and version contract
+        if: always()
         run: python tools/validate_p2_contract.py --check --report artifacts/p2-contract-validation.json
 
       - name: Audit P2 Java and Bedrock randomness provenance
+        if: always()
         run: >-
           python tools/audit_randomness.py
           --check
@@ -84,6 +81,7 @@ jobs:
           --markdown artifacts/randomness-audit.md
 
       - name: Run P2 deterministic parity and cache regressions
+        if: always()
         run: >-
           node --experimental-vm-modules --test
           tests/horror_event_model.test.mjs
@@ -93,25 +91,30 @@ jobs:
           tests/p2_profile.test.mjs
 
       - name: Profile P2 1-tick scan workload
+        if: always()
         run: node tools/profile_p2_scans.mjs --check
 
       - name: Validate selected P1 content and dimension parity
+        if: always()
         run: python tools/validate_p1_parity.py --check --report artifacts/p1-parity-validation.json
 
       - name: Validate persistent state parity
+        if: always()
         run: python tools/validate_persistent_state.py --report artifacts/persistent-state-validation.json
 
       - name: Run full source-to-runtime audit
+        if: always()
         run: >-
           python tools/audit_source_to_runtime.py
           --check
           --report artifacts/source-to-runtime-audit.json
 
       - name: Reconcile parity ledger against shipped tree
+        if: always()
         run: python tools/reconcile_parity_ledgers.py --check
 
-      - name: Validate parity ledgers for release
-        if: ${{ inputs.enforce_parity || startsWith(github.ref, 'refs/tags/v') }}
+      - name: Validate strict parity ledgers
+        if: ${{ always() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || inputs.enforce_parity || startsWith(github.ref, 'refs/tags/v')) }}
         run: python tools/validate_parity_ledgers.py
 
       - name: Validate complete add-on
@@ -263,11 +266,30 @@ jobs:
 
           node tools/filter_mct_validation.mjs .ci/mct-validation.json
 
+      # A green main branch must mean the repository has current real-engine
+      # evidence, not merely that static validators passed. Pull requests can still
+      # run the static suite while the smoke report is being produced separately.
+      - name: Enforce complete runtime smoke evidence on main and releases
+        if: ${{ always() && (github.ref == 'refs/heads/main' || inputs.enforce_runtime_smoke || startsWith(github.ref, 'refs/tags/v')) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f tests/runtime-smoke/latest-report.json ]]; then
+            echo 'Missing tests/runtime-smoke/latest-report.json.' >&2
+            echo 'A green main/release build requires a complete real Bedrock runtime smoke report.' >&2
+            exit 1
+          fi
+          python tools/validate_runtime_smoke_report.py \
+            tests/runtime-smoke/latest-report.json \
+            --matrix tests/runtime-smoke/matrix.json \
+            --require-complete
+
       - name: Package successful build as .mcaddon
         id: package_addon
+        if: success()
         shell: bash
         env:
-          STRICT_PARITY: ${{ inputs.enforce_parity || startsWith(github.ref, 'refs/tags/v') }}
+          STRICT_PARITY: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || inputs.enforce_parity || startsWith(github.ref, 'refs/tags/v') }}
         run: |
           if [[ "$STRICT_PARITY" == "true" ]]; then
             bash tools/package-addon.sh --release
