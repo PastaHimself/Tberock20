@@ -27,6 +27,11 @@
       "minecraft:fire_immune": {},
       "minecraft:physics": {},
       "minecraft:movement.basic": {},
+      "minecraft:variable_max_auto_step": {
+        "base_value": 1.6,
+        "controlled_value": 1.6,
+        "jump_prevented_value": 1.6
+      },
       "minecraft:navigation.walk": {
         "can_open_doors": true,
         "can_pass_doors": true,
