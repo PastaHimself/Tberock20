@@ -29,7 +29,8 @@ const ACTIVE_TYPES = new Set([MAZE_ID, FLYING_ID]);
 
 // The old pursuit controller owns other Null variants. This controller is
 // deliberately entity-driven: one startup scan restores persisted entities,
-// then entitySpawn adds new entities and every tick only visits this map.
+// then entitySpawn/entityLoad add new or reloaded entities and every tick only
+// visits this map.
 const trackedEntities = new Map();
 const mazeStates = new Map();
 const flyingStates = new Map();
@@ -410,18 +411,22 @@ function scheduleFlyingTrigger(entity, player, state) {
     const soundLocation = copyLocation(entity.location);
     try {
         system.runTimeout(() => {
+            // A player can leave during the 20-tick source delay. Do not read
+            // player state until the handle has been validated, and still
+            // clean up the source entity/state when that happens.
+            if (!isValid(player)) {
+                if (isValid(entity)) discardEntity(entity, undefined);
+                flyingStates.delete(entity.id);
+                return;
+            }
             let repGainTimer = 0;
             try { repGainTimer = playerState.get(player, "nullFlyRepGainTimer"); } catch {}
             const outcome = flyingDelayedOutcome({
                 initialSneaking,
-                currentSneaking: Boolean(player?.isSneaking),
+                currentSneaking: Boolean(player.isSneaking),
                 repGainTimer,
             });
             if (isValid(entity)) discardEntity(entity, undefined);
-            if (!isValid(player)) {
-                flyingStates.delete(entity.id);
-                return;
-            }
             if (outcome.reputationDelta !== 0) {
                 try { horrorChat.changeReputation(player, outcome.reputationDelta); } catch (error) { logger.debug(`null_source: flying reputation update failed: ${String(error)}`); }
             }
@@ -488,12 +493,25 @@ function tickReputationCooldowns(players) {
     }
 }
 
+function clearTrackedEntity(id) {
+    const mazeState = mazeStates.get(id);
+    if (mazeState) removeMazeLight(mazeState, mazeState.lightDimension);
+    trackedEntities.delete(id);
+    mazeStates.delete(id);
+    flyingStates.delete(id);
+}
+
 function tickEntities(players) {
     for (const [id, entity] of trackedEntities) {
-        if (!isValid(entity) || !ACTIVE_TYPES.has(entity.typeId)) {
-            trackedEntities.delete(id);
-            mazeStates.delete(id);
-            flyingStates.delete(id);
+        if (!isValid(entity)) {
+            // Entity handles become invalid when a chunk unloads. The Java
+            // entity removes its temporary light on every removal reason; keep
+            // the same cleanup before waiting for Bedrock's entityLoad event.
+            clearTrackedEntity(id);
+            continue;
+        }
+        if (!ACTIVE_TYPES.has(entity.typeId)) {
+            clearTrackedEntity(id);
             continue;
         }
         try {
@@ -514,6 +532,42 @@ function onTick() {
 
 function onEntitySpawn(event) {
     rememberEntity(event?.entity);
+}
+
+function onEntityLoad(event) {
+    rememberEntity(event?.entity);
+}
+
+function onEntityDie(event) {
+    const dead = event?.deadEntity;
+    if (!dead) return;
+    const attacker = event.damageSource?.damagingEntity;
+
+    if (dead.typeId === MAZE_ID) {
+        // NullMazeEntity.die applies LOSS_IHY when a player kills it, and its
+        // removal path always clears the temporary light block.
+        const mazeState = mazeStates.get(dead.id);
+        if (mazeState) removeMazeLight(mazeState, mazeState.lightDimension);
+        trackedEntities.delete(dead.id);
+        mazeStates.delete(dead.id);
+        if (attacker?.typeId === "minecraft:player" && isValid(attacker)) {
+            try { horrorChat.changeReputation(attacker, -50); } catch (error) {
+                logger.debug(`null_source: maze death reputation update failed: ${String(error)}`);
+            }
+        }
+        return;
+    }
+
+    // NullMazeEntity.awardKillScore removes the Maze after a player kill and
+    // plays NULL_KILLS_PLAYER. The source's optional network kick is not
+    // portable to the add-on API, so retain the supported sound/removal side.
+    if (dead.typeId === "minecraft:player" && attacker?.typeId === MAZE_ID && isValid(attacker)) {
+        const mazeState = mazeStates.get(attacker.id);
+        try {
+            playRangeSound(attacker.dimension, copyLocation(attacker.location), "kills_player", 128, 10, 0.01);
+        } catch {}
+        discardEntity(attacker, mazeState);
+    }
 }
 
 function onFlyingHurt(event) {
@@ -557,6 +611,8 @@ export function begin(scheduler) {
     scanExistingEntities();
     scheduler.every("tbs.null_source_tick", 1, onTick);
     events.subscribeGuarded(world.afterEvents.entitySpawn, "null-source.entitySpawn", "null-source", onEntitySpawn);
+    events.subscribeGuarded(world.afterEvents.entityLoad, "null-source.entityLoad", "null-source", onEntityLoad);
+    events.subscribeGuarded(world.afterEvents.entityDie, "null-source.entityDie", "null-source", onEntityDie);
     events.subscribeGuarded(world.afterEvents.entityHurt, "null-source.entityHurt", "null-source", onFlyingHurt);
 }
 
