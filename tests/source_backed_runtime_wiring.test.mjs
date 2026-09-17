@@ -71,6 +71,8 @@ test("maze and flying source decisions are wired to runtime APIs and delayed sta
   assert.match(controller, /nullFlyRepGainTimer/);
   assert.match(controller, /EntityDamageCause\.none/);
   assert.match(controller, /world\.afterEvents\.entityHurt/);
+  assert.match(controller, /world\.afterEvents\.entityLoad/);
+  assert.match(controller, /world\.afterEvents\.entityDie/);
   assert.match(controller, /player\.isSneaking/);
   assert.match(controller, /flyingProximityOutcome/);
   assert.match(controller, /naturalDespawnStep/);
@@ -81,6 +83,28 @@ test("maze and flying source decisions are wired to runtime APIs and delayed sta
   assert.match(controller, /const proximityLocation = copyLocation\(entity\.location\)/);
   assert.match(controller, /spawnNullIsHere\(proximityDimension, proximityLocation\)/);
   assert.doesNotMatch(controller, /spawnNullIsHere\(entity\)/);
+
+  // Persistent Null entities can unload with their chunk and later return.
+  // Reload must restore ownership, while invalid handles must clear Maze light
+  // state instead of leaving a stale minecraft:light_block behind.
+  assert.match(controller, /function onEntityLoad\(event\)[\s\S]*rememberEntity\(event\?\.entity\)/);
+  assert.match(controller, /function clearTrackedEntity\(id\)[\s\S]*removeMazeLight\(mazeState, mazeState\.lightDimension\)/);
+
+  // NullMazeEntity.die applies LOSS_IHY to a player killer; awardKillScore
+  // removes the Maze after a player kill and plays NULL_KILLS_PLAYER.
+  assert.match(controller, /dead\.typeId === MAZE_ID[\s\S]*changeReputation\(attacker, -50\)/);
+  assert.match(controller, /dead\.typeId === "minecraft:player"[\s\S]*attacker\?\.typeId === MAZE_ID/);
+  assert.match(controller, /"kills_player"/);
+  assert.match(controller, /discardEntity\(attacker, mazeState\)/);
+
+  // Delayed callbacks must validate a player handle before reading mutable
+  // entity properties such as isSneaking after a disconnect/unload.
+  const timeoutStart = controller.indexOf("system.runTimeout(() => {");
+  const timeoutEnd = controller.indexOf("}, NULL_FLYING_SOURCE.triggerDelayTicks)", timeoutStart);
+  const timeoutBody = controller.slice(timeoutStart, timeoutEnd);
+  assert.ok(timeoutStart >= 0 && timeoutEnd > timeoutStart);
+  assert.ok(timeoutBody.indexOf("if (!isValid(player))") >= 0);
+  assert.ok(timeoutBody.indexOf("if (!isValid(player))") < timeoutBody.indexOf("currentSneaking: Boolean(player.isSneaking)"));
 
   const gaze = read("BP/scripts/systems/ai/gaze.js");
   assert.match(gaze, /exactFlyingGaze/);
