@@ -384,9 +384,10 @@ function setupFlying(entity, players) {
     } catch {}
 }
 
-function spawnNullIsHere(entity) {
+function spawnNullIsHere(dimension, location) {
+    if (!dimension || !location) return;
     try {
-        const spawned = entity.dimension.spawnEntity(NULL_IS_HERE_ID, entity.location);
+        const spawned = dimension.spawnEntity(NULL_IS_HERE_ID, location);
         try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch {}
     } catch (error) {
         logger.debug(`null_source: null_is_here summon failed: ${String(error)}`);
@@ -460,9 +461,11 @@ function tickFlying(entity, players) {
             const outcome = branchRoll < NULL_FLYING_SOURCE.proximityDamageChance
                 ? flyingProximityOutcome({ branchRoll, damageRoll: Math.random() })
                 : flyingProximityOutcome({ branchRoll });
+            const proximityDimension = entity.dimension;
+            const proximityLocation = copyLocation(entity.location);
             discardEntity(entity, undefined);
             if (outcome.action === "damage") applyFlyingDamage(closest, outcome.amount, entity);
-            else spawnNullIsHere(entity);
+            else spawnNullIsHere(proximityDimension, proximityLocation);
             return;
         }
     }
