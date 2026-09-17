@@ -137,7 +137,7 @@ export function register(customCommandRegistry) {
             const chunkZ = Math.trunc(player.location.z) >> 4;
             player.sendMessage(result.ok
               ? `Successfully cleared the chunk at (${chunkX}, ${chunkZ})`
-              : "Chunk could not be cleared (it may not be loaded or removal is disabled).");
+              : "Chunk could not be cleared (it may not be loaded).");
           } catch (error) {
             logger.error("commands: chunk_remove failed", error);
             try { player.sendMessage("Chunk could not be cleared."); } catch {}
