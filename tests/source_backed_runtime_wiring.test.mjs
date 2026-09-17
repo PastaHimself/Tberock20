@@ -75,6 +75,13 @@ test("maze and flying source decisions are wired to runtime APIs and delayed sta
   assert.match(controller, /flyingProximityOutcome/);
   assert.match(controller, /naturalDespawnStep/);
 
+  // Entity.dimension/location may be invalid after Entity.remove(). Preserve
+  // the source's post-discard summon by snapshotting the Bedrock values first.
+  assert.match(controller, /const proximityDimension = entity\.dimension/);
+  assert.match(controller, /const proximityLocation = copyLocation\(entity\.location\)/);
+  assert.match(controller, /spawnNullIsHere\(proximityDimension, proximityLocation\)/);
+  assert.doesNotMatch(controller, /spawnNullIsHere\(entity\)/);
+
   const gaze = read("BP/scripts/systems/ai/gaze.js");
   assert.match(gaze, /exactFlyingGaze/);
   assert.match(gaze, /flyingFovCone/);
@@ -88,6 +95,19 @@ test("chunk-removal wiring is gated, persistent, loaded-only, and uses top-down 
   assert.match(runtime, /clone/);
   assert.match(runtime, /chunkVerticalMovePlan/);
   assert.match(runtime, /offsetY/);
+  assert.match(runtime, /HANDLED_ENTITY_RETENTION_TICKS/);
+  assert.match(runtime, /system\.runTimeout\(\(\) => handledEntities\.delete\(entityId\)/);
+
+  // Source `tbs chunk remove` is unconditional; only natural remover behavior
+  // is disabled by the world.disableChunkRemoval configuration flag.
+  const clearStart = runtime.indexOf("export function clearChunkAt");
+  const clearEnd = runtime.indexOf("function runCloneMove", clearStart);
+  const adminClear = runtime.slice(clearStart, clearEnd);
+  assert.doesNotMatch(adminClear, /disableChunkRemoval/);
+  const naturalStart = runtime.indexOf("export function applyChunkRemoval");
+  const naturalEnd = runtime.indexOf("function rememberHandledEntity", naturalStart);
+  const naturalRemoval = runtime.slice(naturalStart, naturalEnd);
+  assert.match(naturalRemoval, /disableChunkRemoval/);
 
   const spawnRules = read("BP/scripts/entities/misc/misc_spawn_rules.js");
   assert.match(spawnRules, /chunkSpawnDecision/);
