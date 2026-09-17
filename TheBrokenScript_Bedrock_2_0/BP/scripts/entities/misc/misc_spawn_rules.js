@@ -4,11 +4,13 @@ import * as worldState from "../../systems/world_state.js";
 import { config } from "../../core/config.js";
 import { eventFrequency } from "../../systems/event_frequency.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
+import * as modifiedChunks from "../../systems/modified_chunks.js";
+import * as chunkRemoverRuntime from "../../systems/chunk_remover_runtime.js";
+import { chunkCoordinate, chunkSpawnDecision } from "../../systems/chunk_remover_model.js";
 
 // ── condition constants (NIW/EERIE/CHUNK/CORRUPTION/DEFAULT/ENTITY) ──────────
 const NIW_CHANCE = 0.0001;           // NIWConditions.spawnChance
 const EERIE_CHANCE = 0.0015;         // EerieConditions + freq, day only, delay 3200
-const CHUNK_CHANCE = 0.0001;         // ChunkRemoverConditions
 const CORRUPTION_CHANCE = 0.001;     // CorruptionConditions
 const DEFAULT_CHANCE = 0.0045;       // TBSDefaultConditions + freq
 
@@ -57,8 +59,59 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
   return { x, y, z };
 }
 
+function pickChunkCandidateNearPlayer(player, minDist, maxDist) {
+  const location = pickCandidateNearPlayer(player, minDist, maxDist);
+  // ChunkRemoverConditions uses Heightmap.MOTION_BLOCKING_NO_LEAVES for the
+  // spawn position, which is the first air block above the surface. The
+  // stable Bedrock getTopmostBlock equivalent returns the surface block.
+  try {
+    const top = player.dimension.getTopmostBlock?.({ x: location.x, z: location.z });
+    const surfaceY = typeof top?.y === "number"
+      ? top.y
+      : (typeof top?.location?.y === "number" ? top.location.y : undefined);
+    if (typeof surfaceY === "number") location.y = surfaceY + 1;
+  } catch {}
+  return location;
+}
+
 function summonAt(dim, typeId, loc) {
   try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+}
+
+function difficultyIsPeaceful() {
+  try { return String(world.getDifficulty()).toLowerCase() === "peaceful"; } catch { return true; }
+}
+
+function belowBlockIsValid(dim, location) {
+  try {
+    const block = dim.getBlock({ x: Math.floor(location.x), y: Math.floor(location.y) - 1, z: Math.floor(location.z) });
+    return Boolean(block && block.isAir !== true && block.typeId !== "minecraft:air");
+  } catch { return false; }
+}
+
+function nearestPlayerDistance(players, dimension, location) {
+  let nearest = Number.POSITIVE_INFINITY;
+  for (const player of players) {
+    if (!player || player.dimension?.id !== dimension?.id) continue;
+    const dx = player.location.x - location.x;
+    const dy = player.location.y - location.y;
+    const dz = player.location.z - location.z;
+    nearest = Math.min(nearest, Math.hypot(dx, dy, dz));
+  }
+  return Number.isFinite(nearest) ? nearest : null;
+}
+
+function skyVisibleFromBelowWater(dim, location) {
+  try {
+    return dim.getSkyLightLevel({ x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) }) >= 15;
+  } catch { return false; }
+}
+
+function totalLightAt(dim, location) {
+  try {
+    const value = dim.getLightLevel?.({ x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) });
+    return typeof value === "number" ? value : undefined;
+  } catch { return undefined; }
 }
 
 export function register() {
@@ -103,16 +156,42 @@ export function register() {
   spawnDirector.registerRule({
     id: "chunk_remover",
     predicate: (ctx) => {
-      if (config.get("danger.disableSpawningEntities")) return false;
       const player = baseGates(ctx);
       if (!player) return false;
-      if (Math.random() > CHUNK_CHANCE) return false;
-      const loc = pickCandidateNearPlayer(player, 48, 96);
+      const loc = pickChunkCandidateNearPlayer(player, 48, 96);
+      const flat = Boolean(worldState.get("isFlat"));
+      const spawnRoll = Math.random();
+      const flatRoll = flat ? Math.random() : undefined;
+      const decision = chunkSpawnDecision({
+        difficultyPeaceful: difficultyIsPeaceful(),
+        spawnReason: "natural",
+        belowBlockValid: belowBlockIsValid(player.dimension, loc),
+        doMobSpawning: Boolean(world.gameRules?.doMobSpawning),
+        isNullHere: Boolean(worldState.get("isNullHere")),
+        disableSpawningEntities: config.get("danger.disableSpawningEntities"),
+        dimensionId: player.dimension.id,
+        disableChunkRemoval: config.get("world.disableChunkRemoval"),
+        spawnRoll,
+        nearestPlayerDistance: nearestPlayerDistance(ctx.players, player.dimension, loc),
+        canSeeSkyFromBelowWater: skyVisibleFromBelowWater(player.dimension, loc),
+        arenaPhase: bossHooks.isArenaPhase1() ? "phase1" : "other",
+        flat,
+        flatRoll,
+        // Bedrock's stable getLightLevel is total brightness (sky + block),
+        // not Java LightLayer.BLOCK. Passing it through is conservative: a
+        // bright sky location is rejected, preventing a false-positive chunk
+        // removal when the source would have seen block light zero.
+        blockLight: totalLightAt(player.dimension, loc),
+        modifiedChunkCount: modifiedChunks.countModifiedChunk(
+          player.dimension.id,
+          chunkCoordinate(loc.x),
+          chunkCoordinate(loc.z),
+        ),
+      });
+      if (!decision.allowed) return false;
       const e = summonAt(player.dimension, "thebrokenscript:chunk_remover", loc);
       if (!e) return false;
-      // Bedrock scripts cannot clear/move chunks — sound beat only, manipulation ledgered (A-series)
-      tryPlayAmbientCave(player.dimension, loc);
-      try { e.remove(); } catch {}
+      chunkRemoverRuntime.handleChunkRemoverEntity(e);
       return true;
     }
   });

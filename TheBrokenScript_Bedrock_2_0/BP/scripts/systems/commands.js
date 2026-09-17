@@ -12,6 +12,7 @@ import * as playerState from "./player_state.js";
 import { logger } from "../core/logging.js";
 import { applyHeartCorruption, applyWhyCantYouLeave } from "./ported_features.js";
 import * as integrityArenaRuntime from "../entities/boss/integrity_arena_runtime.js";
+import * as chunkRemoverRuntime from "./chunk_remover_runtime.js";
 
 const DEV_MODE_SPAWN_COUNT = 1000;
 const DEV_MODE_ENTITY_TYPES = Object.freeze({
@@ -105,6 +106,50 @@ export function register(customCommandRegistry) {
         }
       });
 
+      return { status: CustomCommandStatus.Success };
+    }
+  );
+
+  customCommandRegistry.registerCommand(
+    {
+      name: "tbs:chunk_remove",
+      description: "chunk_remove",
+      permissionLevel: CommandPermissionLevel.Admin,
+      cheatsRequired: false
+    },
+    (origin) => {
+      const player = origin.sourceEntity;
+      if (!player || player.typeId !== "minecraft:player") {
+        return {
+          status: CustomCommandStatus.Failure,
+          message: "This command must be executed by a player!"
+        };
+      }
+
+      // Source: `tbs chunk remove`. Bedrock custom commands cannot expose the
+      // same nested Brigadier group, so the stable equivalent is a flat admin
+      // command. Chunk mutation is deferred out of early execution.
+      try {
+        system.run(() => {
+          try {
+            const result = chunkRemoverRuntime.clearChunkAt(player.dimension, player.location);
+            const chunkX = Math.trunc(player.location.x) >> 4;
+            const chunkZ = Math.trunc(player.location.z) >> 4;
+            player.sendMessage(result.ok
+              ? `Successfully cleared the chunk at (${chunkX}, ${chunkZ})`
+              : "Chunk could not be cleared (it may not be loaded or removal is disabled).");
+          } catch (error) {
+            logger.error("commands: chunk_remove failed", error);
+            try { player.sendMessage("Chunk could not be cleared."); } catch {}
+          }
+        });
+      } catch (error) {
+        logger.error("commands: chunk_remove scheduling failed", error);
+        return {
+          status: CustomCommandStatus.Failure,
+          message: "Chunk removal could not start!"
+        };
+      }
       return { status: CustomCommandStatus.Success };
     }
   );

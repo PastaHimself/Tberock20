@@ -1,3 +1,5 @@
+import { exactFlyingGaze, flyingFovCone } from "../null_pursuit_model.js";
+
 const DEG = Math.PI / 180;
 const DEFAULT_EYE_HEIGHT = 1.62;
 
@@ -20,6 +22,14 @@ function headLocation(player) {
         x: player.location.x,
         y: player.location.y + DEFAULT_EYE_HEIGHT,
         z: player.location.z,
+    };
+}
+
+export function eyeLocation(entity) {
+    return entity?.getHeadLocation?.() ?? {
+        x: entity?.location?.x ?? 0,
+        y: (entity?.location?.y ?? 0) + DEFAULT_EYE_HEIGHT,
+        z: entity?.location?.z ?? 0,
     };
 }
 
@@ -144,4 +154,56 @@ export function isLookingAtLocation(player, targetLocation, maxDegrees = 12, opt
 export function isLookingAtEntity(player, entity, maxDegrees = 12, options = {}) {
     if (!entity?.location || !sameDimension(player, entity)) return false;
     return hitboxSamples(entity).some((sample) => isLookingAtLocation(player, sample, maxDegrees, options));
+}
+
+/**
+ * Source parity for PlayerUtil.isLookingAt, used by NullFlying. This is not
+ * the broad hitbox/cone helper above: the Java source targets the entity eye
+ * center and uses a distance-scaled 0.025 dot-product margin.
+ */
+export function isLookingAtEntityCenter(player, entity, { maxDistance = 128 } = {}) {
+    if (!player?.location || !entity?.location || !sameDimension(player, entity)) return false;
+    const origin = headLocation(player);
+    const target = eyeLocation(entity);
+    const toEntity = {
+        x: target.x - origin.x,
+        y: target.y - origin.y,
+        z: target.z - origin.z,
+    };
+    const distance = Math.hypot(toEntity.x, toEntity.y, toEntity.z);
+    if (!Number.isFinite(distance) || distance > maxDistance) return false;
+    let lineOfSight = false;
+    try { lineOfSight = hasLineOfSight(player, target, { tolerance: 0 }); } catch { return false; }
+    return exactFlyingGaze({
+        viewDirection: player.getViewDirection?.(),
+        toEntity,
+        distance,
+        lineOfSight,
+        sameDimension: true,
+    });
+}
+
+/**
+ * Source parity for PlayerExt.isEntityInFovCone. The server can use this
+ * helper when a caller supplies the player's FOV; the client option itself is
+ * not exposed by the Bedrock server Script API.
+ */
+export function isEntityInFovCone(player, entity, fovDegrees = null, storedFovDegrees = 0) {
+    if (!player?.location || !entity?.location || !sameDimension(player, entity)) return false;
+    const origin = headLocation(player);
+    const toEntity = {
+        x: entity.location.x - origin.x,
+        y: entity.location.y - origin.y,
+        z: entity.location.z - origin.z,
+    };
+    let lineOfSight = false;
+    try { lineOfSight = hasLineOfSight(player, entity.location, { tolerance: 0 }); } catch { return false; }
+    return flyingFovCone({
+        viewDirection: player.getViewDirection?.(),
+        toEntity,
+        fovDegrees,
+        storedFovDegrees,
+        lineOfSight,
+        sameDimension: true,
+    });
 }

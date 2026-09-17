@@ -39,6 +39,10 @@ import * as commands from "./systems/commands.js";
 import * as dimensions from "./systems/dimensions.js";
 import * as portedFeatures from "./systems/ported_features.js";
 import * as perf from "./systems/perf.js";
+import * as doorRuntime from "./systems/door_runtime.js";
+import * as modifiedChunks from "./systems/modified_chunks.js";
+import * as chunkRemoverRuntime from "./systems/chunk_remover_runtime.js";
+import * as nullSourceController from "./entities/null/null_source_controller.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
 function onStartup(event) {
@@ -58,6 +62,9 @@ function onWorldLoad() {
     state.init();
     worldState.init();
     scheduler.begin();
+    modifiedChunks.begin();
+    doorRuntime.begin();
+    chunkRemoverRuntime.begin();
     scheduler.every("tbs.worldLifecycle", 1, () => {
         worldState.tickFirstJoin(world.getAllPlayers().length);
     });
@@ -69,6 +76,7 @@ function onWorldLoad() {
     nullSpawnRules.register();
     nullController.begin(scheduler);
     nullPursuitController.begin(scheduler);
+    nullSourceController.begin(scheduler);
     tbeSpawnRules.register();
     tbeController.begin(scheduler);
     humanoidSpawnRules.register();

@@ -11,6 +11,10 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:why_leave_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
     "tbs:jim_stage": Object.freeze({ scope: "block", persistence: "persistent", owner: "jim-trigger" }),
     "tbs:jim_stage_touch": Object.freeze({ scope: "entity", persistence: "transient", clear: "next-tick" }),
+    // Java stores this field in each NullMaze/NullFlying entity's persistent
+    // NBT. Bedrock has no portable NBT attachment, so the runtime maps it to
+    // one explicitly declared entity dynamic property.
+    "tbs:despawn_timer": Object.freeze({ scope: "entity", persistence: "persistent", owner: "null-pursuit", javaField: "NullMazeEntity/NullFlyingEntity.timer" }),
     "tbe:alive": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.aliveTicks" }),
     "tbe:lifetime": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.lifetime" }),
     "tbe:variant": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.variant" }),
@@ -26,6 +30,7 @@ export const ENTITY_DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbe:lifetime": DYNAMIC_PROPERTY_POLICY["tbe:lifetime"],
     "tbe:variant": DYNAMIC_PROPERTY_POLICY["tbe:variant"],
     "tbs:jim_stage_touch": DYNAMIC_PROPERTY_POLICY["tbs:jim_stage_touch"],
+    "tbs:despawn_timer": DYNAMIC_PROPERTY_POLICY["tbs:despawn_timer"],
 });
 
 export const PERSISTENT_ENTITY_EVIDENCE = Object.freeze({
@@ -40,6 +45,10 @@ export const PERSISTENT_ENTITY_EVIDENCE = Object.freeze({
     "tbe:variant": Object.freeze({
         javaClass: "TheBrokenEndAmbushEntity",
         saveKey: "variant",
+    }),
+    "tbs:despawn_timer": Object.freeze({
+        javaClass: "NullFlyingEntity",
+        saveKey: "despawn_timer",
     }),
 });
 

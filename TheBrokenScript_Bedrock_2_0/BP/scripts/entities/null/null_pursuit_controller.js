@@ -8,10 +8,8 @@ const timers = new Map();
 const LIFETIMES = {
   "thebrokenscript:null_chase": 450,
   "thebrokenscript:nulll": 450,
-  "thebrokenscript:null_maze": 3200,
   "thebrokenscript:null_endgame": 420,
   "thebrokenscript:null_unbeatable_bossfight": 500,
-  "thebrokenscript:null_flying": 3200,
   "thebrokenscript:null_invade_base": 3200
 };
 
@@ -41,10 +39,8 @@ function tickEntity(e) {
   if (t <= 0) { e.remove(); timers.delete(e.id); return; }
 
   if (id === "thebrokenscript:null_chase" || id === "thebrokenscript:nulll") tickChase(e);
-  else if (id === "thebrokenscript:null_maze") tickMaze(e);
   else if (id === "thebrokenscript:null_endgame") tickEndgame(e);
   else if (id === "thebrokenscript:null_unbeatable_bossfight") tickUnbeatable(e);
-  else if (id === "thebrokenscript:null_flying") tickFlying(e);
   else if (id === "thebrokenscript:null_invade_base") tickInvade(e);
 }
 
@@ -56,15 +52,6 @@ function tickChase(e) {
   try { player.addEffect("blindness", 60, { amplifier: 0, showParticles: false }); } catch {}
 }
 
-function tickMaze(e) {
-  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
-  if (!player) return;
-  try {
-    const light = e.dimension.getBlock({ x: Math.floor(e.location.x), y: Math.floor(e.location.y + 1), z: Math.floor(e.location.z) });
-    if (light && light.typeId === "minecraft:air") { light.setType("minecraft:light_block"); }
-  } catch {}
-}
-
 function tickEndgame(e) {
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 50);
   if (!player) return;
@@ -74,14 +61,6 @@ function tickEndgame(e) {
 
 function tickUnbeatable(e) {
   try { e.addEffect("resistance", 100, { amplifier: 5, showParticles: false }); } catch {}
-}
-
-function tickFlying(e) {
-  if (getTimer(e) % 20 === 0) {
-    try { e.teleport({ x: e.location.x, y: e.location.y + 0.2, z: e.location.z }); } catch {}
-  }
-  const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 30);
-  if (player && Math.random() < 0.3) { try { player.applyDamage(Math.floor(Math.random()*9)+1); } catch {} }
 }
 
 function tickInvade(e) {

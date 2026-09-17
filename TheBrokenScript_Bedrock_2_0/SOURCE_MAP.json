@@ -207,7 +207,11 @@
         "BP/entities/chunk_remover.json",
         "RP/entity/chunk_remover.entity.json",
         "BP/scripts/entities/misc/misc_controller.js",
-        "BP/scripts/entities/misc/misc_spawn_rules.js"
+        "BP/scripts/entities/misc/misc_spawn_rules.js",
+        "BP/scripts/systems/chunk_remover_model.js",
+        "BP/scripts/systems/chunk_remover_runtime.js",
+        "BP/scripts/systems/modified_chunks.js",
+        "ADAPTATION_NOTES.md"
       ],
       "status": "ported",
       "parity": "approximation",
@@ -940,7 +944,11 @@
         "RP/entity/null_flying.entity.json",
         "BP/scripts/entities/null/null_controller.js",
         "BP/scripts/entities/null/null_pursuit_controller.js",
-        "BP/scripts/entities/null/null_spawn_rules.js"
+        "BP/scripts/entities/null/null_spawn_rules.js",
+        "BP/scripts/entities/null/null_source_controller.js",
+        "BP/scripts/systems/null_pursuit_model.js",
+        "BP/scripts/systems/ai/gaze.js",
+        "ADAPTATION_NOTES.md"
       ],
       "status": "ported",
       "parity": "high",
@@ -997,7 +1005,12 @@
         "RP/entity/null_maze.entity.json",
         "BP/scripts/entities/null/null_controller.js",
         "BP/scripts/entities/null/null_pursuit_controller.js",
-        "BP/scripts/entities/null/null_spawn_rules.js"
+        "BP/scripts/entities/null/null_spawn_rules.js",
+        "BP/scripts/entities/null/null_source_controller.js",
+        "BP/scripts/systems/null_pursuit_model.js",
+        "BP/scripts/systems/ai/gaze.js",
+        "BP/scripts/systems/door_runtime.js",
+        "ADAPTATION_NOTES.md"
       ],
       "status": "ported",
       "parity": "high",
@@ -10408,7 +10421,11 @@
       "bedrock_files": [
         "BP/scripts/systems/spawn_director.js",
         "BP/scripts/entities/misc/misc_controller.js",
-        "BP/scripts/entities/misc/misc_spawn_rules.js"
+        "BP/scripts/entities/misc/misc_spawn_rules.js",
+        "BP/scripts/systems/chunk_remover_model.js",
+        "BP/scripts/systems/chunk_remover_runtime.js",
+        "BP/scripts/systems/modified_chunks.js",
+        "BEDROCK_COMPATIBILITY.md"
       ],
       "status": "ported",
       "parity": "approximation",
@@ -10764,7 +10781,10 @@
         "BP/scripts/systems/spawn_director.js",
         "BP/scripts/entities/null/null_controller.js",
         "BP/scripts/entities/null/null_pursuit_controller.js",
-        "BP/scripts/entities/null/null_spawn_rules.js"
+        "BP/scripts/entities/null/null_spawn_rules.js",
+        "BP/scripts/entities/null/null_source_controller.js",
+        "BP/scripts/systems/null_pursuit_model.js",
+        "BP/scripts/systems/ai/gaze.js"
       ],
       "status": "ported",
       "parity": "approximation",
@@ -10782,7 +10802,10 @@
         "BP/scripts/systems/spawn_director.js",
         "BP/scripts/entities/null/null_controller.js",
         "BP/scripts/entities/null/null_pursuit_controller.js",
-        "BP/scripts/entities/null/null_spawn_rules.js"
+        "BP/scripts/entities/null/null_spawn_rules.js",
+        "BP/scripts/entities/null/null_source_controller.js",
+        "BP/scripts/systems/null_pursuit_model.js",
+        "BP/scripts/systems/ai/gaze.js"
       ],
       "status": "ported",
       "parity": "approximation",
@@ -12668,18 +12691,18 @@
       "source_paths": [
         "net/thebrokenscript/api/entity/ai/null_maze"
       ],
-      "bedrock_identifier": "script:api/entity/ai/null_maze",
+      "bedrock_identifier": "script:null-maze-source-adapter",
       "bedrock_files": [
-        "BP/scripts/entities/null/null_controller.js",
-        "BP/scripts/entities/null/null_pursuit_controller.js",
-        "BP/scripts/entities/null/null_spawn_rules.js",
-        "BP/scripts/main.js",
-        "BP/scripts/core/state.js",
-        "BEDROCK_ARCHITECTURE.md"
+        "BP/entities/null_maze.json",
+        "BP/scripts/entities/null/null_source_controller.js",
+        "BP/scripts/systems/null_pursuit_model.js",
+        "BP/scripts/systems/ai/gaze.js",
+        "BP/scripts/systems/door_runtime.js",
+        "ADAPTATION_NOTES.md"
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-13 audit: The source package is reconciled at behavior level: its supported semantics are absorbed into the listed shipping BP/RP modules, not represented as a line-for-line Java package."
+      "notes": "2026-09-13 audit: MazeHitGoal and the source targeting/pathfinding helpers are represented by the native AI contract plus the source-backed controller/model; Java custom pathfinder and damage/swing hooks remain explicit adapters."
     },
     {
       "source_id": "code.api/entity/ai/oblit2",
@@ -13560,18 +13583,17 @@
       "source_paths": [
         "net/thebrokenscript/entity/maze"
       ],
-      "bedrock_identifier": "script:entity/maze",
+      "bedrock_identifier": "script:null-maze-runtime",
       "bedrock_files": [
-        "BP/scripts/entities/misc/misc_controller.js",
-        "BP/scripts/entities/misc/misc_spawn_rules.js",
-        "BP/scripts/main.js",
-        "BP/scripts/core/state.js",
-        "BP/scripts/core/scheduler.js",
-        "BEDROCK_ARCHITECTURE.md"
+        "BP/entities/null_maze.json",
+        "BP/scripts/entities/null/null_source_controller.js",
+        "BP/scripts/systems/null_pursuit_model.js",
+        "BP/scripts/systems/door_runtime.js",
+        "BEDROCK_COMPATIBILITY.md"
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-13 audit: The source package is reconciled at behavior level: its supported semantics are absorbed into the listed shipping BP/RP modules, not represented as a line-for-line Java package."
+      "notes": "2026-09-13 audit: The source Null Maze entity lifecycle, light/block/door side effects, timers, and supported goal flags are reconciled to the deployed BP runtime; Java-only navigation internals remain documented."
     },
     {
       "source_id": "code.entity/misc",
@@ -15215,18 +15237,18 @@
       "source_paths": [
         "net/thebrokenscript/world/chunk"
       ],
-      "bedrock_identifier": "script:world/chunk",
+      "bedrock_identifier": "script:chunk-operation-surrogate",
       "bedrock_files": [
-        "BP/scripts/systems/dimensions.js",
-        "BP/scripts/systems/dimension_generation.js",
-        "BP/scripts/systems/worldgen_structures.js",
-        "BP/scripts/main.js",
-        "BP/scripts/core/state.js",
-        "BEDROCK_ARCHITECTURE.md"
+        "BP/scripts/systems/chunk_remover_model.js",
+        "BP/scripts/systems/chunk_remover_runtime.js",
+        "BP/scripts/systems/modified_chunks.js",
+        "BP/scripts/entities/misc/misc_spawn_rules.js",
+        "BP/scripts/systems/commands.js",
+        "BEDROCK_COMPATIBILITY.md"
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-13 audit: The source package is reconciled at behavior level: its supported semantics are absorbed into the listed shipping BP/RP modules, not represented as a line-for-line Java package."
+      "notes": "2026-09-13 audit: Source chunk gates, random operations, persistent modified-chunk guard, command clear, and loaded block/entity observable effects are represented by supported Bedrock operations; raw section/ticket/packet internals remain engine-limited."
     },
     {
       "source_id": "code.world/dimension",
