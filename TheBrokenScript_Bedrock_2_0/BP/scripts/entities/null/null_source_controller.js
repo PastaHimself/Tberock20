@@ -34,6 +34,7 @@ const ACTIVE_TYPES = new Set([MAZE_ID, FLYING_ID]);
 const trackedEntities = new Map();
 const mazeStates = new Map();
 const flyingStates = new Map();
+const pendingMazeLightCleanup = new Map();
 let begun = false;
 
 function isValid(value) {
@@ -146,17 +147,49 @@ function lightPermutation() {
     }
 }
 
+function mazeLightCleanupKey(dimension, location) {
+    return `${dimension?.id ?? "unknown"}:${location.x}:${location.y}:${location.z}`;
+}
+
+function clearMazeLightAt(dimension, location) {
+    const block = blockAt(dimension, location);
+    if (!block) return false;
+    try {
+        if (block.typeId === LIGHT_BLOCK_ID) block.setType("minecraft:air");
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function queueMazeLightCleanup(dimension, location) {
+    if (!dimension || !location) return;
+    const snapshot = copyLocation(location);
+    pendingMazeLightCleanup.set(mazeLightCleanupKey(dimension, snapshot), {
+        dimension,
+        location: snapshot,
+    });
+}
+
+function retryPendingMazeLights() {
+    for (const [key, pending] of pendingMazeLightCleanup) {
+        if (clearMazeLightAt(pending.dimension, pending.location)) pendingMazeLightCleanup.delete(key);
+    }
+}
+
 function removeMazeLight(state, dimension) {
     if (!state?.placedLight || !state.lightPosition || !dimension) return;
     // Entity dimension changes replace entity.dimension in place. Retain the
     // previous handle so a light placed before the change is removed from the
     // old dimension rather than from the same coordinates in the new one.
     const lightDimension = state.lightDimension ?? dimension;
-    const block = blockAt(lightDimension, state.lightPosition);
-    try {
-        if (block?.typeId === LIGHT_BLOCK_ID) block.setType("minecraft:air");
-    } catch {}
+    const lightPosition = copyLocation(state.lightPosition);
+    // getBlock throws/returns undefined once the chunk has unloaded. Preserve
+    // only lights this controller actually placed and retry before entity ticks
+    // when the chunk becomes accessible again.
+    if (!clearMazeLightAt(lightDimension, lightPosition)) queueMazeLightCleanup(lightDimension, lightPosition);
     state.placedLight = false;
+    state.lightPosition = undefined;
     state.lightDimension = undefined;
 }
 
@@ -524,6 +557,10 @@ function tickEntities(players) {
 }
 
 function onTick() {
+    // Cleanup from an unloaded chunk must run before a reloaded Maze can place
+    // a fresh light at the same coordinate, otherwise the retry could remove
+    // the new light instead of the stale one.
+    retryPendingMazeLights();
     let players;
     try { players = world.getAllPlayers(); } catch { return; }
     tickReputationCooldowns(players);
