@@ -54,6 +54,7 @@ test("maze entity and custom doors expose the source-backed state contract", () 
 
   const flying = readJson("BP/entities/null_flying.json")["minecraft:entity"];
   assert.deepEqual(flying.components["minecraft:fire_immune"], {});
+  assert.equal(flying.components["minecraft:flying_speed"].value, 0.3);
 
   const damageRuntime = read("BP/scripts/entities/null/null_damage_runtime.js");
   assert.match(damageRuntime, /world\.beforeEvents\.entityHurt/);
