@@ -24,6 +24,7 @@
         "damage": 53
       },
       "minecraft:persistent": {},
+      "minecraft:fire_immune": {},
       "minecraft:physics": {
         "has_gravity": false
       },
