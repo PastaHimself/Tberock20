@@ -9,6 +9,7 @@ import {
 } from "./chunk_remover_model.js";
 
 const CHUNK_REMOVER_ID = "thebrokenscript:chunk_remover";
+const HANDLED_ENTITY_RETENTION_TICKS = 20;
 const handledEntities = new Set();
 let begun = false;
 
@@ -104,8 +105,8 @@ function clearChunk(dimension, location) {
  * outcome used by ChunkRemoverEntity.
  */
 export function clearChunkAt(dimension, location) {
-    if (!dimension || !location || config.get("world.disableChunkRemoval")) {
-        return { ok: false, operation: "disabled" };
+    if (!dimension || !location) {
+        return { ok: false, operation: "invalid" };
     }
     return { ok: clearChunk(dimension, location), operation: "clear" };
 }
@@ -192,6 +193,17 @@ export function applyChunkRemoval(dimension, location, random = Math.random) {
     return { ok, ...plan };
 }
 
+function rememberHandledEntity(entityId) {
+    handledEntities.add(entityId);
+    try {
+        system.runTimeout(() => handledEntities.delete(entityId), HANDLED_ENTITY_RETENTION_TICKS);
+    } catch {
+        // If scheduling is unavailable, prefer losing duplicate suppression over
+        // retaining every historical entity id for the rest of the server run.
+        handledEntities.delete(entityId);
+    }
+}
+
 /**
  * ChunkRemoverEntity cancels its spawn in onFinalizeSpawn. Removing the
  * Bedrock entity before applying the operation gives the same observable
@@ -199,7 +211,7 @@ export function applyChunkRemoval(dimension, location, random = Math.random) {
  */
 export function handleChunkRemoverEntity(entity) {
     if (!isValid(entity) || entity.typeId !== CHUNK_REMOVER_ID || handledEntities.has(entity.id)) return undefined;
-    handledEntities.add(entity.id);
+    rememberHandledEntity(entity.id);
     const dimension = entity.dimension;
     const location = entity.location && { ...entity.location };
     try { entity.remove(); } catch {}
