@@ -13,6 +13,9 @@
       "minecraft:movement": {
         "value": 0.3
       },
+      "minecraft:flying_speed": {
+        "value": 0.3
+      },
       "minecraft:follow_range": {
         "value": 916,
         "max": 916
