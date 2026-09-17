@@ -31,6 +31,7 @@ test("source-backed runtime has one bootstrap owner for maze, flying, and chunk 
   assert.match(main, /modifiedChunks\.begin\(\)/);
   assert.match(main, /doorRuntime\.begin\(\)/);
   assert.match(main, /chunkRemoverRuntime\.begin\(\)/);
+  assert.match(main, /nullDamageRuntime\.begin\(\)/);
   assert.match(main, /nullSourceController\.begin\(scheduler\)/);
 
   const legacy = read("BP/scripts/entities/null/null_pursuit_controller.js");
@@ -49,6 +50,18 @@ test("maze entity and custom doors expose the source-backed state contract", () 
   assert.equal(components["minecraft:behavior.nearest_attackable_target"].must_see_forget_duration, 22.5);
   assert.equal(components["minecraft:behavior.move_towards_target"].within_radius, 2);
   assert.equal(components["minecraft:behavior.melee_box_attack"].cooldown_time, 0.5);
+  assert.deepEqual(components["minecraft:fire_immune"], {});
+
+  const flying = readJson("BP/entities/null_flying.json")["minecraft:entity"];
+  assert.deepEqual(flying.components["minecraft:fire_immune"], {});
+
+  const damageRuntime = read("BP/scripts/entities/null/null_damage_runtime.js");
+  assert.match(damageRuntime, /world\.beforeEvents\.entityHurt/);
+  assert.match(damageRuntime, /damagingProjectile === undefined/);
+  assert.match(damageRuntime, /damagingEntity\?\.typeId === "minecraft:player"/);
+  assert.match(damageRuntime, /EntityDamageCause\.selfDestruct/);
+  assert.match(damageRuntime, /EntityDamageCause\.void/);
+  assert.match(damageRuntime, /event\.cancel = true/);
 
   const doorRuntime = read("BP/scripts/systems/door_runtime.js");
   assert.match(doorRuntime, /playerInteractWithBlock/);
