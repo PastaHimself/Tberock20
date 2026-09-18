@@ -306,3 +306,14 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 5. **Replacement design**: `chunk_remover_model.js` preserves the gate/order/boundary/random contracts and computes a top-down section plan. `misc_spawn_rules.js` uses that decision model and the persistent `modified_chunks.js` event ledger. `chunk_remover_runtime.js` removes the transient entity, fails closed when the target chunk is not loaded, clears with supported `BlockVolume`/`fillBlocks`, and uses deferred-safe `clone ... replace move` section operations plus guarded in-chunk entity teleports for the upward observable effect. `commands.js` adds the flat admin `tbs:chunk_remove` form of the source nested command. The force-load callsites are inventoried but do not issue unsupported low-level chunk operations.
 6. **Player-visible difference**: the surrogate can remove/move loaded blocks and move entities in the affected chunk, but Bedrock owns block-entity/tick/light/ticket/packet maintenance and the operation fails safely for unloaded chunks. The block-light gate is conservative because total brightness rejects locations that Java's block-light-only test might allow. Forced structure placement and limbo chunk initialization continue to use the engine's normal loading behavior rather than claiming Java ticket parity.
 7. **Parity class**: `VALIDATED_APPROXIMATION` for source gate/random/ledger contracts and the safe loaded-chunk observable mutation; Java low-level chunk internals and forced-ticket behavior are `ENGINE_UNSUPPORTED`. Real 1.26.50 Preview smoke testing remains required for block entities, redstone/tick behavior, light updates, entities, persistence, multiplayer, and reload boundaries.
+
+## A-035 — Numeric source provenance and Bedrock adapter boundaries
+
+The source-backed models keep the provenance of the remaining non-trivial numeric literals explicit:
+
+1. `RepTier.LOSS_HUGE` is `-35`, and `RepUtilKt.gainBackHalfLostRep` uses Java integer division. The corresponding Bedrock regain value is therefore `17`, not `17.5`; odd loss amounts are truncated toward zero.
+2. `TimeOfDay.java` provides the source `TICKS_PER_DAY = 24000` and `NIGHT = 13000`. The `23000` event cutoff is a Bedrock-side final-1000-tick gate and is not claimed as a Java source literal.
+3. `1e-9` is only the Bedrock swept-AABB zero-delta tolerance. Java's child-part collision hierarchy does not provide an equivalent scalar constant.
+4. `0.999999999` is only the Bedrock normalized-roll clamp for an exclusive `[0, 1)` random boundary. It is not presented as a recovered Java literal.
+
+Parity class: `VALIDATED_APPROXIMATION` for the supported adapters; the Java child-entity collision hierarchy and exact client/runtime engine behavior remain subject to the limitations recorded in `KNOWN_LIMITATIONS.md`.

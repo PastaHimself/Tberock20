@@ -11,6 +11,7 @@ import {
   SOURCE_EVENT_DEFINITIONS,
 } from "./horror_rules.js";
 import { chooseHorrorEvent } from "./horror_event_model.js";
+import { isDayTime, isNightTime } from "./horror_time_model.js";
 
 // Source EventEngine semantics:
 //   * one server tick attempt;
@@ -411,8 +412,8 @@ function eventContext(player, players, randomBoolean) {
     funnyEnabled: true,
     dimensionId,
     reputation: reputationFor(player),
-    isDay: time < 13000,
-    isNight: time >= 13000 && time < 23000,
+    isDay: isDayTime(time),
+    isNight: isNightTime(time),
     moonPhase: moonPhase(),
     moonShouldChange: worldState.get("moonShouldChange") === true,
     moonStage: worldState.get("moonStage"),

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -12,6 +13,7 @@ const MATRIX_PATH = path.join(ROOT, "tests/runtime-smoke/matrix.json");
 const MATRIX_VALIDATOR = path.join(ROOT, "tools/validate_runtime_smoke_matrix.py");
 const REPORT_VALIDATOR = path.join(ROOT, "tools/validate_runtime_smoke_report.py");
 const WORKFLOW_PATH = path.join(ROOT, ".github/workflows/bedrock-addon-check.yml");
+const PACKAGE_SCRIPT = path.join(ROOT, "tools/package-addon.sh");
 
 const REQUIRED_SCENARIOS = [
   "bootstrap",
@@ -34,6 +36,9 @@ function completeReport(matrix, evidenceFor = (id) => [`artifacts/${id}.png`, "c
   return {
     schema_version: 1,
     matrix_id: matrix.matrix_id,
+    candidate_commit: "0123456789abcdef0123456789abcdef01234567",
+    artifact_path: "dist/The_Broken_Script_2_0.mcaddon",
+    artifact_sha256: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
     run_id: "example-run",
     started_at: "2026-09-13T00:00:00Z",
     finished_at: "2026-09-13T01:00:00Z",
@@ -91,6 +96,11 @@ test("runtime smoke matrix locks the pinned Bedrock contract and required scenar
   assert.equal(matrix.release_gate.require_complete_report_on_tags, true);
   assert.deepEqual(matrix.release_gate.parity_critical_diagnostic_severities, ["error", "warning"]);
   assert.deepEqual(matrix.release_gate.allowed_nonblocking_diagnostic_severities, ["info"]);
+  assert.deepEqual(matrix.evidence.report.bindings, {
+    candidate_commit: "exact full 40-hex Git SHA for the checkout under test",
+    artifact_path: "dist/The_Broken_Script_2_0.mcaddon",
+    artifact_sha256: "exact full 64-hex SHA-256 of the packaged .mcaddon"
+  });
 
   const scenarios = matrix.scenarios;
   assert.deepEqual(scenarios.map(({ id }) => id).sort(), [...REQUIRED_SCENARIOS].sort());
@@ -197,6 +207,140 @@ test("runtime smoke report requires declared evidence and consistent pass status
   }
 });
 
+test("runtime smoke report binds evidence to the exact candidate revision and artifact digest", async () => {
+  const matrix = await readMatrix();
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "tbs-runtime-binding-"));
+  const reportPath = path.join(tempDir, "report.json");
+  const expectedCommit = "abcdef0123456789abcdef0123456789abcdef01";
+  const expectedDigest = "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
+  try {
+    const report = completeReport(matrix);
+    report.candidate_commit = expectedCommit;
+    report.artifact_sha256 = expectedDigest;
+    await writeFile(reportPath, JSON.stringify(report));
+
+    const valid = await runPython(REPORT_VALIDATOR, [
+      reportPath,
+      "--matrix",
+      MATRIX_PATH,
+      "--expected-commit",
+      expectedCommit,
+      "--expected-artifact-sha256",
+      expectedDigest
+    ]);
+    assert.equal(valid.code, 0, valid.output);
+
+    report.candidate_commit = "0123456789abcdef0123456789abcdef01234567";
+    await writeFile(reportPath, JSON.stringify(report));
+    const staleCommit = await runPython(REPORT_VALIDATOR, [
+      reportPath,
+      "--matrix",
+      MATRIX_PATH,
+      "--expected-commit",
+      expectedCommit,
+      "--expected-artifact-sha256",
+      expectedDigest
+    ]);
+    assert.notEqual(staleCommit.code, 0);
+    assert.match(staleCommit.output, /candidate commit does not match/i);
+
+    report.candidate_commit = expectedCommit;
+    report.artifact_sha256 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    await writeFile(reportPath, JSON.stringify(report));
+    const staleArtifact = await runPython(REPORT_VALIDATOR, [
+      reportPath,
+      "--matrix",
+      MATRIX_PATH,
+      "--expected-commit",
+      expectedCommit,
+      "--expected-artifact-sha256",
+      expectedDigest
+    ]);
+    assert.notEqual(staleArtifact.code, 0);
+    assert.match(staleArtifact.output, /artifact sha-256 does not match/i);
+
+    report.candidate_commit = "short";
+    report.artifact_sha256 = "also-short";
+    await writeFile(reportPath, JSON.stringify(report));
+    const malformed = await runPython(REPORT_VALIDATOR, [reportPath, "--matrix", MATRIX_PATH]);
+    assert.notEqual(malformed.code, 0);
+    assert.match(malformed.output, /exact full 40-hex candidate commit/i);
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("runtime smoke report rejects an artifact whose bytes no longer match the bound digest", async () => {
+  const matrix = await readMatrix();
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "tbs-runtime-artifact-"));
+  const reportPath = path.join(tempDir, "report.json");
+  const artifactPath = path.join(tempDir, "The_Broken_Script_2_0.mcaddon");
+  const candidateCommit = "abcdef0123456789abcdef0123456789abcdef01";
+  try {
+    const artifactBytes = "packaged artifact bytes";
+    const digest = createHash("sha256").update(artifactBytes).digest("hex");
+    const report = completeReport(matrix);
+    report.candidate_commit = candidateCommit;
+    report.artifact_sha256 = digest;
+    await writeFile(artifactPath, artifactBytes);
+    await writeFile(reportPath, JSON.stringify(report));
+
+    const valid = await runPython(REPORT_VALIDATOR, [
+      reportPath,
+      "--matrix",
+      MATRIX_PATH,
+      "--artifact",
+      artifactPath,
+      "--expected-commit",
+      candidateCommit,
+      "--expected-artifact-sha256",
+      digest
+    ]);
+    assert.equal(valid.code, 0, valid.output);
+
+    await writeFile(artifactPath, "stale artifact bytes");
+    const staleArtifact = await runPython(REPORT_VALIDATOR, [
+      reportPath,
+      "--matrix",
+      MATRIX_PATH,
+      "--artifact",
+      artifactPath,
+      "--expected-commit",
+      candidateCommit,
+      "--expected-artifact-sha256",
+      digest
+    ]);
+    assert.notEqual(staleArtifact.code, 0);
+    assert.match(staleArtifact.output, /does not match packaged artifact/i);
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("addon packaging is deterministic when SOURCE_DATE_EPOCH is fixed", async () => {
+  const packageScript = await readFile(PACKAGE_SCRIPT, "utf8");
+  assert.match(packageScript, /SOURCE_DATE_EPOCH/);
+  assert.match(packageScript, /zip -X/);
+
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "tbs-package-determinism-"));
+  const artifactPath = path.join(tempDir, "The_Broken_Script_2_0.mcaddon");
+  try {
+    const env = { ...process.env, DIST_DIR: tempDir, SOURCE_DATE_EPOCH: "0" };
+    await execFileAsync("bash", [PACKAGE_SCRIPT], { cwd: ROOT, env });
+    const firstArtifact = await readFile(artifactPath);
+    const firstDigest = createHash("sha256").update(firstArtifact).digest("hex");
+
+    await execFileAsync("bash", [PACKAGE_SCRIPT], { cwd: ROOT, env });
+    const secondArtifact = await readFile(artifactPath);
+    const secondDigest = createHash("sha256").update(secondArtifact).digest("hex");
+
+    assert.equal(firstDigest, secondDigest);
+    assert.deepEqual(secondArtifact, firstArtifact);
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 test("GitHub Actions validates the matrix and gates release tags on a complete report", async () => {
   const workflow = await readFile(WORKFLOW_PATH, "utf8");
 
@@ -205,6 +349,12 @@ test("GitHub Actions validates the matrix and gates release tags on a complete r
   assert.match(workflow, /validate_runtime_smoke_report\.py/);
   assert.match(workflow, /--require-complete/);
   assert.match(workflow, /enforce_runtime_smoke/);
-  assert.match(workflow, /if: \$\{\{ inputs\.enforce_runtime_smoke \|\| startsWith\(github\.ref, 'refs\/tags\/v'\) \}\}/);
-  assert.match(workflow, /test -f tests\/runtime-smoke\/latest-report\.json[\s\S]*--require-complete/);
+  assert.match(workflow, /if: \$\{\{[\s\S]*inputs\.enforce_runtime_smoke[\s\S]*startsWith\(github\.ref, ['"]refs\/tags\/v['"]\)[\s\S]*\}\}/);
+  assert.match(workflow, /\[\[ ! -f tests\/runtime-smoke\/latest-report\.json[\s\S]*--require-complete/);
+  assert.match(workflow, /git rev-parse --verify HEAD/);
+  assert.match(workflow, /sha256sum dist\/The_Broken_Script_2_0\.mcaddon/);
+  assert.match(workflow, /--expected-commit/);
+  assert.match(workflow, /--expected-artifact-sha256/);
+  assert.match(workflow, /--artifact dist\/The_Broken_Script_2_0\.mcaddon/);
+  assert.match(workflow, /Package successful build as \.mcaddon[\s\S]*Enforce complete runtime smoke evidence/);
 });

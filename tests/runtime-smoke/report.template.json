@@ -1,6 +1,9 @@
 {
   "schema_version": 1,
   "matrix_id": "tbs-bedrock-runtime-smoke-v1",
+  "candidate_commit": "replace-with-full-40-hex-candidate-commit",
+  "artifact_path": "dist/The_Broken_Script_2_0.mcaddon",
+  "artifact_sha256": "replace-with-full-64-hex-packaged-artifact-sha256",
   "run_id": "not-run-template",
   "started_at": "2026-09-13T00:00:00Z",
   "finished_at": "2026-09-13T00:00:00Z",

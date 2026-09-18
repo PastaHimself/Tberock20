@@ -38,7 +38,12 @@
     "report": {
       "required": true,
       "path": "tests/runtime-smoke/latest-report.json",
-      "validator": "python tools/validate_runtime_smoke_report.py tests/runtime-smoke/latest-report.json --matrix tests/runtime-smoke/matrix.json --require-complete"
+      "validator": "python tools/validate_runtime_smoke_report.py tests/runtime-smoke/latest-report.json --matrix tests/runtime-smoke/matrix.json --artifact dist/The_Broken_Script_2_0.mcaddon --expected-commit <full-40-hex-candidate-commit> --expected-artifact-sha256 <full-64-hex-packaged-artifact-sha256> --require-complete",
+      "bindings": {
+        "candidate_commit": "exact full 40-hex Git SHA for the checkout under test",
+        "artifact_path": "dist/The_Broken_Script_2_0.mcaddon",
+        "artifact_sha256": "exact full 64-hex SHA-256 of the packaged .mcaddon"
+      }
     }
   },
   "release_gate": {

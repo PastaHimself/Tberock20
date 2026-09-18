@@ -5,6 +5,16 @@
 /** @typedef {"implemented" | "adapted" | "not_applicable"} CoverageStatus */
 /** @typedef {{attributes: CoverageStatus, spawn: CoverageStatus, despawn: CoverageStatus, targeting: CoverageStatus, visibility: CoverageStatus, state: CoverageStatus, sideEffects: CoverageStatus, cleanup: CoverageStatus}} Coverage */
 
+// This audit-support contract is mirrored from src/core. The behavior-pack
+// runtime intentionally does not import it; source-backed tests and static
+// audits consume it instead.
+export const SOURCE_AUDIT_DISPOSITION = Object.freeze({
+  kind: "audit-support",
+  runtimeReachability: "unreachable",
+  wiring: "intentionally-not-wired",
+  reason: "source-backed contract consumed by static audits and tests",
+});
+
 /** @type {Coverage} */
 const BEHAVIOR_COVERAGE = Object.freeze({
   attributes: "implemented",

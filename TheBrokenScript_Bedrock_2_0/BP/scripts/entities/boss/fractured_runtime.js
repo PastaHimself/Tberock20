@@ -1,6 +1,6 @@
 import { EntityDamageCause, EquipmentSlot, world, system } from "@minecraft/server";
 import * as perf from "../../systems/perf.js";
-import { logger } from "../../core/logging.js";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
 import {
   FRACTURED_ATTACKS,
@@ -103,18 +103,25 @@ function callEntity(entity, method, ...args) {
 }
 
 function getHealth(entity) {
-  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch { return 0; }
+  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch (error) {
+    operationDiagnostics.warnOnce("fractured.health", "fractured: health query failed; using zero fallback", error);
+    return 0;
+  }
 }
 
 function getAabb(entity) {
-  try { return entity.getAABB(); } catch { return null; }
+  try { return entity.getAABB(); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.aabb", "fractured: AABB query failed; preserving location fallback", error);
+    return null;
+  }
 }
 
 function getBodyYaw(entity) {
   try {
     const rotation = entity.getRotation();
     return typeof rotation?.y === "number" ? rotation.y : 0;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.yaw", "fractured: body-yaw query failed; using zero fallback", error);
     return 0;
   }
 }
@@ -129,7 +136,9 @@ export function resolveFracturedContactOrigin(entity, locator, fallback = entity
     if (value && ["x", "y", "z"].every((axis) => Number.isFinite(value[axis]))) {
       return { x: value.x, y: value.y, z: value.z };
     }
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.contact_origin", "fractured: contact-origin adapter failed; using root fallback", error);
+  }
   if (fallback && ["x", "y", "z"].every((axis) => Number.isFinite(fallback[axis]))) {
     return { x: fallback.x, y: fallback.y, z: fallback.z };
   }
@@ -774,7 +783,7 @@ function spawnArenaSubAnomalies(arena) {
       const subAnomaly = arena.dimension.spawnEntity("thebrokenscript:sub_anomaly_2", location);
       if (subAnomaly) arena.subAnomalies.push(subAnomaly);
     } catch (error) {
-      logger.warn(`fractured arena SubAnomaly2 spawn unavailable: ${error}`);
+      operationDiagnostics.warnOnce("fractured.arena_sub_anomaly", "fractured: arena SubAnomaly2 spawn unavailable", error);
     }
   }
 }
@@ -794,7 +803,7 @@ function startFracturedRoamArena(entity) {
   const players = playersNearArena(entity.dimension, center);
   let jimmy = null;
   try { jimmy = entity.dimension.spawnEntity(FRACTURED_TYPE, center); } catch (error) {
-    logger.warn(`fractured arena spawn unavailable: ${error}`);
+    operationDiagnostics.errorOnce("fractured.arena_spawn", "fractured: arena Jimmy spawn unavailable", error);
     return null;
   }
   if (!jimmy) return null;
@@ -920,7 +929,12 @@ function tickRoamSwitchStates() {
 }
 
 function safeRemove(entity) {
-  try { entity.remove(); } catch { try { entity.kill(); } catch {} }
+  try { entity.remove(); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.remove", "fractured: entity removal failed; using kill fallback", error);
+    try { entity.kill(); } catch (fallbackError) {
+      operationDiagnostics.errorOnce("fractured.kill_fallback", "fractured: kill fallback failed", fallbackError);
+    }
+  }
 }
 
 function playFracturedAnimation(entity, attack) {
@@ -966,8 +980,12 @@ function applyDamage(target, amount, damagingEntity, damagingProjectile = null, 
     };
     if (damagingProjectile) options.damagingProjectile = damagingProjectile;
     return target.applyDamage(amount, options) === true;
-  } catch {
-    try { return target.applyDamage(amount) === true; } catch { return false; }
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.damage", "fractured: attributed damage failed; using un-attributed fallback", error);
+    try { return target.applyDamage(amount) === true; } catch (fallbackError) {
+      operationDiagnostics.errorOnce("fractured.damage_fallback", "fractured: damage fallback failed", fallbackError);
+      return false;
+    }
   }
 }
 
@@ -987,8 +1005,12 @@ function applyProjectileDamage(target, amount, owner, projectile, sourceId = nul
     };
     if (owner && isValid(owner)) options.damagingEntity = owner;
     return target.applyDamage(amount, options) === true;
-  } catch {
-    try { return target.applyDamage(amount); } catch { return false; }
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.projectile_damage", "fractured: projectile damage failed; using un-attributed fallback", error);
+    try { return target.applyDamage(amount); } catch (fallbackError) {
+      operationDiagnostics.errorOnce("fractured.projectile_damage_fallback", "fractured: projectile damage fallback failed", fallbackError);
+      return false;
+    }
   }
 }
 
@@ -997,8 +1019,12 @@ function applyViewKnockback(target, strength) {
     const view = target.getViewDirection();
     target.applyImpulse({ x: -view.x * strength, y: strength, z: -view.z * strength });
     return;
-  } catch {}
-  try { target.applyKnockback({ x: 0, z: 0 }, strength); } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.view_impulse", "fractured: view knockback impulse failed; using knockback fallback", error);
+  }
+  try { target.applyKnockback({ x: 0, z: 0 }, strength); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.view_knockback", "fractured: view knockback fallback failed", error);
+  }
 }
 
 function applyRadialKnockback(target, origin, strength) {
@@ -1008,8 +1034,11 @@ function applyRadialKnockback(target, origin, strength) {
   if (length < 0.0001) return;
   try {
     target.applyKnockback({ x: (dx / length) * strength, z: (dz / length) * strength }, 0);
-  } catch {
-    try { target.applyImpulse({ x: (dx / length) * strength, y: 0, z: (dz / length) * strength }); } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.radial_knockback", "fractured: radial knockback failed; using impulse fallback", error);
+    try { target.applyImpulse({ x: (dx / length) * strength, y: 0, z: (dz / length) * strength }); } catch (fallbackError) {
+      operationDiagnostics.warnOnce("fractured.radial_impulse", "fractured: radial impulse fallback failed", fallbackError);
+    }
   }
 }
 
@@ -1302,7 +1331,9 @@ function installDamageHook() {
             system.run(() => {
               if (isValid(entity)) beginFracturedRoamSwitch(entity);
             });
-          } catch {}
+          } catch (error) {
+            operationDiagnostics.warnOnce("fractured.roam_switch_schedule", "fractured: roam-switch scheduling failed", error);
+          }
         }
         if (shouldApplyMultipartArrowEffects(plan)) applyMultipartArrowEffects(entity, plan);
         return;
@@ -1313,7 +1344,7 @@ function installDamageHook() {
       event.cancel = true;
     });
   } catch (error) {
-    logger.warn(`fractured multipart damage hook unavailable: ${error}`);
+    operationDiagnostics.errorOnce("fractured.damage_subscription", "fractured: multipart damage hook unavailable", error);
   }
 }
 function installSpawnHook() {
@@ -1328,7 +1359,7 @@ function installSpawnHook() {
       rememberProjectileEntity(entity);
     });
   } catch (error) {
-    logger.warn(`fractured spawn hook unavailable: ${error}`);
+    operationDiagnostics.errorOnce("fractured.spawn_subscription", "fractured: spawn hook unavailable", error);
   }
 }
 
@@ -1443,7 +1474,10 @@ function breakElytra(target) {
 function rockHitTargets(rock, position, state) {
   const rockAabb = getAabb(rock);
   let candidates = [];
-  try { candidates = rock.dimension.getEntities({ location: position, maxDistance: 8 }); } catch { return; }
+  try { candidates = rock.dimension.getEntities({ location: position, maxDistance: 8 }); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.rock_target_query", "fractured: rock impact target query failed", error);
+    return;
+  }
   for (const target of candidates) {
     try {
       if (!isValid(target) || target.id === rock.id || target.id === state.ownerId || getHealth(target) <= 0) continue;
@@ -1462,7 +1496,9 @@ function rockHitTargets(rock, position, state) {
       if (!plan.applyDamage) continue;
       applyProjectileDamage(target, plan.damage, state.owner, rock, "thebrokenscript:rock");
       breakElytra(target);
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.warnOnce("fractured.rock_target", "fractured: rock impact target handling failed", error);
+    }
   }
 }
 
@@ -1472,10 +1508,16 @@ function finishRockBlockImpact(rock, state, position) {
   state.groundedTicks = FRACTURED_SOURCE.rock.blockImpactCleanupTicks;
   state.previousPosition = copyPosition(position);
   callEntity(rock, "clearVelocity");
-  try { rock.teleport(position); } catch {}
+  try { rock.teleport(position); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.rock_impact_teleport", "fractured: rock impact teleport failed", error);
+  }
   const burst = fracturedRockBlockBurstPlan(position);
-  try { rock.dimension.spawnParticle(burst.effectId, burst.origin); } catch {}
-  try { rock.dimension.playSound("dig.stone", position, { volume: 1, pitch: 1 }); } catch {}
+  try { rock.dimension.spawnParticle(burst.effectId, burst.origin); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.rock_particle", "fractured: rock impact particle failed", error);
+  }
+  try { rock.dimension.playSound("dig.stone", position, { volume: 1, pitch: 1 }); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.rock_sound", "fractured: rock impact sound failed", error);
+  }
 }
 
 function finishRockEntityImpact(rock, state, position) {
@@ -1537,22 +1579,34 @@ function tickDimension(dimension) {
   let fractured = [];
   let rocks = [];
   let roams = [];
-  try { fractured = dimension.getEntities({ families: [FRACTURED_FAMILY] }); } catch {}
-  try { rocks = dimension.getEntities({ families: [ROCK_FAMILY] }); } catch {}
+  try { fractured = dimension.getEntities({ families: [FRACTURED_FAMILY] }); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.entity_query", "fractured: body entity query failed", error);
+  }
+  try { rocks = dimension.getEntities({ families: [ROCK_FAMILY] }); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.rock_query", "fractured: rock entity query failed", error);
+  }
   try {
     roams = dimension.getEntities({ families: ["thebrokenscript_boss"] })
       .filter((entity) => entity.typeId === FRACTURED_ROAM_TYPE);
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("fractured.roam_query", "fractured: roam entity query failed", error);
+  }
   for (const entity of fractured) {
-    try { tickFractured(entity); } catch (error) { logger.error(`fractured tick ${entity.id}`, error); }
+    try { tickFractured(entity); } catch (error) {
+      operationDiagnostics.errorOnce("fractured.body_tick", "fractured: body tick failed", error);
+    }
   }
   for (const rock of rocks) {
-    try { tickRock(rock); } catch (error) { logger.error(`rock tick ${rock.id}`, error); }
+    try { tickRock(rock); } catch (error) {
+      operationDiagnostics.errorOnce("fractured.rock_tick", "fractured: rock tick failed", error);
+    }
   }
   for (const roam of roams) {
     try {
       if (tickFracturedRoamLifecycle(roam)) tickFracturedRoamMovement(roam, getFracturedRoamLifecycleState(roam));
-    } catch (error) { logger.error(`fractured roam lifecycle ${roam.id}`, error); }
+    } catch (error) {
+      operationDiagnostics.errorOnce("fractured.roam_tick", "fractured: roam lifecycle tick failed", error);
+    }
   }
 }
 
@@ -1577,7 +1631,10 @@ function onTick() {
 
 export function spawnRock(owner, origin, targetPoint, speed) {
   let rock = null;
-  try { rock = owner.dimension.spawnEntity(ROCK_TYPE, origin); } catch { return null; }
+  try { rock = owner.dimension.spawnEntity(ROCK_TYPE, origin); } catch (error) {
+    operationDiagnostics.warnOnce("fractured.rock_spawn", "fractured: rock spawn failed; preserving no-projectile fallback", error);
+    return null;
+  }
   if (!rock) return null;
   const state = getRockState(rock);
   state.owner = owner;

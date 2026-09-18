@@ -1,5 +1,6 @@
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import {
   CUSTOM_DIMENSION_IDS,
   CUSTOM_REALM_NAMES,
@@ -27,7 +28,7 @@ export const REGISTERED_CUSTOM_IDS = [...CUSTOM_DIMENSION_IDS];
 
 const handles = createDimensionHandleCache(
   (name) => world.getDimension(name),
-  (error, name) => logger.error(`dimensions: cannot resolve dimension '${name}'`, error),
+  (error, name) => operationDiagnostics.errorOnce("dimensions.resolve", `dimensions: cannot resolve dimension '${name}'`, error),
 );
 const warnedUnregistered = new Set();
 const registeredCustom = new Set();
@@ -48,7 +49,7 @@ export function registerCustomDimensions(dimensionRegistry) {
   registrationAttempted = true;
 
   if (!dimensionRegistry?.registerCustomDimension) {
-    logger.error("dimensions: startup DimensionRegistry is unavailable; custom realms cannot be registered");
+    operationDiagnostics.errorOnce("dimensions.registry.missing", "dimensions: startup DimensionRegistry is unavailable; custom realms cannot be registered");
     return false;
   }
 
@@ -59,7 +60,7 @@ export function registerCustomDimensions(dimensionRegistry) {
       registeredCustom.add(id);
     } catch (error) {
       ok = false;
-      logger.error(`dimensions: failed to register custom dimension '${id}'`, error);
+      operationDiagnostics.errorOnce(`dimensions.register.${id}`, `dimensions: failed to register custom dimension '${id}'`, error);
     }
   }
 
@@ -76,14 +77,14 @@ export function isSupported(id) {
 export function get(id) {
   const normalized = normalizeDimensionId(id);
   if (!normalized) {
-    logger.error(`dimensions: cannot resolve invalid dimension identifier '${String(id ?? "")}'`);
+    operationDiagnostics.errorOnce("dimensions.invalid_id", `dimensions: cannot resolve invalid dimension identifier '${String(id ?? "")}'`);
     return undefined;
   }
 
   if (isCustomDimensionId(normalized) && !registeredCustom.has(normalized)) {
     if (!warnedUnregistered.has(normalized)) {
       warnedUnregistered.add(normalized);
-      logger.error(`dimensions: custom dimension '${normalized}' was requested before successful startup registration`);
+      operationDiagnostics.errorOnce("dimensions.unregistered", `dimensions: custom dimension '${normalized}' was requested before successful startup registration`);
     }
     return undefined;
   }
@@ -117,7 +118,7 @@ export function teleportTo(entity, dimId, location) {
     return true;
   } catch (error) {
     invalidateDimension(normalized);
-    logger.error(`dimensions: teleport to '${normalized || dimId}' failed`, error);
+    operationDiagnostics.errorOnce("dimensions.teleport", `dimensions: teleport to '${normalized || dimId}' failed`, error);
     return false;
   }
 }
@@ -140,7 +141,10 @@ export async function teleportWhenReady(entity, dimId, location) {
       location: target,
       logger,
     });
-    if (!prepared.ready) return false;
+    if (!prepared.ready) {
+      operationDiagnostics.warnOnce("dimensions.prepare", `dimensions: destination '${normalized || dimId}' was not ready`, prepared.error);
+      return false;
+    }
     target = prepared.location;
   }
 
@@ -149,7 +153,7 @@ export async function teleportWhenReady(entity, dimId, location) {
     return true;
   } catch (error) {
     invalidateDimension(normalized);
-    logger.error(`dimensions: ready teleport to '${normalized || dimId}' failed`, error);
+    operationDiagnostics.errorOnce("dimensions.ready_teleport", `dimensions: ready teleport to '${normalized || dimId}' failed`, error);
     return false;
   }
 }

@@ -1,6 +1,7 @@
 import { EntityDamageCause, GameMode, system, world } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { logger } from "../core/logging.js";
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
@@ -34,7 +35,7 @@ export function init(itemComponentRegistry) {
       itemComponentRegistry.registerCustomComponent(name, handlers);
       registered.push(name);
     } catch (error) {
-      logger.error(`ported_features: item component '${name}' registration failed`, error);
+      operationDiagnostics.errorOnce(`ported_features.component.${name}`, `ported_features: item component '${name}' registration failed`, error);
     }
   }
 
@@ -106,7 +107,9 @@ export function begin(scheduler) {
 export function clearTransientPlayerState(player, initialSpawn = false) {
   if (!isPlayer(player) || !initialSpawn) return;
   for (const property of [PORTAL_ANCHOR_PROPERTY, PORTAL_COOLDOWN_PROPERTY, HEART_CORRUPTION_UNTIL, WHY_LEAVE_UNTIL]) {
-    try { player.setDynamicProperty(property, undefined); } catch {}
+    try { player.setDynamicProperty(property, undefined); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.clear_transient", `ported_features: failed to clear '${property}'`, error);
+    }
   }
 }
 
@@ -118,7 +121,9 @@ export function fireHandCannon(player) {
 
   try {
     player.playSound("tekkit.gun", { volume: 1.5, pitch: 1.0 });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.cannon_sound", "ported_features: hand-cannon sound failed", error);
+  }
 
   try {
     const hits = player.getEntitiesFromViewDirection({
@@ -132,7 +137,7 @@ export function fireHandCannon(player) {
       damagingEntity: player,
     });
   } catch (err) {
-    logger.error("ported_features: hand cannon raycast failed", err);
+    operationDiagnostics.errorOnce("ported_features.cannon_raycast", "ported_features: hand cannon raycast failed", err);
   }
   return true;
 }
@@ -142,7 +147,9 @@ export async function showPolaroid(player) {
   const code = String(worldState.get("code") || "NO SIGNAL");
   try {
     player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.5 });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.polaroid_sound", "ported_features: polaroid page-turn sound failed", error);
+  }
   try {
     await new ActionFormData()
       .title("§8The Polaroid")
@@ -151,7 +158,7 @@ export async function showPolaroid(player) {
       .show(player);
     return true;
   } catch (err) {
-    logger.error("ported_features: polaroid form failed", err);
+    operationDiagnostics.warnOnce("ported_features.polaroid_form", "ported_features: polaroid form failed", err);
     return false;
   }
 }
@@ -167,7 +174,7 @@ export async function showTornPaper(player) {
       .show(player);
     return true;
   } catch (err) {
-    logger.error("ported_features: torn paper form failed", err);
+    operationDiagnostics.warnOnce("ported_features.torn_paper_form", "ported_features: torn paper form failed", err);
     return false;
   }
 }
@@ -186,7 +193,7 @@ export async function showLibraryBook(player) {
       selected.item.setDynamicProperty(LIBRARY_BOOK_NUMBER_PROPERTY, bookNumber);
       selected.inventory.setItem(selected.slot, selected.item);
     } catch (err) {
-      logger.error("ported_features: library book state write failed", err);
+      operationDiagnostics.warnOnce("ported_features.library_book_state", "ported_features: library book state write failed", err);
     }
   }
 
@@ -199,7 +206,7 @@ export async function showLibraryBook(player) {
       .show(player);
     return true;
   } catch (err) {
-    logger.error("ported_features: library book form failed", err);
+    operationDiagnostics.warnOnce("ported_features.library_book_form", "ported_features: library book form failed", err);
     return false;
   }
 }
@@ -211,23 +218,39 @@ export function usePortalLinker(player, block) {
   const previous = readPlayerJson(player, PORTAL_ANCHOR_PROPERTY);
 
   if (!previous) {
-    player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, JSON.stringify(selected));
+    try {
+      player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, JSON.stringify(selected));
+    } catch (error) {
+      operationDiagnostics.errorOnce("ported_features.portal_anchor", "ported_features: portal anchor write failed", error);
+      return false;
+    }
     player.sendMessage("§5Portal A stored. Use the linker on another controller.");
-    try { player.playSound("random.orb", { volume: 0.7, pitch: 0.8 }); } catch {}
+    try { player.playSound("random.orb", { volume: 0.7, pitch: 0.8 }); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.portal_anchor_sound", "ported_features: portal-anchor sound failed", error);
+    }
     return true;
   }
 
   if (portalKey(previous) === portalKey(selected)) {
-    player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined);
+    try { player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.portal_cancel", "ported_features: portal cancel state clear failed", error);
+    }
     player.sendMessage("§7Portal link canceled.");
     return false;
   }
 
   const links = linkPortals(readPortalLinks(), previous, selected);
-  world.setDynamicProperty(PORTAL_LINKS_PROPERTY, JSON.stringify(links));
-  player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined);
+  try {
+    world.setDynamicProperty(PORTAL_LINKS_PROPERTY, JSON.stringify(links));
+    player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined);
+  } catch (error) {
+    operationDiagnostics.errorOnce("ported_features.portal_link", "ported_features: portal-link state write failed", error);
+    return false;
+  }
   player.sendMessage("§dPortal controllers linked.");
-  try { player.playSound("travel", { volume: 1.0, pitch: 1.15 }); } catch {}
+  try { player.playSound("travel", { volume: 1.0, pitch: 1.15 }); } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.portal_link_sound", "ported_features: portal-link sound failed", error);
+  }
   return true;
 }
 
@@ -257,7 +280,7 @@ export async function teleportLinkedPortal(player, block) {
   try {
     player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, reservation);
   } catch (error) {
-    logger.error("ported_features: linked portal cooldown reservation failed", error);
+    operationDiagnostics.errorOnce("ported_features.portal_cooldown", "ported_features: linked portal cooldown reservation failed", error);
     return true;
   }
 
@@ -272,7 +295,7 @@ export async function teleportLinkedPortal(player, block) {
   );
   if (!teleported) {
     clearPortalReservation(player, reservation);
-    logger.error("ported_features: linked portal destination was not ready");
+    operationDiagnostics.errorOnce("ported_features.portal_destination", "ported_features: linked portal destination was not ready");
     // A linked controller was handled, so its failure must not fall through to
     // the unlinked clan_void destination.
     return true;
@@ -284,10 +307,12 @@ export async function teleportLinkedPortal(player, block) {
       stayDuration: 20,
       fadeOutDuration: 10,
     });
-    try { player.playSound("travel", { volume: 1.0, pitch: 1.0 }); } catch {}
+    try { player.playSound("travel", { volume: 1.0, pitch: 1.0 }); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.portal_arrival_sound", "ported_features: portal-arrival sound failed", error);
+    }
     return true;
   } catch (err) {
-    logger.error("ported_features: linked portal post-teleport feedback failed", err);
+    operationDiagnostics.warnOnce("ported_features.portal_feedback", "ported_features: linked portal post-teleport feedback failed", err);
     return true;
   }
 }
@@ -297,23 +322,35 @@ export function toggleDesync(player) {
   const enabled = !playerState.get(player, "isDesync");
   playerState.set(player, "isDesync", enabled);
   if (enabled) {
-    try { player.addEffect("nausea", 200, { amplifier: 1, showParticles: false }); } catch {}
-    try { player.addEffect("darkness", 80, { amplifier: 0, showParticles: false }); } catch {}
-    try { player.playSound("glitch_sound_1", { volume: 2.0, pitch: 0.75 }); } catch {}
+    try { player.addEffect("nausea", 200, { amplifier: 1, showParticles: false }); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.desync_nausea", "ported_features: desync nausea effect failed", error);
+    }
+    try { player.addEffect("darkness", 80, { amplifier: 0, showParticles: false }); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.desync_darkness", "ported_features: desync darkness effect failed", error);
+    }
+    try { player.playSound("glitch_sound_1", { volume: 2.0, pitch: 0.75 }); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.desync_sound", "ported_features: desync sound failed", error);
+    }
     player.onScreenDisplay.setTitle("§kDESYNCING", {
       fadeInDuration: 0,
       stayDuration: 30,
       fadeOutDuration: 10,
     });
   } else {
-    try { player.removeEffect("nausea"); } catch {}
-    try { player.removeEffect("darkness"); } catch {}
+    try { player.removeEffect("nausea"); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.resync_nausea", "ported_features: resync nausea cleanup failed", error);
+    }
+    try { player.removeEffect("darkness"); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.resync_darkness", "ported_features: resync darkness cleanup failed", error);
+    }
     try {
       player.teleport(player.location, {
         dimension: player.dimension,
         rotation: player.getRotation(),
       });
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.desync_teleport", "ported_features: desync resync teleport failed", error);
+    }
     player.onScreenDisplay.setTitle("§aRESYNCED", {
       fadeInDuration: 0,
       stayDuration: 20,
@@ -330,29 +367,47 @@ export function applyHeartCorruption(player, durationTicks = 200) {
     Number(player.getDynamicProperty(HEART_CORRUPTION_UNTIL) ?? 0),
     system.currentTick + duration,
   );
-  player.setDynamicProperty(HEART_CORRUPTION_UNTIL, until);
+  try { player.setDynamicProperty(HEART_CORRUPTION_UNTIL, until); } catch (error) {
+    operationDiagnostics.errorOnce("ported_features.heart_state", "ported_features: heart-corruption state write failed", error);
+    return false;
+  }
   try {
     player.applyDamage(1, {
       cause: EntityDamageCause.magic,
     });
-  } catch {}
-  player.onScreenDisplay.setTitle("§d❤ §5ERR.HEALTH", {
-    fadeInDuration: 0,
-    stayDuration: 30,
-    fadeOutDuration: 10,
-  });
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.heart_damage", "ported_features: heart-corruption damage failed", error);
+  }
+  try {
+    player.onScreenDisplay.setTitle("§d❤ §5ERR.HEALTH", {
+      fadeInDuration: 0,
+      stayDuration: 30,
+      fadeOutDuration: 10,
+    });
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.heart_title", "ported_features: heart-corruption title failed", error);
+  }
   return true;
 }
 
 export function applyWhyCantYouLeave(player, durationTicks = 1000) {
   if (!isPlayer(player)) return false;
   const until = system.currentTick + finiteDuration(durationTicks);
-  player.setDynamicProperty(WHY_LEAVE_UNTIL, until);
-  player.onScreenDisplay.setTitle("§fwhy can't you leave?", {
-    fadeInDuration: 0,
-    stayDuration: 50,
-    fadeOutDuration: 10,
-  });
+  try {
+    player.setDynamicProperty(WHY_LEAVE_UNTIL, until);
+  } catch (error) {
+    operationDiagnostics.errorOnce("ported_features.why_leave_state", "ported_features: why-cant-you-leave state write failed", error);
+    return false;
+  }
+  try {
+    player.onScreenDisplay.setTitle("§fwhy can't you leave?", {
+      fadeInDuration: 0,
+      stayDuration: 50,
+      fadeOutDuration: 10,
+    });
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.why_leave_title", "ported_features: why-cant-you-leave title failed", error);
+  }
   return true;
 }
 
@@ -369,11 +424,13 @@ function placeCircuitPainting(player, block, face) {
   try {
     original = selected.item.clone();
   } catch (error) {
-    logger.error("ported_features: circuit painting item snapshot failed", error);
+    operationDiagnostics.errorOnce("ported_features.painting_snapshot", "ported_features: circuit painting item snapshot failed", error);
     return false;
   }
   let creative = false;
-  try { creative = player.getGameMode() === GameMode.Creative; } catch {}
+  try { creative = player.getGameMode() === GameMode.Creative; } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.painting_gamemode", "ported_features: painting game-mode query failed; preserving survival fallback", error);
+  }
   if (!creative && !consumeSelectedItem(player, "thebrokenscript:circuit_cave_painting")) return false;
 
   let painting;
@@ -383,14 +440,18 @@ function placeCircuitPainting(player, block, face) {
       placement.location,
     );
     painting.setRotation({ x: 0, y: placement.yaw });
-    try { player.playSound("block.itemframe.add_item", { volume: 1.0, pitch: 1.0 }); } catch {}
+    try { player.playSound("block.itemframe.add_item", { volume: 1.0, pitch: 1.0 }); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.painting_sound", "ported_features: circuit painting sound failed", error);
+    }
     return true;
   } catch (err) {
-    try { painting?.remove(); } catch {}
-    try { selected.inventory.setItem(selected.slot, original); } catch (restoreError) {
-      logger.error("ported_features: circuit painting item restore failed", restoreError);
+    try { painting?.remove(); } catch (error) {
+      operationDiagnostics.warnOnce("ported_features.painting_remove", "ported_features: failed to remove partial circuit painting", error);
     }
-    logger.error("ported_features: circuit painting placement failed", err);
+    try { selected.inventory.setItem(selected.slot, original); } catch (restoreError) {
+      operationDiagnostics.errorOnce("ported_features.painting_restore", "ported_features: circuit painting item restore failed", restoreError);
+    }
+    operationDiagnostics.errorOnce("ported_features.painting_place", "ported_features: circuit painting placement failed", err);
     return false;
   }
 }
@@ -399,16 +460,22 @@ function clearPortalReservation(player, reservation) {
   try {
     const current = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
     if (current === reservation) player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, undefined);
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.portal_reservation_clear", "ported_features: portal cooldown cleanup failed", error);
+  }
 }
 
 function tickPortedEffects() {
   for (const player of world.getAllPlayers()) {
     const heartUntil = Number(player.getDynamicProperty(HEART_CORRUPTION_UNTIL) ?? 0);
     if (heartUntil > system.currentTick) {
-      try { player.onScreenDisplay.setActionBar("§d❤ §5ERR.HEALTH"); } catch {}
+      try { player.onScreenDisplay.setActionBar("§d❤ §5ERR.HEALTH"); } catch (error) {
+        operationDiagnostics.warnOnce("ported_features.heart_actionbar", "ported_features: heart-corruption action bar failed", error);
+      }
     } else if (heartUntil > 0) {
-      try { player.setDynamicProperty(HEART_CORRUPTION_UNTIL, undefined); } catch {}
+      try { player.setDynamicProperty(HEART_CORRUPTION_UNTIL, undefined); } catch (error) {
+        operationDiagnostics.warnOnce("ported_features.heart_expiry", "ported_features: heart-corruption expiry cleanup failed", error);
+      }
     }
 
     const leaveUntil = Number(player.getDynamicProperty(WHY_LEAVE_UNTIL) ?? 0);
@@ -420,14 +487,20 @@ function tickPortedEffects() {
           y: head.y + (Math.random() - 0.5) * 0.8,
           z: head.z + (Math.random() - 0.5) * 1.8,
         });
-      } catch {}
+      } catch (error) {
+        operationDiagnostics.warnOnce("ported_features.why_leave_particle", "ported_features: why-cant-you-leave particle failed", error);
+      }
     } else if (leaveUntil > 0) {
-      try { player.setDynamicProperty(WHY_LEAVE_UNTIL, undefined); } catch {}
+      try { player.setDynamicProperty(WHY_LEAVE_UNTIL, undefined); } catch (error) {
+        operationDiagnostics.warnOnce("ported_features.why_leave_expiry", "ported_features: why-cant-you-leave expiry cleanup failed", error);
+      }
     }
 
     const cooldownUntil = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
     if (cooldownUntil > 0 && cooldownUntil <= system.currentTick) {
-      try { player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, undefined); } catch {}
+      try { player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, undefined); } catch (error) {
+        operationDiagnostics.warnOnce("ported_features.cooldown_expiry", "ported_features: portal cooldown expiry cleanup failed", error);
+      }
     }
   }
 }

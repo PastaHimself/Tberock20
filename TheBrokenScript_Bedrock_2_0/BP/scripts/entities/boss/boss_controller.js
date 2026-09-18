@@ -2,7 +2,7 @@ import { world, system } from "@minecraft/server";
 import { EntityDamageCause } from "@minecraft/server";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
-import { logger } from "../../core/logging.js";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
 import { registerChordProjectileLaunch } from "./chord_projectile_runtime.js";
 import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
@@ -40,9 +40,13 @@ function installDeathHook() {
         id === "thebrokenscript:the_obliteration" ||
         id === "thebrokenscript:the_obliteration_2";
       if (!isBoss) return;
-      try { ev.deadEntity.dimension.playSound("thebrokenscript:integrity_dies", ev.deadEntity.location, { volume: 10, pitch: 1 }); } catch {}
+      try { ev.deadEntity.dimension.playSound("thebrokenscript:integrity_dies", ev.deadEntity.location, { volume: 10, pitch: 1 }); } catch (error) {
+        operationDiagnostics.warnOnce("boss.death_sound", "boss: death sound failed", error);
+      }
     });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.errorOnce("boss.death_subscription", "boss: death-event subscription failed", error);
+  }
 }
 
 // ── constants from decompiled sources ──────────────────────────────────────
@@ -86,15 +90,23 @@ function targetTopY(entity) {
   try {
     const aabb = entity.getAABB();
     if (Number.isFinite(aabb?.max?.y)) return aabb.max.y;
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("boss.aabb", "boss: AABB query failed; using location-height fallback", error);
+  }
   return entity.location.y + 1;
 }
 
 function getHealth(e) {
-  try { return e.getComponent("minecraft:health")?.currentValue ?? 0; } catch { return 0; }
+  try { return e.getComponent("minecraft:health")?.currentValue ?? 0; } catch (error) {
+    operationDiagnostics.warnOnce("boss.health", "boss: health query failed; using zero fallback", error);
+    return 0;
+  }
 }
 function maxHealth(e) {
-  try { return e.getComponent("minecraft:health")?.effectiveMax ?? 0; } catch { return 0; }
+  try { return e.getComponent("minecraft:health")?.effectiveMax ?? 0; } catch (error) {
+    operationDiagnostics.warnOnce("boss.max_health", "boss: max-health query failed; using zero fallback", error);
+    return 0;
+  }
 }
 function meleePulse(e, dmg, reach = 5, interval = 20, sourceId = null) {
   if (system.currentTick % interval !== 0) return;
@@ -107,7 +119,12 @@ function meleePulse(e, dmg, reach = 5, interval = 20, sourceId = null) {
         damagingEntity: e,
       });
     } else {
-      try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { p.applyDamage(dmg); } catch {} }
+      try { p.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch (error) {
+        operationDiagnostics.warnOnce("boss.melee_damage", "boss: attributed melee damage failed; using un-attributed fallback", error);
+        try { p.applyDamage(dmg); } catch (fallbackError) {
+          operationDiagnostics.errorOnce("boss.melee_damage_fallback", "boss: melee damage fallback failed", fallbackError);
+        }
+      }
     }
   }
 }
@@ -132,7 +149,9 @@ function installDamageHook() {
         ev.cancel = true;
       }
     });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.errorOnce("boss.damage_subscription", "boss: damage-event subscription failed", error);
+  }
 }
 
 function applyEntityAttack(attacker, target, damage, sourceId = null) {
@@ -145,11 +164,13 @@ function applyEntityAttack(attacker, target, damage, sourceId = null) {
   try {
     target.applyDamage(damage, { cause: EntityDamageCause.entityAttack, damagingEntity: attacker });
     return true;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("boss.attack_damage", "boss: attributed attack failed; using un-attributed fallback", error);
     try {
       target.applyDamage(damage);
       return true;
-    } catch {
+    } catch (fallbackError) {
+      operationDiagnostics.errorOnce("boss.attack_damage_fallback", "boss: attack damage fallback failed", fallbackError);
       return false;
     }
   }
@@ -162,7 +183,9 @@ function runLater(callback, ticks) {
       scheduler.runTimeout(callback, ticks);
       return;
     }
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("boss.approach_teleport", "boss: approach teleport failed", error);
+  }
   callback();
 }
 
@@ -335,9 +358,14 @@ function onTick() {
   }
   for (const dim of dims) {
     let list = [];
-    try { list = dim.getEntities({ families: ["thebrokenscript_boss"] }); } catch { continue; }
+    try { list = dim.getEntities({ families: ["thebrokenscript_boss"] }); } catch (error) {
+      operationDiagnostics.warnOnce("boss.entity_query", "boss: entity query failed; skipping this tick", error);
+      continue;
+    }
     for (const e of list) {
-      try { tickEntity(e); } catch (err) { logger.error(`boss tick ${e.typeId} ${e.id}`, err); }
+      try { tickEntity(e); } catch (err) {
+        operationDiagnostics.errorOnce(`boss.tick.${e.typeId}`, `boss: controller tick failed for ${e.typeId}`, err);
+      }
     }
   }
 }
@@ -496,13 +524,20 @@ function tickIntegrityGroundAttack(e, state) {
 }
 
 function spawnAt(dim, typeId, loc) {
-  try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+  try { return dim.spawnEntity(typeId, loc); } catch (error) {
+    operationDiagnostics.warnOnce(`boss.spawn.${typeId}`, `boss: failed to spawn ${typeId}; preserving no-spawn fallback`, error);
+    return undefined;
+  }
 }
 function tryPlayAt(dim, loc, sound, vol = 1, pitch = 1) {
-  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch {}
+  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch (error) {
+    operationDiagnostics.warnOnce("boss.sound.dimension", `boss: dimension sound '${sound}' unavailable; using player fallback`, error);
+  }
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== dim.id) continue;
-    try { p.playSound(sound, { volume: vol, pitch }); } catch {}
+    try { p.playSound(sound, { volume: vol, pitch }); } catch (error) {
+      operationDiagnostics.warnOnce("boss.sound.player", `boss: player sound fallback '${sound}' failed`, error);
+    }
   }
 }
 

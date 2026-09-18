@@ -5,7 +5,7 @@ import * as playerState from "../../systems/player_state.js";
 import * as dimensions from "../../systems/dimensions.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
-import { logger } from "../../core/logging.js";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
@@ -39,28 +39,40 @@ function deleteTimers(e) { timers.delete(e.id); }
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z); }
 
 function tryPlaySoundAt(dim, loc, sound, vol = 1, pitch = 1) {
-  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch {}
+  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch (error) {
+    operationDiagnostics.warnOnce("misc.sound.dimension", `misc: dimension sound '${sound}' unavailable; using player fallback`, error);
+  }
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== dim.id) continue;
-    try { p.playSound(sound, { volume: vol, pitch }); } catch {}
+    try { p.playSound(sound, { volume: vol, pitch }); } catch (error) {
+      operationDiagnostics.warnOnce("misc.sound.player", `misc: player sound fallback '${sound}' failed`, error);
+    }
   }
 }
 
 function setFakeTime(dim, t) {
-  try { dim.runCommand(`time set ${t}`); } catch {}
+  try { dim.runCommand(`time set ${t}`); } catch (error) {
+    operationDiagnostics.warnOnce("misc.fake_time", `misc: fake-time command '${t}' failed`, error);
+  }
 }
 function title(player, text, stay = 10) {
-  try { player.onScreenDisplay.setTitle(text, { fadeInDuration: 0, stayDuration: stay, fadeOutDuration: 0 }); } catch {}
+  try { player.onScreenDisplay.setTitle(text, { fadeInDuration: 0, stayDuration: stay, fadeOutDuration: 0 }); } catch (error) {
+    operationDiagnostics.warnOnce("misc.title", "misc: title presentation failed", error);
+  }
 }
 function chatAll(dim, text) {
-  try { dim.runCommand(`tellraw @a {"rawtext":[{"text":"${text.replace(/"/g, '\\"')}"}]}`); } catch {}
+  try { dim.runCommand(`tellraw @a {"rawtext":[{"text":"${text.replace(/"/g, '\\"')}"}]}`); } catch (error) {
+    operationDiagnostics.warnOnce("misc.chat", "misc: chat command failed", error);
+  }
 }
 function kickPlayer(player, reason) {
   system.runTimeout(() => {
     try {
       const safeName = player.name.replace(/"/g, '\\"');
       player.dimension.runCommand(`kick "${safeName}" ${reason}`);
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.warnOnce("misc.kick", "misc: kick command failed", error);
+    }
   }, 10);
 }
 function hasLineOfSightApprox(player, entity) {
@@ -74,7 +86,10 @@ function hasLineOfSightApprox(player, entity) {
     if (!hit) return true;
     const hitDist = Math.hypot(hit.block.location.x - origin.x, hit.block.location.y - origin.y, hit.block.location.z - origin.z);
     return hitDist > len - 1.2;
-  } catch { return true; }
+  } catch (error) {
+    operationDiagnostics.warnOnce("misc.line_of_sight", "misc: line-of-sight probe failed; preserving visible fallback", error);
+    return true;
+  }
 }
 
 export function begin(scheduler) {
@@ -86,19 +101,30 @@ export function begin(scheduler) {
         const killer = ev.damageSource?.damagingEntity;
         if (!killer || killer.typeId !== "thebrokenscript:nothingiswatchingchase") return;
         // awardKillScore: discard + NIW_KICK
-        try { killer.remove(); deleteTimers(killer); } catch {}
+        try { killer.remove(); deleteTimers(killer); } catch (error) {
+          operationDiagnostics.warnOnce("misc.death_cleanup", "misc: death cleanup failed", error);
+        }
         kickPlayer(ev.deadEntity, "§kNothingiswatching");
-      } catch {}
+      } catch (error) {
+        operationDiagnostics.errorOnce("misc.death_event", "misc: death follow-up failed", error);
+      }
     });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.errorOnce("misc.death_subscription", "misc: death-event subscription failed", error);
+  }
 }
 
 function onTick() {
   if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   let list = [];
-  try { list = world.getDimension("overworld").getEntities({ families: ["thebrokenscript_misc"] }); } catch { return; }
+  try { list = world.getDimension("overworld").getEntities({ families: ["thebrokenscript_misc"] }); } catch (error) {
+    operationDiagnostics.warnOnce("misc.entity_query", "misc: entity query failed; skipping this tick", error);
+    return;
+  }
   for (const e of list) {
-    try { tickEntity(e); } catch (err) { logger.error(`misc tick ${e.typeId} ${e.id}`, err); }
+    try { tickEntity(e); } catch (err) {
+      operationDiagnostics.errorOnce(`misc.tick.${e.typeId}`, `misc: controller tick failed for ${e.typeId}`, err);
+    }
   }
 }
 
@@ -175,9 +201,13 @@ function tickXxram(e) {
   try {
     const b = e.dimension.getBlock({ x: Math.floor(e.location.x), y: Math.floor(e.location.y), z: Math.floor(e.location.z) });
     if (b && !b.isAir && b.typeId !== "minecraft:air") {
-      try { e.teleport({ x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch {}
+      try { e.teleport({ x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch (error) {
+        operationDiagnostics.warnOnce("misc.ram_unstuck_teleport", "misc: xXram unstick teleport failed", error);
+      }
     }
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("misc.ram_block_query", "misc: xXram block query failed", error);
+  }
 
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 520);
   if (!player) return;
@@ -191,7 +221,9 @@ function tickXxram(e) {
       const look = player.getViewDirection();
       const dest = { x: player.location.x + look.x * 8, y: player.location.y, z: player.location.z + look.z * 8 };
       e.teleport(dest);
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.warnOnce("misc.ram_blink_teleport", "misc: xXram blink teleport failed", error);
+    }
     const anger = getNum(e, "anger", 0) + 1;
     setNum(e, "anger", anger);
     if (anger >= 10) {
@@ -207,7 +239,10 @@ function tickXxram(e) {
 }
 
 function __spawn(dim, typeId, loc) {
-  try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+  try { return dim.spawnEntity(typeId, loc); } catch (error) {
+    operationDiagnostics.warnOnce(`misc.spawn.${typeId}`, `misc: failed to spawn ${typeId}; preserving no-spawn fallback`, error);
+    return undefined;
+  }
 }
 
 // ── ban ──────────────────────────────────────────────────────────────────────
@@ -215,9 +250,13 @@ function tickBan(e) {
   // nearest player ≤128 gets PlayerVariables.ban=true then entity discards
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 128);
   if (player) {
-    try { playerState.set(player, "ban", true); } catch {}
+    try { playerState.set(player, "ban", true); } catch (error) {
+      operationDiagnostics.warnOnce("misc.ban_state", "misc: ban state write failed", error);
+    }
   }
-  try { e.remove(); } catch {} deleteTimers(e);
+  try { e.remove(); } catch (error) {
+    operationDiagnostics.warnOnce("misc.ban_remove", "misc: ban entity removal failed", error);
+  } deleteTimers(e);
 }
 
 // ── niw (nothingiswatching) ──────────────────────────────────────────────────
@@ -230,35 +269,49 @@ function tickNiw(e) {
   const closest = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 510);
   if (closest) {
     if (distance(e.location, closest.location) < 10) {
-      try { closest.addEffect("blindness", 500, { amplifier: 1, showParticles: false }); } catch {}
+      try { closest.addEffect("blindness", 500, { amplifier: 1, showParticles: false }); } catch (error) {
+        operationDiagnostics.warnOnce("misc.niw_blindness", "misc: NIW blindness effect failed", error);
+      }
       tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:glitch_sound_1", 10, 0);
       if (Math.random() < 0.7) setFakeTime(e.dimension, "midnight");
       __spawn(e.dimension, "thebrokenscript:nothingiswatchingchase", e.location);
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) {
+        operationDiagnostics.warnOnce("misc.niw_remove", "misc: NIW removal failed", error);
+      } deleteTimers(e);
       return;
     }
     if (distance(e.location, closest.location) < 100 && gaze.isLookingAtEntity(closest, e, 14)) {
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) {
+        operationDiagnostics.warnOnce("misc.niw_gaze_remove", "misc: NIW gaze removal failed", error);
+      } deleteTimers(e);
       if (Math.random() < 0.7) {
         const s = __spawn(e.dimension, "thebrokenscript:nothingiswatchingchase", e.location);
         if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
       } else {
-        try { e.dimension.spawnEntity("minecraft:lightning_bolt", closest.location); } catch {}
+        try { e.dimension.spawnEntity("minecraft:lightning_bolt", closest.location); } catch (error) {
+          operationDiagnostics.warnOnce("misc.niw_lightning", "misc: NIW lightning spawn failed", error);
+        }
       }
       return;
     }
   }
   life--; setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
+  if (life <= 0) { try { e.remove(); } catch (error) {
+    operationDiagnostics.warnOnce("misc.niw_expire", "misc: NIW expiry removal failed", error);
+  } deleteTimers(e); }
 }
 
 // ── nothingiswatchingchase ───────────────────────────────────────────────────
 function tickNiwChase(e) {
   const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 500);
   if (!target) return;
-  try { e.lookAt?.(target.location); } catch {}
+  try { e.lookAt?.(target.location); } catch (error) {
+    operationDiagnostics.warnOnce("misc.niw_chase_look", "misc: NIW chase look-at failed", error);
+  }
   if (distance(e.location, target.location) < 5) {
-    try { e.remove(); } catch {} deleteTimers(e);
+    try { e.remove(); } catch (error) {
+      operationDiagnostics.warnOnce("misc.niw_chase_remove", "misc: NIW chase removal failed", error);
+    } deleteTimers(e);
     kickPlayer(target, "§kNothingiswatching");
     return;
   }
@@ -270,10 +323,17 @@ function tickNiwChase(e) {
         y: target.location.y,
         z: target.location.z + (Math.random() * 20 - 10)
       });
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.warnOnce("misc.niw_chase_teleport", "misc: NIW chase jitter teleport failed", error);
+    }
   }
   if (system.currentTick % 20 === 0 && distance(e.location, target.location) < 12) {
-    try { target.applyDamage(3, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(3); } catch {} }
+    try { target.applyDamage(3, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch (error) {
+      operationDiagnostics.warnOnce("misc.niw_chase_damage", "misc: NIW chase damage failed; using un-attributed fallback", error);
+      try { target.applyDamage(3); } catch (fallbackError) {
+        operationDiagnostics.errorOnce("misc.niw_chase_damage_fallback", "misc: NIW chase damage fallback failed", fallbackError);
+      }
+    }
   }
 }
 

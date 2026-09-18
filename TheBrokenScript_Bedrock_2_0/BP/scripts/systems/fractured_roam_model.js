@@ -1,6 +1,8 @@
 // Source-backed FracturedRoam lifecycle values from FracturedRoamEntity,
 // FracturedRoamGoUnDerGroundGoal, BaseFracturedEntity, and JimArena.
 
+import { clampNormalizedRoll } from "./source_numeric_model.js";
+
 export const FRACTURED_ROAM_SOURCE = Object.freeze({
   serverTimerTicks: 149,
   riseTicks: 149,
@@ -393,7 +395,7 @@ export function fracturedRoamRandomInt(origin, bound, roll = Math.random()) {
   const low = Math.floor(origin);
   const high = Math.floor(bound);
   if (high <= low) return low;
-  const normalized = Math.max(0, Math.min(0.999999999, Number(roll) || 0));
+  const normalized = clampNormalizedRoll(roll);
   return low + Math.floor(normalized * (high - low));
 }
 

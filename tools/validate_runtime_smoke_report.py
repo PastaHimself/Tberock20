@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -15,6 +17,8 @@ from validate_runtime_smoke_matrix import MatrixError, validate_matrix
 VALID_STATUSES = {"pass", "fail", "blocked", "not-run"}
 VALID_SEVERITIES = {"error", "warning", "info"}
 PLACEHOLDER_MARKERS = ("replace-with", "placeholder", "your-", "todo")
+FULL_COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}")
+SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
 def require(condition: bool, message: str) -> None:
@@ -22,10 +26,63 @@ def require(condition: bool, message: str) -> None:
         raise MatrixError(message)
 
 
-def validate_report(report: Any, matrix: dict[str, Any], require_complete: bool) -> None:
+def validate_report(
+    report: Any,
+    matrix: dict[str, Any],
+    require_complete: bool,
+    expected_commit: str | None = None,
+    expected_artifact_sha256: str | None = None,
+    artifact_path: Path | None = None,
+) -> None:
     require(isinstance(report, dict), "report root must be an object")
     require(report.get("schema_version") == 1, "report schema_version must be 1")
     require(report.get("matrix_id") == matrix["matrix_id"], "report matrix_id does not match the matrix")
+    candidate_commit = report.get("candidate_commit")
+    require(
+        isinstance(candidate_commit, str) and FULL_COMMIT_PATTERN.fullmatch(candidate_commit) is not None,
+        "report candidate_commit must be an exact full 40-hex candidate commit",
+    )
+    require(
+        isinstance(report.get("artifact_path"), str)
+        and report["artifact_path"] == matrix["world"]["pack_artifact"],
+        "report artifact_path must match the matrix packaged .mcaddon path",
+    )
+    artifact_sha256 = report.get("artifact_sha256")
+    require(
+        isinstance(artifact_sha256, str) and SHA256_PATTERN.fullmatch(artifact_sha256) is not None,
+        "report artifact_sha256 must be an exact full 64-hex SHA-256 digest",
+    )
+    if expected_commit is not None:
+        require(
+            FULL_COMMIT_PATTERN.fullmatch(expected_commit) is not None,
+            "--expected-commit must be an exact full 40-hex candidate commit",
+        )
+        require(
+            candidate_commit == expected_commit,
+            "report candidate commit does not match the expected candidate commit",
+        )
+    if expected_artifact_sha256 is not None:
+        require(
+            SHA256_PATTERN.fullmatch(expected_artifact_sha256) is not None,
+            "--expected-artifact-sha256 must be an exact full 64-hex SHA-256 digest",
+        )
+        require(
+            artifact_sha256 == expected_artifact_sha256,
+            "report artifact SHA-256 does not match the expected packaged artifact",
+        )
+    if artifact_path is not None:
+        require(artifact_path.suffix.lower() == ".mcaddon", "--artifact must point to a .mcaddon file")
+        require(artifact_path.is_file(), f"packaged artifact does not exist: {artifact_path}")
+        actual_artifact_sha256 = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+        require(
+            actual_artifact_sha256 == artifact_sha256,
+            "report artifact SHA-256 does not match packaged artifact",
+        )
+        if expected_artifact_sha256 is not None:
+            require(
+                actual_artifact_sha256 == expected_artifact_sha256,
+                "packaged artifact SHA-256 does not match the expected artifact digest",
+            )
     require(isinstance(report.get("run_id"), str) and report["run_id"].strip(), "report run_id must be non-empty")
     require(isinstance(report.get("started_at"), str) and report["started_at"].strip(), "report started_at must be non-empty")
     require(isinstance(report.get("finished_at"), str) and report["finished_at"].strip(), "report finished_at must be non-empty")
@@ -95,13 +152,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("report", type=Path, help="path to a runtime smoke report JSON")
     parser.add_argument("--matrix", type=Path, required=True, help="path to the matrix JSON")
     parser.add_argument("--require-complete", action="store_true", help="require every parity-critical scenario to pass")
+    parser.add_argument("--expected-commit", help="exact full candidate commit expected in the report")
+    parser.add_argument("--expected-artifact-sha256", help="exact full SHA-256 expected for the packaged .mcaddon")
+    parser.add_argument("--artifact", type=Path, help="packaged .mcaddon to hash and compare with the report")
     args = parser.parse_args(argv)
 
     try:
         matrix = json.loads(args.matrix.read_text(encoding="utf-8"))
         validate_matrix(matrix)
         report = json.loads(args.report.read_text(encoding="utf-8"))
-        validate_report(report, matrix, args.require_complete)
+        validate_report(
+            report,
+            matrix,
+            args.require_complete,
+            expected_commit=args.expected_commit,
+            expected_artifact_sha256=args.expected_artifact_sha256,
+            artifact_path=args.artifact,
+        )
     except (OSError, json.JSONDecodeError, MatrixError) as error:
         print(f"runtime smoke report invalid: {error}", file=sys.stderr)
         return 1

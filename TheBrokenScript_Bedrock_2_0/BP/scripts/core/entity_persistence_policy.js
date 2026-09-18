@@ -1,6 +1,16 @@
 // Dynamic properties outside the canonical mv./pv. state adapters are listed
 // here so scope and lifetime cannot drift silently between source and BP.
 
+// This audit-support policy is mirrored from src/core. The behavior-pack
+// runtime intentionally does not import it; source-backed tests and static
+// audits consume it instead.
+export const SOURCE_AUDIT_DISPOSITION = Object.freeze({
+    kind: "audit-support",
+    runtimeReachability: "unreachable",
+    wiring: "intentionally-not-wired",
+    reason: "source-backed contract consumed by static audits and tests",
+});
+
 export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:arenaActive": Object.freeze({ scope: "world", persistence: "persistent", owner: "arena" }),
     "tbs:arenaPhase1": Object.freeze({ scope: "world", persistence: "persistent", owner: "arena" }),

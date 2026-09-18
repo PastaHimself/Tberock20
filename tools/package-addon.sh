@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ADDON_ROOT="$ROOT_DIR/TheBrokenScript_Bedrock_2_0"
-DIST_DIR="$ROOT_DIR/dist"
+DIST_DIR="${DIST_DIR:-$ROOT_DIR/dist}"
 STAGE_DIR="$DIST_DIR/stage"
 MCADDON_DIR="$DIST_DIR/mcaddon"
 OUTPUT_FILE="$DIST_DIR/The_Broken_Script_2_0.mcaddon"
@@ -34,6 +34,14 @@ if (( $# != 0 )); then
   usage
   exit 2
 fi
+
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-0}"
+if [[ ! "$SOURCE_DATE_EPOCH" =~ ^[0-9]+$ ]]; then
+  echo "SOURCE_DATE_EPOCH must be a non-negative integer." >&2
+  exit 2
+fi
+export SOURCE_DATE_EPOCH
+export TZ=UTC
 
 # Routine CI packages a validated artifact, but that is not itself a release build.
 # Release packaging must opt in explicitly so unresolved source-map audit state and
@@ -81,6 +89,11 @@ async function walk(dir) {
 await walk(process.env.STAGE_DIR);
 NODE
 
+# ZIP stores file timestamps and can include filesystem metadata. Normalize the
+# staged tree after all package-only rewrites so repeated builds have identical
+# bytes, independent of the source checkout's mtimes or local timezone.
+find "$STAGE_DIR" -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
+
 if [[ ! -f "$STAGE_DIR/bp/manifest.json" ]]; then
   echo "Behavior pack manifest is missing from package staging." >&2
   exit 1
@@ -92,15 +105,16 @@ fi
 
 (
   cd "$STAGE_DIR/bp"
-  zip -q -r "$MCADDON_DIR/The_Broken_Script_2_0_BP.mcpack" .
+  LC_ALL=C find . -type f -print | LC_ALL=C sort | zip -X -q "$MCADDON_DIR/The_Broken_Script_2_0_BP.mcpack" -@
 )
 (
   cd "$STAGE_DIR/rp"
-  zip -q -r "$MCADDON_DIR/The_Broken_Script_2_0_RP.mcpack" .
+  LC_ALL=C find . -type f -print | LC_ALL=C sort | zip -X -q "$MCADDON_DIR/The_Broken_Script_2_0_RP.mcpack" -@
 )
+touch -h -d "@${SOURCE_DATE_EPOCH}" "$MCADDON_DIR/The_Broken_Script_2_0_BP.mcpack" "$MCADDON_DIR/The_Broken_Script_2_0_RP.mcpack"
 (
   cd "$MCADDON_DIR"
-  zip -q "$OUTPUT_FILE" The_Broken_Script_2_0_BP.mcpack The_Broken_Script_2_0_RP.mcpack
+  zip -X -q "$OUTPUT_FILE" The_Broken_Script_2_0_BP.mcpack The_Broken_Script_2_0_RP.mcpack
 )
 
 if [[ ! -s "$OUTPUT_FILE" ]]; then
