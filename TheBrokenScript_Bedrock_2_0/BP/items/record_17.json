@@ -17,7 +17,7 @@
       "minecraft:record": {
         "comparator_signal": 13,
         "duration": 63.5,
-        "sound_event": "disc17"
+        "sound_event": "lt.reaction.bleach"
       }
     }
   }

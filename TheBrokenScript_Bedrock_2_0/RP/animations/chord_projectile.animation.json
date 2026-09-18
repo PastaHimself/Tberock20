@@ -1,4 +1,8 @@
 {
   "format_version": "1.8.0",
-  "animations": {}
+  "animations": {
+    "animation.thebrokenscript.chord_projectile.idle": {
+      "loop": true
+    }
+  }
 }

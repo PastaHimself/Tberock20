@@ -49,6 +49,18 @@ RECORD_ITEM_BY_EVENT = {
     "instability_v3": "instabilityv3.json",
     "record14": "record_14.json",
 }
+RECORD_LEVEL_SOUND_EVENT_BY_EVENT = {
+    "jimbob.full": "lt.reaction.miscmystical2",
+    "credits": "lt.reaction.miscmystical",
+    "disc15_betray": "lt.reaction.epaste2",
+    "disc16_youcant": "lt.reaction.epaste",
+    "disc17": "lt.reaction.bleach",
+    "instability": "lt.reaction.icebomb",
+    "instability_music_box": "lt.reaction.miscfire",
+    "instability_v2": "lt.reaction.mgsalt",
+    "instability_v3": "lt.reaction.miscexplosion",
+    "record14": "lt.reaction.fertilizer",
+}
 SCRIPT_ONLY_SONG_EVENTS = {"lilly_theme", "lilly_theme_v2"}
 ADAPTED_SOUND_CUE_KEYS = {
     "baby",
@@ -485,13 +497,22 @@ def validate_audio(
     source_song_dir = root / "source_extracted/data/thebrokenscript/jukebox_song"
     source_sounds_path = root / "source_extracted/assets/thebrokenscript/sounds.json"
     sound_definitions_path = addon / "RP/sound_definitions.json"
+    event_routes_path = addon / "RP/sounds.json"
     source_song_files = sorted(source_song_dir.glob("*.json")) if source_song_dir.is_dir() else []
     source_sounds = load_json(source_sounds_path, root, errors) if source_sounds_path.is_file() else {}
     sound_definitions = load_json(sound_definitions_path, root, errors) if sound_definitions_path.is_file() else {}
+    event_routes_document = load_json(event_routes_path, root, errors) if event_routes_path.is_file() else {}
     source_sounds = source_sounds if isinstance(source_sounds, dict) else {}
     sound_definitions = sound_definitions.get("sound_definitions", {}) if isinstance(sound_definitions, dict) else {}
     if not isinstance(sound_definitions, dict):
         sound_definitions = {}
+    event_routes = (
+        event_routes_document.get("individual_event_sounds", {}).get("events", {})
+        if isinstance(event_routes_document, dict)
+        else {}
+    )
+    if not isinstance(event_routes, dict):
+        event_routes = {}
 
     counts["source_song_definitions"] = len(source_song_files)
     counts["sound_definitions_checked"] = 0
@@ -649,10 +670,17 @@ def validate_audio(
         if not isinstance(record, dict):
             errors.append(f"Music-disc item is missing minecraft:record: {relative(root, item_path)}")
             continue
-        if record.get("sound_event") != event_key:
+        expected_level_event = RECORD_LEVEL_SOUND_EVENT_BY_EVENT[event_key]
+        if record.get("sound_event") != expected_level_event:
             errors.append(
-                f"Music-disc sound_event drift for {item_filename}: "
-                f"expected={event_key!r}, actual={record.get('sound_event')!r}"
+                f"Music-disc LevelSoundEvent drift for {item_filename}: "
+                f"expected={expected_level_event!r}, actual={record.get('sound_event')!r}"
+            )
+        route = event_routes.get(expected_level_event)
+        if not isinstance(route, dict) or route.get("sound") != event_key:
+            errors.append(
+                f"Music-disc sound route drift for {item_filename}: "
+                f"{expected_level_event!r} must route to {event_key!r} in RP/sounds.json"
             )
         expected_duration = source_song.get("length_in_seconds")
         if not is_number(record.get("duration")) or not is_number(expected_duration) or abs(
@@ -692,7 +720,7 @@ def validate_audio(
         "source_song_definitions": len(source_song_files),
         "record_items": len(RECORD_ITEM_BY_EVENT),
         "script_only_song_definitions": len(SCRIPT_ONLY_SONG_EVENTS),
-        "custom_sound_event_mode": "bare sound_definitions key under Beta APIs",
+        "custom_sound_event_mode": "stable LevelSoundEvent alias routed through RP/sounds.json",
     }
 
 
