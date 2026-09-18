@@ -111,7 +111,8 @@ checkout used to build and test the world. Its `artifact_sha256` must be the
 exact full 64-hex SHA-256 of the `.mcaddon` named by `artifact_path`.
 Pull-request CI validates any committed report against the checked-out commit
 and freshly packaged artifact; this rejects reports or artifacts copied from a
-different revision. The workflow requires a complete passing report when
+different revision. Main CI validates a committed report completely when one
+is present, while the workflow requires a complete passing report whenever
 `enforce_runtime_smoke` is selected manually or when a version tag is built;
 the existing static gates remain active as well.
 
