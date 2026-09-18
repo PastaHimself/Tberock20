@@ -2,6 +2,8 @@
 // subclasses. Bedrock has no server-side multipart entity-part hierarchy, so
 // the runtime uses these definitions for conceptual hitboxes and transforms.
 
+import { FRACTURED_SEGMENT_EPSILON } from "./source_numeric_model.js";
+
 const freezeVector = (vector) => Object.freeze({ ...vector });
 
 export const FRACTURED_MULTIPART_SOURCE = Object.freeze({
@@ -158,7 +160,7 @@ export function segmentIntersectsAabb(from, to, aabb) {
     const maximum = Number(aabb.max?.[axis]);
     if (![start, end, minimum, maximum].every(Number.isFinite)) return null;
     const delta = end - start;
-    if (Math.abs(delta) < 1e-9) {
+    if (Math.abs(delta) < FRACTURED_SEGMENT_EPSILON) {
       if (start < minimum || start > maximum) return null;
       continue;
     }

@@ -1,5 +1,5 @@
 import { world, system, EquipmentSlot, EntityDamageCause } from "@minecraft/server";
-import { logger } from "../../core/logging.js";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as perf from "../../systems/perf.js";
 import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
@@ -70,7 +70,10 @@ function isValid(entity) {
 }
 
 function health(entity) {
-  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch { return 0; }
+  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch (error) {
+    operationDiagnostics.warnOnce("phase3.health", "phase3: health query failed; using zero fallback", error);
+    return 0;
+  }
 }
 
 function isLiving(entity) {
@@ -78,7 +81,10 @@ function isLiving(entity) {
 }
 
 function entityAabb(entity) {
-  try { return entity.getAABB(); } catch { return undefined; }
+  try { return entity.getAABB(); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.aabb", "phase3: AABB query failed; preserving no-contact fallback", error);
+    return undefined;
+  }
 }
 
 function isOnGround(entity) {
@@ -132,7 +138,10 @@ function dimensions() {
 }
 
 function runtimeEntities(dim) {
-  try { return dim.getEntities({ families: [RUNTIME_FAMILY] }); } catch { return []; }
+  try { return dim.getEntities({ families: [RUNTIME_FAMILY] }); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.entity_query", "phase3: runtime entity query failed", error);
+    return [];
+  }
 }
 
 function rosterPlayers() {
@@ -140,7 +149,8 @@ function rosterPlayers() {
     return world.getAllPlayers().filter((player) => (
       participantIds === null || participantIds.has(player.id)
     ));
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.player_query", "phase3: participant query failed", error);
     return [];
   }
 }
@@ -159,11 +169,16 @@ function nearestPlayer(entity, fixedId = null) {
 }
 
 function spawnAt(dim, typeId, loc) {
-  try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+  try { return dim.spawnEntity(typeId, loc); } catch (error) {
+    operationDiagnostics.warnOnce(`phase3.spawn.${typeId}`, `phase3: failed to spawn ${typeId}; preserving no-spawn fallback`, error);
+    return undefined;
+  }
 }
 
 function removeEntity(entity) {
-  try { entity.remove(); } catch {}
+  try { entity.remove(); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.remove", "phase3: entity removal failed", error);
+  }
   states.delete(entity.id);
   armOwners.delete(entity.id);
   projectileStates.delete(entity.id);
@@ -190,8 +205,12 @@ function applyEntityAttack(
   try {
     target.applyDamage(damage, { cause, damagingEntity: attacker });
     return true;
-  } catch {
-    try { target.applyDamage(damage); return true; } catch { return false; }
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.attack_damage", "phase3: attributed attack failed; using un-attributed fallback", error);
+    try { target.applyDamage(damage); return true; } catch (fallbackError) {
+      operationDiagnostics.errorOnce("phase3.attack_damage_fallback", "phase3: attack damage fallback failed", fallbackError);
+      return false;
+    }
   }
 }
 
@@ -257,7 +276,8 @@ function queuePhase3Death(entity) {
       pendingDeaths.delete(entity.id);
       if (isValid(queued)) beginPhase3Death(queued);
     });
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.death_schedule", "phase3: death scheduling failed; clearing pending death", error);
     pendingDeaths.delete(entity.id);
   }
 }
@@ -275,7 +295,9 @@ function beginPhase3Death(entity) {
   state.deathTicks = 0;
   finishAttack(entity, state);
   setDying(entity, true);
-  try { entity.teleport(PHASE3_SOURCE.center); } catch {}
+  try { entity.teleport(PHASE3_SOURCE.center); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.death_teleport", "phase3: death-center teleport failed", error);
+  }
 }
 
 function breakParriedMace(player) {
@@ -288,11 +310,15 @@ function breakParriedMace(player) {
     if (!durability) return;
     durability.damage = durability.maxDurability;
     mainhand.setItem(item);
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.mace_break", "phase3: parried mace break operation failed", error);
+  }
 }
 
 function queueMaceParry(player) {
-  try { system.run(() => breakParriedMace(player)); } catch {}
+  try { system.run(() => breakParriedMace(player)); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.mace_schedule", "phase3: parried mace cleanup scheduling failed", error);
+  }
 }
 
 function mainhandItemId(player) {
@@ -361,7 +387,9 @@ function installDamageHook() {
       event.damage = plan.amount;
       storePhase3DamageState(target, plan);
     });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.errorOnce("phase3.damage_subscription", "phase3: damage-event subscription failed", error);
+  }
 }
 
 function phase3SurfaceAirY(dim, x, z) {
@@ -374,7 +402,8 @@ function phase3SurfaceAirY(dim, x, z) {
     const block = dim.getBlock({ x, y, z });
     if (block && block.isAir !== true) return null;
     return y;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.surface_probe", "phase3: surface-air probe failed", error);
     return null;
   }
 }
@@ -815,7 +844,9 @@ function fireballBlockHit(fireball, next) {
         z: Math.floor(point.z),
       });
       if (block !== undefined && block.isAir !== true) return fraction;
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.warnOnce("phase3.gravity_impulse", "phase3: inverse-gravity impulse failed", error);
+    }
   }
   return null;
 }
@@ -926,14 +957,17 @@ function onTick() {
   if (players.length === 0) {
     try {
       if (world.getAllPlayers().length === 0) return;
-    } catch {
+    } catch (error) {
+      operationDiagnostics.warnOnce("phase3.player_count", "phase3: player-count query failed", error);
       return;
     }
   }
   gravityActiveThisTick = false;
   for (const dim of dimensions()) {
     for (const entity of runtimeEntities(dim)) {
-      try { tickEntity(entity); } catch (error) { logger.error(`phase3 runtime ${entity.typeId} ${entity.id}`, error); }
+      try { tickEntity(entity); } catch (error) {
+        operationDiagnostics.errorOnce(`phase3.tick.${entity.typeId}`, `phase3: runtime tick failed for ${entity.typeId}`, error);
+      }
     }
   }
   applyStage3InverseGravity(players);

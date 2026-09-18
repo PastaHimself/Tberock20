@@ -11,6 +11,7 @@ import * as progression from "../../systems/progression.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import { captureBanSpawnContext, shouldSummonBan } from "./tbe_kill_followup_model.js";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // the_broken_end : HP1000 ATK600 0.6×25 size, speed 0.45, follow 64, grace 150, life 1000, chase range 128
@@ -57,12 +58,17 @@ function setNum(e, key, value) {
 
 function getPersistedAmbushNumber(e, property, fallback) {
   let value;
-  try { value = e.getDynamicProperty(property); } catch { return fallback; }
+  try { value = e.getDynamicProperty(property); } catch (error) {
+    operationDiagnostics.warnOnce("tbe.persistence.read", `tbe: failed to read '${property}'; using fallback`, error);
+    return fallback;
+  }
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function setPersistedAmbushNumber(e, property, value) {
-  try { e.setDynamicProperty(property, value); } catch {}
+  try { e.setDynamicProperty(property, value); } catch (error) {
+    operationDiagnostics.warnOnce("tbe.persistence.write", `tbe: failed to persist '${property}'`, error);
+  }
 }
 
 export function begin(scheduler) {
@@ -76,9 +82,9 @@ export function begin(scheduler) {
         const killer = cause?.damagingEntity;
         if (!killer || killer.typeId !== "thebrokenscript:the_broken_end") return;
         onTbeKillPlayer(ev.deadEntity, killer);
-      } catch {}
+      } catch (error) { operationDiagnostics.errorOnce("tbe.death_event", "tbe: death follow-up failed", error); }
     });
-  } catch {}
+  } catch (error) { operationDiagnostics.errorOnce("tbe.death_subscription", "tbe: death-event subscription failed", error); }
 }
 
 function onTick() {
@@ -93,9 +99,14 @@ function onTick() {
   if (theEnd) dims.push(theEnd);
   for (const dim of dims) {
     let list = [];
-    try { list = dim.getEntities({ families: ["thebrokenscript_tbe"] }); } catch { continue; }
+    try { list = dim.getEntities({ families: ["thebrokenscript_tbe"] }); } catch (error) {
+      operationDiagnostics.warnOnce("tbe.entity_query", "tbe: entity query failed; skipping this tick", error);
+      continue;
+    }
     for (const e of list) {
-      try { tickEntity(e); } catch (err) { logger.error(`tbe tick ${e.typeId} ${e.id}`, err); }
+      try { tickEntity(e); } catch (err) {
+        operationDiagnostics.errorOnce(`tbe.tick.${e.typeId}`, `tbe: controller tick failed for ${e.typeId}`, err);
+      }
     }
   }
 }
@@ -112,13 +123,26 @@ function tickEntity(e) {
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z); }
 
 function tryPlaySoundAt(dim, loc, sound, vol = 1, pitch = 1) {
-  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch {}
-  try { world.getAllPlayers().forEach(p => { if (p.dimension.id === dim.id) { try { p.playSound(sound, { volume: vol, pitch }); } catch {} } }); } catch {}
+  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch (error) {
+    operationDiagnostics.warnOnce("tbe.sound.dimension", `tbe: dimension sound '${sound}' unavailable; using player fallback`, error);
+  }
+  try {
+    world.getAllPlayers().forEach(p => {
+      if (p.dimension.id !== dim.id) return;
+      try { p.playSound(sound, { volume: vol, pitch }); } catch (error) {
+        operationDiagnostics.warnOnce("tbe.sound.player", `tbe: player sound fallback '${sound}' failed`, error);
+      }
+    });
+  } catch (error) {
+    operationDiagnostics.warnOnce("tbe.sound.players", "tbe: player sound fallback query failed", error);
+  }
 }
 
 function setFakeTime(dim, timeStr) {
   // source: TimeOfDay.MIDNIGHT/DAY/NOON setFake — approximation via /time set
-  try { dim.runCommand(`time set ${timeStr}`); } catch {}
+  try { dim.runCommand(`time set ${timeStr}`); } catch (error) {
+    operationDiagnostics.warnOnce("tbe.fake_time", `tbe: fake-time command '${timeStr}' failed`, error);
+  }
 }
 
 /**
@@ -134,7 +158,9 @@ function showSubtitle(player, subtitle, stayDuration = 10) {
       stayDuration,
       fadeOutDuration: 0,
     });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("tbe.subtitle", "tbe: subtitle presentation failed", error);
+  }
 }
 
 function hasLineOfSightApprox(player, entity) {
@@ -150,7 +176,10 @@ function hasLineOfSightApprox(player, entity) {
     // if hit block is substantially before entity (distance to hit < dist to entity - 1), LOS blocked
     const hitDist = Math.hypot(hit.block.location.x - origin.x, hit.block.location.y - origin.y, hit.block.location.z - origin.z);
     return hitDist > len - 1.2;
-  } catch { return true; }
+  } catch (error) {
+    operationDiagnostics.warnOnce("tbe.line_of_sight", "tbe: line-of-sight probe failed; preserving visible fallback", error);
+    return true;
+  }
 }
 
 function isWithin(entity, player, radius) {
@@ -176,7 +205,9 @@ function tickBrokenEnd(e) {
   // life timer 1000 -> discard (REP GAIN_MEDIUM ledgered)
   state.life--;
   if (state.life <= 0) {
-    try { e.remove(); } catch {}
+    try { e.remove(); } catch (error) {
+      operationDiagnostics.warnOnce("tbe.remove.expired", "tbe: expired entity removal failed", error);
+    }
     timers.delete(e.id); extraState.delete(e.id);
     return;
   }
@@ -216,7 +247,9 @@ function tickBrokenEnd(e) {
     // approximate: at 3/6/9/12 show titles
     if (state.interferences === 3) {
       showSubtitle(player, "tbescreenframe_1");
-      try { e.dimension.spawnParticle("minecraft:campfire_cosy_smoke", { x: e.location.x, y: e.location.y + 1.5, z: e.location.z }); } catch {}
+      try { e.dimension.spawnParticle("minecraft:campfire_cosy_smoke", { x: e.location.x, y: e.location.y + 1.5, z: e.location.z }); } catch (error) {
+        operationDiagnostics.warnOnce("tbe.interference_particle", "tbe: interference particle failed", error);
+      }
     } else if (state.interferences === 6) {
       showSubtitle(player, "tbescreenframe_2");
     } else if (state.interferences === 9) {
@@ -227,16 +260,29 @@ function tickBrokenEnd(e) {
     }
 
     // dig slowdown analogue: slowness + mining fatigue? use slowness
-    try { player.addEffect("mining_fatigue", 10, { amplifier: 1, showParticles: false }); } catch {}
-    try { player.addEffect("slowness", 10, { amplifier: 1, showParticles: false }); } catch {}
+    try { player.addEffect("mining_fatigue", 10, { amplifier: 1, showParticles: false }); } catch (error) {
+      operationDiagnostics.warnOnce("tbe.mining_fatigue", "tbe: mining-fatigue effect failed", error);
+    }
+    try { player.addEffect("slowness", 10, { amplifier: 1, showParticles: false }); } catch (error) {
+      operationDiagnostics.warnOnce("tbe.slowness", "tbe: slowness effect failed", error);
+    }
 
     // damage nearby golem/boat analogues (~20 blocks): break boats via kill, damage golems — ledger skip unless entity nearby
     try {
       const nearbyGolem = e.dimension.getEntities({ type: "minecraft:iron_golem", location: e.location, maxDistance: 20 });
-      for (const g of nearbyGolem.slice(0, 1)) { try { g.applyDamage(30); } catch {} }
+      for (const g of nearbyGolem.slice(0, 1)) { try { g.applyDamage(30); } catch (error) {
+        operationDiagnostics.warnOnce("tbe.golem_damage", "tbe: golem damage operation failed", error);
+      } }
       const nearbyBoat = e.dimension.getEntities({ location: e.location, maxDistance: 20 }).filter(x => x.typeId.includes("boat"));
-      for (const b of nearbyBoat.slice(0, 1)) { try { b.applyDamage(30); } catch { try { b.remove(); } catch {} } }
-    } catch {}
+      for (const b of nearbyBoat.slice(0, 1)) { try { b.applyDamage(30); } catch (error) {
+        operationDiagnostics.warnOnce("tbe.boat_damage", "tbe: boat damage operation failed; removing boat fallback", error);
+        try { b.remove(); } catch (removeError) {
+          operationDiagnostics.warnOnce("tbe.boat_remove", "tbe: boat removal fallback failed", removeError);
+        }
+      } }
+    } catch (error) {
+      operationDiagnostics.warnOnce("tbe.nearby_damage_query", "tbe: nearby damage query failed", error);
+    }
 
     // force survival gamemode in production (approx: try command)
     // skip — requires operator; ledgered
@@ -248,7 +294,9 @@ function tickBrokenEnd(e) {
       if (speed < 0.02 && e.isOnGround) state.stuckTicks++;
       else state.stuckTicks = 0;
       if (state.stuckTicks > 40) {
-        try { e.teleport({ x: e.location.x, y: player.location.y, z: e.location.z }); } catch {}
+        try { e.teleport({ x: e.location.x, y: player.location.y, z: e.location.z }); } catch (error) {
+          operationDiagnostics.warnOnce("tbe.stuck_teleport", "tbe: stuck recovery teleport failed", error);
+        }
         state.stuckTicks = 0;
       }
     } catch { state.stuckTicks = 0; }
@@ -257,7 +305,9 @@ function tickBrokenEnd(e) {
     if (system.currentTick % 20 === 0) {
       // guard by config if exists (danger.disableBlockBreaking not yet registered — default to allowed)
       let blocked = false;
-      try { blocked = config.get("danger.disableBlockBreaking") === true; } catch {}
+      try { blocked = config.get("danger.disableBlockBreaking") === true; } catch (error) {
+        operationDiagnostics.warnOnce("tbe.config_read", "tbe: block-breaking config read failed; preserving enabled fallback", error);
+      }
       if (!blocked) scanAndBreakInFront(e);
     }
 
@@ -267,9 +317,16 @@ function tickBrokenEnd(e) {
         // Bedrock gameMode query: player.getGameMode() stable @2.6 — guard
         const gm = typeof player.getGameMode === "function" ? player.getGameMode() : undefined;
         if (gm === GameMode.Creative) {
-          try { player.kill(); } catch { try { player.applyDamage(1000); } catch {} }
+          try { player.kill(); } catch (error) {
+            operationDiagnostics.warnOnce("tbe.creative_kill", "tbe: creative kill failed; using damage fallback", error);
+            try { player.applyDamage(1000); } catch (damageError) {
+              operationDiagnostics.errorOnce("tbe.creative_damage", "tbe: creative kill damage fallback failed", damageError);
+            }
+          }
         }
-      } catch {}
+      } catch (error) {
+        operationDiagnostics.warnOnce("tbe.creative_mode", "tbe: creative-mode shortcut failed", error);
+      }
     }
   } else {
     // no target: still tick stuck logic reset
@@ -313,13 +370,19 @@ function scanAndBreakInFront(e) {
             if (id.includes("water") || id.includes("lava")) continue;
             block.setType("minecraft:air");
             // particle event 2001 approx
-            try { e.dimension.spawnParticle("minecraft:block_destruct", { x: x + 0.5, y: y + 0.5, z: z + 0.5 }); } catch {}
+            try { e.dimension.spawnParticle("minecraft:block_destruct", { x: x + 0.5, y: y + 0.5, z: z + 0.5 }); } catch (error) {
+              operationDiagnostics.warnOnce("tbe.block_break_particle", "tbe: block-break particle failed", error);
+            }
             broken++;
-          } catch {}
+          } catch (error) {
+            operationDiagnostics.warnOnce("tbe.block_break", "tbe: block-break operation failed; continuing scan", error);
+          }
         }
       }
     }
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("tbe.block_break_scan", "tbe: block-break scan failed", error);
+  }
 }
 
 function onTbeKillPlayer(player, tbeEntity) {
@@ -331,9 +394,13 @@ function onTbeKillPlayer(player, tbeEntity) {
     logger.error("tbe kill follow-up: failed to capture BAN spawn context", error);
   }
 
-  try { tryPlaySoundAt(tbeEntity.dimension, player.location, "thebrokenscript:the_end_is_near", 2, 0.2); } catch {}
+  try { tryPlaySoundAt(tbeEntity.dimension, player.location, "thebrokenscript:the_end_is_near", 2, 0.2); } catch (error) {
+    operationDiagnostics.warnOnce("tbe.kill_sound", "tbe: kill follow-up sound failed", error);
+  }
   // source RepTier GAIN_MEDIUM analogue → advancement approximation
-  try { progression.award(player.id, "you_ve_brought_it_upon_yourself"); } catch {}
+  try { progression.award(player.id, "you_ve_brought_it_upon_yourself"); } catch (error) {
+    operationDiagnostics.warnOnce("tbe.kill_progression", "tbe: kill progression award failed", error);
+  }
   try { tbeEntity.remove(); } catch (error) { logger.error("tbe kill follow-up: failed to remove TBE", error); }
   timers.delete(tbeId);
   extraState.delete(tbeId);
@@ -345,10 +412,15 @@ function onTbeKillPlayer(player, tbeEntity) {
       const safeName = player.name.replace(/"/g, '\\"');
       try {
         player.dimension.runCommand(`kick "${safeName}" §cThe Broken End has consumed you.`);
-      } catch {
-        try { player.onScreenDisplay.setTitle("§4THE END IS NEAR", { subtitle: "You were removed", fadeInDuration: 10, stayDuration: 60, fadeOutDuration: 20 }); } catch {}
+      } catch (error) {
+        operationDiagnostics.warnOnce("tbe.kill_command", "tbe: player removal command failed; using title fallback", error);
+        try { player.onScreenDisplay.setTitle("§4THE END IS NEAR", { subtitle: "You were removed", fadeInDuration: 10, stayDuration: 60, fadeOutDuration: 20 }); } catch (titleError) {
+          operationDiagnostics.warnOnce("tbe.kill_title", "tbe: player removal title fallback failed", titleError);
+        }
       }
-    } catch {}
+    } catch (error) {
+      operationDiagnostics.errorOnce("tbe.kill_followup", "tbe: queued kill follow-up failed", error);
+    }
 
     if (!banSpawnContext || !shouldSummonBan(Math.random())) return;
     const ban = spawnHelpers.trySummon(

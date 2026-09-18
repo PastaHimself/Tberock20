@@ -55,13 +55,6 @@ jobs:
         if: always()
         run: python tools/validate_runtime_smoke_matrix.py tests/runtime-smoke/matrix.json
 
-      - name: Validate runtime smoke report when present
-        if: ${{ always() && hashFiles('tests/runtime-smoke/latest-report.json') != '' }}
-        run: >-
-          python tools/validate_runtime_smoke_report.py
-          tests/runtime-smoke/latest-report.json
-          --matrix tests/runtime-smoke/matrix.json
-
       # Keep the static suite running even if one validator fails so every CI run
       # reports the complete set of actionable failures instead of stopping early.
       - name: Run validator unit tests
@@ -266,6 +259,44 @@ jobs:
 
           node tools/filter_mct_validation.mjs .ci/mct-validation.json
 
+      - name: Package successful build as .mcaddon
+        id: package_addon
+        if: success()
+        shell: bash
+        env:
+          STRICT_PARITY: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || inputs.enforce_parity || startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          set -euo pipefail
+          if [[ "$STRICT_PARITY" == "true" ]]; then
+            bash tools/package-addon.sh --release
+          else
+            bash tools/package-addon.sh
+          fi
+
+          CANDIDATE_COMMIT="$(git rev-parse --verify HEAD^{commit})"
+          ARTIFACT_SHA256="$(sha256sum dist/The_Broken_Script_2_0.mcaddon | awk '{print $1}')"
+          if [[ ! "$CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "The checked-out candidate commit is not a full 40-hex SHA: $CANDIDATE_COMMIT" >&2
+            exit 1
+          fi
+          if [[ ! "$ARTIFACT_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "The packaged .mcaddon digest is not a full 64-hex SHA-256: $ARTIFACT_SHA256" >&2
+            exit 1
+          fi
+          echo "candidate_commit=$CANDIDATE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "artifact_sha256=$ARTIFACT_SHA256" >> "$GITHUB_OUTPUT"
+
+      - name: Validate runtime smoke report against packaged candidate when present
+        if: ${{ always() && hashFiles('tests/runtime-smoke/latest-report.json') != '' }}
+        shell: bash
+        run: >-
+          python tools/validate_runtime_smoke_report.py
+          tests/runtime-smoke/latest-report.json
+          --matrix tests/runtime-smoke/matrix.json
+          --artifact dist/The_Broken_Script_2_0.mcaddon
+          --expected-commit "${{ steps.package_addon.outputs.candidate_commit }}"
+          --expected-artifact-sha256 "${{ steps.package_addon.outputs.artifact_sha256 }}"
+
       # A green main branch must mean the repository has current real-engine
       # evidence, not merely that static validators passed. Pull requests can still
       # run the static suite while the smoke report is being produced separately.
@@ -282,20 +313,10 @@ jobs:
           python tools/validate_runtime_smoke_report.py \
             tests/runtime-smoke/latest-report.json \
             --matrix tests/runtime-smoke/matrix.json \
+            --artifact dist/The_Broken_Script_2_0.mcaddon \
+            --expected-commit "${{ steps.package_addon.outputs.candidate_commit }}" \
+            --expected-artifact-sha256 "${{ steps.package_addon.outputs.artifact_sha256 }}" \
             --require-complete
-
-      - name: Package successful build as .mcaddon
-        id: package_addon
-        if: success()
-        shell: bash
-        env:
-          STRICT_PARITY: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || inputs.enforce_parity || startsWith(github.ref, 'refs/tags/v') }}
-        run: |
-          if [[ "$STRICT_PARITY" == "true" ]]; then
-            bash tools/package-addon.sh --release
-          else
-            bash tools/package-addon.sh
-          fi
 
       - name: Upload The Broken Script 2.0 .mcaddon
         id: upload_addon

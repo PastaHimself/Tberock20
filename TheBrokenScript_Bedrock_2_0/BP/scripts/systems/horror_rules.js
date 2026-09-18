@@ -4,6 +4,8 @@
 // and the selection/normalization functions pure makes the parity rules
 // testable without a running Bedrock world.
 
+import { clampNormalizedRoll } from "./source_numeric_model.js";
+
 export const EVENT_FREQUENCY = 2.9166666e-4;
 
 export const SOURCE_EVENT_IDS = Object.freeze([
@@ -266,11 +268,12 @@ export function selectWeightedEvent(events, counts = {}, roll = Math.random()) {
   const candidates = (events ?? []).filter((event) => event && Number(event.weight) >= 0);
   if (candidates.length === 0) return undefined;
 
+  const normalizedRoll = clampNormalizedRoll(roll);
   const weights = candidates.map((event) => Number(event.weight) / Math.max(1, Number(counts[event.id] ?? 1)));
   const total = weights.reduce((sum, weight) => sum + (Number.isFinite(weight) ? weight : 0), 0);
-  if (total <= 0) return candidates[Math.min(candidates.length - 1, Math.floor(Math.max(0, Math.min(0.999999999, roll)) * candidates.length))];
+  if (total <= 0) return candidates[Math.min(candidates.length - 1, Math.floor(normalizedRoll * candidates.length))];
 
-  let remaining = Math.max(0, Math.min(0.999999999, Number(roll))) * total;
+  let remaining = normalizedRoll * total;
   for (let index = 0; index < candidates.length; index += 1) {
     remaining -= weights[index];
     if (remaining <= 0) return candidates[index];

@@ -1,5 +1,5 @@
 import { GameMode, world } from "@minecraft/server";
-import { logger } from "../../core/logging.js";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
 import {
   CHORD_PROJECTILE_BEDROCK_ADAPTER,
@@ -33,14 +33,17 @@ function isValid(entity) {
 function removeProjectile(entity) {
   states.delete(entity?.id);
   pendingLaunches.delete(entity?.id);
-  try { entity.remove(); } catch {}
+  try { entity.remove(); } catch (error) {
+    operationDiagnostics.warnOnce("chord.remove", "chord: projectile removal failed", error);
+  }
 }
 
 function teleport(entity, position) {
   try {
     entity.teleport(position);
     return true;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("chord.teleport", "chord: projectile teleport failed", error);
     return false;
   }
 }
@@ -84,7 +87,9 @@ function installSpawnHook() {
       if (entity?.typeId !== TYPE_ID) return;
       initState(entity);
     });
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.errorOnce("chord.spawn_subscription", "chord: projectile spawn hook unavailable", error);
+  }
 }
 
 function dimensions() {
@@ -105,7 +110,8 @@ function dimensions() {
 function runtimeProjectiles(dimension) {
   try {
     return dimension.getEntities({ families: [RUNTIME_FAMILY] });
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("chord.entity_query", "chord: projectile entity query failed", error);
     return [];
   }
 }
@@ -113,7 +119,9 @@ function runtimeProjectiles(dimension) {
 function isFluidBlock(block) {
   try {
     if (block.isLiquid === true) return true;
-  } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("chord.block_query", "chord: projectile block query failed", error);
+  }
   const typeId = block?.typeId;
   return typeId === "minecraft:water" || typeId === "minecraft:lava";
 }
@@ -127,7 +135,8 @@ function solidBlockAt(dimension, position) {
     });
     if (!block || block.isAir === true || isFluidBlock(block)) return false;
     return true;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("chord.solid_block", "chord: solid-block query failed; preserving no-hit fallback", error);
     return false;
   }
 }
@@ -278,7 +287,9 @@ function entityImpactOnSegment(dimension, start, end, projectile, state) {
 function triggerGravityRestoration(entity, state) {
   if (state.gravityRestored) return;
   state.gravityRestored = true;
-  try { entity.triggerEvent(GRAVITY_RESTORE_EVENT); } catch {}
+  try { entity.triggerEvent(GRAVITY_RESTORE_EVENT); } catch (error) {
+    operationDiagnostics.warnOnce("chord.gravity_restore", "chord: gravity-restore event failed", error);
+  }
 }
 
 function isCreativePlayer(entity) {
@@ -299,8 +310,12 @@ function applyProjectileDamage(projectile, target, state) {
   try {
     target.applyDamage(damage, chordProjectileDamageOptions(state.ownerEntity, projectile));
     return;
-  } catch {}
-  try { target.applyDamage(damage); } catch {}
+  } catch (error) {
+    operationDiagnostics.warnOnce("chord.projectile_damage", "chord: attributed projectile damage failed; using un-attributed fallback", error);
+  }
+  try { target.applyDamage(damage); } catch (error) {
+    operationDiagnostics.errorOnce("chord.projectile_damage_fallback", "chord: projectile damage fallback failed", error);
+  }
 }
 
 function handleEntityImpact(projectile, target, state, impactPosition) {
@@ -408,7 +423,7 @@ function onTick() {
       try {
         tickProjectile(entity);
       } catch (error) {
-        logger.error(`chord projectile tick ${entity.id}`, error);
+        operationDiagnostics.errorOnce("chord.tick", "chord: projectile tick failed", error);
       }
     }
   }

@@ -13,7 +13,7 @@ test("strict parity validation is opt-in for release workflows", async () => {
   assert.match(workflow, /enforce_parity:[\s\S]*?default:\s+false/);
   assert.match(
     workflow,
-    /if:\s+\$\{\{\s*inputs\.enforce_parity\s+\|\|\s+startsWith\(github\.ref,\s+[\"']refs\/tags\/v[\"']\)\s*\}\}/
+    /if:\s+\$\{\{[\s\S]*inputs\.enforce_parity[\s\S]*startsWith\(github\.ref,\s+[\"']refs\/tags\/v[\"']\)[\s\S]*\}\}/
   );
   assert.match(workflow, /bash tools\/package-addon\.sh --release/);
   assert.match(workflow, /bash tools\/package-addon\.sh\s*\n/);

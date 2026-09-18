@@ -54,6 +54,25 @@ class SourceToRuntimeAuditTests(unittest.TestCase):
             ])
             self.assertEqual(graph["unreachable_modules"], ["BP/scripts/orphan.js"])
 
+    def test_entity_audit_support_modules_have_explicit_unreachable_dispositions(self):
+        report = MODULE.audit_project(REPO_ROOT)
+        runtime = report["runtime"]
+        expected = [
+            "BP/scripts/core/entity_family_registry.js",
+            "BP/scripts/core/entity_persistence_policy.js",
+        ]
+
+        for module in expected:
+            self.assertIn(module, runtime["unreachable_modules"])
+            self.assertIn("audit-support", runtime["unreachable_dispositions"][module])
+
+        self.assertFalse(
+            any(
+                finding["code"] == "runtime-module-unreachable"
+                for finding in report["findings"]
+            )
+        )
+
     def test_nested_asset_glob_matches_original_source_path(self):
         self.assertTrue(
             MODULE.asset_pattern_matches(

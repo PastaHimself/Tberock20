@@ -100,6 +100,8 @@ COMMON_RUNTIME_NUMBERS = {
 }
 UNREACHABLE_DISPOSITIONS = {
     "BP/scripts/core/cooldowns.js": "source-only cooldown helper; no current Bedrock caller",
+    "BP/scripts/core/entity_family_registry.js": "audit-support source contract; intentionally not wired into the Bedrock runtime",
+    "BP/scripts/core/entity_persistence_policy.js": "audit-support source contract; intentionally not wired into the Bedrock runtime",
     "BP/scripts/core/flags.js": "source-only feature-flag guard; no current Bedrock caller",
     "BP/scripts/core/random.js": "source-only random helper; callers currently use local source-backed predicates",
     "BP/scripts/entities/boss/integrity_camera.js": "engine-limited camera adapter retained for future camera API support",

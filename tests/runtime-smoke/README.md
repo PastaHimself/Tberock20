@@ -24,7 +24,9 @@ preview, or a newer npm package and call the result evidence for this matrix.
 
 ## Create the repeatable world
 
-1. Build the pack from the repository root:
+1. Build the pack from the repository root. The packager fixes archive metadata
+   from `SOURCE_DATE_EPOCH` and uses metadata-free, sorted ZIP entries so the
+   resulting `.mcaddon` can be hashed reproducibly:
 
    ```bash
    bash tools/package-addon.sh
@@ -78,14 +80,21 @@ using wall-clock time as a proxy.
 ## Record and gate the result
 
 Copy [`report.template.json`](report.template.json) to
-`latest-report.json`, replace its placeholders with the run's evidence, and
-validate it locally:
+`latest-report.json`, replace its placeholders with the real engine run's
+evidence, candidate commit, and packaged artifact digest, and validate it
+locally from the same checkout:
 
 ```bash
 python tools/validate_runtime_smoke_matrix.py tests/runtime-smoke/matrix.json
+bash tools/package-addon.sh
+CANDIDATE_COMMIT="$(git rev-parse --verify HEAD^{commit})"
+ARTIFACT_SHA256="$(sha256sum dist/The_Broken_Script_2_0.mcaddon | awk '{print $1}')"
 python tools/validate_runtime_smoke_report.py \
   tests/runtime-smoke/latest-report.json \
   --matrix tests/runtime-smoke/matrix.json \
+  --artifact dist/The_Broken_Script_2_0.mcaddon \
+  --expected-commit "$CANDIDATE_COMMIT" \
+  --expected-artifact-sha256 "$ARTIFACT_SHA256" \
   --require-complete
 ```
 
@@ -97,10 +106,17 @@ A parity-critical error or warning fails the report validator. Informational
 messages may be retained without blocking the report.
 
 Do not commit `latest-report.json` until it represents a real engine run. The
-normal pull-request workflow validates the matrix and the report schema. The
-workflow requires a complete passing report when `enforce_runtime_smoke` is
-selected manually or when a version tag is built; the existing static gates
-remain active as well.
+report's `candidate_commit` must be the exact full 40-hex Git SHA for the
+checkout used to build and test the world. Its `artifact_sha256` must be the
+exact full 64-hex SHA-256 of the `.mcaddon` named by `artifact_path`.
+Pull-request CI validates any committed report against the checked-out commit
+and freshly packaged artifact; this rejects reports or artifacts copied from a
+different revision. The workflow requires a complete passing report when
+`enforce_runtime_smoke` is selected manually or when a version tag is built;
+the existing static gates remain active as well.
+
+The template is intentionally `not-run` and contains placeholders. It is not
+runtime evidence: do not replace it with invented or synthetic Bedrock output.
 
 ## Evidence sources
 

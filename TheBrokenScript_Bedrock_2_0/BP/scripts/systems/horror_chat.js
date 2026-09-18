@@ -4,6 +4,10 @@ import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
 import { logger } from "../core/logging.js";
 import {
+  REGAIN_HALF_BY_TIER,
+  REPUTATION_TIER_BY_DELTA as SOURCE_REPUTATION_TIER_BY_DELTA,
+} from "./horror_reputation_model.js";
+import {
   CHAT_RESPONSE_DEFINITIONS,
   findChatResponse,
   isChatResponseEligible,
@@ -18,16 +22,10 @@ import {
 const SESSION_PROPERTY = "horror_chat_session";
 const pendingByPlayer = new Map();
 const lastResponseTick = new Map();
-const REPUTATION_TIER_BY_DELTA = new Map([
-    [-1, "LOSS_TEENYTINY"], [-5, "LOSS_BABY"], [-10, "LOSS_MINOR"], [-15, "LOSS_SMALL"],
-    [-20, "LOSS_RARE"], [-25, "LOSS_MEDIUM"], [-30, "LOSS_WELLDONE"], [-35, "LOSS_HUGE"], [-50, "LOSS_IHY"],
-    [1, "GAIN_TEENYTINY"], [5, "GAIN_BABY"], [10, "GAIN_MINOR"], [15, "GAIN_SMALL"],
-    [20, "GAIN_RARE"], [25, "GAIN_MEDIUM"], [30, "GAIN_WELLDONE"], [35, "GAIN_HUGE"], [50, "GAIN_ILY"],
-]);
-const LOST_REPUTATION_HALF_BY_TIER = new Map([
-    ["LOSS_TEENYTINY", 0.5], ["LOSS_BABY", 2.5], ["LOSS_MINOR", 5], ["LOSS_SMALL", 7.5],
-    ["LOSS_RARE", 10], ["LOSS_MEDIUM", 12.5], ["LOSS_WELLDONE", 15], ["LOSS_HUGE", 17.5], ["LOSS_IHY", 25],
-]);
+const REPUTATION_TIER_BY_DELTA = new Map(
+  Object.entries(SOURCE_REPUTATION_TIER_BY_DELTA).map(([delta, tier]) => [Number(delta), tier]),
+);
+const LOST_REPUTATION_HALF_BY_TIER = new Map(Object.entries(REGAIN_HALF_BY_TIER));
 let sessionToken = 0;
 
 function playerId(playerOrId) {
