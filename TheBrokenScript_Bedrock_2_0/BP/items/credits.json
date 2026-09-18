@@ -16,8 +16,8 @@
       "minecraft:rarity": "rare",
       "minecraft:record": {
         "comparator_signal": 13,
-        "duration": 165.0,
-        "sound_event": "credits"
+        "duration": 165,
+        "sound_event": "lt.reaction.miscmystical"
       }
     }
   }

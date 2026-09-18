@@ -17,7 +17,7 @@
       "minecraft:record": {
         "comparator_signal": 1,
         "duration": 204,
-        "sound_event": "lilly_theme_v2"
+        "sound_event": "lt.reaction.fireball"
       }
     }
   }

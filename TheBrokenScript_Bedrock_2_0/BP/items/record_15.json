@@ -16,8 +16,8 @@
       "minecraft:rarity": "rare",
       "minecraft:record": {
         "comparator_signal": 13,
-        "duration": 78.0,
-        "sound_event": "disc15_betray"
+        "duration": 78,
+        "sound_event": "lt.reaction.epaste2"
       }
     }
   }

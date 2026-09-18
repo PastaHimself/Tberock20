@@ -16,8 +16,8 @@
       "minecraft:rarity": "epic",
       "minecraft:record": {
         "comparator_signal": 13,
-        "duration": 239.0,
-        "sound_event": "instability_v2"
+        "duration": 239,
+        "sound_event": "lt.reaction.mgsalt"
       }
     }
   }
