@@ -119,18 +119,18 @@ COD_ITEM_NAMES = (
 )
 
 RECORD_ITEM_CONTRACTS = {
-    "record_14": {"rarity": "rare", "duration": 61, "sound_event": "record14"},
-    "record_15": {"rarity": "rare", "duration": 78, "sound_event": "disc15_betray"},
-    "record_16": {"rarity": "rare", "duration": 98, "sound_event": "disc16_youcant"},
-    "record_17": {"rarity": "rare", "duration": 63.5, "sound_event": "disc17"},
-    "instability": {"rarity": "rare", "duration": 233.5, "sound_event": "instability"},
-    "instabilityv2": {"rarity": "epic", "duration": 239, "sound_event": "instability_v2"},
-    "instabilityv3": {"rarity": "epic", "duration": 278, "sound_event": "instability_v3"},
-    "instability_music_box": {"rarity": "rare", "duration": 179, "sound_event": "instability_music_box"},
-    "attribute_mutilation": {"rarity": "rare", "duration": 157, "sound_event": "jimbob.full"},
-    "credits": {"rarity": "rare", "duration": 165, "sound_event": "credits"},
-    "lilly": {"rarity": "epic", "duration": 208, "sound_event": "lilly_theme"},
-    "lilly_v2": {"rarity": "epic", "duration": 204, "sound_event": "lilly_theme_v2"},
+    "record_14": {"rarity": "rare", "duration": 61, "sound_event": "record14", "bedrock_sound_event": "lt.reaction.fertilizer"},
+    "record_15": {"rarity": "rare", "duration": 78, "sound_event": "disc15_betray", "bedrock_sound_event": "lt.reaction.epaste2"},
+    "record_16": {"rarity": "rare", "duration": 98, "sound_event": "disc16_youcant", "bedrock_sound_event": "lt.reaction.epaste"},
+    "record_17": {"rarity": "rare", "duration": 63.5, "sound_event": "disc17", "bedrock_sound_event": "lt.reaction.bleach"},
+    "instability": {"rarity": "rare", "duration": 233.5, "sound_event": "instability", "bedrock_sound_event": "lt.reaction.icebomb"},
+    "instabilityv2": {"rarity": "epic", "duration": 239, "sound_event": "instability_v2", "bedrock_sound_event": "lt.reaction.mgsalt"},
+    "instabilityv3": {"rarity": "epic", "duration": 278, "sound_event": "instability_v3", "bedrock_sound_event": "lt.reaction.miscexplosion"},
+    "instability_music_box": {"rarity": "rare", "duration": 179, "sound_event": "instability_music_box", "bedrock_sound_event": "lt.reaction.miscfire"},
+    "attribute_mutilation": {"rarity": "rare", "duration": 157, "sound_event": "jimbob.full", "bedrock_sound_event": "lt.reaction.miscmystical2"},
+    "credits": {"rarity": "rare", "duration": 165, "sound_event": "credits", "bedrock_sound_event": "lt.reaction.miscmystical"},
+    "lilly": {"rarity": "epic", "duration": 208, "sound_event": "lilly_theme", "bedrock_sound_event": "lt.reaction.fire"},
+    "lilly_v2": {"rarity": "epic", "duration": 204, "sound_event": "lilly_theme_v2", "bedrock_sound_event": "lt.reaction.fireball"},
 }
 
 FIRE_RESISTANT_ITEM_CONTRACTS = {
@@ -436,7 +436,17 @@ def _item_behavior_contract(repo: Path) -> dict[str, Any]:
     for name, contract in FIRE_RESISTANT_ITEM_CONTRACTS.items():
         expect(name, "minecraft:max_stack_size", 1)
         expect(name, "minecraft:rarity", contract["rarity"])
-        expect(name, "minecraft:fire_resistant", True)
+        expect(name, "minecraft:fire_resistant", {"value": True})
+
+    sounds_path = repo / f"{ADDON_NAME}/RP/sounds.json"
+    sounds_document = _load_json(sounds_path) if sounds_path.is_file() else {}
+    event_routes = (
+        sounds_document.get("individual_event_sounds", {}).get("events", {})
+        if isinstance(sounds_document, dict)
+        else {}
+    )
+    if not isinstance(event_routes, dict):
+        event_routes = {}
 
     records: dict[str, Any] = {}
     for name, contract in RECORD_ITEM_CONTRACTS.items():
@@ -449,10 +459,19 @@ def _item_behavior_contract(repo: Path) -> dict[str, Any]:
         expected_record = {
             "comparator_signal": 1 if name in {"lilly", "lilly_v2"} else 13,
             "duration": contract["duration"],
-            "sound_event": contract["sound_event"],
+            "sound_event": contract["bedrock_sound_event"],
         }
         expect(name, "minecraft:record", expected_record)
-        records[name] = expected_record
+        route = event_routes.get(contract["bedrock_sound_event"])
+        if not isinstance(route, dict) or route.get("sound") != contract["sound_event"]:
+            mismatches.append(
+                f"{name}: RP/sounds.json must route {contract['bedrock_sound_event']!r} "
+                f"to {contract['sound_event']!r}"
+            )
+        records[name] = {
+            **expected_record,
+            "sound_definition": contract["sound_event"],
+        }
 
     return {
         "missing_items": sorted(set(missing)),
