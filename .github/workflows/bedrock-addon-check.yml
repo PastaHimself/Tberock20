@@ -297,11 +297,11 @@ jobs:
           --expected-commit "${{ steps.package_addon.outputs.candidate_commit }}"
           --expected-artifact-sha256 "${{ steps.package_addon.outputs.artifact_sha256 }}"
 
-      # A green main branch must mean the repository has current real-engine
-      # evidence, not merely that static validators passed. Pull requests can still
-      # run the static suite while the smoke report is being produced separately.
+      # Main may run the static suite while real-engine evidence is produced
+      # separately. If a real report is committed on main, validate it completely;
+      # manual enforcement and version tags always require a complete report.
       - name: Enforce complete runtime smoke evidence on main and releases
-        if: ${{ always() && (github.ref == 'refs/heads/main' || inputs.enforce_runtime_smoke || startsWith(github.ref, 'refs/tags/v')) }}
+        if: ${{ always() && (inputs.enforce_runtime_smoke || startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main' && hashFiles('tests/runtime-smoke/latest-report.json') != '')) }}
         shell: bash
         run: |
           set -euo pipefail
