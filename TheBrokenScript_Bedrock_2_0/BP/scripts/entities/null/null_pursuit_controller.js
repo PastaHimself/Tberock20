@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import { EntityDamageCause } from "@minecraft/server";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
@@ -23,7 +24,7 @@ export function begin(scheduler) {
 function onTick() {
   for (const dim of [world.getDimension("overworld")]) {
     let list = [];
-    try { list = dim.getEntities({ families: ["thebrokenscript_null"] }); } catch { continue; }
+    try { list = dim.getEntities({ families: ["thebrokenscript_null"] }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.26", "best-effort Bedrock API fallback", error); continue; }
     for (const e of list) {
       if (!(e.typeId in LIFETIMES) && e.typeId !== "thebrokenscript:nulll") continue;
       try { tickEntity(e); } catch (err) { logger.error(`null_pursuit ${e.typeId}`, err); }
@@ -47,20 +48,20 @@ function tickEntity(e) {
 function tickChase(e) {
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 520);
   if (!player) { e.remove(); timers.delete(e.id); return; }
-  if (Math.random() < 0.01) { try { e.dimension.runCommand("time set midnight"); } catch {} }
-  if (Math.random() < 0.25) { try { e.dimension.spawnParticle("thebrokenscript:null_particle", e.location); } catch {} }
-  try { player.addEffect("blindness", 60, { amplifier: 0, showParticles: false }); } catch {}
+  if (Math.random() < 0.01) { try { e.dimension.runCommand("time set midnight"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.50", "best-effort Bedrock API fallback", error);} }
+  if (Math.random() < 0.25) { try { e.dimension.spawnParticle("thebrokenscript:null_particle", e.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.51", "best-effort Bedrock API fallback", error);} }
+  try { player.addEffect("blindness", 60, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.52", "best-effort Bedrock API fallback", error);}
 }
 
 function tickEndgame(e) {
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 50);
   if (!player) return;
-  try { player.onScreenDisplay.setTitle("HERE I AM", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 10 }); } catch {}
-  if (getTimer(e) % 60 === 0) { try { player.applyDamage(999, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { player.applyDamage(999); } catch {} } }
+  try { player.onScreenDisplay.setTitle("HERE I AM", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 10 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.58", "best-effort Bedrock API fallback", error);}
+  if (getTimer(e) % 60 === 0) { try { player.applyDamage(999, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { player.applyDamage(999); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.59", "best-effort Bedrock API fallback", error);} } }
 }
 
 function tickUnbeatable(e) {
-  try { e.addEffect("resistance", 100, { amplifier: 5, showParticles: false }); } catch {}
+  try { e.addEffect("resistance", 100, { amplifier: 5, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.63", "best-effort Bedrock API fallback", error);}
 }
 
 function tickInvade(e) {
@@ -68,8 +69,8 @@ function tickInvade(e) {
   if (!player) return;
   if (!gaze.isLookingAtEntity(player, e, 14)) return;
   if (Math.random() < 0.7) {
-    try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch {}
-    try { e.dimension.spawnEntity("minecraft:lightning_bolt", e.location); } catch {}
+    try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.71", "best-effort Bedrock API fallback", error);}
+    try { e.dimension.spawnEntity("minecraft:lightning_bolt", e.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.72", "best-effort Bedrock API fallback", error);}
   }
   e.remove(); timers.delete(e.id);
 }

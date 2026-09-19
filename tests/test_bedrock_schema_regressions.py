@@ -197,7 +197,7 @@ class BedrockSchemaRegressionTests(unittest.TestCase):
         self.assertEqual(missing, [])
 
     def test_item_icons_resolve_through_the_resource_pack_atlas(self):
-        atlas = read_json(RP / "item_texture.json").get("texture_data", {})
+        atlas = read_json(RP / "textures" / "item_texture.json").get("texture_data", {})
         missing = []
         for path in sorted((BP / "items").glob("*.json")):
             components = read_json(path).get("minecraft:item", {}).get("components", {})
@@ -207,6 +207,65 @@ class BedrockSchemaRegressionTests(unittest.TestCase):
             if isinstance(icon, str) and icon not in atlas:
                 missing.append(f"{path.name}: {icon}")
         self.assertEqual(missing, [])
+
+    def test_resource_texture_catalogs_use_the_runtime_texture_directory(self):
+        for name in ("terrain_texture.json", "item_texture.json", "flipbook_textures.json"):
+            self.assertTrue((RP / "textures" / name).is_file(), name)
+            self.assertFalse((RP / name).exists(), name)
+
+        flipbook = read_json(RP / "textures" / "flipbook_textures.json")
+        self.assertIsInstance(flipbook, list)
+        self.assertTrue(flipbook)
+        for entry in flipbook:
+            self.assertIsInstance(entry, dict)
+            self.assertTrue(str(entry["flipbook_texture"]).startswith("textures/"))
+
+    def test_flipbook_frames_use_integer_indices_and_preserve_command_timing(self):
+        flipbook = read_json(RP / "textures" / "flipbook_textures.json")
+        for entry in flipbook:
+            for frame in entry.get("frames", []):
+                self.assertIsInstance(frame, int)
+
+        command_block = next(
+            entry for entry in flipbook
+            if entry.get("atlas_tile") == "command_block"
+        )
+        self.assertEqual(command_block["ticks_per_frame"], 4)
+        self.assertEqual(
+            command_block["frames"],
+            [0] * 10 + [1] * 10 + [4] * 10 + [3] * 10,
+        )
+
+    def test_render_controllers_declare_static_uv_animation_defaults(self):
+        for path in sorted((RP / "render_controllers").glob("*.json")):
+            document = read_json(path)
+            for controller in document.get("render_controllers", {}).values():
+                self.assertEqual(
+                    controller.get("uv_anim"),
+                    {"offset": [0, 0], "scale": [1, 1]},
+                    path.name,
+                )
+
+    def test_null_flying_uses_the_scripted_damage_adapter(self):
+        entity = read_json(BP / "entities" / "null_flying.json")
+        components = entity["minecraft:entity"]["components"]
+        self.assertNotIn("minecraft:attack", components)
+
+        pursuit_model = (BP / "scripts" / "systems" / "null_pursuit_model.js").read_text(
+            encoding="utf-8-sig",
+        )
+        self.assertIn("proximityDamageMin: 1", pursuit_model)
+        self.assertIn("proximityDamageMaxExclusive: 10", pursuit_model)
+
+    def test_blockception_redundant_molang_operations_are_removed(self):
+        for path in sorted((BP / "blocks").glob("*.json")):
+            document = path.read_text(encoding="utf-8-sig")
+            self.assertNotRegex(document, r"query\.block_state\([^\n]+\)\s*==\s*true", path.name)
+
+        animation = (RP / "animations" / "tbe_overhaulv4.animation.json").read_text(
+            encoding="utf-8-sig",
+        )
+        self.assertNotRegex(animation, r"math\.sin\([^\n]+\)\s*\*\s*1\b")
 
     def test_animation_keyframes_do_not_contain_geckolib_vector_wrappers(self):
         wrapped = []

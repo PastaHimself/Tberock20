@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { logger } from "../../core/logging.js";
 
 export function trySummon(dimension, entityTypeId, location, options = {}) {
@@ -24,5 +25,5 @@ export function applyRandomRotation(entity) {
 
 // Source: TimeOfDay.MIDNIGHT.setFake() — forces world time to midnight as a scare beat.
 export function setFakeMidnight(dimension) {
-    try { dimension.runCommand("time set midnight"); } catch {}
+    try { dimension.runCommand("time set midnight"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.spawn_helpers.js.27", "best-effort Bedrock API fallback", error);}
 }

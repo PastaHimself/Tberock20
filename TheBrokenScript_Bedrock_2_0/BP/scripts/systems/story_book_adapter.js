@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { nullBookPages } from "./story_book_model.js";
 
 /**
@@ -33,7 +34,7 @@ export function distributeNullBook(player, item) {
     if (typeof player.dimension?.spawnItem !== "function") return false;
     player.dimension.spawnItem(remainder, player.location);
     return true;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.story_book_adapter.js.36", "best-effort Bedrock API fallback", error);
     return false;
   }
 }

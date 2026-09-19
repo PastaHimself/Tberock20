@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -26,11 +27,11 @@ function getMoonPhase() {
   try {
     const mp = world.getMoonPhase?.();
     if (typeof mp === "number") return ((mp % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.29", "best-effort Bedrock API fallback", error);}
   try {
     const day = world.getDay?.() ?? Math.floor(world.getTimeOfDay() / 24000);
     return ((day % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.33", "best-effort Bedrock API fallback", error);}
   return 0;
 }
 
@@ -50,7 +51,7 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
       if (typeof top.y === "number") y = top.y;
       else if (top.location && typeof top.location.y === "number") y = top.location.y;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.53", "best-effort Bedrock API fallback", error);}
   return { x, y, z };
 }
 
@@ -83,15 +84,15 @@ function canSpawnSiluet(ctx) {
   worldState.set("entitySpawnDelay", 6400);
   // siluet on-spawn ambience + advancement (source: 90% to closest ≤1000)
   if (typeId === "thebrokenscript:siluet") {
-    try { dim.playSound("ambient.cave", loc, { volume: 10, pitch: 1 }); } catch {}
+    try { dim.playSound("ambient.cave", loc, { volume: 10, pitch: 1 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.86", "best-effort Bedrock API fallback", error);}
     if (Math.random() < 0.9) {
       const near = entityFinder.closestPlayerInRange(world.getAllPlayers(), loc, 1000, { dimension: dim });
       if (near) progression.award(near.id, "can_you_see_me");
     }
   } else if (typeId === "thebrokenscript:he") {
-    try { dim.playSound("thebrokenscript:rare_thing_spawn", loc, { volume: 10, pitch: 0 }); } catch {}
-    try { dim.spawnEntity("minecraft:lightning_bolt", loc); } catch {}
-    try { dim.runCommand("weather rain 6000"); } catch {}
+    try { dim.playSound("thebrokenscript:rare_thing_spawn", loc, { volume: 10, pitch: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.92", "best-effort Bedrock API fallback", error);}
+    try { dim.spawnEntity("minecraft:lightning_bolt", loc); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.93", "best-effort Bedrock API fallback", error);}
+    try { dim.runCommand("weather rain 6000"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.94", "best-effort Bedrock API fallback", error);}
   }
   return true;
 }
@@ -107,7 +108,7 @@ function canSpawnFaraway(ctx) {
   if (worldState.get("isFlat") && Math.random() > 0.001) return false;
   // uniqueness across the dimension
   let existing = [];
-  try { existing = dim.getEntities({ type: "thebrokenscript:faraway" }); } catch {}
+  try { existing = dim.getEntities({ type: "thebrokenscript:faraway" }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_spawn_rules.js.110", "best-effort Bedrock API fallback", error);}
   if (existing.length > 0) return false;
   const loc = pickCandidateNearPlayer(player, 32, 80);
   return spawnHelpers.trySummon(dim, "thebrokenscript:faraway", loc) !== undefined;

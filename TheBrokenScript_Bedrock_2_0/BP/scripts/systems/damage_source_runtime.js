@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { system } from "@minecraft/server";
 import { damageSourceApplyOptions, damageSourcePlan } from "./damage_source_model.js";
 import {
@@ -13,7 +14,7 @@ import {
 const damageLedger = new Map();
 
 function currentTick() {
-  try { return system.currentTick; } catch { return 0; }
+  try { return system.currentTick; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.damage_source_runtime.js.16", "best-effort Bedrock API fallback", error); return 0; }
 }
 
 function remember(target, plan, accepted, fallback) {
@@ -34,7 +35,7 @@ function remember(target, plan, accepted, fallback) {
 
 try {
   system.runInterval(() => pruneDamageLedger(damageLedger, currentTick(), 1), 1);
-} catch {}
+} catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.damage_source_runtime.js.37", "best-effort Bedrock API fallback", error);}
 
 /**
  * Applies a custom Java damage source through the nearest Bedrock native
@@ -64,7 +65,7 @@ export function applyDamageWithSource(target, amount, sourceId, {
     accepted = target.applyDamage(amount, options) === true;
   } catch {
     fallback = true;
-    try { accepted = target.applyDamage(amount) === true; } catch {}
+    try { accepted = target.applyDamage(amount) === true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.damage_source_runtime.js.67", "best-effort Bedrock API fallback", error);}
   }
   remember(target, plan, accepted, fallback);
   return { ...plan, accepted, fallback };

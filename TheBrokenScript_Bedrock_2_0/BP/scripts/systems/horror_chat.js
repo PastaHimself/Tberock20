@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
@@ -41,7 +42,7 @@ function reportAdapterFailure(operation, err) {
 }
 
 function currentSession() {
-  try { return Number(world.getDynamicProperty(SESSION_PROPERTY) ?? sessionToken); } catch { return sessionToken; }
+  try { return Number(world.getDynamicProperty(SESSION_PROPERTY) ?? sessionToken); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_chat.js.44", "best-effort Bedrock API fallback", error); return sessionToken; }
 }
 
 function beginSession() {
@@ -82,6 +83,7 @@ function scheduleForPlayer(player, delayTicks, callback) {
     handles.add(handle);
     return handle;
   } catch (err) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_chat.js.84", "best-effort Bedrock API fallback", err);
     handles.delete(handle);
     if (handles.size === 0) pendingByPlayer.delete(id);
     reportAdapterFailure("schedule", err);
@@ -118,7 +120,7 @@ function nearbyNullStructure(player, radius) {
         if (x * x + y * y + z * z > scanRadius * scanRadius) continue;
         try {
           if (dimension.getBlock({ x: base.x + x, y: base.y + y, z: base.z + z })?.typeId === "thebrokenscript:null_structure") return true;
-        } catch {
+        } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_chat.js.121", "best-effort Bedrock API fallback", error);
           return false;
         }
       }
@@ -130,7 +132,7 @@ function nearbyNullStructure(player, radius) {
 function nearbyWatching(player) {
   try {
     if (player.dimension.getEntities({ type: "thebrokenscript:null_watching", location: player.location, maxDistance: 20 }).length > 0) return true;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_chat.js.133", "best-effort Bedrock API fallback", error);}
   return nearbyNullStructure(player, 0);
 }
 
@@ -188,7 +190,7 @@ function gainBackHalfLostReputation(player) {
 }
 
 function reputation(player) {
-  try { return Number(playerState.get(player, "entityReputation")); } catch { return 50; }
+  try { return Number(playerState.get(player, "entityReputation")); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_chat.js.191", "best-effort Bedrock API fallback", error); return 50; }
 }
 
 function cooldownGain(definition, player, amount) {

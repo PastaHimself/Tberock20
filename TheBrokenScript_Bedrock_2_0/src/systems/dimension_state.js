@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 export const DIMENSION_STATE_SCHEMA_VERSION = 1;
 
 function requirePart(name, value) {
@@ -63,7 +64,7 @@ export function readDimensionRegionState(
     const parsed = JSON.parse(raw);
     if (parsed?.token !== token) return { initialized: false, data: undefined };
     return { initialized: true, data: parsed.data };
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.dimension_state.js.66", "best-effort Bedrock API fallback", error);
     return { initialized: false, data: undefined };
   }
 }

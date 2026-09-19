@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -32,7 +33,7 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
       if (typeof top.y === "number") y = top.y;
       else if (top.location && typeof top.location.y === "number") y = top.location.y;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.boss_spawn_rules.js.35", "best-effort Bedrock API fallback", error);}
   return { x, y, z };
 }
 
@@ -52,10 +53,10 @@ export function register() {
       if (!player) return false;
       if (Math.random() > FRACTURED_ROW[stageIndex()] + eventFrequency(ctx.gameTime ?? 0)) return false;
       let existing = [];
-      try { existing = player.dimension.getEntities({ type: "thebrokenscript:fractured_roam" }); } catch {}
+      try { existing = player.dimension.getEntities({ type: "thebrokenscript:fractured_roam" }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.boss_spawn_rules.js.55", "best-effort Bedrock API fallback", error);}
       if (existing.length > 0) return false;
       const loc = pickCandidateNearPlayer(player, 48, 96);
-      try { return player.dimension.spawnEntity("thebrokenscript:fractured_roam", loc) !== undefined; } catch { return false; }
+      try { return player.dimension.spawnEntity("thebrokenscript:fractured_roam", loc) !== undefined; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.boss_spawn_rules.js.58", "best-effort Bedrock API fallback", error); return false; }
     }
   });
 
@@ -68,11 +69,11 @@ export function register() {
       if (!player) return false;
       if (Math.random() > FEVER_STALK_ROW[stageIndex()] + eventFrequency(ctx.gameTime ?? 0)) return false;
       let existing = [];
-      try { existing = player.dimension.getEntities({ type: "thebrokenscript:fever_stalk" }); } catch {}
+      try { existing = player.dimension.getEntities({ type: "thebrokenscript:fever_stalk" }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.boss_spawn_rules.js.71", "best-effort Bedrock API fallback", error);}
       if (existing.length > 0) return false;
       const loc = pickCandidateNearPlayer(player, 32, 80);
       if (!hasSkyLightAt(player.dimension, loc)) return false;
-      try { return player.dimension.spawnEntity("thebrokenscript:fever_stalk", loc) !== undefined; } catch { return false; }
+      try { return player.dimension.spawnEntity("thebrokenscript:fever_stalk", loc) !== undefined; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.boss_spawn_rules.js.75", "best-effort Bedrock API fallback", error); return false; }
     }
   });
 }

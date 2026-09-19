@@ -90,14 +90,14 @@ function distance(a, b) {
 
 function isValid(entity) {
   if (!entity) return false;
-  try { return entity.isValid !== false; } catch { return false; }
+  try { return entity.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.93", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function callEntity(entity, method, ...args) {
   try {
     const fn = entity?.[method];
     return typeof fn === "function" ? fn.call(entity, ...args) : undefined;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.100", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
@@ -163,7 +163,7 @@ function projectileImpactPoint(projectile) {
   if (aabb?.center) return copyPosition(aabb.center);
   try {
     return projectile.location ? copyPosition(projectile.location) : null;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.166", "best-effort Bedrock API fallback", error);
     return null;
   }
 }
@@ -202,10 +202,10 @@ function isEntityOnFire(entity) {
     const value = entity.isOnFire;
     if (typeof value === "function" && value.call(entity) === true) return true;
     if (value === true) return true;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.205", "best-effort Bedrock API fallback", error);}
   try {
     return Boolean(entity.getComponent("minecraft:onfire"));
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.208", "best-effort Bedrock API fallback", error);
     return false;
   }
 }
@@ -227,24 +227,24 @@ function applyMultipartArrowEffects(entity, plan) {
         callEntity(entity, "addEffect", "glowing", plan.spectralGlowTicks);
       }
     });
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.230", "best-effort Bedrock API fallback", error);}
 }
 
 function hasGroundSupport(entity) {
-  try { return entity.isOnGround === true; } catch { return false; }
+  try { return entity.isOnGround === true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.234", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function roamIsAirAt(dimension, position) {
   const block = blockAt(dimension, position);
   if (!block) return false;
-  try { return block.isAir === true; } catch { return false; }
+  try { return block.isAir === true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.240", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function roamMinimumBuildHeight(dimension) {
   try {
     const range = dimension.heightRange;
     return typeof range?.min === "number" ? range.min : -64;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.247", "best-effort Bedrock API fallback", error);
     return -64;
   }
 }
@@ -274,7 +274,7 @@ function recoverFracturedFromAir(entity, state) {
   }) ?? safe;
   callEntity(entity, "clearVelocity");
   callEntity(entity, "clearFallDistance");
-  try { entity.teleport(surface); } catch { return; }
+  try { entity.teleport(surface); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.277", "best-effort Bedrock API fallback", error); return; }
   state.lastSafeGroundPosition = copyPosition(surface);
   state.airborneTicks = 0;
   state.wanderTarget = null;
@@ -295,7 +295,7 @@ function nearestPlayer(entity, maxDistance = 1000) {
   let closest = null;
   let closestDistance = maxDistance;
   let players = [];
-  try { players = world.getAllPlayers(); } catch { return null; }
+  try { players = world.getAllPlayers(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.298", "best-effort Bedrock API fallback", error); return null; }
   for (const player of players) {
     try {
       if (!isValid(player) || player.dimension.id !== entity.dimension.id) continue;
@@ -304,7 +304,7 @@ function nearestPlayer(entity, maxDistance = 1000) {
         closest = player;
         closestDistance = currentDistance;
       }
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.307", "best-effort Bedrock API fallback", error);}
   }
   return closest;
 }
@@ -406,7 +406,7 @@ function playFracturedSpawnSound(entity) {
       volume: 1,
       pitch: 1,
     });
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.409", "best-effort Bedrock API fallback", error);}
 }
 
 function playFracturedPresentation(entity, state, moving) {
@@ -449,7 +449,7 @@ function moveRoamToward(entity, target, sourceSpeedModifier) {
       z: location.z + (dz / horizontalDistance) * amount,
     }, { rotation: { x: 0, y: control.yawDegrees } });
     return true;
-  } catch { return false; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.452", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function tickFracturedRoamMovement(entity, state) {
@@ -630,18 +630,18 @@ function runAfter(callback, ticks) {
       scheduler.runTimeout(callback, ticks);
       return true;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.633", "best-effort Bedrock API fallback", error);}
   return false;
 }
 
 function playersNearArena(dimension, center) {
   let players = [];
-  try { players = world.getAllPlayers(); } catch { return []; }
+  try { players = world.getAllPlayers(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.639", "best-effort Bedrock API fallback", error); return []; }
   return players.filter((player) => {
     try {
       return isValid(player) && player.dimension.id === dimension.id &&
         distance(player.location, center) <= ROAM_ARENA_SOURCE.playerRange;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.644", "best-effort Bedrock API fallback", error);
       return false;
     }
   });
@@ -649,7 +649,7 @@ function playersNearArena(dimension, center) {
 
 function refreshArenaPlayers(arena) {
   let players = [];
-  try { players = world.getAllPlayers(); } catch { return []; }
+  try { players = world.getAllPlayers(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.652", "best-effort Bedrock API fallback", error); return []; }
   const candidates = [];
   for (const player of players) {
     try {
@@ -658,7 +658,7 @@ function refreshArenaPlayers(arena) {
       if (isValid(player) && player.dimension.id === arena.dimension.id && sameArenaRoster) {
         candidates.push(player);
       }
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.661", "best-effort Bedrock API fallback", error);}
   }
   const rosterStep = fracturedRoamArenaRosterStep({
     previous: arena.players,
@@ -692,16 +692,16 @@ function playArenaSound(arena, sound) {
         });
       }
       else if (typeof player.stopSound === "function") arena.soundStops.push({ player, sound });
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.695", "best-effort Bedrock API fallback", error);}
   }
 }
 
 function stopArenaSounds(arena) {
   for (const instance of arena.soundInstances ?? []) {
-    try { instance.stop(); } catch {}
+    try { instance.stop(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.701", "best-effort Bedrock API fallback", error);}
   }
   for (const { player, sound } of arena.soundStops ?? []) {
-    try { player.stopSound(sound); } catch {}
+    try { player.stopSound(sound); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.704", "best-effort Bedrock API fallback", error);}
   }
   arena.soundInstances = [];
   arena.soundStops = [];
@@ -726,7 +726,7 @@ function stopArenaSoundsForPlayer(arena, identity) {
   for (const instance of arena.soundInstances ?? []) {
     const owner = arena.soundInstanceOwners?.get(instance);
     if (identityMatches(owner, identity)) {
-      try { instance.stop(); } catch {}
+      try { instance.stop(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.729", "best-effort Bedrock API fallback", error);}
       arena.soundInstanceOwners?.delete(instance);
     } else {
       remainingInstances.push(instance);
@@ -737,7 +737,7 @@ function stopArenaSoundsForPlayer(arena, identity) {
   const remainingStops = [];
   for (const entry of arena.soundStops ?? []) {
     if (identityMatches(entry.player, identity)) {
-      try { entry.player.stopSound(entry.sound); } catch {}
+      try { entry.player.stopSound(entry.sound); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.740", "best-effort Bedrock API fallback", error);}
     } else {
       remainingStops.push(entry);
     }
@@ -1052,7 +1052,7 @@ function playerPulse(
 ) {
   if (!center || !plan) return;
   let players = [];
-  try { players = world.getAllPlayers(); } catch { return; }
+  try { players = world.getAllPlayers(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1055", "best-effort Bedrock API fallback", error); return; }
   for (const player of players) {
     try {
       if (!isValid(player) || player.dimension.id !== entity.dimension.id) continue;
@@ -1062,7 +1062,7 @@ function playerPulse(
       if (requireDamageAcceptance && !accepted) continue;
       if (knockbackMode === "radial") applyRadialKnockback(player, center, plan.knockback);
       else applyViewKnockback(player, plan.knockback);
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1065", "best-effort Bedrock API fallback", error);}
   }
 }
 
@@ -1100,7 +1100,7 @@ function tickFracturedBaseLifecycle(entity, state) {
 function rotatedStompPosition(entity) {
   const offset = FRACTURED_SOURCE.stomp.offset;
   let yawDegrees = 0;
-  try { yawDegrees = entity.getRotation().y; } catch {}
+  try { yawDegrees = entity.getRotation().y; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1103", "best-effort Bedrock API fallback", error);}
   const yaw = (-yawDegrees * Math.PI) / 180 + Math.PI;
   return {
     x: entity.location.x + offset.x * Math.cos(yaw) - offset.z * Math.sin(yaw),
@@ -1223,7 +1223,7 @@ function approach(entity, target) {
       y: entity.location.y,
       z: entity.location.z + (dz / length) * MOVEMENT_ADAPTER_BLOCKS_PER_TICK,
     });
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1226", "best-effort Bedrock API fallback", error);}
 }
 
 function tickFractured(entity) {
@@ -1365,7 +1365,7 @@ function installSpawnHook() {
 
 function isSolidBlock(block) {
   if (!block) return false;
-  try { if (block.isAir) return false; } catch {}
+  try { if (block.isAir) return false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1368", "best-effort Bedrock API fallback", error);}
   const typeId = block.typeId;
   return typeId !== "minecraft:air" &&
     typeId !== "minecraft:flowing_water" &&
@@ -1381,7 +1381,7 @@ function blockAt(dimension, position) {
       y: Math.floor(position.y),
       z: Math.floor(position.z),
     });
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1384", "best-effort Bedrock API fallback", error);
     return null;
   }
 }
@@ -1416,7 +1416,7 @@ function segmentEntityHit(rock, from, to, ownerId) {
   };
   const range = Math.max(8, distance(from, to) / 2 + 8);
   let candidates = [];
-  try { candidates = rock.dimension.getEntities({ location: midpoint, maxDistance: range }); } catch { return null; }
+  try { candidates = rock.dimension.getEntities({ location: midpoint, maxDistance: range }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1419", "best-effort Bedrock API fallback", error); return null; }
   const dx = to.x - from.x;
   const dy = to.y - from.y;
   const dz = to.z - from.z;
@@ -1441,7 +1441,7 @@ function segmentEntityHit(rock, from, to, ownerId) {
         }
       }
       if (hitT !== null && (!best || hitT < best.t)) best = { entity: candidate, t: hitT };
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1444", "best-effort Bedrock API fallback", error);}
   }
   return best;
 }
@@ -1468,7 +1468,7 @@ function breakElytra(target) {
     if (amount <= 0) return;
     durability.damage += amount;
     slot.setItem(item);
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1471", "best-effort Bedrock API fallback", error);}
 }
 
 function rockHitTargets(rock, position, state) {
@@ -1640,7 +1640,7 @@ export function spawnRock(owner, origin, targetPoint, speed) {
   state.owner = owner;
   state.ownerId = owner?.id ?? null;
   state.previousPosition = copyPosition(rock.location);
-  try { rock.clearVelocity(); } catch {}
+  try { rock.clearVelocity(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1643", "best-effort Bedrock API fallback", error);}
   if (speed > 0 && targetPoint) {
     const dx = targetPoint.x - origin.x;
     const dy = targetPoint.y - origin.y;
@@ -1649,7 +1649,7 @@ export function spawnRock(owner, origin, targetPoint, speed) {
     if (length > 0.0001) {
       try {
         rock.applyImpulse({ x: (dx / length) * speed, y: (dy / length) * speed, z: (dz / length) * speed });
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.fractured_runtime.js.1652", "best-effort Bedrock API fallback", error);}
     }
   }
   return rock;

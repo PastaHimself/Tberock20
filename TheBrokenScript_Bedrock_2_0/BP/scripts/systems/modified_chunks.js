@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as events from "../core/events.js";
 import * as state from "../core/state.js";
@@ -22,7 +23,7 @@ let begun = false;
 
 function isValid(value) {
     if (!value) return false;
-    try { return value.isValid !== false; } catch { return false; }
+    try { return value.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.modified_chunks.js.25", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function topSurfaceY(dimension, location) {
@@ -33,7 +34,7 @@ function topSurfaceY(dimension, location) {
         // topmost WORLD_SURFACE block; getTopmostBlock returns that surface
         // block itself, hence the +1 conversion.
         return typeof y === "number" ? Math.floor(y) + 1 : undefined;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.modified_chunks.js.36", "best-effort Bedrock API fallback", error);
         return undefined;
     }
 }

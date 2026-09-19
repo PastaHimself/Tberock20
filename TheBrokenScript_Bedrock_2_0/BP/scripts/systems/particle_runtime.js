@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { particleEventSpec } from "./particle_model.js";
 
 // Bedrock's Dimension.spawnParticle takes one effect id and one origin. The
@@ -9,14 +10,14 @@ export function spawnSourceParticle(target, eventName, origin = target?.location
   let effectId;
   try {
     effectId = particleEventSpec(eventName).effectId;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.particle_runtime.js.12", "best-effort Bedrock API fallback", error);
     return false;
   }
 
   try {
     target.dimension.spawnParticle(effectId, origin);
     return true;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.particle_runtime.js.19", "best-effort Bedrock API fallback", error);
     return false;
   }
 }

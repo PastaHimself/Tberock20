@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import {
   CommandPermissionLevel,
   CustomCommandParamType,
@@ -140,7 +141,7 @@ export function register(customCommandRegistry) {
               : "Chunk could not be cleared (it may not be loaded or removal is disabled).");
           } catch (error) {
             logger.error("commands: chunk_remove failed", error);
-            try { player.sendMessage("Chunk could not be cleared."); } catch {}
+            try { player.sendMessage("Chunk could not be cleared."); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.commands.js.143", "best-effort Bedrock API fallback", error);}
           }
         });
       } catch (error) {
@@ -190,7 +191,7 @@ export function begin() {
 }
 
 function reply(ev, text) {
-  try { ev.sourceEntity?.sendMessage(text); } catch {}
+  try { ev.sourceEntity?.sendMessage(text); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.commands.js.193", "best-effort Bedrock API fallback", error);}
 }
 
 function handleCommand(ev) {

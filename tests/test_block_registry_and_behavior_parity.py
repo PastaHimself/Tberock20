@@ -91,7 +91,10 @@ class BlockRegistryAndBehaviorParityTests(unittest.TestCase):
             permutation
             for permutation in bedrock.get("permutations", [])
             if permutation.get("condition")
-            == "query.block_state('thebrokenscript:code') == true"
+            in {
+                "query.block_state('thebrokenscript:code')",
+                "query.block_state('thebrokenscript:code') == true",
+            }
         ]
         self.assertEqual(len(inactive), 1)
         self.assertEqual(

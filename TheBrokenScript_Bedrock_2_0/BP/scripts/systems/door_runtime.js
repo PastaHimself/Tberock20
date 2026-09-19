@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { system, world } from "@minecraft/server";
 import * as events from "../core/events.js";
 import * as playerState from "./player_state.js";
@@ -25,11 +26,11 @@ let begun = false;
 
 function isValid(value) {
     if (!value) return false;
-    try { return value.isValid !== false; } catch { return false; }
+    try { return value.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.door_runtime.js.28", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function state(block, name) {
-    try { return block?.permutation?.getState(name); } catch { return undefined; }
+    try { return block?.permutation?.getState(name); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.door_runtime.js.32", "best-effort Bedrock API fallback", error); return undefined; }
 }
 
 function isCustomDoor(block) {
@@ -80,7 +81,7 @@ function nativeHalfPartner(block) {
         if (!partner || partner.typeId !== block.typeId) return undefined;
         if (state(partner, NATIVE_UPPER_STATE) !== !upper) return undefined;
         return partner;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.door_runtime.js.83", "best-effort Bedrock API fallback", error);
         return undefined;
     }
 }
@@ -99,7 +100,7 @@ function playDoorSound(block, open) {
             const dy = player.location.y - block.location.y;
             const dz = player.location.z - block.location.z;
             if (dx * dx + dy * dy + dz * dz > DOOR_SOUND_RANGE ** 2) continue;
-            try { player.playSound(sound, { volume: 1, pitch: 1 }); } catch {}
+            try { player.playSound(sound, { volume: 1, pitch: 1 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.door_runtime.js.102", "best-effort Bedrock API fallback", error);}
         }
     } catch (error) {
         logger.debug(`door_runtime: sound '${sound}' failed: ${String(error)}`);

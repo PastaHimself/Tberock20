@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 export const HAND_CANNON_RANGE = 100;
 export const PORTAL_COOLDOWN_TICKS = 1;
 
@@ -25,7 +26,7 @@ function isSpectatorPlayer(entity) {
   }
   try {
     return entity.getGameMode() === "Spectator";
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ported_feature_logic.js.28", "best-effort Bedrock API fallback", error);
     return false;
   }
 }

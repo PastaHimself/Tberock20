@@ -330,7 +330,7 @@ function tickChase(e) {
 
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 800);
   if (!player) return;
-  try { e.lookAt?.(player.location); } catch {}
+  try { e.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_controller.js.333", "best-effort Bedrock API fallback", error);}
 
   // midnight/day fake 1% each per tick
   const roll = Math.random();
@@ -489,13 +489,13 @@ function tickHe(e) {
     const time = world.getTimeOfDay();
     // audit: Bedrock time-of-day adapter for the Java night-window predicate.
     if (time >= 23000 || time < 1000) {
-      try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", e.location); } catch {}
-      try { e.remove(); } catch {} deleteTimers(e); return;
+      try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", e.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_controller.js.492", "best-effort Bedrock API fallback", error);}
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_controller.js.493", "best-effort Bedrock API fallback", error);} deleteTimers(e); return;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_controller.js.495", "best-effort Bedrock API fallback", error);}
   life--; setNum(e, "life", life);
   if (life <= 0) {
-    try { e.remove(); } catch {} deleteTimers(e);
+    try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.humanoid.humanoid_controller.js.498", "best-effort Bedrock API fallback", error);} deleteTimers(e);
     if (Math.random() < 0.01) {
       const spawned = spawnHelpers.trySummon(e.dimension, "thebrokenscript:he_chase", e.location);
       if (spawned) spawnHelpers.applyRandomRotation(spawned);

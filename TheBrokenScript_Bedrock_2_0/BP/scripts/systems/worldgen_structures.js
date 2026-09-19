@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
 
@@ -15,7 +16,7 @@ function setBlock(dim, x, y, z, id) {
   try {
     const b = dim.getBlock({ x: Math.floor(x), y: Math.floor(y), z: Math.floor(z) });
     if (b && b.typeId !== id) b.setType(id);
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.worldgen_structures.js.18", "best-effort Bedrock API fallback", error);}
 }
 
 function fillBox(dim, x0, y0, z0, x1, y1, z1, id) {
@@ -41,7 +42,7 @@ export function buildShaft(dimension, origin, opts = {}) {
       if (typeof top.y === "number") oy = top.y;
       else if (top.location && top.location.y !== undefined) oy = top.location.y;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.worldgen_structures.js.44", "best-effort Bedrock API fallback", error);}
   const depth = opts.depth ?? 48;
   const bottomY = Math.max(oy - depth, -60);
 

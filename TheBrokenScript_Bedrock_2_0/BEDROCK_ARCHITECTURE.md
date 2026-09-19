@@ -14,7 +14,7 @@ TheBrokenScript_Bedrock_2_0/
   RP/                     resource pack (resources module)
     manifest.json
     entity/ models/ animations/ textures/ sounds/ sound_definitions.json
-    particles/ fog/ texts/ terrain_texture.json item_texture.json flipbook_textures.json
+    particles/ fog/ texts/ textures/terrain_texture.json textures/item_texture.json textures/flipbook_textures.json
   src/                    TypeScript sources -> compiled to BP scripts (deployed JS)
   tools/                  generators + validators (PowerShell)
   docs/chunks/            per-chunk specs and reports

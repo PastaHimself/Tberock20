@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import {
   isCustomDimensionId,
   normalizeDimensionId,
@@ -181,7 +182,7 @@ async function withTemporaryTickingArea(worldLike, dimension, dimensionId, regio
     if (created) {
       try {
         manager.removeTickingArea(identifier);
-      } catch {
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.dimension_generation.js.184", "best-effort Bedrock API fallback", error);
         // Cleanup failure must not convert a successfully initialized region into
         // an uninitialized one. A later run will reclaim the deterministic ID.
       }
@@ -320,6 +321,7 @@ export async function ensureDimensionReady({
   try {
     target = clampLandingLocation(location, dimension.heightRange);
   } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.systems.dimension_generation.js.322", "best-effort Bedrock API fallback", error);
     logger?.error?.(`dimension generation: invalid landing for '${normalized}'`, error);
     return { ready: false, location };
   }

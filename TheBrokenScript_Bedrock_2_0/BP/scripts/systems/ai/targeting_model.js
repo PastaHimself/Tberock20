@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 const SPECTATOR_MODES = new Set(["Spectator", "spectator", "minecraft:spectator", 3]);
 
 export function dimensionIdOf(value) {
@@ -24,7 +25,7 @@ export function isTargetablePlayer(player, dimensionId) {
   try {
     const gameMode = player.getGameMode?.();
     if (SPECTATOR_MODES.has(gameMode)) return false;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.targeting_model.js.27", "best-effort Bedrock API fallback", error);
     // A player can invalidate between a target query and the game-mode read.
   }
 

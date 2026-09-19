@@ -23,7 +23,7 @@ foreach ($f in $rpEntityFiles) {
 Write-Output "2. entity textures verified"
 
 # 3. terrain_texture entries resolve to files
-$tt = (Get-Content (Join-Path $proj "RP\terrain_texture.json") -Raw | ConvertFrom-Json).texture_data
+$tt = (Get-Content (Join-Path $proj "RP\textures\terrain_texture.json") -Raw | ConvertFrom-Json).texture_data
 foreach ($p in $tt.PSObject.Properties) {
   $t = $p.Value.textures
   $first = if ($t -is [array]) { $t[0] } else { $t }
@@ -33,7 +33,7 @@ foreach ($p in $tt.PSObject.Properties) {
 Write-Output ("3. terrain_texture entries verified: " + $tt.PSObject.Properties.Name.Count)
 
 # 4. item_texture entries resolve to files
-$it = (Get-Content (Join-Path $proj "RP\item_texture.json") -Raw | ConvertFrom-Json).texture_data
+$it = (Get-Content (Join-Path $proj "RP\textures\item_texture.json") -Raw | ConvertFrom-Json).texture_data
 foreach ($p in $it.PSObject.Properties) {
   $t = $p.Value.textures
   $first = if ($t -is [array]) { $t[0] } else { $t }
