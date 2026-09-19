@@ -230,14 +230,14 @@ function tickBrokenEnd(e) {
         setFakeTime(e.dimension, "midnight");
         showSubtitle(player, " ");
         // frame1.png overlay approx via title image path — use title text for portability
-        try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch {}
+        try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.233", "best-effort Bedrock API fallback", error);}
         tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:the_end_is_near", 4, 0.4);
       } else if (Math.random() < 0.7) {
         setFakeTime(e.dimension, "day");
-        try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch {}
+        try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.237", "best-effort Bedrock API fallback", error);}
       } else if (Math.random() < 0.7) {
         setFakeTime(e.dimension, "noon");
-        try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch {}
+        try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.240", "best-effort Bedrock API fallback", error);}
       }
     }
 
@@ -448,11 +448,11 @@ function tickStalk(e) {
     // broadcast intro to players within 256 (source packet)
     try {
       const nearby = world.getAllPlayers().filter(p => p.dimension.id === e.dimension.id && distance(p.location, e.location) < 256);
-      for (const p of nearby) { try { p.playSound("thebrokenscript:tbe_intro", { volume: 1, pitch: 1 }); } catch {} }
-    } catch {}
-    try { e.dimension.runCommand("gamerule dodaylightcycle false"); } catch {}
-    try { e.dimension.runCommand("weather rain 6000"); } catch {}
-    try { e.addEffect("invisibility", 200, { amplifier: 0, showParticles: false }); } catch {}
+      for (const p of nearby) { try { p.playSound("thebrokenscript:tbe_intro", { volume: 1, pitch: 1 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.451", "best-effort Bedrock API fallback", error);} }
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.452", "best-effort Bedrock API fallback", error);}
+    try { e.dimension.runCommand("gamerule dodaylightcycle false"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.453", "best-effort Bedrock API fallback", error);}
+    try { e.dimension.runCommand("weather rain 6000"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.454", "best-effort Bedrock API fallback", error);}
+    try { e.addEffect("invisibility", 200, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.455", "best-effort Bedrock API fallback", error);}
     // track invisible flag via periodic effect; actual invis var stays 0 until trigger
   }
 
@@ -461,30 +461,30 @@ function tickStalk(e) {
     spawnTimer--;
     setNum(e, "spawn", spawnTimer);
     if (spawnTimer <= 0) {
-      try { e.remove(); } catch {}
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.464", "best-effort Bedrock API fallback", error);}
       try {
         const spawned = spawnHelpers.trySummon(e.dimension, "thebrokenscript:the_broken_end", e.location);
         if (spawned) spawnHelpers.applyRandomRotation(spawned);
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.468", "best-effort Bedrock API fallback", error);}
       timers.delete(e.id); extraState.delete(e.id);
       return;
     }
   }
   if (invisible) {
     // keep invis effect refreshed
-    if (system.currentTick % 20 === 0) { try { e.addEffect("invisibility", 40, { amplifier: 0, showParticles: false }); } catch {} }
+    if (system.currentTick % 20 === 0) { try { e.addEffect("invisibility", 40, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.475", "best-effort Bedrock API fallback", error);} }
     // don't run gaze triggers while invisible — but keep despawn ticking
   } else {
     // look-at-closest behavior
     const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 150);
     if (player) {
-      try { e.lookAt?.(player.location); } catch {}
+      try { e.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.481", "best-effort Bedrock API fallback", error);}
       const dist30 = isWithin(e, player, 30);
       if (dist30) {
-        try { effects.blindness(player, 1); } catch { try { player.addEffect("blindness", 21, { amplifier: 1, showParticles: false }); } catch {} }
+        try { effects.blindness(player, 1); } catch { try { player.addEffect("blindness", 21, { amplifier: 1, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.484", "best-effort Bedrock API fallback", error);} }
         tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:heartbeat", 10, 0);
         if (Math.random() < 0.2) {
-          try { e.remove(); } catch {}
+          try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.487", "best-effort Bedrock API fallback", error);}
           timers.delete(e.id); extraState.delete(e.id);
           if (Math.random() < 0.7) setFakeTime(e.dimension, "midnight");
           return;
@@ -492,26 +492,26 @@ function tickStalk(e) {
           // become invisible + start spawn timer
           setNum(e, "invisible", 1);
           setNum(e, "enabled", 1);
-          try { e.addEffect("invisibility", 600, { amplifier: 0, showParticles: false }); } catch {}
+          try { e.addEffect("invisibility", 600, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.495", "best-effort Bedrock API fallback", error);}
         }
       }
       // 192 gaze LOS trigger (hitbox-like: fov 14)
       const inGazeRange = isWithin(e, player, 192) && gaze.isLookingAtEntity(player, e, 14);
       if (inGazeRange && hasLineOfSightApprox(player, e)) {
-        try { player.addEffect("blindness", 21, { amplifier: 1, showParticles: false }); } catch {}
+        try { player.addEffect("blindness", 21, { amplifier: 1, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.501", "best-effort Bedrock API fallback", error);}
         tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:heartbeat", 10, 0);
         if (Math.random() < 0.7) {
           setNum(e, "invisible", 1);
           setNum(e, "enabled", 1);
-          try { e.dimension.runCommand("stopsound @a"); } catch {}
-          try { e.addEffect("invisibility", 600, { amplifier: 0, showParticles: false }); } catch {}
+          try { e.dimension.runCommand("stopsound @a"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.506", "best-effort Bedrock API fallback", error);}
+          try { e.addEffect("invisibility", 600, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.507", "best-effort Bedrock API fallback", error);}
         } else {
           // discard + place physical_stacktrace block below (Chunk 08 block now available)
           try {
             const below = e.dimension.getBlock({ x: Math.floor(e.location.x), y: Math.floor(e.location.y) - 1, z: Math.floor(e.location.z) });
             if (below && below.typeId === "minecraft:air") below.setType("thebrokenscript:physical_stacktrace");
-          } catch {}
-          try { e.remove(); } catch {}
+          } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.513", "best-effort Bedrock API fallback", error);}
+          try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.514", "best-effort Bedrock API fallback", error);}
           timers.delete(e.id); extraState.delete(e.id);
           return;
         }
@@ -522,9 +522,9 @@ function tickStalk(e) {
   // despawn countdown 7200 -> remove + restore daylight
   despawn--; setNum(e, "despawn", despawn);
   if (despawn <= 0) {
-    try { e.remove(); } catch {}
+    try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.525", "best-effort Bedrock API fallback", error);}
     timers.delete(e.id); extraState.delete(e.id);
-    try { e.dimension.runCommand("gamerule dodaylightcycle true"); } catch {}
+    try { e.dimension.runCommand("gamerule dodaylightcycle true"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.527", "best-effort Bedrock API fallback", error);}
   }
 }
 
@@ -537,7 +537,7 @@ function tickCurious(e) {
     life = CURIOUS_LIFE; noticed = 0;
   }
   life--; setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} timers.delete(e.id); return; }
+  if (life <= 0) { try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.540", "best-effort Bedrock API fallback", error);} timers.delete(e.id); return; }
 
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 512);
   if (!player) return;
@@ -552,7 +552,7 @@ function tickCurious(e) {
       const dot = view.x * n.x + view.y * n.y + view.z * n.z;
       const fov = 70 * Math.PI / 180;
       return dot >= Math.cos(fov / 2);
-    } catch { return false; }
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.555", "best-effort Bedrock API fallback", error); return false; }
   })();
   const lookingAt = gaze.isLookingAtEntity(player, e, 14);
   const hasLOS = hasLineOfSightApprox(player, e);
@@ -566,7 +566,7 @@ function tickCurious(e) {
       const len = Math.hypot(dx, dz) || 1;
       const step = 1.0;
       const dest = { x: e.location.x + (dx / len) * step, y: e.location.y, z: e.location.z + (dz / len) * step };
-      try { e.teleport(dest); } catch {}
+      try { e.teleport(dest); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.569", "best-effort Bedrock API fallback", error);}
     }
   } else {
     // freeze — stop navigation (teleport hold = no movement)
@@ -584,10 +584,10 @@ function tickCurious(e) {
     noticed++; setNum(e, "noticed", noticed);
   }
   if (noticed >= 60) {
-    try { e.remove(); } catch {}
+    try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.587", "best-effort Bedrock API fallback", error);}
     timers.delete(e.id);
-    try { player.addEffect("blindness", 45, { amplifier: 1, showParticles: false }); } catch {}
-    try { player.onScreenDisplay.setTitle("§k▓▓▓ §r tbe_curious §k▓▓▓", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 10 }); } catch {}
+    try { player.addEffect("blindness", 45, { amplifier: 1, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.589", "best-effort Bedrock API fallback", error);}
+    try { player.onScreenDisplay.setTitle("§k▓▓▓ §r tbe_curious §k▓▓▓", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 10 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.590", "best-effort Bedrock API fallback", error);}
     // look-at eyes approx: force player rotation via teleport with same pos + facing entity
     try {
       const dx = e.location.x - player.location.x;
@@ -597,12 +597,12 @@ function tickCurious(e) {
       const dist = Math.hypot(dx, dz);
       const pitch = -Math.atan2(dy, dist) * 180 / Math.PI;
       player.teleport(player.location, { rotation: { x: pitch, y: yaw } });
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.600", "best-effort Bedrock API fallback", error);}
     if (isWithin(e, player, 50) && Math.random() < 0.01) {
       try {
         const spawned = spawnHelpers.trySummon(e.dimension, "thebrokenscript:the_broken_end", e.location);
         if (spawned) spawnHelpers.applyRandomRotation(spawned);
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.605", "best-effort Bedrock API fallback", error);}
     }
   }
 }
@@ -628,7 +628,7 @@ function tickAmbush(e) {
     const variant = storedVariant ?? pool[Math.floor(Math.random() * pool.length)];
     const nameMap = { 1: "Not_It_Cal", 2: "uImmortal_", 3: "99_thatOneteChFella_99" };
     const cname = nameMap[variant] ?? "???";
-    try { e.nameTag = cname; } catch {}
+    try { e.nameTag = cname; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.631", "best-effort Bedrock API fallback", error);}
     setPersistedAmbushNumber(e, "tbe:alive", aliveTicks);
     setPersistedAmbushNumber(e, "tbe:lifetime", lifetime);
     if (storedVariant === undefined) setPersistedAmbushNumber(e, "tbe:variant", variant);
@@ -653,15 +653,15 @@ function tickAmbush(e) {
             const top = e.dimension.getTopmostBlock?.({ x: targetX, z: targetZ });
             if (top && top.y !== undefined) y = top.y;
             else if (top && top.location) y = top.location.y;
-          } catch {}
+          } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.656", "best-effort Bedrock API fallback", error);}
           try {
             const pos = { x: targetX, y: y, z: targetZ };
             const spawned = spawnHelpers.trySummon(e.dimension, "thebrokenscript:the_broken_end", pos);
             if (spawned) spawnHelpers.applyRandomRotation(spawned);
-          } catch {}
+          } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.661", "best-effort Bedrock API fallback", error);}
         }
       }
-      try { e.remove(); } catch {}
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.664", "best-effort Bedrock API fallback", error);}
       timers.delete(e.id);
     }
     return;

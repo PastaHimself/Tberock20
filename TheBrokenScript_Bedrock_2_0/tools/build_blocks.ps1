@@ -184,7 +184,7 @@ $crossGeo = @"
 Set-Content -LiteralPath (Join-Path $geoDir "tbs_cross.geo.json") -Value $crossGeo -Encoding UTF8
 
 # merge missing terrain_texture keys
-$ttPath = Join-Path $proj "RP\terrain_texture.json"
+$ttPath = Join-Path $proj "RP\textures\terrain_texture.json"
 $tt = Get-Content -LiteralPath $ttPath -Raw | ConvertFrom-Json
 $missing = @{
   "void_bloom"   = "textures/block/tether_bloom_idle"

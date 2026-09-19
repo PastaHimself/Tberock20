@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 export function skyLightLevelAt(dimension, location) {
     if (!dimension || !location) return undefined;
 
@@ -10,7 +11,7 @@ export function skyLightLevelAt(dimension, location) {
     try {
         const skyLight = dimension.getSkyLightLevel?.(sample);
         if (typeof skyLight === "number") return skyLight;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.visibility.js.13", "best-effort Bedrock API fallback", error);
         // The location may be outside the loaded world boundary for this tick.
     }
 

@@ -7614,14 +7614,14 @@
           "position": [
             0,
             0,
-            "math.sin(query.anim_time * 380) * 1"
+            "math.sin(query.anim_time * 380)"
           ]
         },
         "eyeframe_11": {
           "position": [
             0,
             0,
-            "math.sin(query.anim_time * 220) * 1"
+            "math.sin(query.anim_time * 220)"
           ]
         },
         "eyeframe_12": {
@@ -13660,14 +13660,14 @@
           "position": [
             0,
             0,
-            "math.sin(query.anim_time * 380) * 1"
+            "math.sin(query.anim_time * 380)"
           ]
         },
         "eyeframe_11": {
           "position": [
             0,
             0,
-            "math.sin(query.anim_time * 220) * 1"
+            "math.sin(query.anim_time * 220)"
           ]
         },
         "eyeframe_12": {
@@ -20818,14 +20818,14 @@
           "position": [
             0,
             0,
-            "math.sin(query.anim_time * 380) * 1"
+            "math.sin(query.anim_time * 380)"
           ]
         },
         "eyeframe_11": {
           "position": [
             0,
             0,
-            "math.sin(query.anim_time * 220) * 1"
+            "math.sin(query.anim_time * 220)"
           ]
         },
         "eyeframe_12": {

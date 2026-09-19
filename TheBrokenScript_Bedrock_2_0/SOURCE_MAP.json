@@ -11953,8 +11953,8 @@
       ],
       "bedrock_identifier": "resource:textures",
       "bedrock_files": [
-        "RP/terrain_texture.json",
-        "RP/item_texture.json",
+        "RP/textures/terrain_texture.json",
+        "RP/textures/item_texture.json",
         "RP/textures/blocks/a_flower.png"
       ],
       "status": "ported",

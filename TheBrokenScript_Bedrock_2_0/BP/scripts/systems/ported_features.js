@@ -511,7 +511,7 @@ function readPortalLinks() {
   try {
     const value = JSON.parse(raw);
     return value && typeof value === "object" ? value : {};
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ported_features.js.514", "best-effort Bedrock API fallback", error);
     return {};
   }
 }
@@ -521,7 +521,7 @@ function readPlayerJson(player, key) {
   if (typeof raw !== "string") return undefined;
   try {
     return JSON.parse(raw);
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ported_features.js.524", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
@@ -571,7 +571,7 @@ function selectedItem(player, expectedTypeId) {
     const item = inventory.getItem(slot);
     if (!item || item.typeId !== expectedTypeId) return undefined;
     return { inventory, item, slot };
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ported_features.js.574", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }

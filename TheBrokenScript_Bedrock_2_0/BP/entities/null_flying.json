@@ -20,9 +20,6 @@
       "minecraft:push_through": {
         "value": 0
       },
-      "minecraft:attack": {
-        "damage": 53
-      },
       "minecraft:persistent": {},
       "minecraft:physics": {
         "has_gravity": false

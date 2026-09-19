@@ -59,14 +59,14 @@ function callEntityMethod(entity, name, ...args) {
   try {
     const method = entity?.[name];
     return typeof method === "function" ? method.call(entity, ...args) : undefined;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.62", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
 
 function isValid(entity) {
   if (!entity) return false;
-  try { return entity.isValid !== false; } catch { return false; }
+  try { return entity.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.69", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function health(entity) {
@@ -91,7 +91,7 @@ function isOnGround(entity) {
   try {
     const value = entity.isOnGround;
     return typeof value === "function" ? value.call(entity) === true : value === true;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.94", "best-effort Bedrock API fallback", error);
     return false;
   }
 }
@@ -160,7 +160,7 @@ function nearestPlayer(entity, fixedId = null) {
     try {
       if (player.dimension.id !== entity.dimension.id || !isLiving(player)) return false;
       return fixedId === null || player.id === fixedId;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.163", "best-effort Bedrock API fallback", error);
       return false;
     }
   });
@@ -327,7 +327,7 @@ function mainhandItemId(player) {
       ?.getEquipmentSlot(EquipmentSlot.Mainhand);
     if (!slot?.hasItem()) return null;
     return slot.getItem()?.typeId ?? slot.typeId ?? null;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.330", "best-effort Bedrock API fallback", error);
     return null;
   }
 }
@@ -446,7 +446,7 @@ function spawnPhase3Tentacles(entity, state) {
 function phase3Players(entity) {
   return rosterPlayers()
     .filter((player) => {
-      try { return player.dimension.id === entity.dimension.id; } catch { return false; }
+      try { return player.dimension.id === entity.dimension.id; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.449", "best-effort Bedrock API fallback", error); return false; }
     })
     .map((player) => ({ id: player.id, entity: player }));
 }
@@ -457,7 +457,7 @@ function applyVoidMass(player, integrity) {
       cause: EntityDamageCause.void,
       damagingEntity: integrity,
     });
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.460", "best-effort Bedrock API fallback", error);}
 }
 
 function initPhase3(entity) {
@@ -550,7 +550,7 @@ function tickGroundAttack(entity, state) {
   state.groundAttackTimer = step.timer;
   state.groundAttackTargetBlockPosition = step.targetBlockPosition;
   if (target) {
-    try { entity.lookAt?.(target.location); } catch {}
+    try { entity.lookAt?.(target.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.553", "best-effort Bedrock API fallback", error);}
   }
   if (step.spawnArm) spawnGroundArm(entity, step.targetBlockPosition);
 }
@@ -581,7 +581,7 @@ function spawnFireball(entity, target) {
 function tickFireballAttack(entity, state) {
   const target = nearestPlayer(entity);
   if (target) {
-    try { entity.lookAt?.(target.location); } catch {}
+    try { entity.lookAt?.(target.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.584", "best-effort Bedrock API fallback", error);}
   }
   const step = fireballAttackStep({
     attackTicks: state.attackTicks,
@@ -602,7 +602,7 @@ function applyTentacleSwipeKnockback(player, impact) {
     // Current stable Script API: applyKnockback(VectorXZ, verticalStrength).
     player.applyKnockback(force, impact.bedrockVerticalStrength);
     return;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.605", "best-effort Bedrock API fallback", error);}
   callEntityMethod(player, "applyImpulse", {
     x: force.x,
     y: impact.bedrockVerticalStrength,
@@ -637,7 +637,7 @@ function tickGravityAttack(state) {
 function tentaclesPlayerRecords(entity) {
   return rosterPlayers()
     .filter((player) => {
-      try { return player.dimension.id === entity.dimension.id && isLiving(player); } catch { return false; }
+      try { return player.dimension.id === entity.dimension.id && isLiving(player); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.640", "best-effort Bedrock API fallback", error); return false; }
     })
     .map((player) => ({
       id: player.id,
@@ -762,7 +762,7 @@ function tickPhase3(entity) {
 }
 
 function nearby(entity, maxDistance) {
-  try { return entity.dimension.getEntities({ location: entity.location, maxDistance }); } catch { return []; }
+  try { return entity.dimension.getEntities({ location: entity.location, maxDistance }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.765", "best-effort Bedrock API fallback", error); return []; }
 }
 
 function tickGroundArm(arm) {
@@ -822,7 +822,7 @@ function explodeFireball(fireball) {
         source: fireball,
       },
     );
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.825", "best-effort Bedrock API fallback", error);}
   removeEntity(fireball);
 }
 
@@ -859,7 +859,7 @@ function fireballEntityHit(fireball, projectile, from, to) {
           && entity.id !== fireball.id
           && entity.id !== projectile.ownerId
           && isLiving(entity);
-      } catch {
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.862", "best-effort Bedrock API fallback", error);
         return false;
       }
     })
@@ -906,7 +906,7 @@ function tickFireball(fireball) {
     explodeFireball(fireball);
     return;
   }
-  try { fireball.teleport(next); } catch { removeEntity(fireball); return; }
+  try { fireball.teleport(next); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.909", "best-effort Bedrock API fallback", error); removeEntity(fireball); return; }
 
   if (impact === "entity") {
     const hit = entityHit.entity;
@@ -947,7 +947,7 @@ function applyStage3InverseGravity(players) {
         y: GRAVITY_BEDROCK_ADAPTER.upwardImpulsePerTick,
         z: 0,
       });
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.950", "best-effort Bedrock API fallback", error);}
   }
 }
 

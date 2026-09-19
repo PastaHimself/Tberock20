@@ -149,9 +149,9 @@ function tickXxram(e) {
   if (!timers.has(e.id)) {
     timers.set(e.id, { t: 0, anger: 0 });
     setNum(e, "invis", 1);
-    try { e.addEffect("invisibility", 1000000, { amplifier: 0, showParticles: false }); } catch {}
-    try { e.nameTag = "xXram2dieXx"; } catch {}
-    try { e.nameTagVisible = true; } catch {}
+    try { e.addEffect("invisibility", 1000000, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.152", "best-effort Bedrock API fallback", error);}
+    try { e.nameTag = "xXram2dieXx"; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.153", "best-effort Bedrock API fallback", error);}
+    try { e.nameTagVisible = true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.154", "best-effort Bedrock API fallback", error);}
     if (!worldState.get("hasRam2DieJoined")) worldState.set("hasRam2DieJoined", true);
   }
   const t = getNum(e, "t", 0) + 1;
@@ -161,7 +161,7 @@ function tickXxram(e) {
     case 500:
       chatAll(e.dimension, "xXram2dieXx joined the game");
       setNum(e, "invis", 0);
-      try { e.removeEffect("invisibility"); } catch {}
+      try { e.removeEffect("invisibility"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.164", "best-effort Bedrock API fallback", error);}
       setFakeTime(e.dimension, "midnight");
       tryPlaySoundAt(e.dimension, e.location, "ambient.cave", 10, 0);
       break;
@@ -187,7 +187,7 @@ function tickXxram(e) {
       break;
     case 3500:
       chatAll(e.dimension, "xXram2dieXx left the game");
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.190", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       return;
   }
   // invis timer refresh while blinking
@@ -211,12 +211,12 @@ function tickXxram(e) {
 
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 520);
   if (!player) return;
-  try { e.lookAt?.(player.location); } catch {}
+  try { e.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.214", "best-effort Bedrock API fallback", error);}
   if (distance(e.location, player.location) < 25) {
     // blink: go invisible 10 ticks and jump to a point along the player's view ray (~8 ahead)
     setNum(e, "blink", 10);
     setNum(e, "invis", 1);
-    try { e.addEffect("invisibility", 220, { amplifier: 0, showParticles: false }); } catch {}
+    try { e.addEffect("invisibility", 220, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.219", "best-effort Bedrock API fallback", error);}
     try {
       const look = player.getViewDirection();
       const dest = { x: player.location.x + look.x * 8, y: player.location.y, z: player.location.z + look.z * 8 };
@@ -227,10 +227,10 @@ function tickXxram(e) {
     const anger = getNum(e, "anger", 0) + 1;
     setNum(e, "anger", anger);
     if (anger >= 10) {
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.230", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       if (Math.random() < 0.7) {
         const s = __spawn(e.dimension, "thebrokenscript:null_chase", e.location);
-        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
+        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.233", "best-effort Bedrock API fallback", error);} }
       } else {
         __spawn(e.dimension, "thebrokenscript:ban", e.location);
       }
@@ -286,7 +286,7 @@ function tickNiw(e) {
       } deleteTimers(e);
       if (Math.random() < 0.7) {
         const s = __spawn(e.dimension, "thebrokenscript:nothingiswatchingchase", e.location);
-        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
+        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.289", "best-effort Bedrock API fallback", error);} }
       } else {
         try { e.dimension.spawnEntity("minecraft:lightning_bolt", closest.location); } catch (error) {
           operationDiagnostics.warnOnce("misc.niw_lightning", "misc: NIW lightning spawn failed", error);
@@ -342,30 +342,30 @@ function tickPhantom(e) {
   let life = getNum(e, "life", PHANTOM_LIFE);
   if (!timers.has(e.id)) {
     life = PHANTOM_LIFE; timers.set(e.id, { life });
-    try { e.nameTag = "Phantom Player (notexture)"; } catch {}
-    try { e.nameTagVisible = true; } catch {}
+    try { e.nameTag = "Phantom Player (notexture)"; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.345", "best-effort Bedrock API fallback", error);}
+    try { e.nameTagVisible = true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.346", "best-effort Bedrock API fallback", error);}
   }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 256);
   if (player) {
     if (distance(e.location, player.location) < 200 && Math.random() < 0.0001) {
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.351", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       if (Math.random() < 0.5) {
         const s = __spawn(e.dimension, "thebrokenscript:hetzer", e.location);
-        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
+        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.354", "best-effort Bedrock API fallback", error);} }
       } else {
         const s = __spawn(e.dimension, "thebrokenscript:circuit_stalk", e.location);
-        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
+        if (s) { try { s.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.357", "best-effort Bedrock API fallback", error);} }
       }
       return;
     }
     if (distance(e.location, player.location) < 25) {
       title(player, "blick", 20);
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.363", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       return;
     }
   }
   life--; setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
+  if (life <= 0) { try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.368", "best-effort Bedrock API fallback", error);} deleteTimers(e); }
 }
 
 // ── hetzer ───────────────────────────────────────────────────────────────────
@@ -374,18 +374,18 @@ function tickHetzer(e) {
   if (!timers.has(e.id)) { life = HETZER_LIFE; timers.set(e.id, { life }); }
   // hover approximation (FlyingPathNavigation): gentle float bob every 10 ticks
   if (system.currentTick % 10 === 0) {
-    try { e.teleport({ x: e.location.x, y: e.location.y + 0.15, z: e.location.z }); } catch {}
+    try { e.teleport({ x: e.location.x, y: e.location.y + 0.15, z: e.location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.377", "best-effort Bedrock API fallback", error);}
   }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 64);
   if (player) {
     const observed = gaze.isLookingAtEntity(player, e, 14) || distance(e.location, player.location) < 10;
     if (observed && system.currentTick % 40 === 0) {
-      try { player.addEffect("blindness", 5, { amplifier: 1, showParticles: false }); } catch {}
+      try { player.addEffect("blindness", 5, { amplifier: 1, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.383", "best-effort Bedrock API fallback", error);}
     }
   }
   life--; setNum(e, "life", life);
   if (life <= 0) {
-    try { e.remove(); } catch {} deleteTimers(e);
+    try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.388", "best-effort Bedrock API fallback", error);} deleteTimers(e);
     __spawn(e.dimension, "thebrokenscript:circuit", e.location);
   }
 }
@@ -394,7 +394,7 @@ function tickHetzer(e) {
 function tickFollow(e) {
   // wretched particle drip
   if (system.currentTick % 30 === 0) {
-    try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", { x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch {}
+    try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", { x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.397", "best-effort Bedrock API fallback", error);}
   }
   // disruption block placement every ~20 ticks (Chunk 08 block now available)
   if (system.currentTick % 20 === 0) {
@@ -404,29 +404,29 @@ function tickFollow(e) {
       const oz = (Math.random() < 0.5 ? 1 : -1) * Math.floor(Math.random() * 6);
       const b = e.dimension.getBlock({ x: Math.floor(e.location.x) + ox, y: Math.floor(e.location.y) + oy, z: Math.floor(e.location.z) + oz });
       if (b && b.typeId === "minecraft:air") b.setType("thebrokenscript:disruption");
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.407", "best-effort Bedrock API fallback", error);}
   }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 40);
   if (player && distance(e.location, player.location) < 20 && hasLineOfSightApprox(player, e)) {
-    try { e.remove(); } catch {} deleteTimers(e);
+    try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.411", "best-effort Bedrock API fallback", error);} deleteTimers(e);
     if (Math.random() < 0.5) {
       tryPlaySoundAt(e.dimension, player.location, "thebrokenscript:text_madness_1", 10, 0);
-      try { player.addEffect("darkness", 60, { amplifier: 1, showParticles: false }); } catch {}
+      try { player.addEffect("darkness", 60, { amplifier: 1, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.414", "best-effort Bedrock API fallback", error);}
       // source: random CLAN_VOID / NULL_TORTURE destination + fixPos/skipFallDamage flags
       const dest = Math.random() < 0.5 ? "clan_void" : "null_torture";
       dimensions.teleportTo(player, dest, { x: player.location.x, y: 201, z: player.location.z });
-      try { playerState.set(player, "fixPos", true); } catch {}
-      try { playerState.set(player, "skipFallDamage", true); } catch {}
+      try { playerState.set(player, "fixPos", true); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.418", "best-effort Bedrock API fallback", error);}
+      try { playerState.set(player, "skipFallDamage", true); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.419", "best-effort Bedrock API fallback", error);}
     } else {
-      try { player.teleport(e.location); } catch {}
+      try { player.teleport(e.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.421", "best-effort Bedrock API fallback", error);}
       // give SERIAL_DESIGNATION_N item pending Chunk 09 — ledgered skip
     }
     return;
   }
   try {
     const time = world.getTimeOfDay();
-    if (time >= 23000 || time < 1000) { try { e.remove(); } catch {} deleteTimers(e); }
-  } catch {}
+    if (time >= 23000 || time < 1000) { try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.428", "best-effort Bedrock API fallback", error);} deleteTimers(e); }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.429", "best-effort Bedrock API fallback", error);}
 }
 
 // ── wanderers with proximity despawn (name_tag, maze_shadows) ────────────────
@@ -437,19 +437,19 @@ function tickWanderDespawn(e) {
       const chars = "abcdefghijklmnopqrstuvwxyz0123456789_";
       let n = "";
       for (let i = 0; i < 8 + Math.floor(Math.random() * 5); i++) n += chars[Math.floor(Math.random() * chars.length)];
-      try { e.nameTag = n; } catch {}
+      try { e.nameTag = n; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.440", "best-effort Bedrock API fallback", error);}
     } else {
       const nick = Math.random() < 0.175 ? "WormMan9" : String(100000 + Math.floor(Math.random() * 100000));
-      try { e.nameTag = nick; } catch {}
+      try { e.nameTag = nick; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.443", "best-effort Bedrock API fallback", error);}
     }
-    try { e.nameTagVisible = true; } catch {}
+    try { e.nameTagVisible = true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.445", "best-effort Bedrock API fallback", error);}
   }
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== e.dimension.id) continue;
     const gm = typeof p.getGameMode === "function" ? p.getGameMode() : undefined;
     if (gm === GameMode.Creative || gm === GameMode.Spectator) continue;
     if (distance(p.location, e.location) < (e.typeId === "thebrokenscript:maze_shadows" ? 15 : 15) || hasLineOfSightApprox(p, e)) {
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.452", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       return;
     }
   }

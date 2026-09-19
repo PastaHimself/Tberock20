@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { exactFlyingGaze, flyingFovCone } from "../null_pursuit_model.js";
 
 const DEG = Math.PI / 180;
@@ -82,7 +83,7 @@ export function hasLineOfSight(player, targetLocation, { tolerance = 0.35 } = {}
             includeLiquidBlocks: false,
             includePassableBlocks: false,
         });
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.gaze.js.85", "best-effort Bedrock API fallback", error);
         return false;
     }
 
@@ -109,7 +110,7 @@ function hitboxSamples(entity) {
     let aabb;
     try {
         aabb = entity.getAABB?.();
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.gaze.js.112", "best-effort Bedrock API fallback", error);
         return [entity.location];
     }
 
@@ -173,7 +174,7 @@ export function isLookingAtEntityCenter(player, entity, { maxDistance = 128 } = 
     const distance = Math.hypot(toEntity.x, toEntity.y, toEntity.z);
     if (!Number.isFinite(distance) || distance > maxDistance) return false;
     let lineOfSight = false;
-    try { lineOfSight = hasLineOfSight(player, target, { tolerance: 0 }); } catch { return false; }
+    try { lineOfSight = hasLineOfSight(player, target, { tolerance: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.gaze.js.176", "best-effort Bedrock API fallback", error); return false; }
     return exactFlyingGaze({
         viewDirection: player.getViewDirection?.(),
         toEntity,
@@ -197,7 +198,7 @@ export function isEntityInFovCone(player, entity, fovDegrees = null, storedFovDe
         z: entity.location.z - origin.z,
     };
     let lineOfSight = false;
-    try { lineOfSight = hasLineOfSight(player, entity.location, { tolerance: 0 }); } catch { return false; }
+    try { lineOfSight = hasLineOfSight(player, entity.location, { tolerance: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.ai.gaze.js.200", "best-effort Bedrock API fallback", error); return false; }
     return flyingFovCone({
         viewDirection: player.getViewDirection?.(),
         toEntity,

@@ -38,7 +38,7 @@
     },
     "permutations": [
       {
-        "condition": "query.block_state('thebrokenscript:code') == true",
+        "condition": "query.block_state('thebrokenscript:code')",
         "components": {
           "minecraft:material_instances": {
             "*": {

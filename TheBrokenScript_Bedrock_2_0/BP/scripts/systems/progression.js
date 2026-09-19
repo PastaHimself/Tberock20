@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import { logger } from "../core/logging.js";
 import { hasPersistedAdvancement, persistAdvancement } from "./progression_state.js";
@@ -72,7 +73,7 @@ export function award(playerOrId, id) {
     });
     const description = ADVANCEMENT_DESCRIPTIONS[id];
     if (description) player.sendMessage(`§7${description}`);
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.progression.js.75", "best-effort Bedrock API fallback", error);}
 
   logger.info(`progression: advancement '${id}' awarded to player ${player.id ?? player.name ?? "unknown"}`);
   return true;
@@ -101,7 +102,7 @@ export function begin(scheduler) {
             break;
           }
         }
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.progression.js.104", "best-effort Bedrock API fallback", error);}
     }
     void scanCount;
   });
@@ -122,7 +123,7 @@ export function begin(scheduler) {
         ) {
           award(src, "you_ve_brought_it_upon_yourself");
         }
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.progression.js.125", "best-effort Bedrock API fallback", error);}
     });
   } catch (error) {
     logger.error("progression: failed to subscribe to entityHurt", error);

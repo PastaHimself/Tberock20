@@ -87,6 +87,42 @@ class SourceToRuntimeAuditTests(unittest.TestCase):
             )
         )
 
+    def test_source_map_directory_descriptor_matches_files_in_that_directory(self):
+        self.assertTrue(
+            MODULE._source_reference_matches(
+                ".cache/16897c9b77d11d266ed5963947874285af4cf785",
+                ".cache/ (14 hash-named files)",
+            )
+        )
+        self.assertFalse(
+            MODULE._source_reference_matches(
+                ".cache-not-mapped/file",
+                ".cache/ (14 hash-named files)",
+            )
+        )
+
+    def test_zero_byte_control_name_is_reported_as_extraction_artifact(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            addon_root = root / "TheBrokenScript_Bedrock_2_0"
+            addon_root.mkdir(parents=True)
+            source_root = root / "source_extracted"
+            source_root.mkdir()
+            (source_root / ("\x7f" * 4)).write_bytes(b"")
+
+            assets = MODULE.audit_source_assets(
+                root,
+                addon_root,
+                {"rows": []},
+                {"families": []},
+            )
+
+            self.assertEqual(assets["unmapped_files"], [])
+            self.assertEqual(
+                assets["family_counts"]["source_extraction_artifacts"],
+                1,
+            )
+
     def test_silent_catch_is_reported_and_annotated_fallback_is_not(self):
         findings = MODULE.find_silent_catches(
             "try { player.applyDamage(2); } catch {}\n"
@@ -97,6 +133,21 @@ class SourceToRuntimeAuditTests(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertEqual(findings[0]["severity"], "error")
         self.assertIn("applyDamage", findings[0]["context"])
+
+    def test_operation_diagnostics_counts_as_observable_catch_handling(self):
+        findings = MODULE.find_silent_catches(
+            "try { player.applyDamage(2); } catch (error) { "
+            "operationDiagnostics.errorOnce('damage', 'damage failed', error); "
+            "return false; }\n",
+            "BP/scripts/example.js",
+        )
+
+        self.assertEqual(findings, [])
+
+    def test_project_has_no_unobserved_runtime_catches(self):
+        report = MODULE.audit_project(REPO_ROOT)
+
+        self.assertEqual(report["fallbacks"]["silent_catch_count"], 0)
 
     def test_minimal_project_has_zero_structural_errors(self):
         with tempfile.TemporaryDirectory() as directory:

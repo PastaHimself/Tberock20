@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import { logger } from "../../core/logging.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
@@ -27,11 +28,11 @@ let schedulerRegistered = false;
 
 function isValid(entity) {
   if (!entity) return false;
-  try { return entity.isValid !== false; } catch { return false; }
+  try { return entity.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.30", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function health(entity) {
-  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch { return 0; }
+  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.34", "best-effort Bedrock API fallback", error); return 0; }
 }
 
 function isAlive(entity) {
@@ -42,13 +43,13 @@ function hasDyingState(entity) {
   try {
     return entity.hasTag("thebrokenscript.dying")
       || entity.getProperty("thebrokenscript:dying") === true;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.45", "best-effort Bedrock API fallback", error);
     return false;
   }
 }
 
 function allPlayers() {
-  try { return world.getAllPlayers(); } catch { return []; }
+  try { return world.getAllPlayers(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.51", "best-effort Bedrock API fallback", error); return []; }
 }
 
 function rosterRecords() {
@@ -97,7 +98,7 @@ function removeTrackedEntities() {
       try {
         const entity = dimension.getEntities().find((candidate) => candidate.id === id);
         if (entity) entity.remove();
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.100", "best-effort Bedrock API fallback", error);}
     }
   }
   arena.entityIds.clear();
@@ -111,7 +112,7 @@ function playerSurfaceLocation(dimension, center) {
       y: (top?.location?.y ?? center.y) + 1,
       z: center.z,
     };
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.114", "best-effort Bedrock API fallback", error);
     return { ...center };
   }
 }
@@ -130,7 +131,7 @@ function currentPhaseEntity(typeId) {
         arena.entityIds.has(candidate.id)
       ));
       if (entity) return entity;
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.133", "best-effort Bedrock API fallback", error);}
   }
   return null;
 }
@@ -190,7 +191,7 @@ function trackedChords() {
           entityForId = entity;
           break;
         }
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.193", "best-effort Bedrock API fallback", error);}
     }
     // Keep ids for removed entities so an empty query cannot be mistaken for
     // Java's `entities.stream().allMatch(...)` over the still-tracked chords.
@@ -220,12 +221,12 @@ function tickPhase2() {
   for (const { player } of rosterRecords()) {
     try {
       if (player.dimension.id !== "thebrokenscript:stage2") continue;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.223", "best-effort Bedrock API fallback", error);
       continue;
     }
     const blockY = Math.floor(player.location.y);
     if (phase2NeedsRecoveryTeleport(blockY)) {
-      try { player.teleport(PHASE2_SOURCE.recoveryTeleport, { dimension: dimensionFor("thebrokenscript:stage2") }); } catch {}
+      try { player.teleport(PHASE2_SOURCE.recoveryTeleport, { dimension: dimensionFor("thebrokenscript:stage2") }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.228", "best-effort Bedrock API fallback", error);}
     }
   }
   // Phase2.ended is never set by Java. Keep the call explicit so this source
@@ -281,7 +282,7 @@ function tickCutscene() {
           fadeColor: { red: 0, green: 0, blue: 0 },
           fadeTime: { fadeInTime: 0, holdTime: PHASE3_CUTSCENE_SOURCE.blackoutTicks / 20, fadeOutTime: 0 },
         });
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.284", "best-effort Bedrock API fallback", error);}
     }
   }
   if (cutscene.blackout) arena.blackoutShown = true;
@@ -359,7 +360,7 @@ export function start(triggerPlayer, requestedPhase = INTEGRITY_PHASE.PHASE_1) {
   }
   if (arena) return { accepted: false, reason: "arena_already_active" };
   const players = allPlayers().filter((player) => {
-    try { return player.dimension.id === triggerPlayer.dimension.id; } catch { return false; }
+    try { return player.dimension.id === triggerPlayer.dimension.id; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.362", "best-effort Bedrock API fallback", error); return false; }
   });
   const center = {
     x: Math.floor(triggerPlayer.location.x) + 0.5,

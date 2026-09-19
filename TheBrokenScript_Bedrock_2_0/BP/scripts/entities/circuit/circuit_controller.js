@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 ﻿import { world, system } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
 import * as playerState from "../../systems/player_state.js";
@@ -36,7 +37,7 @@ export function begin(scheduler) {
 function onCircuitTick() {
   for (const dim of [world.getDimension("overworld"), world.getDimension("nether"), world.getDimension("the_end")]) {
     let entities = [];
-    try { entities = dim.getEntities({ families: ["thebrokenscript_circuit"] }); } catch { continue; }
+    try { entities = dim.getEntities({ families: ["thebrokenscript_circuit"] }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.39", "best-effort Bedrock API fallback", error); continue; }
     for (const e of entities) {
       try { tickEntity(e); } catch (err) { logger.error(`circuit tick ${e.typeId}`, err); }
     }
@@ -69,7 +70,7 @@ function tickStalk(entity) {
   }
   if (Math.random() < 0.7) {
     const spawned = spawnHelpers.trySummon(entity.dimension, "thebrokenscript:circuit", entity.location);
-    if (spawned) { try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
+    if (spawned) { try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.72", "best-effort Bedrock API fallback", error);} }
   }
   effects.darkness(player, 5);
   entity.remove(); entityTimers.delete(entity.id);
@@ -82,7 +83,7 @@ function tickStare(entity) {
   if (t <= 0) { entity.remove(); entityTimers.delete(entity.id); return; }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 256);
   if (!player) return;
-  try { entity.lookAt?.(player.location); } catch {}
+  try { entity.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.85", "best-effort Bedrock API fallback", error);}
   if (!gaze.isLookingAtEntity(player, entity, 14)) return;
   if (Math.random() < 0.5) {
     player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
@@ -90,9 +91,9 @@ function tickStare(entity) {
   }
   if (Math.random() < 0.7) {
     const spawned = spawnHelpers.trySummon(entity.dimension, "thebrokenscript:circuit", entity.location);
-    if (spawned) { try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch {} }
+    if (spawned) { try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.93", "best-effort Bedrock API fallback", error);} }
   }
-  try { player.addEffect("darkness", 100, { amplifier: 0, showParticles: false }); } catch {}
+  try { player.addEffect("darkness", 100, { amplifier: 0, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.95", "best-effort Bedrock API fallback", error);}
   entity.remove(); entityTimers.delete(entity.id);
 }
 
@@ -116,7 +117,7 @@ function tickMineshaftStare(entity) {
   if (t <= 0) { entity.remove(); entityTimers.delete(entity.id); return; }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), entity, 256);
   if (!player) return;
-  try { entity.lookAt?.({ x: player.location.x, y: player.location.y + 1, z: player.location.z }); } catch {}
+  try { entity.lookAt?.({ x: player.location.x, y: player.location.y + 1, z: player.location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.119", "best-effort Bedrock API fallback", error);}
   if (distance(entity.location, player.location) > 8) return;
   if (Math.random() < 0.5) { effects.blindness(player, 2); } else {
     const spawned = spawnHelpers.trySummon(entity.dimension, "thebrokenscript:circuit", entity.location);

@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 // Pure cache primitives for the engine-facing performance adapter.
 //
 // Dimension handles are intentionally invalidated by an explicit lifecycle
@@ -56,11 +57,12 @@ export function createDimensionHandleCache(readDimension, onError) {
                 cache.set(name, dimension);
                 return dimension;
             } catch (error) {
+              operationDiagnostics.warnOnce("audit.BP.scripts.systems.perf_model.js.58", "best-effort Bedrock API fallback", error);
                 // Do not cache failures: a dimension can become available after
                 // world initialization or a transient engine error.
                 try {
                     onError?.(error, name);
-                } catch {
+                } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.perf_model.js.63", "best-effort Bedrock API fallback", error);
                     // Error reporting must not change cache behavior.
                 }
                 return undefined;

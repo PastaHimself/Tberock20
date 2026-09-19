@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -18,11 +19,11 @@ function getMoonPhase() {
   try {
     const mp = world.getMoonPhase?.();
     if (typeof mp === "number") return ((mp % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.21", "best-effort Bedrock API fallback", error);}
   try {
     const day = world.getDay?.() ?? Math.floor(world.getTimeOfDay() / 24000);
     return ((day % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.25", "best-effort Bedrock API fallback", error);}
   return 0;
 }
 
@@ -31,7 +32,7 @@ function isNight() {
     const t = world.getTimeOfDay();
     // audit: Bedrock time-of-day adapter for the Java daytime range.
     return t >= 13000 && t < 23000;
-  } catch { return false; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.34", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function baseGates(ctx) {
@@ -55,7 +56,7 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
       if (typeof top.y === "number") y = top.y;
       else if (top.location && typeof top.location.y === "number") y = top.location.y;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.58", "best-effort Bedrock API fallback", error);}
   return { x, y, z };
 }
 
@@ -70,23 +71,23 @@ function pickChunkCandidateNearPlayer(player, minDist, maxDist) {
       ? top.y
       : (typeof top?.location?.y === "number" ? top.location.y : undefined);
     if (typeof surfaceY === "number") location.y = surfaceY + 1;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.73", "best-effort Bedrock API fallback", error);}
   return location;
 }
 
 function summonAt(dim, typeId, loc) {
-  try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+  try { return dim.spawnEntity(typeId, loc); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.78", "best-effort Bedrock API fallback", error); return undefined; }
 }
 
 function difficultyIsPeaceful() {
-  try { return String(world.getDifficulty()).toLowerCase() === "peaceful"; } catch { return true; }
+  try { return String(world.getDifficulty()).toLowerCase() === "peaceful"; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.82", "best-effort Bedrock API fallback", error); return true; }
 }
 
 function belowBlockIsValid(dim, location) {
   try {
     const block = dim.getBlock({ x: Math.floor(location.x), y: Math.floor(location.y) - 1, z: Math.floor(location.z) });
     return Boolean(block && block.isAir !== true && block.typeId !== "minecraft:air");
-  } catch { return false; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.89", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function nearestPlayerDistance(players, dimension, location) {
@@ -104,14 +105,14 @@ function nearestPlayerDistance(players, dimension, location) {
 function skyVisibleFromBelowWater(dim, location) {
   try {
     return dim.getSkyLightLevel({ x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) }) >= 15;
-  } catch { return false; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.107", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function totalLightAt(dim, location) {
   try {
     const value = dim.getLightLevel?.({ x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) });
     return typeof value === "number" ? value : undefined;
-  } catch { return undefined; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.114", "best-effort Bedrock API fallback", error); return undefined; }
 }
 
 export function register() {
@@ -125,7 +126,7 @@ export function register() {
       if (Math.random() > NIW_CHANCE) return false;
       const loc = pickCandidateNearPlayer(player, 32, 72);
       let near = [];
-      try { near = player.dimension.getEntities({ location: loc, maxDistance: 480 }); } catch {}
+      try { near = player.dimension.getEntities({ location: loc, maxDistance: 480 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.128", "best-effort Bedrock API fallback", error);}
       if (near.some(x => x.typeId === "thebrokenscript:niw" || x.typeId === "thebrokenscript:nothingiswatchingchase")) return false;
       return summonAt(player.dimension, "thebrokenscript:niw", loc) !== undefined;
     }
@@ -147,7 +148,7 @@ export function register() {
       // onFinalizeSpawn: broadcast ambient cave range 555 vol 45 rand pitch then self-cancel
       tryPlayAmbientCave(player.dimension, loc);
       worldState.set("eerieNoiseDelay", 3200);
-      try { e.remove(); } catch {}
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.150", "best-effort Bedrock API fallback", error);}
       return true;
     }
   });
@@ -208,7 +209,7 @@ export function register() {
       const e = summonAt(player.dimension, "thebrokenscript:corruption", loc);
       if (!e) return false;
       applyCorruption(e);
-      try { e.remove(); } catch {}
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.211", "best-effort Bedrock API fallback", error);}
       return true;
     }
   });
@@ -230,9 +231,9 @@ export function register() {
 }
 
 function tryPlayAmbientCave(dim, loc) {
-  try { dim.playSound("ambient.cave", loc, { volume: 45, pitch: Math.random() }); return; } catch {}
+  try { dim.playSound("ambient.cave", loc, { volume: 45, pitch: Math.random() }); return; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.233", "best-effort Bedrock API fallback", error);}
   for (const p of world.getAllPlayers()) {
-    try { p.playSound("ambient.cave", { volume: 10, pitch: Math.random() }); } catch {}
+    try { p.playSound("ambient.cave", { volume: 10, pitch: Math.random() }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.235", "best-effort Bedrock API fallback", error);}
   }
 }
 
@@ -251,7 +252,7 @@ function applyCorruption(e) {
         b.setType("minecraft:air");
         cleared++;
       }
-    } catch { break; }
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.254", "best-effort Bedrock API fallback", error); break; }
   }
   // torches at the 4 neighbor columns' surface when height delta in (-2, 4)
   for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
@@ -271,6 +272,6 @@ function applyCorruption(e) {
           if (t && t.typeId === "minecraft:air") t.setType("minecraft:redstone_torch");
         }
       }
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_spawn_rules.js.274", "best-effort Bedrock API fallback", error);}
   }
 }

@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
 import { config } from "../../core/config.js";
@@ -13,7 +14,7 @@ function isBlacklistedBiome(dimension, location) {
     const biome = dimension.getBiome?.(location);
     const id = biome?.id ?? biome?.name ?? "";
     return BIOME_BLACKLIST_SUBSTRINGS.some((s) => String(id).includes(s));
-  } catch { return false; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.16", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function canSpawnCircuitStalk(ctx) {
