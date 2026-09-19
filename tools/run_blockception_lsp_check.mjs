@@ -79,6 +79,46 @@ function formatCode(code) {
   if (code === undefined || code === null || code === '') return '';
   return typeof code === 'object' ? JSON.stringify(code) : String(code);
 }
+function suspiciousServerStderrLines(stderrText) {
+  const lines = stderrText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return [...new Set(lines.filter(
+    (line) => /(?:TypeError|ReferenceError|SyntaxError|RangeError|Unhandled|\bError:)/i.test(line),
+  ))];
+}
+
+function appendBlockceptionStepSummary(summary, suspiciousStderr) {
+  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryPath) return;
+
+  const lines = [
+    '## Blockception diagnostics',
+    '',
+    `- **Errors:** ${summary.errors}`,
+    `- **Warnings:** ${summary.warnings}`,
+    `- **Information:** ${summary.information}`,
+    `- **Hints:** ${summary.hints}`,
+    `- **Ignored known resolver false positives:** ${summary.ignoredVanillaFallbacks}`,
+    `- **Suspicious language-server stderr lines:** ${suspiciousStderr.length}`,
+    '',
+  ];
+
+  if (suspiciousStderr.length > 0) {
+    lines.push('<details open>');
+    lines.push('<summary><strong>Language-server internal warnings</strong></summary>');
+    lines.push('');
+    lines.push('```text');
+    lines.push(...suspiciousStderr);
+    lines.push('```');
+    lines.push('');
+    lines.push('</details>');
+    lines.push('');
+  }
+
+  writeFileSync(summaryPath, `${lines.join('\n')}\n`, { encoding: 'utf8', flag: 'a' });
+}
 
 // Keep suppressions exact and evidence-based so unrelated diagnostics still fail CI.
 // Blockception currently resolves this local render-controller reference through its
@@ -358,6 +398,8 @@ async function main() {
     sortDiagnostics(diagnostics);
     sortDiagnostics(ignoredVanillaFallbacks);
 
+    const serverStderrText = serverStderr.join('');
+    const suspiciousStderr = suspiciousServerStderrLines(serverStderrText);
     const summary = {
       errors: diagnostics.filter((item) => item.severity === 1).length,
       warnings: diagnostics.filter((item) => item.severity === 2).length,
@@ -366,6 +408,7 @@ async function main() {
       total: diagnostics.length,
       rawTotal: rawDiagnostics.length,
       ignoredVanillaFallbacks: ignoredVanillaFallbacks.length,
+      suspiciousServerStderr: suspiciousStderr.length,
       filesWithDiagnostics: new Set(diagnostics.map((item) => item.file)).size,
     };
 
@@ -379,7 +422,8 @@ async function main() {
         summary,
         diagnostics,
         ignoredVanillaFallbacks,
-        serverStderr: serverStderr.join(''),
+        suspiciousServerStderr: suspiciousStderr,
+        serverStderr: serverStderrText,
       }, null, 2)}\n`,
       'utf8',
     );
@@ -397,9 +441,19 @@ async function main() {
       }
     }
 
+    for (const line of suspiciousStderr) {
+      console.warn(`Blockception language-server stderr: ${line}`);
+      if (process.env.GITHUB_ACTIONS) {
+        console.log(`::warning title=Blockception internal diagnostic::${githubEscape(line)}`);
+      }
+    }
+
+    appendBlockceptionStepSummary(summary, suspiciousStderr);
+
     console.log(
       `Blockception diagnostics: ${summary.errors} error(s), ${summary.warnings} warning(s), ` +
-      `${summary.information} info, ${summary.hints} hint(s) across ${summary.filesWithDiagnostics} file(s).`,
+      `${summary.information} info, ${summary.hints} hint(s), ${summary.suspiciousServerStderr} ` +
+      `suspicious server stderr line(s) across ${summary.filesWithDiagnostics} file(s).`,
     );
     console.log(`Diagnostic report: ${path.relative(repositoryRoot, reportPath).split(path.sep).join('/')}`);
 
