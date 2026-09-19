@@ -103,6 +103,8 @@ function appendBlockceptionStepSummary(summary, suspiciousStderr) {
     `- **Ignored known resolver false positives:** ${summary.ignoredVanillaFallbacks}`,
     `- **Suspicious language-server stderr lines:** ${suspiciousStderr.length}`,
     '',
+    '**Strict gate:** any error, warning, ignored resolver blocker, or suspicious internal diagnostic fails CI.',
+    '',
   ];
 
   if (suspiciousStderr.length > 0) {
@@ -466,7 +468,19 @@ async function main() {
 
     finished = true;
     clearTimeout(timeout);
-    if (summary.errors > 0) process.exitCode = 1;
+
+    const blockingDiagnosticCount = summary.errors
+      + summary.warnings
+      + summary.ignoredVanillaFallbacks
+      + summary.suspiciousServerStderr;
+    if (blockingDiagnosticCount > 0) {
+      console.error(
+        `Blockception strict validation failed: ${summary.errors} error(s), `
+          + `${summary.warnings} warning(s), ${summary.ignoredVanillaFallbacks} ignored resolver blocker(s), `
+          + `${summary.suspiciousServerStderr} suspicious server stderr line(s). CI requires zero findings.`,
+      );
+      process.exitCode = 1;
+    }
   } finally {
     finished = true;
     clearTimeout(timeout);
