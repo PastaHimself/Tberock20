@@ -13,9 +13,9 @@ const MCT_EXIT_CODES = new Map([
   ['testFail', 4],
   ['internalProcessingError', 5],
 ]);
-// MCT 0.17.7 does not yet recognize some current Bedrock content locations/formats
-// documented by Mojang. Keep these patterns intentionally narrow and back them with
-// our own dedicated validators so unrelated findings remain blocking.
+// MCT 0.17.7 does not yet recognize some current Bedrock content locations/formats.
+// We still classify those separately for diagnosis, but strict CI now fails on every
+// warning/blocker category so a green workflow means a completely clean MCT report.
 const CLIENT_BIOME_PATH = /^\/resource_packs\/rp\/biomes_client\/[a-z0-9._-]+\.biome_client\.json$/;
 const JIGSAW_STRUCTURE_JSON_PATH = /^\/behavior_packs\/bp\/worldgen\/structures\/[a-z0-9._/-]+\.json$/;
 const JAVA_STRUCTURE_NBT_PATH = /\/behavior_packs\/bp\/structures\/[a-z0-9._/-]+\.nbt$/;
@@ -298,32 +298,26 @@ export function validateMctReport(report, status = 0) {
 
   if (result.ignored.length > 0) {
     console.warn(
-      'Known false-positive blockers are allowed only for exact Script Module self-comparisons, '
-        + 'official resource-pack biomes_client files, current Jigsaw structure JSON files, '
-        + 'and Java NBT structure templates under behavior-pack structures/. They are still '
-        + 'printed and annotated above so CI never hides them.',
+      'Known false-positive blockers are classified separately so their origin stays clear, '
+        + 'but strict CI treats them as findings and fails until the report is clean.',
     );
   }
-  if (result.blockers.length > 0) {
-    throw new Error(
-      `Mojang Creator Tools validation failed (exit ${status}) with ${result.blockers.length} blocking finding(s).`,
-    );
-  }
-  if (status === 0) return result;
 
-  const expectedStatus = Math.max(
-    0,
-    ...result.ignored.map((item) => MCT_EXIT_CODES.get(item.type) ?? 0),
-  );
-  const recognizedValidationFailure = expectedStatus > 0
-    && status === expectedStatus
-    && result.rawBlockerCount > 0
-    && result.ignored.length === result.rawBlockerCount;
-  if (!recognizedValidationFailure) {
+  const findingCount = result.blockers.length + result.warnings.length + result.ignored.length;
+  if (findingCount > 0) {
     throw new Error(
-      `Mojang Creator Tools exited unexpectedly (exit ${status}; expected ${expectedStatus}).`,
+      `Mojang Creator Tools strict validation failed: `
+        + `${result.blockers.length} blocker(s), ${result.warnings.length} warning(s), `
+        + `${result.ignored.length} ignored/known-tool blocker(s). CI requires zero findings.`,
     );
   }
+
+  if (status !== 0) {
+    throw new Error(
+      `Mojang Creator Tools exited unexpectedly with status ${status} despite reporting zero findings.`,
+    );
+  }
+
   return result;
 }
 
