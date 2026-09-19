@@ -2,41 +2,49 @@
   {
     "flipbook_texture": "textures/blocks/command_block",
     "atlas_tile": "command_block",
-    "ticks_per_frame": 1,
+    "ticks_per_frame": 4,
     "blend_frames": true,
     "frames": [
-      {
-        "index": 0,
-        "time": 36
-      },
-      {
-        "index": 0,
-        "time": 4
-      },
-      {
-        "index": 1,
-        "time": 36
-      },
-      {
-        "index": 1,
-        "time": 4
-      },
-      {
-        "index": 4,
-        "time": 36
-      },
-      {
-        "index": 4,
-        "time": 4
-      },
-      {
-        "index": 3,
-        "time": 36
-      },
-      {
-        "index": 3,
-        "time": 4
-      }
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
     ]
   },
   {

@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { BlockVolume, system, world } from "@minecraft/server";
 import * as events from "../core/events.js";
 import { config } from "../core/config.js";
@@ -14,7 +15,7 @@ let begun = false;
 
 function isValid(entity) {
     if (!entity) return false;
-    try { return entity.isValid !== false; } catch { return false; }
+    try { return entity.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.chunk_remover_runtime.js.17", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function integer(value, fallback) {
@@ -27,7 +28,7 @@ function dimensionHeight(dimension) {
         const min = integer(range?.min, -64);
         const max = integer(range?.max, 320);
         if (max > min && (max - min) % 16 === 0) return { min, max };
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.chunk_remover_runtime.js.30", "best-effort Bedrock API fallback", error);}
     return { min: -64, max: 320 };
 }
 
@@ -47,7 +48,7 @@ function isLoaded(dimension, location) {
     try {
         return typeof dimension.isChunkLoaded === "function" &&
             dimension.isChunkLoaded({ x: Math.floor(location.x), y: 0, z: Math.floor(location.z) });
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.chunk_remover_runtime.js.50", "best-effort Bedrock API fallback", error);
         return false;
     }
 }
@@ -64,7 +65,7 @@ function playSourceSound(dimension, location) {
             if (dx * dx + dy * dy + dz * dz > 16 ** 2) continue;
             player.playSound("ambient.cave", { volume: 10, pitch: 0.01 });
         }
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.chunk_remover_runtime.js.67", "best-effort Bedrock API fallback", error);}
 }
 
 function fillSection(dimension, bounds, y) {
@@ -202,7 +203,7 @@ export function handleChunkRemoverEntity(entity) {
     handledEntities.add(entity.id);
     const dimension = entity.dimension;
     const location = entity.location && { ...entity.location };
-    try { entity.remove(); } catch {}
+    try { entity.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.chunk_remover_runtime.js.205", "best-effort Bedrock API fallback", error);}
     if (!dimension || !location) return { ok: false, operation: "invalid" };
     return applyChunkRemoval(dimension, location);
 }

@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 // Source-backed FracturedRoam lifecycle values from FracturedRoamEntity,
 // FracturedRoamGoUnDerGroundGoal, BaseFracturedEntity, and JimArena.
 
@@ -239,7 +240,7 @@ function finiteCoordinate(value, fallback = 0) {
 function airAt(isAirAt, position) {
   try {
     return isAirAt(position) === true;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.fractured_roam_model.js.242", "best-effort Bedrock API fallback", error);
     return false;
   }
 }

@@ -31,7 +31,7 @@
     },
     "permutations": [
       {
-        "condition": "query.block_state('thebrokenscript:open') == true",
+        "condition": "query.block_state('thebrokenscript:open')",
         "components": {
           "minecraft:collision_box": false
         }

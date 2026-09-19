@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { BlockPermutation, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
@@ -44,11 +45,11 @@ export function init(blockComponentRegistry) {
           p.onScreenDisplay.setTitle("§k██§r at java.lang.Thread.getStackTrace", {
             fadeInDuration: 0, stayDuration: 30, fadeOutDuration: 10
           });
-        } catch {}
+        } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.47", "best-effort Bedrock API fallback", error);}
       }
     },
     onEntityFallOn(ev) {
-      try { ev.entity.applyDamage(2); } catch {}
+      try { ev.entity.applyDamage(2); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.51", "best-effort Bedrock API fallback", error);}
     }
   });
 
@@ -108,7 +109,7 @@ export function init(blockComponentRegistry) {
 
   register("thebrokenscript:be_portal_extender", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("§5EXTENDER LINKED", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("§5EXTENDER LINKED", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.111", "best-effort Bedrock API fallback", error);}
     }
   });
 
@@ -127,20 +128,20 @@ export function init(blockComponentRegistry) {
         block.dimension.spawnParticle("minecraft:basic_smoke_particle", {
           x: block.location.x + 0.5, y: block.location.y + 1.05, z: block.location.z + 0.5
         });
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.130", "best-effort Bedrock API fallback", error);}
     }
   });
 
   register("thebrokenscript:be_exit", {
     onPlayerInteract(ev) {
-      try { ev.player.onScreenDisplay.setTitle("§aEXIT?", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.onScreenDisplay.setTitle("§aEXIT?", { fadeInDuration: 0, stayDuration: 20, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.136", "best-effort Bedrock API fallback", error);}
     }
   });
 
   register("thebrokenscript:be_a_flower", {
     onPlayerInteract(ev) {
-      try { ev.player.playSound("chime.amethyst_block"); } catch {}
-      try { ev.player.onScreenDisplay.setTitle("§d...", { fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 0 }); } catch {}
+      try { ev.player.playSound("chime.amethyst_block"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.142", "best-effort Bedrock API fallback", error);}
+      try { ev.player.onScreenDisplay.setTitle("§d...", { fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.143", "best-effort Bedrock API fallback", error);}
     }
   });
 
@@ -166,7 +167,7 @@ async function handlePortalControllerInteract(player, block) {
         stayDuration: 25,
         fadeOutDuration: 0
       });
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.169", "best-effort Bedrock API fallback", error);}
 
     const loc = { x: player.location.x, y: 201, z: player.location.z };
     const teleported = await dimensions.teleportWhenReady(player, "clan_void", loc);
@@ -187,9 +188,9 @@ function makeJimTrigger() {
       try {
         ev.entity.setDynamicProperty("tbs:jim_stage_touch", stage);
         system.runTimeout(() => {
-          try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", undefined); } catch {}
+          try { ev.entity.setDynamicProperty("tbs:jim_stage_touch", undefined); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.190", "best-effort Bedrock API fallback", error);}
         }, 1);
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.192", "best-effort Bedrock API fallback", error);}
     }
   };
 }
@@ -208,11 +209,11 @@ function heldItemTypeId(player) {
   try {
     const inventory = player.getComponent("minecraft:inventory")?.container;
     return inventory?.getItem(player.selectedSlotIndex)?.typeId;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.211", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
 
 function tryPlayNear(dim, loc, sound, vol, pitch) {
-  try { dim.playSound(sound, loc, { volume: vol, pitch }); } catch {}
+  try { dim.playSound(sound, loc, { volume: vol, pitch }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.217", "best-effort Bedrock API fallback", error);}
 }

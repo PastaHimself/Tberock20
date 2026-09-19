@@ -27,6 +27,17 @@ function Copy-Tree([string]$from, [string]$to) {
     return $files.Count
 }
 
+function Get-GreatestCommonDivisor([int]$left, [int]$right) {
+    $left = [Math]::Abs($left)
+    $right = [Math]::Abs($right)
+    while ($right -ne 0) {
+        $remainder = $left % $right
+        $left = $right
+        $right = $remainder
+    }
+    return [Math]::Max(1, $left)
+}
+
 # ---------------------------------------------------------------- 1. sounds
 $nSounds = Copy-Tree (Join-Path $src "sounds") (Join-Path $rp "sounds")
 "copied $nSounds sound files"
@@ -112,7 +123,7 @@ foreach ($png in (Get-ChildItem (Join-Path $src "textures\block") -Recurse -Filt
 }
 $textureData = [ordered]@{}
 foreach ($k in ($terrainKeys.Keys | Sort-Object)) { $textureData[$k] = [ordered]@{ textures = $terrainKeys[$k] } }
-Write-JsonFile (Join-Path $rp "terrain_texture.json") ([ordered]@{
+Write-JsonFile (Join-Path $rp "textures\terrain_texture.json") ([ordered]@{
     resource_pack_name = "thebrokenscript"
     texture_name = "atlas.terrain"
     padding = 8
@@ -128,7 +139,7 @@ foreach ($png in (Get-ChildItem (Join-Path $src "textures\item") -Recurse -Filte
 }
 $itemData = [ordered]@{}
 foreach ($k in ($itemKeys.Keys | Sort-Object)) { $itemData[$k] = [ordered]@{ textures = $itemKeys[$k] } }
-Write-JsonFile (Join-Path $rp "item_texture.json") ([ordered]@{
+Write-JsonFile (Join-Path $rp "textures\item_texture.json") ([ordered]@{
     resource_pack_name = "thebrokenscript"
     texture_name = "atlas.items"
     texture_data = $itemData
@@ -174,17 +185,45 @@ foreach ($mc in (Get-ChildItem (Join-Path $src "textures\block") -Recurse -Filte
     if ($null -eq $meta.animation) { continue }
     $anim = $meta.animation
     $texRel = $mc.FullName.Replace("$src\textures\", "").Replace(".png.mcmeta", "")
+    $frameTick = if ($null -ne $anim.frametime) {
+        [Math]::Max(1, [int][Math]::Round([double]$anim.frametime))
+    } else { 1 }
+    $frameObjects = @($anim.frames) | Where-Object {
+        $_ -isnot [int] -and $_ -isnot [long] -and $_ -isnot [double]
+    }
+    if ($frameObjects.Count -gt 0 -and $null -eq $anim.frametime) {
+        $frameTick = 0
+        foreach ($frame in $frameObjects) {
+            if ($null -ne $frame.time) {
+                $frameTick = Get-GreatestCommonDivisor $frameTick ([Math]::Max(1, [int]$frame.time))
+            }
+        }
+        if ($frameTick -eq 0) { $frameTick = 1 }
+    }
     $fb = [ordered]@{
         flipbook_texture = "textures/$texRel"
         atlas_tile = [System.IO.Path]::GetFileName($texRel)
-        ticks_per_frame = [Math]::Max(1, [int][Math]::Round([double]$anim.frametime))
+        ticks_per_frame = $frameTick
         blend_frames = [bool]$anim.interpolate
     }
-    if ($null -ne $anim.frames) { $fb.frames = @($anim.frames) }
+    if ($null -ne $anim.frames) {
+        $frames = New-Object System.Collections.Generic.List[int]
+        foreach ($frame in @($anim.frames)) {
+            if ($frame -is [int] -or $frame -is [long] -or $frame -is [double]) {
+                $frames.Add([int]$frame)
+                continue
+            }
+            $index = if ($null -ne $frame.index) { [int]$frame.index } else { 0 }
+            $duration = if ($null -ne $frame.time) { [Math]::Max(1, [int]$frame.time) } else { $frameTick }
+            $repetitions = [Math]::Max(1, [int][Math]::Round($duration / $frameTick))
+            for ($i = 0; $i -lt $repetitions; $i++) { $frames.Add($index) }
+        }
+        $fb.frames = @($frames)
+    }
     $flipbook.Add($fb)
 }
 if ($flipbook.Count -gt 0) {
-    Write-JsonFile (Join-Path $rp "flipbook_textures.json") ([ordered]@{ flipbook = $flipbook })
+    Write-JsonFile (Join-Path $rp "textures\flipbook_textures.json") $flipbook
 }
 "wrote flipbook_textures.json: $($flipbook.Count) entries"
 

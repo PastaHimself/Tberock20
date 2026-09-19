@@ -45,6 +45,57 @@ const projectIntegrityFailure = {
   message: 'Found 1 errors in Project Integrity check',
 };
 
+const compatibilityEvidence = {
+  customBlockIdentifiers: new Set(['thebrokenscript:all_dead']),
+  uiTextureIdentifiers: new Set(['textures/ui/vhs/color_wash']),
+  subpacksValid: true,
+  lightingKeyframesValid: true,
+};
+
+const officialSubpackWarning = {
+  type: 'warning',
+  generatorId: 'JSON',
+  message: 'Structure issue',
+  data: 'In "subpacks[0]": {"folder_name":"clean_tape","n... - object value found, but a string is required',
+  path: '/resource_packs/rp/manifest.json',
+};
+
+const officialTruncatedSubpackWarning = {
+  ...officialSubpackWarning,
+  data: 'In "subpacks[2]": {"folder_name":"severe_trackin... - object value found, but a string is required',
+};
+
+const officialLightingWarning = {
+  type: 'warning',
+  generatorId: 'JSONF',
+  message: 'At minecraft:lighting_settings.ambient.color, data does not match any one of the expected types: Data is an object',
+  path: '/resource_packs/rp/lighting/global.json',
+};
+
+const officialCustomBlockItemWarning = {
+  type: 'warning',
+  generatorId: 'UNLINK',
+  message: 'Link to item type is not found in this pack',
+  data: '/behavior_packs/bp/loot_tables/blocks/all_dead.json to `thebrokenscript:all_dead`',
+  path: '/behavior_packs/bp/loot_tables/blocks/all_dead.json',
+};
+
+const officialVanillaRecipeItemWarning = {
+  type: 'warning',
+  generatorId: 'UNLINK',
+  message: 'Link to item type is not found in this pack',
+  data: '/behavior_packs/bp/recipes/notch_apple.json to `minecraft:gold_block`',
+  path: '/behavior_packs/bp/recipes/notch_apple.json',
+};
+
+const officialCustomUiTextureWarning = {
+  type: 'warning',
+  generatorId: 'UNLINK',
+  message: 'Link to texture is not found in this pack',
+  data: '/resource_packs/rp/ui/vhs_overlay.json to `textures/ui/vhs/color_wash`',
+  path: '/resource_packs/rp/ui/vhs_overlay.json',
+};
+
 
 test('ignores only the MCT false positive for official client biome files', () => {
   const result = classifyMctFindings(reportWith(unknownJsonFailure, officialClientBiomeError));
@@ -135,46 +186,89 @@ test('preserves the existing exact script-module self-comparison suppression', (
 });
 
 
-test('strict validation rejects recognized false-positive blockers', () => {
-  assert.throws(
-    () => validateMctReport(
-      reportWith(unknownJsonFailure, officialClientBiomeError),
-      4,
+test('classifies only evidence-backed current-schema compatibility findings', () => {
+  const result = classifyMctFindings(
+    reportWith(
+      officialTruncatedSubpackWarning,
+      officialLightingWarning,
+      officialCustomBlockItemWarning,
+      officialVanillaRecipeItemWarning,
+      officialCustomUiTextureWarning,
     ),
-    /strict validation failed: 0 blocker\(s\), 0 warning\(s\), 2 ignored\/known-tool blocker\(s\)/,
+    compatibilityEvidence,
   );
+
+  assert.deepEqual(result.blockers, []);
+  assert.deepEqual(result.warnings, []);
+  assert.equal(result.compatibility.length, 5);
 });
 
 
-test('strict validation rejects mixed recognized current-layout findings', () => {
+test('keeps compatibility-shaped findings when their evidence does not match', () => {
+  const wrongEvidence = {
+    ...compatibilityEvidence,
+    customBlockIdentifiers: new Set(['thebrokenscript:not_a_block']),
+    uiTextureIdentifiers: new Set(['textures/ui/vhs/not_present']),
+    subpacksValid: false,
+    lightingKeyframesValid: false,
+  };
+  const result = classifyMctFindings(
+    reportWith(
+      officialSubpackWarning,
+      officialLightingWarning,
+      officialCustomBlockItemWarning,
+      officialCustomUiTextureWarning,
+    ),
+    wrongEvidence,
+  );
+
+  assert.deepEqual(result.compatibility, []);
+  assert.equal(result.warnings.length, 4);
+});
+
+
+test('does not classify an item link for a custom item as an auto-created block item', () => {
+  const result = classifyMctFindings(
+    reportWith({
+      ...officialCustomBlockItemWarning,
+      data: '/behavior_packs/bp/loot_tables/blocks/all_dead.json to `thebrokenscript:custom_item`',
+    }),
+    compatibilityEvidence,
+  );
+
+  assert.deepEqual(result.compatibility, []);
+  assert.equal(result.warnings.length, 1);
+});
+
+
+test('strict validation accepts documented current-layout compatibility findings', () => {
+  assert.doesNotThrow(() => validateMctReport(
+    reportWith(unknownJsonFailure, officialClientBiomeError),
+    0,
+  ));
+});
+
+
+test('strict validation accepts mixed recognized current-layout findings', () => {
   const unknownAggregate = {
     ...unknownJsonFailure,
     message: 'Found 2 errors in Unknown JSON check',
   };
-  assert.throws(
-    () => validateMctReport(
-      reportWith(
-        unknownAggregate,
-        officialClientBiomeError,
-        officialJigsawStructureError,
-        projectIntegrityFailure,
-        officialJavaStructureNbtError,
-      ),
-      4,
+  assert.doesNotThrow(() => validateMctReport(
+    reportWith(
+      unknownAggregate,
+      officialClientBiomeError,
+      officialJigsawStructureError,
+      projectIntegrityFailure,
+      officialJavaStructureNbtError,
     ),
-    /strict validation failed: 0 blocker\(s\), 0 warning\(s\), 5 ignored\/known-tool blocker\(s\)/,
-  );
+    0,
+  ));
 });
 
 
-test('strict validation rejects a recognized error even without an aggregate failure', () => {
-  assert.throws(
-    () => validateMctReport(
-      reportWith(officialClientBiomeError),
-      3,
-    ),
-    /strict validation failed: 0 blocker\(s\), 0 warning\(s\), 1 ignored\/known-tool blocker\(s\)/,
-  );
+test('strict validation accepts a recognized error without an aggregate failure', () => {
+  assert.doesNotThrow(() => validateMctReport(reportWith(officialClientBiomeError), 0));
 });
 
 
@@ -186,7 +280,7 @@ test('strict validation rejects warnings', () => {
       message: 'Schema warning',
       path: '/behavior_packs/bp/entities/example.json',
     }), 0),
-    /strict validation failed: 0 blocker\(s\), 1 warning\(s\), 0 ignored\/known-tool blocker\(s\)/,
+    /strict validation failed: 0 blocker\(s\), 1 warning\(s\), 0 compatibility diagnostic\(s\)/,
   );
 });
 
@@ -199,7 +293,7 @@ test('strict validation rejects real blockers', () => {
       message: 'Invalid pack data',
       path: '/behavior_packs/bp/entities/example.json',
     }), 3),
-    /strict validation failed: 1 blocker\(s\), 0 warning\(s\), 0 ignored\/known-tool blocker\(s\)/,
+    /strict validation failed: 1 blocker\(s\), 0 warning\(s\), 0 compatibility diagnostic\(s\)/,
   );
 });
 

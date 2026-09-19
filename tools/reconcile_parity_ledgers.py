@@ -1049,7 +1049,7 @@ def reconcile_row(row: dict[str, Any], current_events: set[str]) -> None:
             status="ported",
             parity="full",
             identifier="resource:textures",
-            files=["RP/terrain_texture.json", "RP/item_texture.json", "RP/textures/blocks/a_flower.png"],
+            files=["RP/textures/terrain_texture.json", "RP/textures/item_texture.json", "RP/textures/blocks/a_flower.png"],
             notes="Current terrain/item atlases and packaged texture files represent the source texture inventory at resource level.",
         )
     elif category == "font":

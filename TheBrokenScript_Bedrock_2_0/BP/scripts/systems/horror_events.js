@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import { GameMode, ItemStack, system, world } from "@minecraft/server";
 import * as state from "../core/state.js";
 import * as worldState from "./world_state.js";
@@ -75,7 +76,7 @@ function playerId(playerOrId) {
 }
 
 function currentSession() {
-  try { return Number(world.getDynamicProperty(SESSION_PROPERTY) ?? sessionToken); } catch { return sessionToken; }
+  try { return Number(world.getDynamicProperty(SESSION_PROPERTY) ?? sessionToken); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_events.js.78", "best-effort Bedrock API fallback", error); return sessionToken; }
 }
 
 function beginSession() {
@@ -116,6 +117,7 @@ function scheduleForPlayer(player, delayTicks, callback) {
     handles.add(handle);
     return handle;
   } catch (err) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_events.js.118", "best-effort Bedrock API fallback", err);
     handles.delete(handle);
     if (handles.size === 0) pendingByPlayer.delete(id);
     reportAdapterFailure("schedule", err);
@@ -365,6 +367,7 @@ function reputationFor(player) {
     const reputation = Number(playerState.get(player, "entityReputation"));
     return reputation < 25 ? "BAD" : reputation < 76 ? "NORMAL" : "GOOD";
   } catch (err) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_events.js.367", "best-effort Bedrock API fallback", err);
     reportAdapterFailure("reputation", err);
     return "NORMAL";
   }
@@ -373,7 +376,7 @@ function reputationFor(player) {
 function isFakeNullPlayer(player) {
   try {
     return playerState.get(player, "fakeNull") === true || playerState.get(player, "isNullProfile") === true;
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_events.js.376", "best-effort Bedrock API fallback", error);
     return false;
   }
 }
@@ -400,7 +403,7 @@ function eventContext(player, players, randomBoolean) {
   const curious = (() => {
     try {
       return player.dimension.getEntities({ type: "thebrokenscript:the_broken_end_curious", location: player.location, maxDistance: 64 }).length > 0;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_events.js.403", "best-effort Bedrock API fallback", error);
       return false;
     }
   })();
@@ -440,7 +443,7 @@ function recordEventWeight(id, weights) {
 }
 
 function bossArenaActive() {
-  try { return world.getDynamicProperty("tbs:arenaActive") === true; } catch (err) { reportAdapterFailure("arena-state", err); return false; }
+  try { return world.getDynamicProperty("tbs:arenaActive") === true; } catch (err) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.horror_events.js.443", "best-effort Bedrock API fallback", err); reportAdapterFailure("arena-state", err); return false; }
 }
 
 function tick() {

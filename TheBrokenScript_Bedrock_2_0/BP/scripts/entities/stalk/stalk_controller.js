@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 ﻿import { world, system } from "@minecraft/server";
 import { EntityDamageCause, GameMode } from "@minecraft/server";
 import * as worldState from "../../systems/world_state.js";
@@ -40,7 +41,7 @@ function inFovCone(player, entity, fovDeg = 70) {
     const len = Math.hypot(to.x, to.y, to.z) || 1;
     const n = { x: to.x / len, y: to.y / len, z: to.z / len };
     return (view.x * n.x + view.y * n.y + view.z * n.z) >= Math.cos(fovDeg * Math.PI / 360);
-  } catch { return false; }
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.43", "best-effort Bedrock API fallback", error); return false; }
 }
 
 export function begin(scheduler) {
@@ -51,9 +52,9 @@ function onTick() {
   if (!perf.hasPlayers(system.currentTick)) return; // perf: idle server short-circuit (Chunk 16)
   let list = [];
   const dims = [];
-  try { dims.push(world.getDimension("overworld")); } catch {}
+  try { dims.push(world.getDimension("overworld")); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.54", "best-effort Bedrock API fallback", error);}
   for (const dim of dims) {
-    try { list = dim.getEntities({ families: ["thebrokenscript_stalk"] }); } catch { continue; }
+    try { list = dim.getEntities({ families: ["thebrokenscript_stalk"] }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.56", "best-effort Bedrock API fallback", error); continue; }
     for (const e of list) {
       try { tickEntity(e); } catch (err) { logger.error(`stalk tick ${e.typeId} ${e.id}`, err); }
     }
@@ -76,8 +77,8 @@ function tickEntity(e) {
 function tickCurved(e) {
   if (!timers.has(e.id)) {
     timers.set(e.id, { life: CURVED_DESPAWN, transformed: 0, transformTimer: 100 });
-    try { e.nameTag = "Curved"; } catch {}
-    try { e.nameTagVisible = true; } catch {}
+    try { e.nameTag = "Curved"; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.79", "best-effort Bedrock API fallback", error);}
+    try { e.nameTagVisible = true; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.80", "best-effort Bedrock API fallback", error);}
   }
   // survival player within 10 & not yet aggressive → invulnerable + begin transform
   for (const p of world.getAllPlayers()) {
@@ -101,7 +102,7 @@ function tickCurved(e) {
         if (!e.isValid) return;
         const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 4);
         if (target) {
-          try { target.applyDamage(7, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(7); } catch {} }
+          try { target.applyDamage(7, { cause: EntityDamageCause.entityAttack, damagingEntity: e }); } catch { try { target.applyDamage(7); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.104", "best-effort Bedrock API fallback", error);} }
         }
       }, 20);
     }
@@ -117,16 +118,16 @@ function tickCurved(e) {
         const dz = player.location.z - e.location.z;
         const len = Math.hypot(dx, dz) || 1;
         const step = 0.55 * 10 * 0.05; // 0.55 speed over 10 ticks
-        try { e.teleport({ x: e.location.x + (dx / len) * step, y: e.location.y, z: e.location.z + (dz / len) * step }); } catch {}
+        try { e.teleport({ x: e.location.x + (dx / len) * step, y: e.location.y, z: e.location.z + (dz / len) * step }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.120", "best-effort Bedrock API fallback", error);}
       }
-      try { e.lookAt?.(player.location); } catch {}
+      try { e.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.122", "best-effort Bedrock API fallback", error);}
     }
   }
   const life = getNum(e, "life", CURVED_DESPAWN) - 1;
   setNum(e, "life", life);
   if (life <= 0) {
     spawnSourceParticle(e, "curved_despawn");
-    try { e.remove(); } catch {} deleteTimers(e);
+    try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.129", "best-effort Bedrock API fallback", error);} deleteTimers(e);
   }
 }
 
@@ -134,14 +135,14 @@ function tickCurved(e) {
 function tickJon(e) {
   if (!timers.has(e.id)) {
     timers.set(e.id, { saidHello: 0, timesChatted: 0, lastChat: system.currentTick });
-    try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"§ejon joined the game"}]}`); } catch {}
+    try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"§ejon joined the game"}]}`); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.137", "best-effort Bedrock API fallback", error);}
   }
   const lastChat = getNum(e, "lastChat", 0);
   if (system.currentTick - lastChat >= 40 && Math.floor(Math.random() * 5) === 3) {
     const saidHello = getNum(e, "saidHello", 0);
     const msg = saidHello ? "<jon> let's play minecraft!" : "<jon> hello!";
-    try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"${msg}"}]}`); } catch {}
-    try { e.playSound(saidHello ? "thebrokenscript:jon.play" : "thebrokenscript:jon.hello"); } catch {}
+    try { e.dimension.runCommand(`tellraw @a {"rawtext":[{"text":"${msg}"}]}`); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.143", "best-effort Bedrock API fallback", error);}
+    try { e.playSound(saidHello ? "thebrokenscript:jon.play" : "thebrokenscript:jon.hello"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.144", "best-effort Bedrock API fallback", error);}
     if (!saidHello) {
       const tc = getNum(e, "timesChatted", 0) + 1;
       setNum(e, "timesChatted", tc);
@@ -164,13 +165,13 @@ function tickSubAnomaly(e) {
     try {
       const b = e.dimension.getBlock({ x: Math.floor(e.location.x) + ox, y: Math.floor(e.location.y) + oy, z: Math.floor(e.location.z) + oz });
       if (b && b.typeId === "minecraft:air") b.setType("thebrokenscript:corrupted_moon_stone_bricks");
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.167", "best-effort Bedrock API fallback", error);}
     if (Math.random() <= 0.05) {
       // 5% branch — extra spread block
       try {
         const b2 = e.dimension.getBlock({ x: Math.floor(e.location.x) + ox + 1, y: Math.floor(e.location.y) + oy, z: Math.floor(e.location.z) + oz });
         if (b2 && b2.typeId === "minecraft:air") b2.setType("thebrokenscript:corrupted_moon_stone_bricks");
-      } catch {}
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.173", "best-effort Bedrock API fallback", error);}
     }
   }
 }
@@ -183,7 +184,7 @@ function tickObliteration(e) {
   }
   // hover drift (flying)
   if (system.currentTick % 15 === 0) {
-    try { e.teleport({ x: e.location.x, y: e.location.y + 0.1, z: e.location.z }); } catch {}
+    try { e.teleport({ x: e.location.x, y: e.location.y + 0.1, z: e.location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.186", "best-effort Bedrock API fallback", error);}
   }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 480);
   if (!player) return;
@@ -197,19 +198,19 @@ function tickObliteration(e) {
     if (watching || close) {
       s++; setNum(e, key, s);
       if (s > 100) {
-        try { e.remove(); } catch {} deleteTimers(e);
+        try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.200", "best-effort Bedrock API fallback", error);} deleteTimers(e);
         system.runTimeout(() => {
           try {
             const safeName = player.name.replace(/"/g, '\\"');
             player.dimension.runCommand(`kick "${safeName}" §cThe triangle has judged you.`);
-          } catch {}
+          } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.205", "best-effort Bedrock API fallback", error);}
         }, 10);
         return;
       }
     } else if (s > 0) {
       setNum(e, key, 0);
       // reset player-side accumulator analogue
-      try { playerState.set(player, "triangleKickTimer", 0); } catch {}
+      try { playerState.set(player, "triangleKickTimer", 0); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.212", "best-effort Bedrock API fallback", error);}
     }
   } else {
     // O1: periodic watching sound beat every 150 ticks while observed/close
@@ -226,10 +227,10 @@ function tickObliteration(e) {
 }
 
 function tryPlayAt(dim, loc, sound, vol = 1, pitch = 1) {
-  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch {}
+  try { dim.playSound(sound, loc, { volume: vol, pitch }); return; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.229", "best-effort Bedrock API fallback", error);}
   for (const p of world.getAllPlayers()) {
     if (p.dimension.id !== dim.id) continue;
-    try { p.playSound(sound, { volume: vol, pitch }); } catch {}
+    try { p.playSound(sound, { volume: vol, pitch }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.232", "best-effort Bedrock API fallback", error);}
   }
 }
 
@@ -239,12 +240,12 @@ function tickHerobrine(e) {
   if (!timers.has(e.id)) { life = 400; timers.set(e.id, { life }); }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 158);
   if (player) {
-    try { e.lookAt?.(player.location); } catch {}
+    try { e.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.242", "best-effort Bedrock API fallback", error);}
     if (distance(e.location, player.location) < 42) {
-      try { e.remove(); } catch {} deleteTimers(e);
+      try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.244", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       return;
     }
   }
   life--; setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch {} deleteTimers(e); }
+  if (life <= 0) { try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_controller.js.249", "best-effort Bedrock API fallback", error);} deleteTimers(e); }
 }

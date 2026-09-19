@@ -538,6 +538,10 @@ def audit_java_sources(
 def _source_reference_matches(path: str, reference: str) -> bool:
     path = _posix(path)
     reference = _normal_source_ref(reference)
+    # Source-map rows may describe a directory with a human-readable count,
+    # e.g. ".cache/ (14 hash-named files)".  The parenthetical is metadata,
+    # not part of the path, so strip it before applying the directory match.
+    reference = re.sub(r"\s+\([^)]*\)$", "", reference).rstrip()
     if not reference:
         return False
     if reference.endswith("/**"):
@@ -608,6 +612,17 @@ def audit_source_assets(
             # Bedrock assets and should not be mistaken for missing pack data.
             family_counts["source_class_artifacts"] += 1
             family_files.setdefault("source_class_artifacts", []).append(relative)
+        elif (
+            path.stat().st_size == 0
+            and relative
+            and all(ord(character) == 0x7F for character in relative)
+        ):
+            # The source extraction contains one zero-byte DEL-named sentinel.
+            # It is an archive/extraction artifact, not source content or a
+            # runtime asset; retain it for provenance but give it an explicit
+            # disposition instead of treating it as an unmapped source file.
+            family_counts["source_extraction_artifacts"] += 1
+            family_files.setdefault("source_extraction_artifacts", []).append(relative)
         elif relative.startswith("assets/") or relative.endswith((".txt", ".schema.json")):
             # These are source-only text/schema payloads with no directly
             # shipped Bedrock equivalent.  Keep them visible as an explicit
@@ -846,7 +861,10 @@ def find_silent_catches(source: str, path: str) -> list[dict[str, Any]]:
             continue
         effective_body = _strip_comments(body)
         has_observable_handling = bool(
-            re.search(r"\blogger\.|\bconsole\.|\bthrow\b", effective_body)
+            re.search(
+                r"\b(?:logger|operationDiagnostics)\.|\b(?:warnOnce|errorOnce)\s*\(|\bconsole\.|\bthrow\b",
+                effective_body,
+            )
         )
         if has_observable_handling:
             continue

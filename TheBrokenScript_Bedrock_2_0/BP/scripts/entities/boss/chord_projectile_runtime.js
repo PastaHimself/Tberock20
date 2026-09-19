@@ -27,7 +27,7 @@ function copyPosition(position) {
 
 function isValid(entity) {
   if (!entity) return false;
-  try { return entity.isValid !== false; } catch { return false; }
+  try { return entity.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.chord_projectile_runtime.js.30", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function removeProjectile(entity) {
@@ -240,7 +240,7 @@ function entitiesAt(dimension, position) {
       location: position,
       maxDistance: CHORD_PROJECTILE_BEDROCK_ADAPTER.collisionQueryRadius,
     });
-  } catch {
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.chord_projectile_runtime.js.243", "best-effort Bedrock API fallback", error);
     return [];
   }
 }
@@ -273,7 +273,7 @@ function entityImpactOnSegment(dimension, start, end, projectile, state) {
       if (seen.has(identity)) continue;
       seen.add(identity);
       let targetPosition;
-      try { targetPosition = copyPosition(target.location); } catch { continue; }
+      try { targetPosition = copyPosition(target.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.chord_projectile_runtime.js.276", "best-effort Bedrock API fallback", error); continue; }
       const closest = pointToSegment(targetPosition, start, end);
       if (closest.distance > CHORD_PROJECTILE_BEDROCK_ADAPTER.collisionQueryRadius) continue;
       if (!best || closest.t < best.t) {
@@ -294,11 +294,11 @@ function triggerGravityRestoration(entity, state) {
 
 function isCreativePlayer(entity) {
   if (entity?.typeId !== "minecraft:player") return false;
-  try { return entity.getGameMode() === GameMode.Creative; } catch { return false; }
+  try { return entity.getGameMode() === GameMode.Creative; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.chord_projectile_runtime.js.297", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function currentDifficultyId() {
-  try { return chordProjectileDifficultyId(world.getDifficulty()); } catch { return 0; }
+  try { return chordProjectileDifficultyId(world.getDifficulty()); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.chord_projectile_runtime.js.301", "best-effort Bedrock API fallback", error); return 0; }
 }
 
 function applyProjectileDamage(projectile, target, state) {
@@ -347,7 +347,7 @@ function tickGroundedProjectile(entity, state) {
 
 function tickPostEntityImpact(entity, state) {
   let position;
-  try { position = copyPosition(entity.location); } catch { return; }
+  try { position = copyPosition(entity.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.chord_projectile_runtime.js.350", "best-effort Bedrock API fallback", error); return; }
   if (chordProjectileShouldDiscardForTravel(position, state.initialPosition)) {
     removeProjectile(entity);
   }

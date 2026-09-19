@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
 import { config } from "../../core/config.js";
@@ -28,12 +29,12 @@ function getMoonPhase(worldObj) {
   try {
     const mp = worldObj.getMoonPhase?.();
     if (typeof mp === "number") return mp & 7;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.31", "best-effort Bedrock API fallback", error);}
   // fallback: day % 8
   try {
     const day = worldObj.getDay?.() ?? Math.floor((worldObj.getTime?.() ?? 0) / 24000);
     return ((day % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.36", "best-effort Bedrock API fallback", error);}
   return 0;
 }
 
@@ -50,7 +51,7 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
       if (typeof top.y === "number") y = top.y;
       else if (top.location && typeof top.location.y === "number") y = top.location.y;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.53", "best-effort Bedrock API fallback", error);}
   return { x, y, z };
 }
 
@@ -118,7 +119,7 @@ export function register() {
       if (config.get("danger.disableSpawningEntities")) return false;
       // ctx from spawn_director: { players, gameTime, frequency, world? }
       // augment world reference for moonPhase fallback
-      try { ctx.world = ctx.players[0]?.dimension ? { getMoonPhase: () => ctx.players[0].dimension.getMoonPhase?.() ?? 0, getDay: () => ctx.players[0].dimension.getDay?.() ?? 0, getTime: () => ctx.gameTime } : ctx.world; } catch {}
+      try { ctx.world = ctx.players[0]?.dimension ? { getMoonPhase: () => ctx.players[0].dimension.getMoonPhase?.() ?? 0, getDay: () => ctx.players[0].dimension.getDay?.() ?? 0, getTime: () => ctx.gameTime } : ctx.world; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.121", "best-effort Bedrock API fallback", error);}
       return canSpawnTbeStalk(ctx);
     }
   });
@@ -126,7 +127,7 @@ export function register() {
     id: "tbe_ambush",
     predicate: (ctx) => {
       if (config.get("danger.disableSpawningEntities")) return false;
-      try { ctx.world = ctx.players[0]?.dimension ? { getMoonPhase: () => ctx.players[0].dimension.getMoonPhase?.() ?? 0, getDay: () => ctx.players[0].dimension.getDay?.() ?? 0, getTime: () => ctx.gameTime } : ctx.world; } catch {}
+      try { ctx.world = ctx.players[0]?.dimension ? { getMoonPhase: () => ctx.players[0].dimension.getMoonPhase?.() ?? 0, getDay: () => ctx.players[0].dimension.getDay?.() ?? 0, getTime: () => ctx.gameTime } : ctx.world; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.129", "best-effort Bedrock API fallback", error);}
       return canSpawnTbeAmbush(ctx);
     }
   });

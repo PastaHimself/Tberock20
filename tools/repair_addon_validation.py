@@ -246,7 +246,7 @@ def repair_null_item_icon(bp: Path) -> int:
 def repair_texture_atlases(rp: Path) -> int:
     changed = 0
     for name in ("terrain_texture.json", "item_texture.json"):
-        path = rp / name
+        path = rp / "textures" / name
         value = load_json(path)
         for entry in value.get("texture_data", {}).values():
             textures = entry.get("textures") if isinstance(entry, dict) else None
@@ -258,7 +258,7 @@ def repair_texture_atlases(rp: Path) -> int:
 
 
 def repair_flipbook(rp: Path) -> int:
-    path = rp / "flipbook_textures.json"
+    path = rp / "textures" / "flipbook_textures.json"
     value = load_json(path)
     if isinstance(value, dict) and isinstance(value.get("flipbook"), list):
         value = value["flipbook"]

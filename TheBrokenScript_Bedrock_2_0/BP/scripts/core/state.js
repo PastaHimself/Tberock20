@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "./operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import { migrateCoreSchema } from "./persistence_schema.js";
 
@@ -68,7 +69,7 @@ export function getWorldJSON(name, fallback = undefined) {
     if (typeof raw !== "string") return fallback;
     try {
         return JSON.parse(raw);
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.core.state.js.71", "best-effort Bedrock API fallback", error);
         world.setDynamicProperty(key("wj", name), undefined);
         return fallback;
     }
@@ -107,7 +108,7 @@ export function getPlayerJSON(player, name, fallback = undefined) {
     if (typeof raw !== "string") return fallback;
     try {
         return JSON.parse(raw);
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.core.state.js.110", "best-effort Bedrock API fallback", error);
         player.setDynamicProperty(key("pj", name), undefined);
         return fallback;
     }

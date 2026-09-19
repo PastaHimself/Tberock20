@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -16,11 +17,11 @@ function getMoonPhase() {
   try {
     const mp = world.getMoonPhase?.();
     if (typeof mp === "number") return ((mp % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.19", "best-effort Bedrock API fallback", error);}
   try {
     const day = world.getDay?.() ?? Math.floor(world.getTimeOfDay() / 24000);
     return ((day % 8) + 8) % 8;
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.23", "best-effort Bedrock API fallback", error);}
   return 0;
 }
 
@@ -45,16 +46,16 @@ function pickCandidateNearPlayer(player, minDist, maxDist) {
       if (typeof top.y === "number") y = top.y;
       else if (top.location && typeof top.location.y === "number") y = top.location.y;
     }
-  } catch {}
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.48", "best-effort Bedrock API fallback", error);}
   return { x, y, z };
 }
 
 function summonAt(dim, typeId, loc) {
-  try { return dim.spawnEntity(typeId, loc); } catch { return undefined; }
+  try { return dim.spawnEntity(typeId, loc); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.53", "best-effort Bedrock API fallback", error); return undefined; }
 }
 
 function countType(dim, typeId) {
-  try { return dim.getEntities({ type: typeId }).length; } catch { return 0; }
+  try { return dim.getEntities({ type: typeId }).length; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.57", "best-effort Bedrock API fallback", error); return 0; }
 }
 
 export function register() {
@@ -88,7 +89,7 @@ export function register() {
       const loc = pickCandidateNearPlayer(player, 32, 80);
       if (!hasSkyLightAt(player.dimension, loc)) return false;
       let existing = [];
-      try { existing = player.dimension.getEntities({ type: "thebrokenscript:herobrine" }); } catch {}
+      try { existing = player.dimension.getEntities({ type: "thebrokenscript:herobrine" }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.91", "best-effort Bedrock API fallback", error);}
       if (existing.length > 0) return false;
       if (summonAt(player.dimension, "thebrokenscript:herobrine", loc) === undefined) return false;
       worldState.set("herobrineDelay", 32000);
@@ -107,7 +108,7 @@ export function register() {
       if (Math.random() > OBLIT_CHANCE + eventFrequency(ctx.gameTime ?? 0)) return false;
       const loc = pickCandidateNearPlayer(player, 64, 120);
       let near = [];
-      try { near = player.dimension.getEntities({ location: loc, maxDistance: 512 }); } catch {}
+      try { near = player.dimension.getEntities({ location: loc, maxDistance: 512 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.110", "best-effort Bedrock API fallback", error);}
       if (near.some(x => x.typeId.startsWith("thebrokenscript:the_obliteration"))) return false;
       const roll = Math.random();
       const typeId = roll < 0.5 ? "thebrokenscript:the_obliteration" : "thebrokenscript:the_obliteration_2";

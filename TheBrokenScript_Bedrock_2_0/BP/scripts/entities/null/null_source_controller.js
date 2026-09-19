@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { BlockPermutation, EntityDamageCause, system, world } from "@minecraft/server";
 import * as events from "../../core/events.js";
 import { logger } from "../../core/logging.js";
@@ -37,7 +38,7 @@ let begun = false;
 
 function isValid(value) {
     if (!value) return false;
-    try { return value.isValid !== false; } catch { return false; }
+    try { return value.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.40", "best-effort Bedrock API fallback", error); return false; }
 }
 
 function isAlive(entity) {
@@ -45,7 +46,7 @@ function isAlive(entity) {
     try {
         const health = entity.getComponent?.("minecraft:health");
         if (health && typeof health.currentValue === "number") return health.currentValue > 0;
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.48", "best-effort Bedrock API fallback", error);}
     return true;
 }
 
@@ -68,7 +69,7 @@ function rememberEntity(entity) {
 }
 
 function getDynamic(entity, property) {
-    try { return entity.getDynamicProperty(property); } catch { return undefined; }
+    try { return entity.getDynamicProperty(property); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.71", "best-effort Bedrock API fallback", error); return undefined; }
 }
 
 function setDynamic(entity, property, value) {
@@ -124,7 +125,7 @@ function tickNaturalTimer(entity, currentTimer) {
 }
 
 function blockAt(dimension, location) {
-    try { return dimension.getBlock(location); } catch { return undefined; }
+    try { return dimension.getBlock(location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.127", "best-effort Bedrock API fallback", error); return undefined; }
 }
 
 function isReplaceable(block) {
@@ -132,7 +133,7 @@ function isReplaceable(block) {
     try {
         if (block.isAir === true) return true;
         if (typeof block.hasTag === "function" && block.hasTag("replaceable")) return true;
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.135", "best-effort Bedrock API fallback", error);}
     return block.typeId === "minecraft:air";
 }
 
@@ -140,7 +141,7 @@ function lightPermutation() {
     try {
         // Java Blocks.LIGHT.defaultBlockState() emits light level 15.
         return BlockPermutation.resolve(LIGHT_BLOCK_ID, { block_light_level: 15 });
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.143", "best-effort Bedrock API fallback", error);
         return undefined;
     }
 }
@@ -154,7 +155,7 @@ function removeMazeLight(state, dimension) {
     const block = blockAt(lightDimension, state.lightPosition);
     try {
         if (block?.typeId === LIGHT_BLOCK_ID) block.setType("minecraft:air");
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.157", "best-effort Bedrock API fallback", error);}
     state.placedLight = false;
     state.lightDimension = undefined;
 }
@@ -215,7 +216,7 @@ function headLineOfSight(source, target) {
         const block = hit.block?.location;
         if (!block) return false;
         return Math.hypot(block.x + 0.5 - origin.x, block.y + 0.5 - origin.y, block.z + 0.5 - origin.z) >= distance;
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.218", "best-effort Bedrock API fallback", error);
         return false;
     }
 }
@@ -267,7 +268,7 @@ function destroyBlockWithDrops(dimension, location) {
 
 function breakMazeBlocks(entity, state) {
     const facing = (() => {
-        try { return entity.getViewDirection(); } catch { return undefined; }
+        try { return entity.getViewDirection(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.270", "best-effort Bedrock API fallback", error); return undefined; }
     })();
     const plan = mazeBreakPlan({
         blockPosition: {
@@ -298,7 +299,7 @@ function openMazeDoor(entity) {
             includeLiquidBlocks: false,
             includePassableBlocks: false,
         });
-    } catch {
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.301", "best-effort Bedrock API fallback", error);
         return;
     }
     const block = hit?.block;
@@ -319,7 +320,7 @@ function updateMazeStuck(entity, state) {
 
 function discardEntity(entity, state) {
     if (entity.typeId === MAZE_ID) removeMazeLight(state, entity.dimension);
-    try { entity.remove(); } catch {}
+    try { entity.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.322", "best-effort Bedrock API fallback", error);}
     trackedEntities.delete(entity.id);
     if (entity.typeId === MAZE_ID) mazeStates.delete(entity.id);
     else {
@@ -339,7 +340,7 @@ function tickMaze(entity, players) {
 
     const target = updateMazeTarget(entity, state, players);
     if (target) {
-        try { entity.lookAt?.(target.location); } catch {}
+        try { entity.lookAt?.(target.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.342", "best-effort Bedrock API fallback", error);}
     }
     updateMazeStuck(entity, state);
     if (state.targetId !== undefined) {
@@ -353,9 +354,9 @@ function playRangeSound(dimension, location, sound, maxDistance, volume, pitch) 
         for (const player of world.getAllPlayers()) {
             if (!isAlive(player) || player.dimension?.id !== dimension?.id) continue;
             if (distanceSquared(player.location, location) > maxDistance ** 2) continue;
-            try { player.playSound(sound, { volume, pitch }); } catch {}
+            try { player.playSound(sound, { volume, pitch }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.356", "best-effort Bedrock API fallback", error);}
         }
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.358", "best-effort Bedrock API fallback", error);}
 }
 
 function setupFlying(entity, players) {
@@ -377,17 +378,17 @@ function setupFlying(entity, players) {
             targetY = location.y + 25;
         }
     }
-    try { entity.teleport({ x: location.x, y: targetY, z: location.z }); } catch {}
+    try { entity.teleport({ x: location.x, y: targetY, z: location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.380", "best-effort Bedrock API fallback", error);}
     try {
         entity.nameTag = "MobIsMissingID";
         entity.nameTagVisible = true;
-    } catch {}
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.384", "best-effort Bedrock API fallback", error);}
 }
 
 function spawnNullIsHere(entity) {
     try {
         const spawned = entity.dimension.spawnEntity(NULL_IS_HERE_ID, entity.location);
-        try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch {}
+        try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.390", "best-effort Bedrock API fallback", error);}
     } catch (error) {
         logger.debug(`null_source: null_is_here summon failed: ${String(error)}`);
     }
@@ -410,7 +411,7 @@ function scheduleFlyingTrigger(entity, player, state) {
     try {
         system.runTimeout(() => {
             let repGainTimer = 0;
-            try { repGainTimer = playerState.get(player, "nullFlyRepGainTimer"); } catch {}
+            try { repGainTimer = playerState.get(player, "nullFlyRepGainTimer"); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.413", "best-effort Bedrock API fallback", error);}
             const outcome = flyingDelayedOutcome({
                 initialSneaking,
                 currentSneaking: Boolean(player?.isSneaking),
@@ -425,7 +426,7 @@ function scheduleFlyingTrigger(entity, player, state) {
                 try { horrorChat.changeReputation(player, outcome.reputationDelta); } catch (error) { logger.debug(`null_source: flying reputation update failed: ${String(error)}`); }
             }
             if (outcome.nextRepGainTimer !== repGainTimer) {
-                try { playerState.set(player, "nullFlyRepGainTimer", outcome.nextRepGainTimer); } catch {}
+                try { playerState.set(player, "nullFlyRepGainTimer", outcome.nextRepGainTimer); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.428", "best-effort Bedrock API fallback", error);}
             }
             if (outcome.playHostileSound) playRangeSound(soundDimension, soundLocation, "thebrokenscript:you_know_nothing", 128, 0.35, 0.5);
             flyingStates.delete(entity.id);
@@ -442,7 +443,7 @@ function tickFlying(entity, players) {
 
     const closest = nearestPlayer(playersInDimension(entity.dimension, players), entity.location, NULL_FLYING_SOURCE.targetRange, entity.dimension);
     if (closest) {
-        try { entity.lookAt?.(closest.location); } catch {}
+        try { entity.lookAt?.(closest.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.445", "best-effort Bedrock API fallback", error);}
         if (!state.triggered) {
             const candidates = playersInDimension(entity.dimension, players)
                 .filter((player) => distanceSquared(player.location, entity.location) <= NULL_FLYING_SOURCE.gazeRange ** 2)
@@ -504,7 +505,7 @@ function tickEntities(players) {
 
 function onTick() {
     let players;
-    try { players = world.getAllPlayers(); } catch { return; }
+    try { players = world.getAllPlayers(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.507", "best-effort Bedrock API fallback", error); return; }
     tickReputationCooldowns(players);
     tickEntities(players);
 }
@@ -518,17 +519,17 @@ function onFlyingHurt(event) {
     if (!entity || entity.typeId !== FLYING_ID) return;
     const attacker = event.damageSource?.damagingEntity;
     if (attacker?.typeId === "minecraft:player" && isValid(attacker)) {
-        try { horrorChat.changeReputation(attacker, -25); } catch {}
+        try { horrorChat.changeReputation(attacker, -25); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.521", "best-effort Bedrock API fallback", error);}
         let reputation = 50;
-        try { reputation = Number(playerState.get(attacker, "entityReputation")); } catch {}
+        try { reputation = Number(playerState.get(attacker, "entityReputation")); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.523", "best-effort Bedrock API fallback", error);}
         if (Math.random() < 0.3 && reputation <= 25) {
             try {
                 const typeId = Math.random() < 0.5
                     ? "thebrokenscript:null_unbeatable_bossfight"
                     : NULL_IS_HERE_ID;
                 const spawned = entity.dimension.spawnEntity(typeId, entity.location);
-                try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch {}
-            } catch {}
+                try { spawned.setRotation({ x: 0, y: Math.random() * 360 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.530", "best-effort Bedrock API fallback", error);}
+            } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.531", "best-effort Bedrock API fallback", error);}
         }
     }
     // Java discards NullFlying for every hurt source, not only player damage.
@@ -543,7 +544,7 @@ function scanExistingEntities() {
         for (const typeId of ACTIVE_TYPES) {
             try {
                 for (const entity of dimension.getEntities({ type: typeId })) rememberEntity(entity);
-            } catch {}
+            } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_source_controller.js.546", "best-effort Bedrock API fallback", error);}
         }
     }
 }
