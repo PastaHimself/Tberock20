@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs';
+import { appendFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -144,12 +144,146 @@ export function classifyMctFindings(report) {
 }
 
 
-function printFinding(item) {
+function findingText(item) {
   const itemPath = item.path ? ` (${item.path})` : '';
   const data = item.data === undefined
     ? ''
     : `: ${typeof item.data === 'string' ? item.data : JSON.stringify(item.data)}`;
-  console.error(`[${item.type}] ${item.generatorId ?? 'validation'}: ${item.message}${data}${itemPath}`);
+  return `[${item.type}] ${item.generatorId ?? 'validation'}: ${item.message}${data}${itemPath}`;
+}
+
+
+function printFinding(item, method = 'error') {
+  console[method](findingText(item));
+}
+
+
+function githubEscape(value) {
+  return String(value).replaceAll('%', '%25').replaceAll('\r', '%0D').replaceAll('\n', '%0A');
+}
+
+
+function githubPropertyEscape(value) {
+  return githubEscape(value).replaceAll(':', '%3A').replaceAll(',', '%2C');
+}
+
+
+function githubFileForFinding(item) {
+  const candidates = [item.path, typeof item.data === 'string' ? item.data : null]
+    .filter((value) => typeof value === 'string' && value.length > 0)
+    .map((value) => value.replaceAll('\\', '/'));
+
+  for (const candidate of candidates) {
+    const behaviorMarker = '/behavior_packs/bp/';
+    const behaviorIndex = candidate.indexOf(behaviorMarker);
+    if (behaviorIndex !== -1) {
+      return `TheBrokenScript_Bedrock_2_0/BP/${candidate.slice(behaviorIndex + behaviorMarker.length)}`;
+    }
+
+    const resourceMarker = '/resource_packs/rp/';
+    const resourceIndex = candidate.indexOf(resourceMarker);
+    if (resourceIndex !== -1) {
+      return `TheBrokenScript_Bedrock_2_0/RP/${candidate.slice(resourceIndex + resourceMarker.length)}`;
+    }
+  }
+
+  return null;
+}
+
+
+function emitGithubAnnotation(item, level, title, prefix = '') {
+  if (!process.env.GITHUB_ACTIONS) return;
+  const file = githubFileForFinding(item);
+  const properties = [
+    `title=${githubPropertyEscape(title)}`,
+    ...(file ? [`file=${githubPropertyEscape(file)}`] : []),
+  ].join(',');
+  const message = `${prefix}${findingText(item)}`;
+  console.log(`::${level} ${properties}::${githubEscape(message)}`);
+}
+
+
+function markdownEscape(value) {
+  return String(value)
+    .replaceAll('|', '\\|')
+    .replaceAll('\r', ' ')
+    .replaceAll('\n', '<br>');
+}
+
+
+function markdownFinding(item, disposition) {
+  const file = githubFileForFinding(item) ?? item.path ?? '';
+  return `| ${markdownEscape(disposition)} | ${markdownEscape(item.type)} | `
+    + `${markdownEscape(item.generatorId ?? 'validation')} | ${markdownEscape(item.message)} | `
+    + `${markdownEscape(file)} |`;
+}
+
+
+function appendGithubStepSummary(result) {
+  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryPath) return;
+
+  const lines = [
+    '## Mojang Creator Tools diagnostics',
+    '',
+    `- **Projects:** ${result.projectCount}`,
+    `- **Blocking findings:** ${result.blockers.length}`,
+    `- **Warnings:** ${result.warnings.length}`,
+    `- **Known false-positive blockers (not hidden):** ${result.ignored.length}`,
+    '',
+  ];
+
+  const groups = [
+    ['Blocking findings', result.blockers, 'BLOCKER'],
+    ['Warnings', result.warnings, 'WARNING'],
+    ['Ignored known false-positive blockers', result.ignored, 'IGNORED BLOCKER'],
+  ];
+
+  for (const [title, items, disposition] of groups) {
+    lines.push(`<details${items.length > 0 && disposition === 'BLOCKER' ? ' open' : ''}>`);
+    lines.push(`<summary><strong>${title} (${items.length})</strong></summary>`);
+    lines.push('');
+    if (items.length === 0) {
+      lines.push('_None._');
+    } else {
+      lines.push('| Status | Type | Generator | Message | File |');
+      lines.push('| --- | --- | --- | --- | --- |');
+      for (const item of items) lines.push(markdownFinding(item, disposition));
+    }
+    lines.push('');
+    lines.push('</details>');
+    lines.push('');
+  }
+
+  appendFileSync(summaryPath, `${lines.join('\n')}\n`, 'utf8');
+}
+
+
+function reportFindings(result) {
+  // Always print every finding to the raw Actions log. GitHub's annotation UI can
+  // cap how many annotations it displays, so the log and step summary remain the
+  // complete source of diagnostics.
+  for (const item of result.blockers) {
+    printFinding(item, 'error');
+    emitGithubAnnotation(item, 'error', 'MCT blocker');
+  }
+
+  for (const item of result.warnings) {
+    printFinding(item, 'warn');
+    emitGithubAnnotation(item, 'warning', 'MCT warning');
+  }
+
+  for (const item of result.ignored) {
+    printFinding(item, 'warn');
+    emitGithubAnnotation(
+      item,
+      'warning',
+      'MCT ignored blocker',
+      '[known false-positive blocker; still shown] ',
+    );
+  }
+
+  appendGithubStepSummary(result);
 }
 
 
@@ -159,12 +293,15 @@ export function validateMctReport(report, status = 0) {
     `Mojang Creator Tools: ${result.projectCount} project(s), ${result.blockers.length} blocker(s), `
       + `${result.warnings.length} warning(s), ${result.ignored.length} known false-positive blocker(s) ignored.`,
   );
-  result.blockers.forEach(printFinding);
+
+  reportFindings(result);
+
   if (result.ignored.length > 0) {
     console.warn(
-      'Ignored only exact Mojang Creator Tools false positives for Script Module self-comparisons, '
+      'Known false-positive blockers are allowed only for exact Script Module self-comparisons, '
         + 'official resource-pack biomes_client files, current Jigsaw structure JSON files, '
-        + 'and Java NBT structure templates under behavior-pack structures/.',
+        + 'and Java NBT structure templates under behavior-pack structures/. They are still '
+        + 'printed and annotated above so CI never hides them.',
     );
   }
   if (result.blockers.length > 0) {
