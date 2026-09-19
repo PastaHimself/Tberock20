@@ -88,7 +88,9 @@ function isOfficialSubpackObjectWarning(item, evidence) {
     && item.path === SUBPACK_MANIFEST_PATH
     && evidence.subpacksValid === true
     && typeof item.data === 'string'
-    && /^In "subpacks\[\d+\]": \{"folder_name":"[A-Za-z0-9_.-]+"/.test(item.data)
+    // MCT truncates long object previews with an ellipsis before the closing
+    // quote, so accept either the complete value or that exact truncation.
+    && /^In "subpacks\[\d+\]": \{"folder_name":"[A-Za-z0-9_.-]+(?:"|\.\.\.)/.test(item.data)
     && item.data.includes('object value found, but a string is required');
 }
 

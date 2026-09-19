@@ -1,5 +1,6 @@
 import json
 import re
+import struct
 import unittest
 from pathlib import Path
 from typing import Any, Iterable
@@ -219,6 +220,23 @@ class BedrockSchemaRegressionTests(unittest.TestCase):
         for entry in flipbook:
             self.assertIsInstance(entry, dict)
             self.assertTrue(str(entry["flipbook_texture"]).startswith("textures/"))
+
+    def test_atlassed_textures_stay_within_the_mct_memory_budget(self):
+        budget = 262_144
+        oversized = []
+        for name in (
+            "tether_bloom_disintegrate.png",
+            "tether_bloom_rot.png",
+            "void_goop_flow.png",
+        ):
+            path = RP / "textures" / "blocks" / name
+            header = path.read_bytes()
+            self.assertEqual(header[:8], b"\x89PNG\r\n\x1a\n", name)
+            width, height = struct.unpack(">II", header[16:24])
+            memory = width * height * 4
+            if memory > budget:
+                oversized.append(f"{name}: {width}x{height} = {memory} bytes")
+        self.assertEqual(oversized, [])
 
     def test_flipbook_frames_use_integer_indices_and_preserve_command_timing(self):
         flipbook = read_json(RP / "textures" / "flipbook_textures.json")

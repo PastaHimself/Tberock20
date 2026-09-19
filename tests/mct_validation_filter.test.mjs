@@ -60,6 +60,11 @@ const officialSubpackWarning = {
   path: '/resource_packs/rp/manifest.json',
 };
 
+const officialTruncatedSubpackWarning = {
+  ...officialSubpackWarning,
+  data: 'In "subpacks[2]": {"folder_name":"severe_trackin... - object value found, but a string is required',
+};
+
 const officialLightingWarning = {
   type: 'warning',
   generatorId: 'JSONF',
@@ -184,7 +189,7 @@ test('preserves the existing exact script-module self-comparison suppression', (
 test('classifies only evidence-backed current-schema compatibility findings', () => {
   const result = classifyMctFindings(
     reportWith(
-      officialSubpackWarning,
+      officialTruncatedSubpackWarning,
       officialLightingWarning,
       officialCustomBlockItemWarning,
       officialVanillaRecipeItemWarning,
