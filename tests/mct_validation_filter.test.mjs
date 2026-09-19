@@ -135,55 +135,92 @@ test('preserves the existing exact script-module self-comparison suppression', (
 });
 
 
-test('accepts the exact aggregate test-failure status when every blocker is recognized', () => {
-  assert.doesNotThrow(() => validateMctReport(
-    reportWith(unknownJsonFailure, officialClientBiomeError),
-    4,
-  ));
-});
-
-
-test('accepts mixed recognized current-layout findings at aggregate failure status', () => {
-  const unknownAggregate = {
-    ...unknownJsonFailure,
-    message: 'Found 2 errors in Unknown JSON check',
-  };
-  assert.doesNotThrow(() => validateMctReport(
-    reportWith(
-      unknownAggregate,
-      officialClientBiomeError,
-      officialJigsawStructureError,
-      projectIntegrityFailure,
-      officialJavaStructureNbtError,
-    ),
-    4,
-  ));
-});
-
-
-test('accepts error status 3 for a recognized error without an aggregate failure', () => {
-  assert.doesNotThrow(() => validateMctReport(
-    reportWith(officialClientBiomeError),
-    3,
-  ));
-});
-
-
-test('does not mask Mojang Creator Tools internal-processing failures', () => {
+test('strict validation rejects recognized false-positive blockers', () => {
   assert.throws(
     () => validateMctReport(
       reportWith(unknownJsonFailure, officialClientBiomeError),
-      5,
+      4,
     ),
-    /exited unexpectedly \(exit 5; expected 4\)/,
+    /strict validation failed: 0 blocker\(s\), 0 warning\(s\), 2 ignored\/known-tool blocker\(s\)/,
   );
 });
 
 
-test('rejects initialization status 1 when the report has no blockers', () => {
+test('strict validation rejects mixed recognized current-layout findings', () => {
+  const unknownAggregate = {
+    ...unknownJsonFailure,
+    message: 'Found 2 errors in Unknown JSON check',
+  };
+  assert.throws(
+    () => validateMctReport(
+      reportWith(
+        unknownAggregate,
+        officialClientBiomeError,
+        officialJigsawStructureError,
+        projectIntegrityFailure,
+        officialJavaStructureNbtError,
+      ),
+      4,
+    ),
+    /strict validation failed: 0 blocker\(s\), 0 warning\(s\), 5 ignored\/known-tool blocker\(s\)/,
+  );
+});
+
+
+test('strict validation rejects a recognized error even without an aggregate failure', () => {
+  assert.throws(
+    () => validateMctReport(
+      reportWith(officialClientBiomeError),
+      3,
+    ),
+    /strict validation failed: 0 blocker\(s\), 0 warning\(s\), 1 ignored\/known-tool blocker\(s\)/,
+  );
+});
+
+
+test('strict validation rejects warnings', () => {
+  assert.throws(
+    () => validateMctReport(reportWith({
+      type: 'warning',
+      generatorId: 'JSONF',
+      message: 'Schema warning',
+      path: '/behavior_packs/bp/entities/example.json',
+    }), 0),
+    /strict validation failed: 0 blocker\(s\), 1 warning\(s\), 0 ignored\/known-tool blocker\(s\)/,
+  );
+});
+
+
+test('strict validation rejects real blockers', () => {
+  assert.throws(
+    () => validateMctReport(reportWith({
+      type: 'error',
+      generatorId: 'JSON',
+      message: 'Invalid pack data',
+      path: '/behavior_packs/bp/entities/example.json',
+    }), 3),
+    /strict validation failed: 1 blocker\(s\), 0 warning\(s\), 0 ignored\/known-tool blocker\(s\)/,
+  );
+});
+
+
+test('accepts only a zero-finding report with zero exit status', () => {
+  assert.doesNotThrow(() => validateMctReport(reportWith(), 0));
+});
+
+
+test('rejects nonzero MCT status even when the report contains zero findings', () => {
+  assert.throws(
+    () => validateMctReport(reportWith(), 5),
+    /exited unexpectedly with status 5 despite reporting zero findings/,
+  );
+});
+
+
+test('rejects initialization status 1 when the report has zero findings', () => {
   assert.throws(
     () => validateMctReport(reportWith(), 1),
-    /exit 1; expected 0/,
+    /exited unexpectedly with status 1 despite reporting zero findings/,
   );
 });
 
