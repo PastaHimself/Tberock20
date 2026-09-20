@@ -202,11 +202,25 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
     path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "NullConditions.java"),
     "utf8",
   );
+  const tbeSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "TBEConditions.java"),
+    "utf8",
+  );
 
   assert.match(spawnDirector, /for\s*\(const player of players\)/);
   assert.match(spawnDirector, /player,\s*players:[\s\S]*gameTime/);
   assert.match(nullRules, /hasSkyLightAt/);
   assert.match(tbeRules, /hasSkyLightAt/);
+
+  // TBEConditions indexes its chance table with the world's moon phase.
+  // Reading moon phase from Dimension silently collapsed the old adapter to 0.
+  assert.match(tbeSource, /int moonPhase = world\.getMoonPhase\(\)/);
+  assert.match(tbeRules, /Number\(world\.getMoonPhase\(\)\)/);
+  assert.doesNotMatch(tbeRules, /dimension\.getMoonPhase/);
+  assert.match(tbeRules, /world\.gameRules\?\.doMobSpawning !== true/);
+  assert.match(tbeRules, /world\.getDifficulty\(\)/);
+  assert.match(tbeRules, /hasOtherBrokenEndsInRange\(dimension, location\)/);
+  assert.match(tbeRules, /nearestPlayerDistance\(ctx\.players, dimension, location\)/);
 
   // NullConditions applies the natural-spawn gates at the candidate position,
   // including peaceful/doMobSpawning/flat-world and the complete exclusion set.
