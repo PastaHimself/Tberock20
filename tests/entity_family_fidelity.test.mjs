@@ -232,6 +232,61 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
   assert.match(nullRules, /hasSkyLightAt/);
   assert.match(tbeRules, /hasSkyLightAt/);
 
+  const corruptionSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "CorruptionConditions.java"),
+    "utf8",
+  );
+  const defaultSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "TBSDefaultConditions.java"),
+    "utf8",
+  );
+  const nameTagSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "NameTagConditions.java"),
+    "utf8",
+  );
+  const nothingWatcherSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "NothingWatcherConditions.java"),
+    "utf8",
+  );
+  const mazeShadowSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "MazeShadowConditions.java"),
+    "utf8",
+  );
+  const miscRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "misc", "misc_spawn_rules.js"),
+    "utf8",
+  );
+
+  assert.match(corruptionSource, /getDisableVoidHoles\(\)/);
+  assert.match(corruptionSource, /world\.getLevel\(\)\.isNight\(\)/);
+  assert.match(miscRules, /config\.get\("world\.disableVoidHoles"\)/);
+  assert.match(miscRules, /if \(!isNight\(\)\) return false;/);
+
+  assert.match(defaultSource, /getHasRam2DieJoined\(\)/);
+  assert.match(defaultSource, /getHasTriggeredRam2Die\(\)/);
+  assert.match(miscRules, /worldState\.get\("hasRam2DieJoined"\)/);
+  assert.match(miscRules, /worldState\.get\("hasTriggeredRam2Die"\)/);
+  assert.match(miscRules, /countType\(dimension, "thebrokenscript:hetzer"\) > 0/);
+
+  assert.match(nameTagSource, /getBrightness\(LightLayer\.SKY, pos\) == 0/);
+  assert.match(miscRules, /id: "name_tag"/);
+  assert.match(miscRules, /if \(sky !== 0\) return false;/);
+
+  assert.match(nothingWatcherSource, /TBSDimensions\.NOTHING/);
+  assert.match(nothingWatcherSource, /random\.nextFloat\(\) > 0\.02/);
+  assert.match(miscRules, /dimension\.id !== "thebrokenscript:nothing"/);
+  assert.match(miscRules, /countType\(dimension, "thebrokenscript:nothing_watcher"\) > 35/);
+
+  assert.match(mazeShadowSource, /TBSDimensions\.NULL_TORTURE/);
+  assert.match(mazeShadowSource, /Blocks\.BEDROCK/);
+  assert.match(miscRules, /id: "maze_shadows"/);
+  assert.match(miscRules, /hasBedrockNearMazeShadow/);
+
+  // The Java predicates own their suppression rules individually. The
+  // director must not impose config/Arena gates on every condition.
+  assert.doesNotMatch(spawnDirector, /config\.get\("danger\.disableSpawningEntities"\)/);
+  assert.doesNotMatch(spawnDirector, /bossHooks\.isArenaPhase1\(\)/);
+
   // TBEConditions indexes its chance table with the world's moon phase.
   // Reading moon phase from Dimension silently collapsed the old adapter to 0.
   assert.match(tbeSource, /int moonPhase = world\.getMoonPhase\(\)/);
