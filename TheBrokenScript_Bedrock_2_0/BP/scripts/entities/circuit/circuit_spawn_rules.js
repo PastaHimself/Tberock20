@@ -10,7 +10,6 @@ import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 
 const BIOME_BLACKLIST_SUBSTRINGS = ["the_end", "end_midlands", "end_highlands", "null_biome"];
 const CIRCUIT_FAMILY = [
-  "thebrokenscript:circuit",
   "thebrokenscript:circuit_stalk",
   "thebrokenscript:circuit_stare",
   "thebrokenscript:circuit_mineshaft_walk",
@@ -18,8 +17,19 @@ const CIRCUIT_FAMILY = [
   "thebrokenscript:circuit_mineshaft_flee",
 ];
 const CIRCUIT_STALK_CHANCE = 0.015;
+const CIRCUIT_MINESHAFT_CHANCE = 0.065;
 const CIRCUIT_SPAWN_DELAY = 5200;
 const CIRCUIT_EXCLUSION_RANGE = 420;
+const CIRCUIT_MINESHAFT_EXCLUSION_RANGE = 500;
+const MINESHAFT_STRONG_BLOCKS = new Set([
+  "minecraft:rail",
+  "minecraft:powered_rail",
+  "minecraft:detector_rail",
+  "minecraft:activator_rail",
+  "minecraft:cobweb",
+]);
+const MINESHAFT_PLANKS = new Set(["minecraft:oak_planks", "minecraft:dark_oak_planks"]);
+const MINESHAFT_FENCES = new Set(["minecraft:oak_fence", "minecraft:dark_oak_fence"]);
 const CAVE_MIN_DISTANCE = 24;
 const CAVE_MAX_DISTANCE = 64;
 
@@ -118,6 +128,44 @@ function findCaveCandidate(player) {
   return undefined;
 }
 
+// Java queries StructureTags.MINESHAFT in a 13×13×13 cube. Bedrock
+// Script API has no structure-piece membership query, so use a conservative
+// block signature: rails/cobwebs are decisive; otherwise require repeated
+// plank + fence support blocks characteristic of vanilla mineshafts.
+function looksLikeMineshaft(dimension, location) {
+  const cx = Math.floor(location.x);
+  const cy = Math.floor(location.y);
+  const cz = Math.floor(location.z);
+  let planks = 0;
+  let fences = 0;
+
+  try {
+    for (let dx = -6; dx <= 6; dx++) {
+      for (let dy = -6; dy <= 6; dy++) {
+        for (let dz = -6; dz <= 6; dz++) {
+          const typeId = dimension.getBlock({
+            x: cx + dx,
+            y: cy + dy,
+            z: cz + dz,
+          })?.typeId;
+          if (!typeId) continue;
+          if (MINESHAFT_STRONG_BLOCKS.has(typeId)) return true;
+          if (MINESHAFT_PLANKS.has(typeId)) planks++;
+          else if (MINESHAFT_FENCES.has(typeId)) fences++;
+          if (planks >= 4 && fences >= 2) return true;
+        }
+      }
+    }
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.mineshaft_signature",
+      "best-effort Bedrock structure-membership fallback",
+      error,
+    );
+  }
+  return false;
+}
+
 function canSpawnCircuitStalk(ctx) {
   const player = ctx.players[0];
   if (!player) return false;
@@ -145,6 +193,7 @@ function canSpawnCircuitStalk(ctx) {
   // CircuitStalkConditions requires zero sky light both at the player and at
   // the spawn position and rejects a spawn position that is on the surface.
   if (skyLightAt(dim, player.location) !== 0) return false;
+  if (looksLikeMineshaft(dim, player.location)) return false;
   if (skyLightAt(dim, candidate) !== 0) return false;
   if (skyLightAt(dim, { ...candidate, y: candidate.y + 1 }) !== 0) return false;
 
@@ -165,9 +214,65 @@ function canSpawnCircuitStalk(ctx) {
   return true;
 }
 
+function canSpawnCircuitMineshaft(ctx) {
+  const player = ctx.players[0];
+  if (!player) return false;
+  const dim = player.dimension;
+
+  // Source: CircuitMineshaftConditions.predicate().
+  if (difficultyIsPeaceful()) return false;
+  if (dim.id !== "minecraft:overworld") return false;
+  if (world.gameRules?.doMobSpawning !== true) return false;
+  if (!worldState.get("isNullHere")) return false;
+  if (config.get("danger.disableSpawningEntities")) return false;
+  if (bossHooks.isArenaPhase1()) return false;
+  if (worldState.get("isFlat") && Math.random() > 0.001) return false;
+  if (!looksLikeMineshaft(dim, player.location)) return false;
+  if (worldState.get("hasCircuitSpawned")) return false;
+
+  const candidate = findCaveCandidate(player);
+  if (!candidate) return false;
+  if (isBlacklistedBiome(dim, candidate)) return false;
+  if (!looksLikeMineshaft(dim, candidate)) return false;
+  if (skyLightAt(dim, candidate) !== 0) return false;
+  if (entityFinder.hasEntitiesInRange(
+    dim,
+    candidate,
+    CIRCUIT_MINESHAFT_EXCLUSION_RANGE,
+    CIRCUIT_FAMILY,
+  )) return false;
+  if (worldState.get("circuitSpawnDelay") > 0) return false;
+  if (Math.random() > CIRCUIT_MINESHAFT_CHANCE + eventFrequency(ctx.gameTime)) return false;
+
+  const typeId = Math.random() < 0.5
+    ? "thebrokenscript:circuit_mineshaft_walk"
+    : "thebrokenscript:circuit_mineshaft_stare";
+  const spawned = spawnHelpers.trySummon(dim, typeId, candidate);
+  if (!spawned) return false;
+  spawnHelpers.applyRandomRotation(spawned);
+
+  try {
+    dim.playSound("ambient.cave", candidate, { volume: 10, pitch: 0 });
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.mineshaft_sound",
+      "best-effort Bedrock API fallback",
+      error,
+    );
+  }
+
+  worldState.set("circuitSpawnDelay", CIRCUIT_SPAWN_DELAY);
+  worldState.set("hasCircuitSpawned", true);
+  return true;
+}
+
 export function register() {
   spawnDirector.registerRule({
     id: "circuit_stalk",
     predicate: (ctx) => canSpawnCircuitStalk(ctx),
+  });
+  spawnDirector.registerRule({
+    id: "circuit_mineshaft",
+    predicate: (ctx) => canSpawnCircuitMineshaft(ctx),
   });
 }

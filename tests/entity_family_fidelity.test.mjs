@@ -202,6 +202,14 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
     path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "NullConditions.java"),
     "utf8",
   );
+  const nullMazeSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "NullMazeConditions.java"),
+    "utf8",
+  );
+  const circuitMineshaftSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "CircuitMineshaftConditions.java"),
+    "utf8",
+  );
   const tbeSource = fs.readFileSync(
     path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "TBEConditions.java"),
     "utf8",
@@ -380,6 +388,22 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
   assert.match(nullRules, /hasSkyLightAt\(dim, candidate\)/);
   assert.match(nullRules, /entityFinder\.hasEntitiesInRange\(dim, candidate, NULL_EXCLUSION_RANGE, NULL_FAMILY\)/);
   assert.match(nullRules, /hasPlayerInRange\(ctx\.players, dim, candidate, NULL_PLAYER_RANGE\)/);
+
+  assert.match(nullMazeSource, /this\.mazeFloorChance = 0\.09/);
+  assert.match(nullMazeSource, /this\.defaultChance = 0\.025/);
+  assert.match(nullRules, /dimension\.id !== "thebrokenscript:clan_void"|dim\.id !== "thebrokenscript:clan_void"/);
+  assert.match(nullRules, /NULL_MAZE_FLOOR_CHANCE = 0\.09/);
+  assert.match(nullRules, /NULL_MAZE_DEFAULT_CHANCE = 0\.025/);
+  assert.match(nullRules, /if \(y >= 226 && y <= 229\) continue/);
+  assert.match(nullRules, /countNullMaze\(dim\) >= NULL_MAZE_MAX_COUNT/);
+
+  assert.match(circuitMineshaftSource, /0\.065/);
+  assert.match(circuitMineshaftSource, /StructureTags\.MINESHAFT/);
+  assert.match(circuitRules, /CIRCUIT_MINESHAFT_CHANCE = 0\.065/);
+  assert.match(circuitRules, /function looksLikeMineshaft/);
+  assert.match(circuitRules, /id: "circuit_mineshaft"/);
+  assert.match(circuitRules, /"thebrokenscript:circuit_mineshaft_walk"[\s\S]*?"thebrokenscript:circuit_mineshaft_stare"/);
+  assert.match(circuitRules, /looksLikeMineshaft\(dim, player\.location\)/);
 
   // CircuitStalkConditions requires isNullHere=true. The old Bedrock rule
   // inverted this gate and then reported success without spawning the stalk.
