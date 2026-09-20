@@ -255,6 +255,33 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
     "utf8",
   );
 
+  const siluetSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "SiluetConditions.java"),
+    "utf8",
+  );
+  const entitySource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "TBSEntityConditions.java"),
+    "utf8",
+  );
+  const humanoidRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "humanoid", "humanoid_spawn_rules.js"),
+    "utf8",
+  );
+
+  assert.match(siluetSource, /TBSEntities\.HE[\s\S]*?random\.nextFloat\(\) > 0\.1/);
+  assert.match(humanoidRules, /const typeId = weightedType\(SILUET_TYPES\)/);
+  assert.match(humanoidRules, /typeId === "thebrokenscript:he" && Math\.random\(\) > 0\.1/);
+  assert.doesNotMatch(humanoidRules, /\? "thebrokenscript:he" : "thebrokenscript:siluet"/);
+  assert.match(humanoidRules, /hasPlayerWithSkyLight\(ctx\.players, dimension, location, 75, 2\)/);
+
+  assert.match(entitySource, /TBSEntities\.HETZER/);
+  assert.match(entitySource, /PhantomPlayerEntity\.class/);
+  for (const id of ["fake_player", "hetzer", "follow", "deceiver"]) {
+    assert.match(humanoidRules, new RegExp(`"thebrokenscript:${id}"`));
+  }
+  assert.match(humanoidRules, /countType\(dimension, "thebrokenscript:phantom_player"\) < 1/);
+  assert.match(humanoidRules, /worldState\.set\("rareSpawnDelay", 12000\)/);
+
   // FracturedConditions is a Corrupted Moon natural spawn, not an Overworld
   // isNullHere spawn. Fever keeps the source altitude-weighted gate.
   assert.match(fracturedSource, /TBSDimensions\.CORRUPTED_MOON/);
