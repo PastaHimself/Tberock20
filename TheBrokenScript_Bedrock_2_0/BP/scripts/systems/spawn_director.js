@@ -44,7 +44,7 @@ function evaluateAroundPlayers() {
     if (bossHooks.isArenaPhase1()) return;
     const players = world.getAllPlayers();
     if (players.length === 0) return;
-    const gameTime = world.getTimeOfDay();
+    // Java spawn predicates use ServerLevel.getGameTime(), not time-of-day.\n    const gameTime = world.getAbsoluteTime();
 
     // Rules historically read players[0]. Re-ordering the shared view per
     // player keeps that contract while preventing the first player from
