@@ -206,6 +206,26 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
     path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "TBEConditions.java"),
     "utf8",
   );
+  const curvedSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "CurvedConditions.java"),
+    "utf8",
+  );
+  const herobrineSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "HerobrineConditions.java"),
+    "utf8",
+  );
+  const obliterationSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "ObliterationConditions.java"),
+    "utf8",
+  );
+  const tbsEntitiesSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "registry", "TBSEntities.java"),
+    "utf8",
+  );
+  const stalkRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "stalk", "stalk_spawn_rules.js"),
+    "utf8",
+  );
 
   assert.match(spawnDirector, /for\s*\(const player of players\)/);
   assert.match(spawnDirector, /player,\s*players:[\s\S]*gameTime/);
@@ -221,6 +241,22 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
   assert.match(tbeRules, /world\.getDifficulty\(\)/);
   assert.match(tbeRules, /hasOtherBrokenEndsInRange\(dimension, location\)/);
   assert.match(tbeRules, /nearestPlayerDistance\(ctx\.players, dimension, location\)/);
+
+  // Stalk-family predicates keep progression/time/type gates from Java.
+  assert.match(curvedSource, /BaseMonsterExtKt\.isInCave/);
+  assert.match(stalkRules, /const playerInCave = isInCave\(player\.dimension, player\.location\)/);
+  assert.match(stalkRules, /isInCave\(player\.dimension, location\) !== playerInCave/);
+
+  assert.match(herobrineSource, /getHasBuiltHerobrineShrine\(\)/);
+  assert.match(stalkRules, /!worldState\.get\("hasBuiltHerobrineShrine"\)/);
+
+  assert.match(obliterationSource, /world\.getLevel\(\)\.isDay\(\)/);
+  assert.match(stalkRules, /if \(!isDay\(\)\) return false;/);
+
+  assert.match(tbsEntitiesSource, /SUB_ANOMALY_1[\s\S]*?spawns = \(Holder\)TBSSpawnConditions\.ANOMALY/);
+  assert.doesNotMatch(tbsEntitiesSource, /SUB_ANOMALY_2[\s\S]{0,800}?spawns = \(Holder\)TBSSpawnConditions\.ANOMALY/);
+  assert.match(stalkRules, /"thebrokenscript:sub_anomaly_1"/);
+  assert.doesNotMatch(stalkRules, /Math\.random\(\) < 0\.5 \? "thebrokenscript:sub_anomaly_1"/);
 
   // NullConditions applies the natural-spawn gates at the candidate position,
   // including peaceful/doMobSpawning/flat-world and the complete exclusion set.
