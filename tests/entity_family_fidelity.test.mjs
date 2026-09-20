@@ -190,9 +190,38 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
     path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "tbe", "tbe_spawn_rules.js"),
     "utf8",
   );
+  const circuitRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "circuit", "circuit_spawn_rules.js"),
+    "utf8",
+  );
+  const circuitSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "CircuitStalkConditions.java"),
+    "utf8",
+  );
 
   assert.match(spawnDirector, /for\s*\(const player of players\)/);
   assert.match(spawnDirector, /player,\s*players:[\s\S]*gameTime/);
   assert.match(nullRules, /hasSkyLightAt/);
   assert.match(tbeRules, /hasSkyLightAt/);
+
+  // CircuitStalkConditions requires isNullHere=true. The old Bedrock rule
+  // inverted this gate and then reported success without spawning the stalk.
+  assert.match(circuitSource, /if\s*\(!LevelExt\.INSTANCE\.getVars\([\s\S]*?\.isNullHere\(\)\)\s*\{\s*return false;/);
+  assert.match(circuitRules, /if\s*\(!worldState\.get\("isNullHere"\)\)\s*return false;/);
+  assert.doesNotMatch(circuitRules, /if\s*\(worldState\.get\("isNullHere"\)\)\s*return false;/);
+  assert.match(circuitRules, /world\.gameRules\?\.doMobSpawning !== true/);
+  assert.match(circuitRules, /world\.getDifficulty\(\)/);
+  assert.match(circuitRules, /spawnHelpers\.trySummon\(dim,\s*"thebrokenscript:circuit_stalk",\s*candidate\)/);
+  assert.match(circuitRules, /entityFinder\.hasEntitiesInRange\(dim,\s*candidate,\s*CIRCUIT_EXCLUSION_RANGE/);
+
+  const spawnIndex = circuitRules.indexOf("spawnHelpers.trySummon");
+  assert.ok(spawnIndex >= 0, "circuit stalk rule must perform the spawn");
+  assert.ok(
+    circuitRules.indexOf('worldState.set("circuitSpawnDelay"', spawnIndex) > spawnIndex,
+    "circuit spawn delay must only mutate after a successful summon",
+  );
+  assert.ok(
+    circuitRules.indexOf('worldState.set("hasCircuitSpawned"', spawnIndex) > spawnIndex,
+    "hasCircuitSpawned must only mutate after a successful summon",
+  );
 });
