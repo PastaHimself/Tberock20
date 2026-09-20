@@ -242,6 +242,34 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
   assert.match(tbeRules, /hasOtherBrokenEndsInRange\(dimension, location\)/);
   assert.match(tbeRules, /nearestPlayerDistance\(ctx\.players, dimension, location\)/);
 
+  const fracturedSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "FracturedConditions.java"),
+    "utf8",
+  );
+  const feverSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "FeverStalkConditions.java"),
+    "utf8",
+  );
+  const bossRules = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "entities", "boss", "boss_spawn_rules.js"),
+    "utf8",
+  );
+
+  // FracturedConditions is a Corrupted Moon natural spawn, not an Overworld
+  // isNullHere spawn. Fever keeps the source altitude-weighted gate.
+  assert.match(fracturedSource, /TBSDimensions\.CORRUPTED_MOON/);
+  assert.match(fracturedSource, /getCanFracturedSpawn\(\)/);
+  assert.match(bossRules, /FRACTURED_DIMENSION = "thebrokenscript:the_moon"/);
+  assert.match(bossRules, /!worldState\.get\("canFracturedSpawn"\)/);
+  assert.match(bossRules, /hasOtherJims\(dimension, location\)/);
+
+  assert.match(feverSource, /double minY = 130\.0/);
+  assert.match(feverSource, /double maxY = 320\.0/);
+  assert.match(feverSource, /double maxChance = 0\.75/);
+  assert.match(bossRules, /\(player\.location\.y - 130\) \/ \(320 - 130\)/);
+  assert.match(bossRules, /normalized \* 0\.75/);
+  assert.match(bossRules, /hasOtherFevers\(dimension, location\)/);
+
   // Stalk-family predicates keep progression/time/type gates from Java.
   assert.match(curvedSource, /BaseMonsterExtKt\.isInCave/);
   assert.match(stalkRules, /const playerInCave = isInCave\(player\.dimension, player\.location\)/);
