@@ -198,11 +198,28 @@ test("spawn evaluation is scoped to each player and uses supported sky-light que
     path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "CircuitStalkConditions.java"),
     "utf8",
   );
+  const nullSource = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "api", "entity", "conditions", "NullConditions.java"),
+    "utf8",
+  );
 
   assert.match(spawnDirector, /for\s*\(const player of players\)/);
   assert.match(spawnDirector, /player,\s*players:[\s\S]*gameTime/);
   assert.match(nullRules, /hasSkyLightAt/);
   assert.match(tbeRules, /hasSkyLightAt/);
+
+  // NullConditions applies the natural-spawn gates at the candidate position,
+  // including peaceful/doMobSpawning/flat-world and the complete exclusion set.
+  assert.match(nullSource, /world\.getDifficulty\(\) == Difficulty\.PEACEFUL/);
+  assert.match(nullSource, /GameRules\.RULE_DOMOBSPAWNING/);
+  assert.match(nullSource, /NullInvadeBaseEntity\.class/);
+  assert.match(nullRules, /world\.getDifficulty\(\)/);
+  assert.match(nullRules, /world\.gameRules\?\.doMobSpawning !== true/);
+  assert.match(nullRules, /worldState\.get\("isFlat"\).*Math\.random\(\) > 0\.001/);
+  assert.match(nullRules, /"thebrokenscript:null_invade_base"/);
+  assert.match(nullRules, /hasSkyLightAt\(dim, candidate\)/);
+  assert.match(nullRules, /entityFinder\.hasEntitiesInRange\(dim, candidate, NULL_EXCLUSION_RANGE, NULL_FAMILY\)/);
+  assert.match(nullRules, /hasPlayerInRange\(ctx\.players, dim, candidate, NULL_PLAYER_RANGE\)/);
 
   // CircuitStalkConditions requires isNullHere=true. The old Bedrock rule
   // inverted this gate and then reported success without spawning the stalk.
