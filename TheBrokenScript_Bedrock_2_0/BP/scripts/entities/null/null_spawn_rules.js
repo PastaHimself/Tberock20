@@ -196,4 +196,5 @@ export function register() {
   spawnDirector.registerRule({
     id: "null_maze",
     predicate: (ctx) => canSpawnNullMaze(ctx),
+  });
 }
