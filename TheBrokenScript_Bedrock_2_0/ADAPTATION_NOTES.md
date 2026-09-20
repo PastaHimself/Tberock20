@@ -72,7 +72,7 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 7. **Parity class**: `VALIDATED_APPROXIMATION` for the source gameplay/runtime slice; `ENGINE_UNSUPPORTED` only for the documented Java-only transport and presentation mechanisms.
 
 ## Pending-analysis adaptations (bytecode required)
-- Spawn-condition predicates (24 classes) → spawn director fidelity depends on decompiled constants/timings.
+- Remaining spawn-condition predicates → the circuit/null/TBE/Curved/Herobrine/Obliteration/Anomaly slice was source-audited on 2026-09-20; full spawn-director fidelity still depends on completing the remaining decompiled predicates and engine smoke evidence.
 - Event probabilities/cooldowns (~91 handlers) → same.
 - GeckoLib animation *code* behaviors (head-tracking, procedural tentacles via `api/tentaclev2`) → script equivalents; assets already Bedrock-native.
 
