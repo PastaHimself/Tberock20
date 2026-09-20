@@ -40,7 +40,8 @@ function decrementDelays() {
 function evaluateAroundPlayers() {
     const players = world.getAllPlayers();
     if (players.length === 0) return;
-    // Java spawn predicates use ServerLevel.getGameTime(), not time-of-day.\n    const gameTime = world.getAbsoluteTime();
+    // Java spawn predicates use ServerLevel.getGameTime(), not time-of-day.
+    const gameTime = world.getAbsoluteTime();
 
     // Rules historically read players[0]. Re-ordering the shared view per
     // player keeps that contract while preventing the first player from
