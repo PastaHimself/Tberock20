@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -23,7 +24,8 @@ const OBLITERATION_TYPES = [
 function difficultyIsPeaceful() {
   try {
     return String(world.getDifficulty()).toLowerCase() === "peaceful";
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.difficulty", "best-effort Bedrock API fallback", error);
     return true;
   }
 }
@@ -40,13 +42,15 @@ function getMoonPhase() {
   try {
     const phase = Number(world.getMoonPhase());
     if (Number.isInteger(phase)) return ((phase % 8) + 8) % 8;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.moon_phase", "best-effort Bedrock API fallback", error);
     // Fall through to the eight-day cycle.
   }
   try {
     const day = Number(world.getDay());
     if (Number.isFinite(day)) return ((Math.floor(day) % 8) + 8) % 8;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.day_fallback", "best-effort Bedrock API fallback", error);
     // Fail closed to phase zero.
   }
   return 0;
@@ -56,7 +60,8 @@ function isDay() {
   try {
     const time = Number(world.getTimeOfDay());
     return Number.isFinite(time) && time >= 0 && time < 12000;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.time_of_day", "best-effort Bedrock API fallback", error);
     return false;
   }
 }
@@ -73,7 +78,8 @@ function surfaceCandidate(player, minDistance = SURFACE_MIN_DISTANCE, maxDistanc
       : (typeof top?.location?.y === "number" ? top.location.y : undefined);
     if (typeof surfaceY !== "number") return undefined;
     return { x: x + 0.5, y: surfaceY + 1, z: z + 0.5 };
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.surface_candidate", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
@@ -92,7 +98,8 @@ function airSpaceScore(dimension, location) {
         }
       }
     }
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.air_space", "best-effort Bedrock API fallback", error);
     return 0;
   }
   return airBlocks;
@@ -103,7 +110,8 @@ function isInCave(dimension, location) {
     const biome = dimension.getBiome?.(location);
     const biomeId = String(biome?.id ?? biome?.name ?? "");
     if (CAVE_BIOMES.some((id) => biomeId.includes(id))) return true;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.biome", "best-effort Bedrock API fallback", error);
     // Continue with source's geometry/light checks.
   }
 
@@ -116,7 +124,8 @@ function isInCave(dimension, location) {
     surfaceY = typeof top?.y === "number"
       ? top.y
       : (typeof top?.location?.y === "number" ? top.location.y : undefined);
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.cave_surface", "best-effort Bedrock API fallback", error);
     return false;
   }
   if (typeof surfaceY !== "number" || surfaceY - location.y < 5) return false;
@@ -144,7 +153,8 @@ function caveCandidate(player) {
       if (above.isAir !== true && above.typeId !== "minecraft:air") continue;
       const candidate = { x: x + 0.5, y, z: z + 0.5 };
       if (isInCave(player.dimension, candidate)) return candidate;
-    } catch {
+    } catch (error) {
+      operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.cave_candidate", "best-effort Bedrock API fallback", error);
       return undefined;
     }
   }
@@ -165,7 +175,8 @@ function nearestPlayerWithin(players, dimension, location, maxDistance) {
 function countType(dimension, typeId) {
   try {
     return dimension.getEntities({ type: typeId }).length;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.stalk.stalk_spawn_rules.js.count_type", "best-effort Bedrock API fallback", error);
     return Number.POSITIVE_INFINITY;
   }
 }

@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -27,7 +28,8 @@ const TBE_STALK_MAX_PLAYER_DISTANCE = 150;
 function difficultyIsPeaceful() {
   try {
     return String(world.getDifficulty()).toLowerCase() === "peaceful";
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.difficulty", "best-effort Bedrock API fallback", error);
     return true;
   }
 }
@@ -36,13 +38,15 @@ function getMoonPhase() {
   try {
     const phase = Number(world.getMoonPhase());
     if (Number.isInteger(phase)) return ((phase % 8) + 8) % 8;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.moon_phase", "best-effort Bedrock API fallback", error);
     // Fall through to the source-equivalent eight-day cycle.
   }
   try {
     const day = Number(world.getDay());
     if (Number.isFinite(day)) return ((Math.floor(day) % 8) + 8) % 8;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.day_fallback", "best-effort Bedrock API fallback", error);
     // Fail closed to phase zero.
   }
   return 0;
@@ -61,7 +65,8 @@ function pickSurfaceCandidate(player, minDistance, maxDistance) {
       : (typeof top?.location?.y === "number" ? top.location.y : undefined);
     if (typeof surfaceY !== "number") return undefined;
     return { x: x + 0.5, y: surfaceY + 1, z: z + 0.5 };
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.candidate", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
@@ -74,7 +79,8 @@ function totalLightAt(dimension, location) {
       z: Math.floor(location.z),
     });
     return typeof value === "number" ? value : undefined;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_spawn_rules.js.total_light", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }

@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -27,7 +28,12 @@ function isBlacklistedBiome(dimension, location) {
     const biome = dimension.getBiome?.(location);
     const id = biome?.id ?? biome?.name ?? "";
     return BIOME_BLACKLIST_SUBSTRINGS.some((s) => String(id).includes(s));
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.biome",
+      "best-effort Bedrock API fallback",
+      error,
+    );
     return false;
   }
 }
@@ -35,7 +41,12 @@ function isBlacklistedBiome(dimension, location) {
 function difficultyIsPeaceful() {
   try {
     return String(world.getDifficulty()).toLowerCase() === "peaceful";
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.difficulty",
+      "best-effort Bedrock API fallback",
+      error,
+    );
     return true;
   }
 }
@@ -48,7 +59,12 @@ function skyLightAt(dimension, location) {
       z: Math.floor(location.z),
     });
     return typeof value === "number" ? value : undefined;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.sky_light",
+      "best-effort Bedrock API fallback",
+      error,
+    );
     return undefined;
   }
 }
@@ -61,7 +77,12 @@ function totalLightAt(dimension, location) {
       z: Math.floor(location.z),
     });
     return typeof value === "number" ? value : undefined;
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.total_light",
+      "best-effort Bedrock API fallback",
+      error,
+    );
     return undefined;
   }
 }
@@ -84,7 +105,12 @@ function findCaveCandidate(player) {
       if (at.isAir !== true && at.typeId !== "minecraft:air") continue;
       if (above.isAir !== true && above.typeId !== "minecraft:air") continue;
       return { x: x + 0.5, y, z: z + 0.5 };
-    } catch {
+    } catch (error) {
+      operationDiagnostics.warnOnce(
+        "audit.BP.scripts.entities.circuit.circuit_spawn_rules.js.candidate",
+        "best-effort Bedrock API fallback",
+        error,
+      );
       return undefined;
     }
   }
@@ -109,14 +135,22 @@ function canSpawnCircuitStalk(ctx) {
   if (worldState.get("circuitSpawnDelay") > 0) return false;
   if (worldState.get("hasCircuitSpawned")) return false;
 
+  // Java receives an engine-selected ON_GROUND spawn position. The script
+  // director has no equivalent natural-spawn callback, so select a nearby
+  // two-block-high cave floor and then apply the source-visible gates there.
   const candidate = findCaveCandidate(player);
   if (!candidate) return false;
   if (isBlacklistedBiome(dim, candidate)) return false;
 
+  // CircuitStalkConditions requires zero sky light both at the player and at
+  // the spawn position and rejects a spawn position that is on the surface.
   if (skyLightAt(dim, player.location) !== 0) return false;
   if (skyLightAt(dim, candidate) !== 0) return false;
   if (skyLightAt(dim, { ...candidate, y: candidate.y + 1 }) !== 0) return false;
 
+  // Monster.isDarkEnoughToSpawn is not exposed directly. A total-light value
+  // above 7 can never pass Java's block-light random gate, so reject that
+  // provably-invalid subset without inventing a replacement probability.
   const totalLight = totalLightAt(dim, candidate);
   if (typeof totalLight === "number" && totalLight > 7) return false;
 

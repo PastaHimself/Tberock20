@@ -1,3 +1,4 @@
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import { world } from "@minecraft/server";
 import * as spawnDirector from "../../systems/spawn_director.js";
 import * as worldState from "../../systems/world_state.js";
@@ -23,7 +24,8 @@ const NULL_PLAYER_RANGE = 60;
 function difficultyIsPeaceful() {
   try {
     return String(world.getDifficulty()).toLowerCase() === "peaceful";
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_spawn_rules.js.difficulty", "best-effort Bedrock API fallback", error);
     return true;
   }
 }
@@ -39,7 +41,8 @@ function candidateNearPlayer(player) {
       : (typeof top?.location?.y === "number" ? top.location.y : undefined);
     if (typeof surfaceY !== "number") return undefined;
     return { x: x + 0.5, y: surfaceY + 1, z: z + 0.5 };
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_spawn_rules.js.candidate", "best-effort Bedrock API fallback", error);
     return undefined;
   }
 }
