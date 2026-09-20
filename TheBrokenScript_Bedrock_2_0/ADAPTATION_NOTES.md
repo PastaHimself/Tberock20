@@ -72,7 +72,7 @@ The Java font provider and glyph image do not map directly to Bedrock's glyph-pa
 7. **Parity class**: `VALIDATED_APPROXIMATION` for the source gameplay/runtime slice; `ENGINE_UNSUPPORTED` only for the documented Java-only transport and presentation mechanisms.
 
 ## Pending-analysis adaptations (bytecode required)
-- Remaining spawn-condition predicates → the circuit/null/TBE/Curved/Herobrine/Obliteration/Anomaly slice was source-audited on 2026-09-20; full spawn-director fidelity still depends on completing the remaining decompiled predicates and engine smoke evidence.
+- Spawn-condition predicates → all 23 decompiled `api/entity/conditions/*.java` classes were source-audited on 2026-09-20 and the corresponding runtime/authoring rules were reconciled. Exact `TBSEngineControl.Companion.eventFrequency(gameTime)` escalation is now ported and the director supplies absolute world time. Remaining differences are engine adapters rather than unaudited predicates: Bedrock Script API does not expose Java natural-spawn placement/heightmap internals, `StructureManager` mineshaft-piece membership, or `Monster.isDarkEnoughToSpawn`; the Circuit Mineshaft rule therefore uses a conservative local rail/cobweb/plank/fence signature. Real 1.26.50 Preview smoke evidence is still required for engine-level spawn behavior.
 - Event probabilities/cooldowns (~91 handlers) → same.
 - GeckoLib animation *code* behaviors (head-tracking, procedural tentacles via `api/tentaclev2`) → script equivalents; assets already Bedrock-native.
 
