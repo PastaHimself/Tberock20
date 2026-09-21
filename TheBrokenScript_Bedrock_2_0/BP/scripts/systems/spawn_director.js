@@ -1,9 +1,7 @@
 import { world } from "@minecraft/server";
 import * as scheduler from "../core/scheduler.js";
 import { logger } from "../core/logging.js";
-import { config } from "../core/config.js";
 import * as worldState from "./world_state.js";
-import * as bossHooks from "./boss_hooks.js";
 import { eventFrequency } from "./event_frequency.js";
 
 const rules = new Map();
@@ -40,11 +38,10 @@ function decrementDelays() {
 }
 
 function evaluateAroundPlayers() {
-    if (config.get("danger.disableSpawningEntities")) return;
-    if (bossHooks.isArenaPhase1()) return;
     const players = world.getAllPlayers();
     if (players.length === 0) return;
-    const gameTime = world.getTimeOfDay();
+    // Java spawn predicates use ServerLevel.getGameTime(), not time-of-day.
+    const gameTime = world.getAbsoluteTime();
 
     // Rules historically read players[0]. Re-ordering the shared view per
     // player keeps that contract while preventing the first player from

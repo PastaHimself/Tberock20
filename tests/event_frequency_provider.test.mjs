@@ -1,63 +1,63 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
-const moduleUrl = new URL(
-  "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/event_frequency.js",
-  import.meta.url,
-);
+import { eventFrequency } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/event_frequency.js";
 
-async function freshEventFrequencyModule(label) {
-  const url = new URL(moduleUrl);
-  url.searchParams.set("test", `${label}-${Date.now()}-${Math.random()}`);
-  return import(url.href);
-}
+const projectRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 
-function captureConsole(method, fn) {
-  const original = console[method];
-  const calls = [];
-  console[method] = (...args) => calls.push(args.join(" "));
-  try {
-    return { value: fn(), calls };
-  } finally {
-    console[method] = original;
-  }
-}
-
-test("missing event-frequency provider falls back to zero and warns once", async () => {
-  const frequency = await freshEventFrequencyModule("missing");
-  assert.equal(frequency.hasEventFrequencyProvider(), false);
-
-  const { calls } = captureConsole("warn", () => {
-    assert.equal(frequency.eventFrequency(0), 0);
-    assert.equal(frequency.eventFrequency(12000), 0);
-  });
-
-  assert.equal(calls.length, 1);
-  assert.match(calls[0], /no escalation provider is installed/);
-});
-
-test("event-frequency provider can be installed exactly once", async () => {
-  const frequency = await freshEventFrequencyModule("installed");
-  const provider = (gameTime) => Math.floor(gameTime / 1000);
-
-  frequency.setEventFrequencyProvider(provider);
-  assert.equal(frequency.hasEventFrequencyProvider(), true);
-  assert.equal(frequency.eventFrequency(0), 0);
-  assert.equal(frequency.eventFrequency(999), 0);
-  assert.equal(frequency.eventFrequency(1000), 1);
-  assert.equal(frequency.eventFrequency(5500), 5);
-  assert.throws(
-    () => frequency.setEventFrequencyProvider(() => 99),
-    /already installed/,
+function close(actual, expected, tolerance = 1e-12) {
+  assert.ok(
+    Math.abs(actual - expected) <= tolerance,
+    `expected ${actual} to be within ${tolerance} of ${expected}`,
   );
+}
+
+test("event frequency reproduces TBSEngineControl source constants and curve", () => {
+  const source = fs.readFileSync(
+    path.join(projectRoot, "decompiled", "net", "thebrokenscript", "TBSEngineControl.java"),
+    "utf8",
+  );
+
+  assert.match(source, /CUTOFF = 55\.0f/);
+  assert.match(source, /0\.03125f \* x/);
+  assert.match(source, /coerceAtMost[\s\S]*?7\.0f/);
+  assert.match(source, /evalCurveTicks\(gameTime\) \/ \(float\)24000/);
+  assert.match(source, /freq - 2\.9166666E-4f/);
+
+  close(eventFrequency(0), -2.9166666e-4);
+  close(
+    eventFrequency(55 * 24000),
+    Math.pow(0.03125 * 55, 2) / 24000 - 2.9166666e-4,
+  );
+
+  const day100 = (
+    Math.log10(100 + 1 - 55) + Math.pow(0.03125 * 55, 2)
+  ) / 24000 - 2.9166666e-4;
+  close(eventFrequency(100 * 24000), day100);
 });
 
-test("invalid provider output is contained and reported", async () => {
-  const frequency = await freshEventFrequencyModule("invalid");
-  frequency.setEventFrequencyProvider(() => Number.NaN);
+test("event frequency is monotonic and caps at the Java maximum curve", () => {
+  const values = [0, 1, 10, 55, 100, 1000, 10000, 12000].map(
+    (days) => eventFrequency(days * 24000),
+  );
 
-  const { value, calls } = captureConsole("error", () => frequency.eventFrequency(42));
-  assert.equal(value, 0);
-  assert.equal(calls.length, 1);
-  assert.match(calls[0], /non-finite contribution/);
+  for (let i = 1; i < values.length; i++) {
+    assert.ok(values[i] >= values[i - 1], `frequency decreased at index ${i}`);
+  }
+
+  const capped = 7 / 24000 - 2.9166666e-4;
+  close(eventFrequency(12000 * 24000), capped);
+  close(eventFrequency(20000 * 24000), capped);
+});
+
+test("spawn director feeds total world time into source frequency callers", () => {
+  const spawnDirector = fs.readFileSync(
+    path.join(projectRoot, "TheBrokenScript_Bedrock_2_0", "BP", "scripts", "systems", "spawn_director.js"),
+    "utf8",
+  );
+
+  assert.match(spawnDirector, /const gameTime = world\.getAbsoluteTime\(\)/);
+  assert.doesNotMatch(spawnDirector, /const gameTime = world\.getTimeOfDay\(\)/);
 });

@@ -1,37 +1,28 @@
-import { logger } from "../core/logging.js";
+// Source: TBSEngineControl.Companion.eventFrequency(gameTime).
+// Java evaluates a day-scaled curve, divides that curve by 24000, then
+// subtracts the fixed 2.9166666E-4 baseline from every caller's spawn chance.
+const TICKS_PER_DAY = 24000;
+const CUTOFF_DAYS = 55;
+const QUADRATIC_SCALE = 0.03125;
+const MAX_CURVE = 7;
+const BASE_OFFSET = 2.9166666e-4;
 
-// Source hook: LongExt.eventFrequency(gameTime) -> TBSEngineControl -> brokencore
-// EventEngine. The exact source-side escalation curve still needs to be recovered;
-// callers therefore retain the legacy zero fallback, but a missing provider is now
-// observable instead of silently disabling escalation.
-let frequencyFn = null;
-
-export function setEventFrequencyProvider(fn) {
-    if (typeof fn !== "function") throw new Error("event_frequency: provider must be a function");
-    if (frequencyFn !== null) throw new Error("event_frequency: provider is already installed");
-    frequencyFn = fn;
+function quadCurve(days) {
+    return Math.pow(QUADRATIC_SCALE * days, 2);
 }
 
-export function hasEventFrequencyProvider() {
-    return frequencyFn !== null;
+function logCurve(days) {
+    return Math.log10(days + 1 - CUTOFF_DAYS) + quadCurve(CUTOFF_DAYS);
 }
 
 export function eventFrequency(gameTime) {
-    if (frequencyFn === null) {
-        logger.warnOnce(
-            "event-frequency-provider-missing",
-            "event_frequency: no escalation provider is installed; using zero contribution"
-        );
-        return 0;
-    }
+    const ticks = Number(gameTime);
+    if (!Number.isFinite(ticks)) return 0;
 
-    const value = frequencyFn(gameTime);
-    if (!Number.isFinite(value)) {
-        logger.errorOnce(
-            "event-frequency-provider-invalid-result",
-            `event_frequency: provider returned non-finite contribution '${String(value)}'; using zero contribution`
-        );
-        return 0;
-    }
-    return value;
+    const days = ticks / TICKS_PER_DAY;
+    const curve = Math.min(
+        days < CUTOFF_DAYS ? quadCurve(days) : logCurve(days),
+        MAX_CURVE,
+    );
+    return curve / TICKS_PER_DAY - BASE_OFFSET;
 }

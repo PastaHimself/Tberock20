@@ -10,10 +10,10 @@ async function source(name) {
   return readFile(path.join(ROOT, name), "utf8");
 }
 
-test("spawn director passes the live game time to the frequency provider", async () => {
+test("spawn director passes total world time to the frequency provider", async () => {
   const spawnDirector = await source("spawn_director.js");
 
-  assert.match(spawnDirector, /const gameTime = world\.getTimeOfDay\(\);/);
+  assert.match(spawnDirector, /const gameTime = world\.getAbsoluteTime\(\);/);
   assert.match(spawnDirector, /frequency:\s*eventFrequency\(gameTime\)/);
   assert.doesNotMatch(spawnDirector, /eventFrequency\(0\)/);
 });
