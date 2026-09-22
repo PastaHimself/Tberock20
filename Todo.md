@@ -23,6 +23,49 @@ The objective is not simply to make every feature exist. The objective is to mak
 
 ---
 
+# Remaining port work — refreshed 2026-09-22
+
+This is the current work order, distilled from the detailed checklist and supporting audits below. It separates unfinished implementation from behavior that already has an implementation but still needs engine evidence. This documentation refresh does not certify runtime parity or mark additional features complete.
+
+| Priority | Remaining work | Evidence needed / completion boundary |
+|---|---|---|
+| P0 | Real Bedrock runtime smoke report | Run the pinned 1.26.50 Preview/API contract and commit `tests/runtime-smoke/latest-report.json`. Cover bootstrap, persistence, death/respawn, leave/rejoin/restart, multiplayer, dimensions, boss lifecycle, story progression, event suppression, and diagnostics. The harness exists; a passing engine report is still missing. |
+| P1 | Particle runtime bridges | Complete dedicated bridges for registered provider/callsite families including `fardaway`, `wretched_particle`, `null_structure_particle`, and `paper_particle`; compare source triggers and visible output. Resource presence alone is not runtime coverage. Keep `follows_particle` and `revuxor_particle` resource-only unless source evidence establishes reachable providers/callsites. |
+| P1 | Structures and world placement | Finish or verify Integrity Stage 2 and XCSF reconstruction/placement. Compare Shaft frequency/spacing, pool weights, rotations, mirrors, connectors, and processors with source and generated-world samples. The 314-template inventory is complete; it does not establish placement parity. |
+| P1 | Portal entity scope and failure paths | Address Java's living-entity tick sweep where supported; the shipped route is player-click based. Establish source requirements before adding item/projectile transfer. Test unavailable destination chunks, initialization failures, and recovery. |
+| P1 | Entity AI and physical behavior | Finish source/runtime checks for stats, collision, spawn/despawn behavior, transitions, environmental effects, cue timing, and death cleanup. Prioritize Null dimension teleports, Maze doors/destruction, Flying sneak/FOV behavior, and chunk-operation surrogates. Existing source-backed models still need engine verification. |
+| P1 | Damage semantics | Test armor, shields, invulnerability, totems, knockback, and attribution against the 15 documented damage mappings. Record residual Java-only bypass/death-message differences explicitly. |
+| P1 | Blocks and block entities | Verify physical and interactive behavior for the 123 represented source blocks and eight block-entity adapters: hardness/tools, collision, placement/rotation, storage, ticking, and environmental interaction. Representation is not proof of behavioral parity. |
+| P1 | Items, quests, and lifecycle | Verify item metadata/use behavior, reward quantities/effects/messages/flags, and gameplay-visible item data. Exercise full inventory, container transfer, duplication-sensitive paths, death, reload, reconnect, and multiplayer ownership. |
+| P1 | Dimension environment and lifecycle | Verify entry/return/respawn, time/light/fog/environment, spawn/event restrictions, and stale-reference cleanup. All 13 IDs are represented; Java terrain-generator parity remains a separate engine boundary. |
+| P2 | Animation, audio, UI, and fonts | Verify lag-visible animation/contact timing, head tracking/tentacles, music cleanup/mixing, and HUD isolation across screens/players. Resolve custom glyph mapping only with verified Bedrock mappings. |
+| P2 | Command edge cases | Finish argument/default/validation/error/message/side-effect comparisons. Preserve the audited permissions and separation between production and developer commands. |
+| P2 | Runtime performance and regression gaps | Profile real multiplayer/entity loads and 1-tick controllers; add remaining model, boundary, and negative-path coverage. Document parity effects of any defensive budgets. Synthetic profiles are not engine measurements. |
+| P2 | Optional Nostalgia overrides | Obtain a complete, reliable source archive and assess vanilla-asset conflicts before completing the deferred optional-pack import. Do not infer completeness from the partial multipart archive. |
+| Ongoing | API/version review | Keep the pinned ABI until an intentional migration; re-check old unsupported/adapted mechanisms and run static plus engine validation for each supported-version change. |
+
+## Already audited — retain evidence, do not restart as missing features
+
+- The 912-row source-map/family-ledger reconciliation and source-to-runtime inventory are recorded as complete.
+- Story-clock/daylight gating, persistence models, and event/chat registry audits are recorded as complete; lifecycle behavior still belongs in the runtime smoke matrix.
+- The historical 45-versus-14 chat comparison is resolved to 42 registered Java/Bedrock response entries.
+- Integrity and Jimmy/Fractured source-backed model audits, recipe/loot/tag audits, and dimension-ID inventory already have evidence below. Remaining engine checks and explicit adaptations must not be confused with absent systems.
+
+## Engine boundaries are separate from unfinished code
+
+Retain the existing gameplay/presentation surrogates for Java desktop integration, GLSL rendering, custom fluid/effect/advancement/painting mechanisms, packet desync, custom damage semantics, and rendered-bone/multipart mechanisms. Improve them when the supported API permits; do not describe their exact Java mechanisms as ordinary missing implementation.
+
+Both the indexed Bedrock Wiki MCP documentation and [Microsoft Learn's DimensionRegistry reference](https://learn.microsoft.com/minecraft/creator/scriptapi/minecraft/server/dimensionregistry?view=minecraft-bedrock-stable) describe custom dimension registration using the void generator. Registration therefore does not establish Java noise-settings/custom-generator parity. Validate availability against the repository's pinned ABI rather than treating current documentation as an automatic version migration.
+
+Supporting evidence:
+- [P1 parity audit](TheBrokenScript_Bedrock_2_0/docs/P1_PARITY_AUDIT.md)
+- [Presentation timing audit](TheBrokenScript_Bedrock_2_0/PRESENTATION_TIMING_AUDIT.md)
+- [Known limitations](TheBrokenScript_Bedrock_2_0/KNOWN_LIMITATIONS.md)
+- [Adaptation notes](TheBrokenScript_Bedrock_2_0/ADAPTATION_NOTES.md)
+- [Runtime smoke contract](tests/runtime-smoke/README.md)
+
+---
+
 # P0 — Parity blockers and source coverage
 
 ## 1. Reconcile the parity ledgers with the actual repository
@@ -414,12 +457,12 @@ Do **not** check an item off until the applicable evidence exists:
 
 # Immediate recommended work order
 
-1. **Reconcile all 912 source-map entries and the stale family matrix.** This identifies what is genuinely missing versus merely undocumented.
-2. **Resolve progression/event/chat coverage and persistence first.** Silent story/state divergence can invalidate long playthroughs.
-3. **Run a full runtime smoke matrix.** The repository already has strong static checks; engine-only behavior is the largest remaining verification gap.
-4. **Audit entity/boss AI and combat source-by-source.** Focus on approximated geometry, targeting, transitions, and multiplayer behavior.
-5. **Audit worldgen/structures/portals and all data-driven content.** Separate Bedrock-engine limits from incomplete source fidelity.
-6. **Audit presentation timing after gameplay semantics are correct.** Animation/audio/particle timing should follow source state, not compensate for incorrect logic.
-7. **Turn every confirmed discrepancy into a focused regression or explicit engine-limitation entry.**
+1. **Produce the real runtime smoke report.** Start with initialization, story/state lifecycle, multiplayer, dimensions, and boss cleanup; turn observed failures into focused fixes.
+2. **Complete known implementation gaps.** Prioritize particle runtime bridges, portal living-entity behavior, and Stage 2/XCSF placement work, keeping source evidence and engine boundaries explicit.
+3. **Verify entity/combat and content behavior in-engine.** Cover Null/Maze/Flying/chunk adapters, damage semantics, blocks, items, quests, and dimension lifecycle.
+4. **Compare generated worlds and presentation with Java.** Verify structure placement, animation/contact timing, audio cleanup, and player/screen UI isolation.
+5. **Profile real workloads and close regression gaps.** Preserve source timing and document any unavoidable performance adaptation.
+6. **Maintain the completed audits.** Keep source-map, family-ledger, story/persistence, and event/chat checks as regression gates rather than restarting them as missing-feature tasks.
+7. **Handle deferred assets and API changes explicitly.** Complete optional Nostalgia work only from reliable source assets; revisit engine limitations during deliberate version upgrades.
 
 The release target is reached when the source inventory has no unexplained behavior, gameplay-critical paths pass runtime testing, and every remaining difference from Java is either fixed or demonstrably caused by a Bedrock engine/API limitation.
