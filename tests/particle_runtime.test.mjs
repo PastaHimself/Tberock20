@@ -119,7 +119,7 @@ test("Null Structure marker uses its source particle bridge and creative-held ga
   assert.match(source, /getGameMode\(\) === GameMode\.Creative/);
   assert.match(source, /isHoldingTypeId\(player, "thebrokenscript:null_structure"\)/);
   assert.match(source, /EquipmentSlot\.Offhand/);
-  assert.match(source, /spawnSourceParticle\(block, "null_structure_marker", center\)/);
+  assert.match(source, /spawnSourceParticle\(player, "null_structure_marker", center\)/);
 
   const block = JSON.parse(readFileSync(
     "TheBrokenScript_Bedrock_2_0/BP/blocks/null_structure.json",
@@ -129,4 +129,36 @@ test("Null Structure marker uses its source particle bridge and creative-held ga
   assert.equal(block["minecraft:collision_box"], false);
   assert.equal(block["minecraft:selection_box"], true);
   assert.deepEqual(block["minecraft:tick"].interval_range, [1, 1]);
+});
+
+
+test("player-scoped source particles are emitted only through the target player", () => {
+  const playerCalls = [];
+  const dimensionCalls = [];
+  const player = {
+    location: { x: 5, y: 6, z: 7 },
+    spawnParticle: (...args) => playerCalls.push(args),
+    dimension: {
+      id: "thebrokenscript:library",
+      spawnParticle: (...args) => dimensionCalls.push(args),
+    },
+  };
+
+  assert.equal(spawnSourceParticle(player, "library_paper"), true);
+  assert.deepEqual(playerCalls, [["thebrokenscript:paper_particle", player.location]]);
+  assert.deepEqual(dimensionCalls, []);
+});
+
+test("dimension-scoped source particles remain world emitters", () => {
+  const playerCalls = [];
+  const dimensionCalls = [];
+  const entity = {
+    location: { x: 0, y: 1, z: 2 },
+    spawnParticle: (...args) => playerCalls.push(args),
+    dimension: { spawnParticle: (...args) => dimensionCalls.push(args) },
+  };
+
+  assert.equal(spawnSourceParticle(entity, "wretched_tick"), true);
+  assert.deepEqual(playerCalls, []);
+  assert.deepEqual(dimensionCalls, [["thebrokenscript:wretched_particle", entity.location]]);
 });
