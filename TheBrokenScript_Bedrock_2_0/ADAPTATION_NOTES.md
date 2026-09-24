@@ -250,13 +250,14 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 ## A-029 — P1 portal entity-scope adapter
 
-1. **Source feature**: portal controller/extender activation, linking, destination selection, safe arrival, cooldown, and incoming-entity handling.
-2. **Source behavior**: activation requires sneaking, the linker is not consumed, anchors and links persist, destination readiness is checked, safe fallback is used, and repeat entry is guarded for one tick.
-3. **Source evidence**: the source portal controller/extender classes and `BP/scripts/systems/ported_features.js`.
-4. **Bedrock limitation**: the current Script API route does not provide the Java portal tick sweep for every same-dimension living entity, nor a one-to-one item/projectile transfer hook.
-5. **Replacement design**: the shipped route handles player interaction, namespaced persisted anchors/links, readiness-gated teleport, safe landing, and persisted cooldown state.
-6. **Player-visible difference**: mobs, items, and projectiles do not claim Java portal parity; unavailable destination initialization falls back to the documented safe route.
-7. **Parity class**: `VALIDATED_HIGH_PARITY` for player linking/arrival/cooldown; `ENGINE_UNSUPPORTED` for the unexposed entity/item/projectile sweep.
+1. **Source feature**: portal controller/extender activation, linking, one-tick entity scanning, relative destination placement, velocity retention, and incoming-entity handling.
+2. **Source behavior**: the linker is sneak-gated and not consumed; controller links are resolved inside one Java \`ServerLevel\`; each controller ticks every tick, builds an AABB from its controller/extenders, requires equal portal sizes, scans entities intersecting the portal, ignores UUIDs already in the incoming guard, and teleports only \`LivingEntity\` instances while preserving relative position and velocity. Rider Y offset is zero. Items and projectiles are not teleported by the source path.
+3. **Source evidence**: \`decompiled/net/thebrokenscript/item/LinkerItem.java\`, \`decompiled/net/thebrokenscript/block/portal/{PortalControllerBlock,PortalControllerBlockEntity,PortalExtenderBlock,PortalExtenderBlockEntity,CornerBB}.java\`, and \`BP/scripts/systems/{ported_features,ported_feature_logic}.js\`.
+4. **Bedrock limitation**: Script API exposes generic \`Entity\` rather than Java's \`LivingEntity\` class hierarchy. The documented \`minecraft:health\` component is used as the supported living-entity boundary; exact engine behavior at chunk-loading edges remains a runtime verification item.
+5. **Replacement design**: persisted links are constrained to one dimension; relinking removes obsolete reverse pairs; stored anchors and active destinations are validated against real controller blocks; stale/destroyed links are pruned. A one-tick scheduler scans linked controller/extender AABBs, requires equal dimensions, preserves relative XYZ placement, applies the rider zero-Y rule, retains velocity with \`TeleportOptions.keepVelocity\`, and refreshes per-portal incoming entity IDs after each pass. The existing click/readiness path remains as a compatibility interaction adapter.
+6. **Player-visible difference**: item/projectile transfer is intentionally absent because Java does not teleport those entities. The remaining uncertainty is Bedrock's health-component/class mapping and chunk-edge timing, which must be checked in the real runtime smoke matrix rather than claimed from static CI.
+7. **Docs checked**: Microsoft Creator docs for \`Dimension.getEntities\`, \`Entity.getAABB\`, \`EntityHealthComponent.componentId\`, \`EntityRidingComponent.componentId\`, \`Entity.teleport\`, \`TeleportOptions.keepVelocity\`, and \`EntityQueryOptions.volume\`; the same surfaces were cross-checked through BedrockWikiMcp.
+8. **Parity class**: \`VALIDATED_HIGH_PARITY\` for link lifecycle, same-dimension routing, portal geometry, relative placement, incoming guards, and velocity; \`VALIDATED_APPROXIMATION\` for mapping Java \`LivingEntity\` to Bedrock health-bearing entities pending real-engine confirmation.
 
 ## A-030 — P1 direct command surface
 
