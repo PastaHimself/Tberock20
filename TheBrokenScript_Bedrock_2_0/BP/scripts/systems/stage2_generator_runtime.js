@@ -18,7 +18,7 @@ import {
   stage2NowhereLayerLocations,
 } from "./stage2_generator_model.js";
 
-const READY_PROPERTY = "tbs:stage2_core_v" + STAGE2_CORE_VERSION;
+const READY_PROPERTY = "tbs:stage2_core_v1";
 const OUTER_WALL_BLOCK = "thebrokenscript:r_3";
 const BORDER_BLOCK = "minecraft:barrier";
 const AIR_ONLY = Object.freeze({
@@ -27,7 +27,7 @@ const AIR_ONLY = Object.freeze({
 let inFlight = null;
 
 function nextTick() {
-  return new Promise((resolve) => system.run(resolve));
+  return new Promise((resolve) => system.run(() => resolve()));
 }
 
 function stage2Seed(worldLike) {
