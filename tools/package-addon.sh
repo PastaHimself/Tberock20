@@ -57,6 +57,12 @@ mkdir -p "$STAGE_DIR/bp" "$STAGE_DIR/rp" "$MCADDON_DIR"
 cp -a "$ADDON_ROOT/BP/." "$STAGE_DIR/bp/"
 cp -a "$ADDON_ROOT/RP/." "$STAGE_DIR/rp/"
 
+# Phase 3's authoritative source arena is XCSF. Generate Bedrock-native chunk
+# structures into the package copy so large derived binaries stay build output.
+python "$ROOT_DIR/tools/build_phase3_xcsf_structures.py" \
+  --output-root "$STAGE_DIR/bp/structures/thebrokenscript/stage3/phase3_arena_final" \
+  --report "$DIST_DIR/phase3-mcstructure-build.json"
+
 # Current Bedrock Jigsaw accepts Structure Templates stored as .nbt or .mcstructure.
 # Keep the source-identical Shaft Java NBT templates and their Jigsaw definitions in
 # the packaged behavior pack instead of rewriting or stripping authoritative source.

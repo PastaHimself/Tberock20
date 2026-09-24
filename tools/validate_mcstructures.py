@@ -43,7 +43,7 @@ TAG_NAMES = {
 }
 
 AIR_BLOCKS = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air", "air"}
-DEFAULT_MAX_SIZE = (64, 96, 64)
+DEFAULT_MAX_SIZE = (64, 384, 64)
 DEFAULT_MAX_VOLUME = 262_144
 DEFAULT_MAX_NON_AIR_BLOCKS = 50_000
 

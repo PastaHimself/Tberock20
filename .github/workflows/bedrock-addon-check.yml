@@ -130,6 +130,12 @@ jobs:
         if: always()
         run: python tools/validate_jigsaw_nbt_connectors.py
 
+      - name: Build Phase 3 XCSF structure chunks
+        if: always()
+        run: >-
+          python tools/build_phase3_xcsf_structures.py
+          --report artifacts/phase3-mcstructure-build.json
+
       - name: Validate all Bedrock structures
         if: always()
         run: python tools/validate_mcstructures.py --report artifacts/mcstructure-validation.json

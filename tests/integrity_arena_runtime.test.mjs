@@ -68,3 +68,18 @@ test("Phase 2 waits for Stage 2 generation before spawn and roster transfer", as
   const spawnIndex = runtime.indexOf('"thebrokenscript:integrity_phase_2"', ensureIndex);
   assert.ok(ensureIndex >= 0 && spawnIndex > ensureIndex, "Phase 2 entity must spawn only after generation");
 });
+
+test("Phase 3 waits for XCSF arena generation before spawn and roster transfer", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /stage3GeneratorRuntime\.ensureStage3Arena\(world, dimension\)/);
+  assert.match(runtime, /arena\.stage3Ready = false/);
+  assert.match(runtime, /arena\.stage3Ready = true/);
+  assert.match(runtime, /arena\.stage3BuildFailed = true/);
+  assert.match(runtime, /arena\.stage3Ready !== true\) return/);
+  assert.match(runtime, /arena\.phaseTicks >= PHASE3_SOURCE\.transferDelayTicks/);
+  assert.match(runtime, /arena\.stage3TransferDone = true/);
+
+  const ensureIndex = runtime.indexOf("ensureStage3Arena");
+  const spawnIndex = runtime.indexOf('"thebrokenscript:integrity_phase_3"', ensureIndex);
+  assert.ok(ensureIndex >= 0 && spawnIndex > ensureIndex, "Phase 3 entity must spawn only after generation");
+});

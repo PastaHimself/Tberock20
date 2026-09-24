@@ -275,17 +275,47 @@ function beginPhase3() {
   arena.phase = INTEGRITY_PHASE.PHASE_3;
   arena.phaseTicks = 0;
   arena.phaseEntityId = null;
+  arena.stage3Ready = false;
+  arena.stage3BuildFailed = false;
+  arena.stage3TransferDone = false;
   phase3Runtime.setParticipantIds(arena.participantIds);
-  const entity = spawnAt(dimension, "thebrokenscript:integrity_phase_3", PHASE3_SOURCE.center);
-  if (!entity) return false;
-  arena.phaseEntityId = entity.id;
   setArenaFlags(true, false);
+
+  void stage3GeneratorRuntime.ensureStage3Arena(world, dimension)
+    .then(() => {
+      if (!arena || arena.phase !== INTEGRITY_PHASE.PHASE_3) return;
+      const entity = spawnAt(
+        dimension,
+        "thebrokenscript:integrity_phase_3",
+        PHASE3_SOURCE.center,
+      );
+      if (!entity) {
+        arena.stage3BuildFailed = true;
+        logger.error("integrity arena: Stage 3 geometry completed but Phase 3 entity spawn failed");
+        return;
+      }
+      arena.phaseEntityId = entity.id;
+      arena.stage3Ready = true;
+    })
+    .catch((error) => {
+      logger.error("integrity arena: Stage 3 source geometry generation failed", error);
+      if (arena?.phase === INTEGRITY_PHASE.PHASE_3) {
+        arena.stage3BuildFailed = true;
+      }
+    });
   return true;
 }
 
 function tickPhase3() {
-  if (arena.phaseTicks === PHASE3_SOURCE.transferDelayTicks) {
+  if (arena.stage3BuildFailed === true) {
+    stop("stage3_generation_failed");
+    return;
+  }
+  if (arena.stage3Ready !== true) return;
+
+  if (arena.stage3TransferDone !== true && arena.phaseTicks >= PHASE3_SOURCE.transferDelayTicks) {
     teleportRoster("thebrokenscript:void_shadow", PHASE3_SOURCE.center);
+    arena.stage3TransferDone = true;
   }
   const entity = currentPhaseEntity("thebrokenscript:integrity_phase_3");
   if (entity && hasDyingState(entity) && arena.cutsceneTicks === null) {

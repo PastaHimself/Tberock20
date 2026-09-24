@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/stairs",
-  "textures": {
-    "bottom": "thebrokenscript:block/void_planks",
-    "side": "thebrokenscript:block/void_planks",
-    "top": "thebrokenscript:block/void_planks"
-  }
-}
