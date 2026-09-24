@@ -120,6 +120,11 @@ export const SOURCE_PARTICLE_EVENTS = Object.freeze({
     count: 55,
     offset: Object.freeze([3, 3, 3]),
   }),
+  faraway_fard: Object.freeze({
+    effectId: "thebrokenscript:fardaway",
+    count: 50,
+    offset: Object.freeze([3, 3, 3]),
+  }),
   library_paper: Object.freeze({
     effectId: "thebrokenscript:paper_particle",
     count: 1,
