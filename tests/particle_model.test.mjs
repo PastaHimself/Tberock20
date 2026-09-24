@@ -72,6 +72,11 @@ test("known Java sendParticles callsites keep source counts and spread", () => {
     count: 50,
     offset: [3, 3, 3],
   });
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.null_structure_marker, {
+    effectId: "thebrokenscript:null_structure_particle",
+    count: 1,
+    offset: [0, 0, 0],
+  });
   assert.deepEqual(SOURCE_PARTICLE_EVENTS.library_paper, {
     effectId: "thebrokenscript:paper_particle",
     count: 1,
