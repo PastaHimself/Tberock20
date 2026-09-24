@@ -84,3 +84,76 @@ test("Stage 2 runtime loads one chunk at a time and persists completion", async 
   assert.match(source, /includeTypes: Object\.freeze\(\["minecraft:air"\]\)/);
   assert.match(source, /worldLike\.setDynamicProperty\(READY_PROPERTY, true\)/);
 });
+
+
+test("Stage 2 source template selection preserves seeded Java RNG order", async () => {
+  const {
+    stage2RoomTemplatePlan,
+    stage2SurfaceTemplatePlan,
+  } = await import(pathToFileURL(modelPath));
+
+  assert.deepEqual(stage2SurfaceTemplatePlan(39, 5, 5), {
+    structureId: "fieldbase2",
+    y: 252,
+    mirror: "none",
+    rotation: "rotate90",
+  });
+
+  assert.deepEqual(stage2SurfaceTemplatePlan(1327, 5, 5), {
+    structureId: "fieldbase",
+    y: 252,
+    mirror: "front_back",
+    rotation: "rotate270",
+  });
+
+  assert.deepEqual(stage2RoomTemplatePlan(0, 5, 5), {
+    transform: { mirror: "none", rotation: "rotate270" },
+    randomExtra: false,
+    special: true,
+    variants: {
+      variantF1: 6,
+      variantF2: 5,
+      variantF3: 32,
+      variantF4: 1,
+    },
+    placements: [
+      { structureId: "clanvoidnew6", y: 200 },
+      { structureId: "clandimensionroom2", y: 207 },
+      { structureId: "woodfloor4", y: 217 },
+      { structureId: "stone2", y: 233 },
+    ],
+  });
+
+  assert.deepEqual(stage2RoomTemplatePlan(108, 5, 5), {
+    transform: { mirror: "none", rotation: "none" },
+    randomExtra: true,
+    special: true,
+    variants: {
+      variantF1: 2,
+      variantF2: 5,
+      variantF3: 11,
+      variantF4: 2,
+    },
+    placements: [
+      { structureId: "clanvoidnew2", y: 200 },
+      { structureId: "clandimensionroom2", y: 207 },
+      { structureId: "tek_woodfloor2", y: 217 },
+      { structureId: "stone1", y: 233 },
+    ],
+  });
+
+  assert.equal(stage2SurfaceTemplatePlan(0, 0, 5), null);
+  assert.equal(stage2RoomTemplatePlan(0, 10, 5), null);
+});
+
+test("Stage 2 tunnel source branch keeps the 90% hallway-1 gate and 2..10 fallback", async () => {
+  const { stage2TunnelTemplatePlan } = await import(pathToFileURL(modelPath));
+  assert.deepEqual(stage2TunnelTemplatePlan(() => 0.899999, () => 0.75), {
+    structureId: "bedrockhallway1",
+    y: 160,
+    mirror: "none",
+    rotation: "none",
+  });
+  assert.equal(stage2TunnelTemplatePlan(() => 0.9, () => 0).structureId, "bedrockhallway2");
+  assert.equal(stage2TunnelTemplatePlan(() => 1, () => 0.999999).structureId, "bedrockhallway10");
+});
