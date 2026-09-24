@@ -25,6 +25,7 @@ PARTICLE_EVENT_COUNTS = {
     "null_particle": 5,
     "eyes": 5,
     "particle_of_curved": 55,
+    "fardaway": 50,
     "paper_particle": 1,
     "wretched_particle": 2,
 }
@@ -40,6 +41,7 @@ PARTICLE_TYPE_FIELDS = {
 ADAPTED_PARTICLE_CALLSITE_TYPES = {
     "null_particle",
     "eyes",
+    "fardaway",
     "paper_particle",
     "particle_of_curved",
     "wretched_particle",
