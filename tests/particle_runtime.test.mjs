@@ -94,3 +94,16 @@ test("Follow controller uses the dedicated per-tick Wretched bridge", () => {
   assert.doesNotMatch(tickFollow, /basic_smoke_particle/);
   assert.doesNotMatch(tickFollow, /currentTick % 30/);
 });
+
+
+test("Faraway controller retains the source funny-setting particle branch", () => {
+  const source = readFileSync(
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/humanoid/humanoid_controller.js",
+    "utf8",
+  );
+  const start = source.indexOf("function tickFaraway");
+  const faraway = source.slice(start);
+  assert.match(faraway, /config\.get\("danger\.funnySetting"\)/);
+  assert.match(faraway, /Math\.random\(\) > 0\.99/);
+  assert.match(faraway, /spawnSourceParticle\(e, "faraway_fard", origin\)/);
+});
