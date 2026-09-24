@@ -138,6 +138,10 @@ jobs:
         if: always()
         run: python tools/inventory_stage2_palette.py --report artifacts/stage2-palette-inventory.json
 
+      - name: Inventory Phase 3 XCSF arena
+        if: always()
+        run: python tools/inventory_xcsf.py --report artifacts/phase3-xcsf-inventory.json
+
       - name: Check all behavior-pack JavaScript syntax
         if: always()
         shell: bash
