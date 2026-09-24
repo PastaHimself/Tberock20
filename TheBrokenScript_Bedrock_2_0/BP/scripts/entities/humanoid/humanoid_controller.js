@@ -7,6 +7,8 @@ import * as effects from "../../systems/ai/effects.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
+import { config } from "../../core/config.js";
+import { spawnSourceParticle } from "../../systems/particle_runtime.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // stare: life 500, LOOKABLE aura ≤512 + slowness 60t amp55
@@ -578,7 +580,16 @@ function tickDeceiver(e) {
 function tickFaraway(e) {
   let life = getNum(e, "life", FARAWAY_LIFE);
   let delay = getNum(e, "delay", 0);
-  if (!timers.has(e.id)) { life = FARAWAY_LIFE; delay = 0; timers.set(e.id, { life, delay }); }
+  if (!timers.has(e.id)) {
+    life = FARAWAY_LIFE;
+    delay = 0;
+    let variant = "phantom";
+    if (config.get("danger.funnySetting") && Math.random() > 0.99) {
+      variant = Math.random() > 0.5 ? "baby" : "fard";
+    }
+    timers.set(e.id, { life, delay, variant });
+  }
+
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 400);
   if (player) {
     const seen = (distance(e.location, player.location) < 38 && hasLineOfSightApprox(player, e) && inFovCone(player, e))
@@ -586,28 +597,49 @@ function tickFaraway(e) {
     if (seen) {
       delay++; setNum(e, "delay", delay);
       if (delay >= 25) {
-        try { e.remove(); } catch (error) {
-          operationDiagnostics.warnOnce("humanoid.faraway_remove", "humanoid: faraway removal failed", error);
-        } deleteTimers(e);
-        // variant: baby/fard easter eggs ledgered (funnySetting config pending)
-        try { player.playSound("thebrokenscript:phantom", { volume: 1, pitch: 0 }); } catch (error) {
-          operationDiagnostics.warnOnce("humanoid.faraway_sound", "humanoid: faraway sound failed", error);
+        const origin = { ...e.location };
+        const variant = timers.get(e.id)?.variant ?? "phantom";
+
+        if (variant === "baby") {
+          try { player.playSound("thebrokenscript:baby", { volume: 1, pitch: 0 }); } catch (error) {
+            operationDiagnostics.warnOnce("humanoid.faraway_baby_sound", "humanoid: Faraway baby sound failed", error);
+          }
+          title(player, "baby", 15);
+        } else if (variant === "fard") {
+          try { player.playSound("thebrokenscript:fardaway", { volume: 1, pitch: 0 }); } catch (error) {
+            operationDiagnostics.warnOnce("humanoid.faraway_fard_sound", "humanoid: Faraway fard sound failed", error);
+          }
+          spawnSourceParticle(e, "faraway_fard", origin);
+          title(player, "fardaway", 15);
+        } else {
+          try { player.playSound("thebrokenscript:phantom", { volume: 1, pitch: 0 }); } catch (error) {
+            operationDiagnostics.warnOnce("humanoid.faraway_sound", "humanoid: Faraway sound failed", error);
+          }
+          title(player, "snimok_ekrana_2024-11-02_090828", 15);
         }
-        title(player, "snimok_ekrana_2024-11-02_090828", 15);
+
         try {
-          const part = Math.random() < 0.5 ? "minecraft:basic_flame_particle" : "minecraft:redstone_wire_dust_particle";
-          e.dimension.spawnParticle(part, { x: e.location.x, y: e.location.y + 1, z: e.location.z });
+          player.lookAt({ x: origin.x, y: origin.y + 1, z: origin.z });
         } catch (error) {
-          operationDiagnostics.warnOnce("humanoid.faraway_particle", "humanoid: faraway particle failed", error);
+          operationDiagnostics.warnOnce("humanoid.faraway_look", "humanoid: Faraway look-at handoff failed", error);
         }
+
+        try { e.remove(); } catch (error) {
+          operationDiagnostics.warnOnce("humanoid.faraway_remove", "humanoid: Faraway removal failed", error);
+        }
+        deleteTimers(e);
         return;
       }
     } else if (delay !== 0) {
       delay = 0; setNum(e, "delay", 0);
     }
   }
+
   life--; setNum(e, "life", life);
-  if (life <= 0) { try { e.remove(); } catch (error) {
-    operationDiagnostics.warnOnce("humanoid.faraway_expire", "humanoid: faraway expiry removal failed", error);
-  } deleteTimers(e); }
+  if (life <= 0) {
+    try { e.remove(); } catch (error) {
+      operationDiagnostics.warnOnce("humanoid.faraway_expire", "humanoid: Faraway expiry removal failed", error);
+    }
+    deleteTimers(e);
+  }
 }
