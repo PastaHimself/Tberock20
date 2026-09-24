@@ -19,12 +19,15 @@ class PresentationValidationTests(unittest.TestCase):
         self.assertEqual(result["counts"]["source_particle_files"], 9)
         self.assertEqual(result["counts"]["java_particle_provider_types"], 7)
         self.assertEqual(result["counts"]["java_particle_callsite_types"], 7)
-        self.assertEqual(result["checks"]["particles"]["unadapted_callsite_types"], [
+        self.assertEqual(result["checks"]["particles"]["unadapted_callsite_types"], [])
+        callsites = result["checks"]["particles"]["java_particle_callsites"]
+        for particle_id in (
             "fardaway",
             "null_structure_particle",
             "paper_particle",
             "wretched_particle",
-        ])
+        ):
+            self.assertTrue(callsites[particle_id], particle_id)
         self.assertEqual(result["counts"]["source_song_definitions"], 12)
         self.assertEqual(result["counts"]["source_sound_definitions"], 143)
         self.assertEqual(result["counts"]["deployed_sound_definitions"], 142)
