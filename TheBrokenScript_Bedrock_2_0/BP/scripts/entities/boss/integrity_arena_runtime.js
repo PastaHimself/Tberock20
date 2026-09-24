@@ -4,6 +4,7 @@ import { logger } from "../../core/logging.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as dimensions from "../../systems/dimensions.js";
 import * as stage2GeneratorRuntime from "../../systems/stage2_generator_runtime.js";
+import * as stage3GeneratorRuntime from "../../systems/stage3_generator_runtime.js";
 import * as phase3Runtime from "./phase3_runtime.js";
 import {
   ARENA_SOURCE,
