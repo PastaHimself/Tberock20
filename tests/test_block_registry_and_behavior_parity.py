@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -8,6 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_BLOCKSTATE_ROOT = REPO_ROOT / "source_extracted/assets/thebrokenscript/blockstates"
 BEDROCK_BLOCK_ROOT = REPO_ROOT / "TheBrokenScript_Bedrock_2_0/BP/blocks"
 CUSTOM_BLOCKS_SCRIPT = REPO_ROOT / "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/custom_blocks.js"
+SOURCE_BLOCK_REGISTRY = REPO_ROOT / "decompiled/net/thebrokenscript/registry/TBSBlocks.java"
 SOURCE_COMMAND_BLOCK = REPO_ROOT / "decompiled/net/thebrokenscript/block/CorruptedCommandBlock.java"
 SOURCE_COMMAND_ENTITY = REPO_ROOT / "decompiled/net/thebrokenscript/block/entity/CommandBlockEntity.java"
 SOURCE_DISRUPTION_BLOCK = REPO_ROOT / "decompiled/net/thebrokenscript/block/DisruptionBlock.java"
@@ -22,6 +24,22 @@ BEDROCK_ONLY_BLOCK_IDS = {
 
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def source_block_ids() -> set[str]:
+    ids = {
+        f"thebrokenscript:{path.stem}"
+        for path in SOURCE_BLOCKSTATE_ROOT.glob("*.json")
+    }
+    registry = SOURCE_BLOCK_REGISTRY.read_text(encoding="utf-8-sig")
+    ids.update(
+        f"thebrokenscript:{name}"
+        for name in re.findall(
+            r'TBSReg\\.INSTANCE\\.(?:block|defaultBlock)\\("([^"]+)"',
+            registry,
+        )
+    )
+    return ids
 
 
 def bedrock_blocks_by_identifier() -> dict[str, dict]:
@@ -41,13 +59,15 @@ def bedrock_blocks_by_identifier() -> dict[str, dict]:
 
 class BlockRegistryAndBehaviorParityTests(unittest.TestCase):
     def test_source_blockstate_inventory_matches_bedrock_block_registry(self):
-        source_ids = {
-            f"thebrokenscript:{path.stem}"
-            for path in SOURCE_BLOCKSTATE_ROOT.glob("*.json")
-        }
+        source_ids = source_block_ids()
         bedrock_ids = set(bedrock_blocks_by_identifier())
 
-        self.assertGreater(len(source_ids), 0, "no source blockstates found")
+        self.assertGreater(len(source_ids), 0, "no source blocks found")
+        self.assertIn(
+            "thebrokenscript:null",
+            source_ids,
+            "the Java registry-only null block must be counted even without an extracted blockstate asset",
+        )
         self.assertEqual(
             BEDROCK_ONLY_BLOCK_IDS,
             bedrock_ids - source_ids,

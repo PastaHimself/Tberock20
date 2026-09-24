@@ -30,6 +30,11 @@ TODO_ITEMS = [
     "P1 — Dimensions, worldgen, structures, and portals",
 ]
 
+BEDROCK_ONLY_BLOCK_IDS = {
+    "thebrokenscript:void_goop_flow",
+    "thebrokenscript:void_goop_still",
+}
+
 SOURCE_BLOCK_ENTITY_NAMES = (
     "command",
     "all_dead",
@@ -245,7 +250,16 @@ def _bp_identifiers(directory: Path, key: str) -> dict[str, Path]:
 
 def _source_block_ids(repo: Path) -> list[str]:
     root = repo / "source_extracted/assets/thebrokenscript/blockstates"
-    return [f"{NAMESPACE}:{path.stem}" for path in _sorted_json_files(root)]
+    identifiers = {f"{NAMESPACE}:{path.stem}" for path in _sorted_json_files(root)}
+    registry = _read(repo / "decompiled/net/thebrokenscript/registry/TBSBlocks.java")
+    identifiers.update(
+        f"{NAMESPACE}:{name}"
+        for name in re.findall(
+            r'TBSReg\\.INSTANCE\\.(?:block|defaultBlock)\\("([^"]+)"',
+            registry,
+        )
+    )
+    return sorted(identifiers)
 
 
 def _source_item_model_ids(repo: Path) -> list[str]:
@@ -1268,6 +1282,12 @@ def validate_report(report: dict[str, Any]) -> list[str]:
         if values:
             label = "missing source loot" if field == "missing_source_loot_tables" else field.replace("_", " ")
             errors.append(f"{label}: {values}")
+    extra_bedrock_blocks = set(content.get("extra_bedrock_blocks", []))
+    if extra_bedrock_blocks != BEDROCK_ONLY_BLOCK_IDS:
+        errors.append(
+            "Bedrock-only block inventory drift: "
+            f"expected={sorted(BEDROCK_ONLY_BLOCK_IDS)}, actual={sorted(extra_bedrock_blocks)}"
+        )
     block_entities = content.get("block_entities", {})
     for field in ("missing_source", "missing_runtime"):
         if block_entities.get(field):

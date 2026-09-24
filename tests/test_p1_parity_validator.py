@@ -28,8 +28,8 @@ class P1ParityValidatorTests(unittest.TestCase):
 
     def test_report_covers_the_selected_todo_items(self):
         self.assertEqual(TODO_ITEMS, self.report["todo_items"])
-        self.assertEqual(123, self.report["content"]["source_block_count"])
-        self.assertEqual(125, self.report["content"]["bedrock_block_count"])
+        self.assertEqual(124, self.report["content"]["source_block_count"])
+        self.assertEqual(126, self.report["content"]["bedrock_block_count"])
         self.assertEqual(8, self.report["content"]["source_block_entity_count"])
         self.assertEqual(40, self.report["content"]["source_recipe_count"])
         self.assertEqual(138, self.report["content"]["source_loot_table_count"])
