@@ -151,8 +151,9 @@ export function init(blockComponentRegistry) {
           continue;
         }
         if (!creative || !isHoldingTypeId(player, "thebrokenscript:null_structure")) continue;
-        spawnSourceParticle(block, "null_structure_marker", center);
-        return;
+        // Java animateTick is client-local; Player.spawnParticle preserves that
+        // visibility boundary so nearby non-holders do not see the marker.
+        spawnSourceParticle(player, "null_structure_marker", center);
       }
     }
   });
