@@ -107,3 +107,24 @@ test("Faraway controller retains the source funny-setting particle branch", () =
   assert.match(faraway, /Math\.random\(\) > 0\.99/);
   assert.match(faraway, /spawnSourceParticle\(e, "faraway_fard", origin\)/);
 });
+
+
+test("Null Structure marker uses its source particle bridge and creative-held gate", () => {
+  const source = readFileSync(
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/custom_blocks.js",
+    "utf8",
+  );
+  assert.match(source, /register\("thebrokenscript:be_null_structure",\s*\{\s*onTick/s);
+  assert.match(source, /getGameMode\(\) === GameMode\.Creative/);
+  assert.match(source, /heldItemTypeId\(player\) !== "thebrokenscript:null_structure"/);
+  assert.match(source, /spawnSourceParticle\(block, "null_structure_marker", center\)/);
+
+  const block = JSON.parse(readFileSync(
+    "TheBrokenScript_Bedrock_2_0/BP/blocks/null_structure.json",
+    "utf8",
+  ))["minecraft:block"].components;
+  assert.equal(block["minecraft:material_instances"]["*"].texture, "empty");
+  assert.equal(block["minecraft:collision_box"], false);
+  assert.equal(block["minecraft:selection_box"], true);
+  assert.deepEqual(block["minecraft:tick"].interval_range, [1, 1]);
+});
