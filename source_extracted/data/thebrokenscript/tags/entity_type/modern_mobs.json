@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:bat",
+    "minecraft:drowned",
+    "minecraft:glow_squid",
+    "minecraft:phantom",
+    "minecraft:bee",
+    "minecraft:allay",
+    "minecraft:fox",
+    "minecraft:cat",
+    "minecraft:goat",
+    "minecraft:tropical_fish",
+    "minecraft:panda",
+    "minecraft:pufferfish",
+    "minecraft:dolphin",
+    "minecraft:trader_llama",
+    "minecraft:wandering_trader",
+    "minecraft:turtle",
+    "minecraft:hoglin",
+    "minecraft:piglin",
+    "minecraft:piglin_brute",
+    "minecraft:sniffer",
+    "minecraft:pillager",
+    "minecraft:frog",
+    "minecraft:armadillo",
+    "minecraft:axolotl",
+    "minecraft:bogged",
+    "minecraft:breeze",
+    "minecraft:camel",
+    "minecraft:tadpole"
+  ]
+}

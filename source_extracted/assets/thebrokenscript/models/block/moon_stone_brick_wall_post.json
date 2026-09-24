@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_wall_post",
+  "textures": {
+    "wall": "thebrokenscript:block/moon_stone_bricks"
+  }
+}

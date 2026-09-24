@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "thebrokenscript:block/protected_void",
+    "side": "thebrokenscript:block/protected_void",
+    "top": "thebrokenscript:block/protected_void"
+  }
+}

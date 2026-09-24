@@ -1,0 +1,16 @@
+{
+  "targets": ["swap"],
+  "passes": [
+    {
+      "name": "thebrokenscript:ripple",
+      "intarget": "minecraft:main",
+      "outtarget": "swap"
+
+    },
+    {
+      "name": "minecraft:blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

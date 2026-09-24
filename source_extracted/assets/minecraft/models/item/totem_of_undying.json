@@ -1,0 +1,12 @@
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "minecraft:item/totem_of_undying"
+    },
+    "overrides": [
+        {
+            "predicate": { "thebrokenscript:voided": 1.0 },
+            "model": "thebrokenscript:item/totem"
+        }
+    ]
+}

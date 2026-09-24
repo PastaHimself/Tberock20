@@ -1,0 +1,19 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "thebrokenscript:stage2"
+    },
+    "components": {
+      "minecraft:fog_appearance": {
+        "fog_identifier": "thebrokenscript:fog_stage2"
+      },
+      "minecraft:sky_color": {
+        "sky_color": "#120a14"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#000010"
+      }
+    }
+  }
+}

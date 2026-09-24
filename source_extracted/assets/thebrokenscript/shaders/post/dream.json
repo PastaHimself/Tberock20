@@ -1,0 +1,38 @@
+{
+    "targets": ["final", "depth", "depth_old1", "depth_old2", "blur1", "temp1"],
+    "passes": [
+        {
+            "name": "blit",
+            "intarget": "minecraft:main",
+            "outtarget": "final"
+        },
+        {
+            "name": "thebrokenscript:dream/old_depth",
+            "intarget": "depth",
+            "outtarget": "depth_old2",
+            "auxtargets": [{ "name": "OldDepthSampler", "id": "depth_old1" }]
+        },
+        { "name": "blit", "intarget": "depth_old2", "outtarget": "depth_old1" },
+        {
+            "name": "thebrokenscript:dream/depth",
+            "intarget": "minecraft:main",
+            "outtarget": "depth"
+        },
+        {
+            "name": "thebrokenscript:dream/darken",
+            "intarget": "final",
+            "outtarget": "temp1",
+            "auxtargets": [
+                { "name": "DepthSampler", "id": "depth" },
+                { "name": "OldDepthSampler", "id": "depth_old1" }
+            ]
+        },
+        { "name": "thebrokenscript:dream/noise", "intarget": "temp1", "outtarget": "final" },
+        { "name": "thebrokenscript:dream/blur", "intarget": "final", "outtarget": "blur1", "use_linear_filter": true },
+        { "name": "thebrokenscript:dream/blur", "intarget": "blur1", "outtarget": "final", "use_linear_filter": true },
+        { "name": "thebrokenscript:dream/blur", "intarget": "final", "outtarget": "blur1", "use_linear_filter": true },
+        { "name": "thebrokenscript:dream/blur", "intarget": "blur1", "outtarget": "final", "use_linear_filter": true },
+        { "name": "thebrokenscript:dream/effects", "intarget": "final", "outtarget": "temp1" },
+        { "name": "blit", "intarget": "temp1", "outtarget": "minecraft:main" }
+    ]
+}

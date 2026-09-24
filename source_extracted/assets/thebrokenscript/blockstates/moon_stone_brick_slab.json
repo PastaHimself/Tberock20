@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "thebrokenscript:block/moon_stone_brick_slab"
+    },
+    "type=double": {
+      "model": "thebrokenscript:block/moon_stone_brick_slab_double"
+    },
+    "type=top": {
+      "model": "thebrokenscript:block/moon_stone_brick_slab_top"
+    }
+  }
+}

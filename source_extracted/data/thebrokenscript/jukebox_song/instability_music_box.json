@@ -1,0 +1,8 @@
+{
+  "comparator_output": 15,
+  "description": {
+    "translate": "jukebox_song.thebrokenscript.instability_music_box"
+  },
+  "length_in_seconds": 179.0,
+  "sound_event": "thebrokenscript:instability_music_box"
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "thebrokenscript:block/sideways_furnace",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "thebrokenscript:block/sideways_furnace"
+    },
+    "facing=south": {
+      "model": "thebrokenscript:block/sideways_furnace",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "thebrokenscript:block/sideways_furnace",
+      "y": 270
+    }
+  }
+}

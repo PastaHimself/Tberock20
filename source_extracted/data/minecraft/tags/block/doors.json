@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:void_door",
+    "thebrokenscript:void_plank_door",
+    "thebrokenscript:void_log_door"
+  ]
+}

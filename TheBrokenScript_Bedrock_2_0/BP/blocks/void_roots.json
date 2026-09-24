@@ -1,0 +1,24 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:block": {
+    "description": {
+      "identifier": "thebrokenscript:void_roots",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:loot": "loot_tables/blocks/void_roots.json",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "void_roots",
+          "render_method": "alpha_test_single_sided"
+        }
+      },
+      "minecraft:geometry": "geometry.tbs_cross",
+      "minecraft:collision_box": false,
+      "minecraft:selection_box": true,
+      "minecraft:light_dampening": 0
+    }
+  }
+}

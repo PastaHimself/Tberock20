@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "minecraft:fire"
+    }
+  },
+  "pattern": [
+    "F F",
+    "FFF",
+    "FFF"
+  ],
+  "result": {
+    "id": "minecraft:chainmail_chestplate"
+  }
+}

@@ -1,0 +1,10 @@
+{
+    "type": "thebrokenscript:backrooms",
+    "generator": {
+        "type": "thebrokenscript:backrooms_generator",
+        "biome_source": {
+            "type": "fixed",
+            "biome": "minecraft:the_void"
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ss",
+    "ss"
+  ],
+  "key": {
+    "s": {
+      "item": "thebrokenscript:moon_stone"
+    }
+  },
+  "result": {
+    "id": "thebrokenscript:polished_moon_stone",
+    "count": 4
+  }
+}

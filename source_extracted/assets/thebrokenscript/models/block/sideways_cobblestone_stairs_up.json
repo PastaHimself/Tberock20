@@ -1,0 +1,36 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "thebrokenscript:block/sideways_cobblestone_stairs",
+		"particle": "block/diamond_block"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [14, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 8, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"south": {"uv": [8, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [16, 16, 8, 0], "texture": "#0"},
+				"down": {"uv": [8, 0, 0, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [0, 0, 8],
+			"to": [8, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 14]},
+			"faces": {
+				"north": {"uv": [0, 0, 8, 16], "texture": "#0"},
+				"south": {"uv": [8, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 8, 16], "texture": "#0"},
+				"up": {"uv": [8, 8, 0, 0], "texture": "#0"},
+				"down": {"uv": [16, 0, 8, 8], "texture": "#0"}
+			}
+		}
+	]
+}

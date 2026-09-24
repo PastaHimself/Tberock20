@@ -1,0 +1,24 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "one",
+        "dstrgb": "zero"
+    },
+    "samplers": [
+        { "name": "Sampler0" },
+        { "name": "Sampler1" }
+    ],
+    "vertex": "thebrokenscript:vortex_sky",
+    "fragment": "thebrokenscript:vortex_sky",
+    "attributes": [
+        "Position"
+    ],
+    "uniforms": [
+        { "name": "uTime",          "type": "float",     "count": 1,  "values": [0.0] },
+        { "name": "FogColor",       "type": "float",     "count": 4,  "values": [0,0,0,1] },
+        { "name": "RenderDistance", "type": "float",     "count": 1,  "values": [192.0] },
+        { "name": "ProjMatInverse", "type": "matrix4x4", "count": 16, "values": [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] },
+        { "name": "ViewMatInverse", "type": "matrix4x4", "count": 16, "values": [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] },
+        { "name": "VortexSkyZoom",  "type": "float",     "count": 1,  "values": [1.0] }
+    ]
+}

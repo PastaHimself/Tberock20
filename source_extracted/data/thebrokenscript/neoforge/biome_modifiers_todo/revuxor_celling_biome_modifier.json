@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:any"
+  },
+  "spawners": [{
+    "type": "thebrokenscript:revuxor_celling",
+    "weight": 1,
+    "minCount": 1,
+    "maxCount": 1
+  }]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": {
+    "type": "neoforge:any"
+  },
+  "features": "thebrokenscript:moon_chunk",
+  "step": "surface_structures"
+}

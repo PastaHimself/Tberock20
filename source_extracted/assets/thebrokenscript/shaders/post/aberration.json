@@ -1,0 +1,21 @@
+{
+  "targets": ["swap"],
+  "passes": [
+    {
+      "name": "thebrokenscript:aberration",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        {
+          "name": "Intensity",
+          "values": [ 0.0075 ]
+        }
+      ]
+    },
+    {
+      "name": "blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

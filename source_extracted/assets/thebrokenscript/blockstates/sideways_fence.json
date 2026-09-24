@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "thebrokenscript:block/sideways_fence"
+    },
+    "facing=north": {
+      "model": "thebrokenscript:block/sideways_fence",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "thebrokenscript:block/sideways_fence",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "thebrokenscript:block/sideways_fence",
+      "y": 180
+    }
+  }
+}

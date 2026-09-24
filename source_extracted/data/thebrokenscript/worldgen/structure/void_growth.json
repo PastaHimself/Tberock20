@@ -1,0 +1,7 @@
+{
+    "type": "thebrokenscript:void_growth",
+    "biomes": "thebrokenscript:stereogenic_growth",
+    "step": "fluid_springs",
+    "terrain_adaptation": "none",
+    "spawn_overrides": {}
+}

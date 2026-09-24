@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "thebrokenscript:item/lost_need_cod"
+  }
+}

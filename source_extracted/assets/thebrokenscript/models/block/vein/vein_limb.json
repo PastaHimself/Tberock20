@@ -1,0 +1,20 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "thebrokenscript:block/vein/vein_limb",
+		"particle": "thebrokenscript:block/vein/vein_limb"
+	},
+	"elements": [
+		{
+			"from": [0, 0.1, 0],
+			"to": [16, 0.1, 16],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8.15, 0.175]},
+			"faces": {
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0"}
+			}
+		}
+	],
+    "render_type": "minecraft:cutout",
+	"display": {}
+}

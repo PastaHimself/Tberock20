@@ -1,0 +1,23 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:client_entity": {
+    "description": {
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "geometry": {
+        "default": "geometry.fractured"
+      },
+      "render_controllers": [
+        "controller.render.single_textured"
+      ],
+      "identifier": "thebrokenscript:fractured",
+      "textures": {
+        "default": "textures/entities/fractured"
+      },
+      "particle_effects": {
+        "jimmy_contact_burst": "thebrokenscript:jimmy_contact_burst"
+      }
+    }
+  }
+}

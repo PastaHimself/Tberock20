@@ -1,0 +1,32 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "thebrokenscript:instabilityv2"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC"
+    ],
+    "key": {
+      "A": {
+        "item": "thebrokenscript:record_16"
+      },
+      "B": {
+        "item": "thebrokenscript:gore"
+      },
+      "C": {
+        "item": "thebrokenscript:n"
+      }
+    },
+    "result": {
+      "item": "thebrokenscript:instabilityv2",
+      "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    }
+  }
+}

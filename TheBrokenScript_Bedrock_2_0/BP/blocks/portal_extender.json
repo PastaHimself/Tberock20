@@ -1,0 +1,27 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:block": {
+    "description": {
+      "identifier": "thebrokenscript:portal_extender",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "portal_extender"
+        }
+      },
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:loot": "loot_tables/blocks/portal_extender.json",
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 5
+      },
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "thebrokenscript:be_portal_extender": {}
+    }
+  }
+}

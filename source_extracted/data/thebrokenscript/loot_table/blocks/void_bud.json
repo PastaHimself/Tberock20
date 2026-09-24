@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "#thebrokenscript:can_be_used_for_void_flora"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "thebrokenscript:void_bud"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "thebrokenscript:void_bud"
+}

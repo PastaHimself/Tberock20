@@ -1,0 +1,10 @@
+{
+    "type": "thebrokenscript:void_shadow",
+    "generator": {
+        "type": "thebrokenscript:stage3",
+        "biome_source": {
+            "type": "minecraft:fixed",
+            "biome": "thebrokenscript:stage3"
+        }
+    }
+}

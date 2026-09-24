@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "s",
+    "s"
+  ],
+  "key": {
+    "s": {
+      "item": "thebrokenscript:moon_stone_brick_slab"
+    }
+  },
+  "result": {
+    "id": "thebrokenscript:chiseled_moon_stone_bricks",
+    "count": 1
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "thebrokenscript:block/void_log_top",
+    "side": "thebrokenscript:block/void_log_side"
+  }
+}

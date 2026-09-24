@@ -1,0 +1,7 @@
+{
+  "death_message_type": "default",
+  "effects": "hurt",
+  "exhaustion": 0.1,
+  "message_id": "thebrokenscript.chord_lazer",
+  "scaling": "always"
+}

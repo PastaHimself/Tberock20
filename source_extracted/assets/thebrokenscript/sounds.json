@@ -1,0 +1,946 @@
+{
+  "ambience.nothing": {
+    "sounds": [
+      "thebrokenscript:ambience/nothing"
+    ]
+  },
+  "ambience/flesh_tunnel": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/flesh_tunnel",
+        "stream": true
+      }
+    ]
+  },
+  "ambience/stone": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/stone",
+        "stream": true
+      }
+    ]
+  },
+  "baby": {
+    "sounds": [
+      "thebrokenscript:baby_disappear",
+      "thebrokenscript:baby"
+    ]
+  },
+  "bad_sun_siren": {
+    "sounds": [
+      "thebrokenscript:bad_sun_siren"
+    ]
+  },
+  "bsod": {
+    "sounds": [
+      "thebrokenscript:bsod"
+    ]
+  },
+  "button_break": {
+    "sounds": [
+      "thebrokenscript:button_break"
+    ]
+  },
+  "c_death": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:curved/curved_death",
+        "volume": 0.9
+      },
+      "thebrokenscript:c_death"
+    ]
+  },
+  "ccb_ambient": {
+    "sounds": [
+      "thebrokenscript:ccb_ambient"
+    ]
+  },
+  "chord.death": {
+    "sounds": [
+      "thebrokenscript:chords/chord_death_1",
+      "thebrokenscript:chords/chord_death_2",
+      "thebrokenscript:chords/chord_death_3",
+      "thebrokenscript:chords/chord_death_4"
+    ]
+  },
+  "chord.shoot": {
+    "sounds": [
+      "thebrokenscript:chords/chord_shoot_1",
+      "thebrokenscript:chords/chord_shoot_2",
+      "thebrokenscript:chords/chord_shoot_3",
+      "thebrokenscript:chords/chord_shoot_4"
+    ]
+  },
+  "chord.spawn": {
+    "sounds": [
+      "thebrokenscript:chords/chord_spawn_1",
+      "thebrokenscript:chords/chord_spawn_2",
+      "thebrokenscript:chords/chord_spawn_3",
+      "thebrokenscript:chords/chord_spawn_4"
+    ]
+  },
+  "circuit_chase": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:circuit_chase",
+        "stream": true
+      }
+    ]
+  },
+  "circuit_deceive": {
+    "sounds": [
+      "thebrokenscript:circuit_deceive"
+    ]
+  },
+  "circuit_intro": {
+    "sounds": [
+      "thebrokenscript:circuit_intro"
+    ]
+  },
+  "circuit_jumpscare_sound": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:circuit_jumpscare",
+        "volume": 0.2
+      },
+      "thebrokenscript:circuit_jumpscare_sound"
+    ]
+  },
+  "concrete_amb": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/concrete",
+        "stream": true
+      }
+    ]
+  },
+  "credits": {
+    "sounds": [
+      "thebrokenscript:credits"
+    ],
+    "subtitle": "subtitles.thebrokenscript.credits"
+  },
+  "cursed_music": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/sweden",
+        "stream": true
+      },
+      {
+        "name": "thebrokenscript:ambience/living_mice",
+        "stream": true
+      },
+      {
+        "name": "thebrokenscript:ambience/haggstrom",
+        "stream": true
+      },
+      {
+        "name": "thebrokenscript:ambience/minecraft",
+        "stream": true
+      },
+      {
+        "name": "thebrokenscript:ambience/excuse",
+        "stream": true
+      }
+    ]
+  },
+  "curved/curved_hurt": {
+    "sounds": [
+      "thebrokenscript:curved/curved_hurt"
+    ]
+  },
+  "curved/curved_idle": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:curved/curved_idle",
+        "stream": true
+      }
+    ]
+  },
+  "curved/curved_notice1": {
+    "sounds": [
+      "thebrokenscript:curved/curved_notice1"
+    ],
+    "subtitle": "subtitles.thebrokenscript.curved.curved_notice1"
+  },
+  "curved/curved_notice2": {
+    "sounds": [
+      "thebrokenscript:curved/curved_notice2"
+    ],
+    "subtitle": "subtitles.thebrokenscript.curved.curved_notice2"
+  },
+  "curved/curved_notice3": {
+    "sounds": [
+      "thebrokenscript:curved/curved_notice3"
+    ],
+    "subtitle": "subtitles.thebrokenscript.curved.curved_notice3"
+  },
+  "curved/curved_notice4": {
+    "sounds": [
+      "thebrokenscript:curved/curved_notice4"
+    ],
+    "subtitle": "subtitles.thebrokenscript.curved.curved_notice4"
+  },
+  "curved/curved_notice5": {
+    "sounds": [
+      "thebrokenscript:curved/curved_notice5"
+    ],
+    "subtitle": "subtitles.thebrokenscript.curved.curved_notice5"
+  },
+  "curved/curved_notice6": {
+    "sounds": [
+      "thebrokenscript:curved/curved_notice6"
+    ],
+    "subtitle": "subtitles.thebrokenscript.curved.curved_notice6"
+  },
+  "curved/curved_step_1": {
+    "sounds": [
+      "thebrokenscript:curved/curved_step_1"
+    ]
+  },
+  "curved/curved_step_2": {
+    "sounds": [
+      "thebrokenscript:curved/curved_step_2"
+    ]
+  },
+  "curved/curved_step_3": {
+    "sounds": [
+      "thebrokenscript:curved/curved_step_3"
+    ]
+  },
+  "curved/curved_step_4": {
+    "sounds": [
+      "thebrokenscript:curved/curved_step_4"
+    ]
+  },
+  "curved/curved_step_5": {
+    "sounds": [
+      "thebrokenscript:curved/curved_step_5"
+    ]
+  },
+  "curved_spawn": {
+    "sounds": [
+      "thebrokenscript:curved_spawn"
+    ]
+  },
+  "disc15_betray": {
+    "sounds": [
+      "thebrokenscript:disc15_betray"
+    ]
+  },
+  "disc16_youcant": {
+    "sounds": [
+      "thebrokenscript:disc16_youcant"
+    ]
+  },
+  "disc17": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:disc17_silenced",
+        "volume": 0.6
+      }
+    ]
+  },
+  "false_calm_2": {
+    "sounds": [
+      "thebrokenscript:false_calm_2"
+    ]
+  },
+  "false_subwoofer_lullaby": {
+    "sounds": [
+      "thebrokenscript:false_subwoofer_lullaby"
+    ]
+  },
+  "fardaway": {
+    "sounds": [
+      "thebrokenscript:funny/fardaway",
+      "thebrokenscript:fardaway"
+    ]
+  },
+  "fever.wind": {
+    "sounds": [
+      "thebrokenscript:fever/wind"
+    ]
+  },
+  "fever.wing": {
+    "sounds": [
+      "thebrokenscript:fever/wing1",
+      "thebrokenscript:fever/wing2",
+      "thebrokenscript:fever/wing3",
+      "thebrokenscript:fever/wing4"
+    ]
+  },
+  "follow_chase_loop": {
+    "sounds": [
+      "thebrokenscript:follow_chase_loop"
+    ]
+  },
+  "glitch_overlay": {
+    "sounds": [
+      "thebrokenscript:glitch_overlay"
+    ],
+    "subtitle": "subtitles.thebrokenscript.glitch_overlay"
+  },
+  "glitch_sound_1": {
+    "sounds": [
+      "thebrokenscript:glitch_sound_1"
+    ]
+  },
+  "gore_break": {
+    "sounds": [
+      "thebrokenscript:gore_break_0",
+      "thebrokenscript:gore_break_1",
+      "thebrokenscript:gore_break_2"
+    ]
+  },
+  "gore_dig": {
+    "sounds": [
+      "thebrokenscript:gore_dig_0",
+      "thebrokenscript:gore_dig_1"
+    ]
+  },
+  "hallucination_fade": {
+    "sounds": [
+      "thebrokenscript:hallucination_fade"
+    ]
+  },
+  "heartbeat": {
+    "sounds": [
+      "thebrokenscript:heartbeat"
+    ]
+  },
+  "inf_stairs_ambience": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/infinite_stairs",
+        "stream": true
+      }
+    ]
+  },
+  "instability": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:instability",
+        "stream": true
+      }
+    ]
+  },
+  "instability_music_box": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:instability_music_box",
+        "stream": true
+      }
+    ]
+  },
+  "instability_v2": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:instability_v2",
+        "stream": true
+      }
+    ]
+  },
+  "instability_v3": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:instability_v3",
+        "stream": true
+      }
+    ]
+  },
+  "integrity.boss_end": {
+    "sounds": [
+      "thebrokenscript:integrity/boss_end"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.boss_end"
+  },
+  "integrity.boss_p1": {
+    "sounds": [
+      "thebrokenscript:integrity/boss_p1"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.boss_p1"
+  },
+  "integrity.boss_p1_bridge": {
+    "sounds": [
+      "thebrokenscript:integrity/boss_p1_bridge"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.boss_p1_bridge"
+  },
+  "integrity.boss_p2": {
+    "sounds": [
+      "thebrokenscript:integrity/boss_p2"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.boss_p2"
+  },
+  "integrity.boss_p2_bridge": {
+    "sounds": [
+      "thebrokenscript:integrity/boss_p2_bridge"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.boss_p2_bridge"
+  },
+  "integrity.boss_p3": {
+    "sounds": [
+      "thebrokenscript:integrity/boss_p3"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.boss_p3"
+  },
+  "integrity.integrity_intro": {
+    "sounds": [
+      "thebrokenscript:integrity/integrity_intro"
+    ],
+    "subtitle": "subtitles.thebrokenscript.integrity.integrity_intro"
+  },
+  "integrity_dies": {
+    "sounds": [
+      "thebrokenscript:integrity_dies"
+    ]
+  },
+  "integrity_watching": {
+    "sounds": [
+      "thebrokenscript:integrity_watching"
+    ]
+  },
+  "jimbob.full": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:boss/jimbob_full",
+        "stream": true,
+        "volume": 0.4
+      }
+    ]
+  },
+  "jimbob.intro": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:boss/jimbob_intro",
+        "stream": true,
+        "volume": 0.65
+      }
+    ]
+  },
+  "jimbob.loop": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:boss/jimbob_loop",
+        "stream": true,
+        "volume": 0.65
+      }
+    ]
+  },
+  "jimmy.moonrise.p1": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:jimmy/moonrise_p1",
+        "preload": true
+      }
+    ]
+  },
+  "jimmy.moonrise.p2": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:jimmy/moonrise_p2",
+        "preload": true
+      }
+    ]
+  },
+  "jimmy.moonrise.p3": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:jimmy/moonrise_p3",
+        "preload": true
+      }
+    ]
+  },
+  "jimmy.roar": {
+    "sounds": [
+      "thebrokenscript:jimmy/roar"
+    ]
+  },
+  "jimmy.spawn": {
+    "sounds": [
+      "thebrokenscript:jimmy/spawn"
+    ]
+  },
+  "jimmy.step": {
+    "sounds": [
+      "thebrokenscript:jimmy/step1",
+      "thebrokenscript:jimmy/step2",
+      "thebrokenscript:jimmy/step3",
+      "thebrokenscript:jimmy/step4"
+    ]
+  },
+  "jimmy.stun": {
+    "sounds": [
+      "thebrokenscript:jimmy/stun"
+    ]
+  },
+  "jon.hello": {
+    "sounds": [
+      "thebrokenscript:jon/hello"
+    ],
+    "subtitle": "subtitles.thebrokenscript.jon.hello"
+  },
+  "jon.play": {
+    "sounds": [
+      "thebrokenscript:jon/play"
+    ],
+    "subtitle": "subtitles.thebrokenscript.jon.play"
+  },
+  "kerfur_meow": {
+    "sounds": [
+      "thebrokenscript:e/kerfur_meow_1",
+      "thebrokenscript:e/kerfur_meow_2",
+      "thebrokenscript:e/kerfur_meow_3"
+    ],
+    "subtitle": "subtitles.thebrokenscript.kerfur_meow"
+  },
+  "kills_player": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:null_kills_player",
+        "volume": 0.035
+      },
+      "thebrokenscript:kills_player"
+    ]
+  },
+  "library": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/library",
+        "stream": true,
+        "volume": 0.45
+      }
+    ]
+  },
+  "lilly_theme": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:lilly_theme",
+        "stream": true
+      }
+    ]
+  },
+  "lilly_theme_v2": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:lilly_theme_v2",
+        "stream": true
+      }
+    ]
+  },
+  "limbo_amb": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/limbo",
+        "stream": true
+      }
+    ]
+  },
+  "lucid_blocks": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:lucid_blocks_easteregg/lucid_fever",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.thebrokenscript.lucid_blocks"
+  },
+  "maze_chase": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:maze_chase",
+        "stream": true
+      }
+    ]
+  },
+  "mazesfx": {
+    "sounds": [
+      "thebrokenscript:mazesfx",
+      "thebrokenscript:sfx/mazesfx1",
+      "thebrokenscript:mazesfx",
+      "thebrokenscript:sfx/mazesfx2"
+    ]
+  },
+  "menu_music": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:music/menu1",
+        "stream": true,
+        "volume": 0.3
+      },
+      {
+        "name": "thebrokenscript:music/menu2",
+        "stream": true,
+        "volume": 0.3
+      },
+      {
+        "name": "thebrokenscript:music/menu3",
+        "stream": true,
+        "volume": 0.3
+      },
+      {
+        "name": "thebrokenscript:music/menu4",
+        "stream": true,
+        "volume": 0.3
+      }
+    ],
+    "subtitle": "subtitles.thebrokenscript.menu_music"
+  },
+  "moon_crack": {
+    "sounds": [
+      "thebrokenscript:moon_crack",
+      "thebrokenscript:the_moon"
+    ]
+  },
+  "moon_glitch": {
+    "sounds": [
+      "thebrokenscript:moon_glitch"
+    ],
+    "subtitle": "subtitles.thebrokenscript.moon_glitch"
+  },
+  "murderfur_phase_1": {
+    "sounds": [
+      "thebrokenscript:e/murderfur_phase_1"
+    ]
+  },
+  "murderfur_phase_2": {
+    "sounds": [
+      "thebrokenscript:e/murderfur_phase_2"
+    ]
+  },
+  "murderfur_phase_3": {
+    "sounds": [
+      "thebrokenscript:e/murderfur_phase_3"
+    ]
+  },
+  "nowhere_amb": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:ambience/nowhere",
+        "stream": true
+      }
+    ]
+  },
+  "null_chase": {
+    "sounds": [
+      "thebrokenscript:null_chase",
+      {
+        "name": "thebrokenscript:null/instance",
+        "volume": 0.85
+      }
+    ]
+  },
+  "null_dimension_ambient": {
+    "sounds": [
+      "thebrokenscript:null_dimension_ambient"
+    ]
+  },
+  "null_flee": {
+    "sounds": [
+      "thebrokenscript:null_flee"
+    ]
+  },
+  "null_is_here_loop": {
+    "sounds": [
+      "thebrokenscript:null_is_here_loop"
+    ]
+  },
+  "null_jumpscare_notloudanymore": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:null_jumpscare_loud",
+        "volume": 0.01
+      },
+      "thebrokenscript:null_jumpscare_notloudanymore"
+    ]
+  },
+  "null_sad": {
+    "sounds": [
+      "thebrokenscript:null_sad"
+    ]
+  },
+  "null_sound_2": {
+    "sounds": [
+      "thebrokenscript:null_sound_2"
+    ]
+  },
+  "oblit/obliterationspeech": {
+    "sounds": [
+      "thebrokenscript:oblit/obliterationspeech"
+    ]
+  },
+  "one_of_us": {
+    "sounds": [
+      "thebrokenscript:one_of_us"
+    ]
+  },
+  "phantom": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:phantom_disappear",
+        "volume": 0.15
+      },
+      "thebrokenscript:phantom"
+    ]
+  },
+  "plush.dominik.squish": {
+    "sounds": [
+      "thebrokenscript:plush/dominik"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.dominik.squish"
+  },
+  "plush.ebridger.squish": {
+    "sounds": [
+      "thebrokenscript:plush/ebridger"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.ebridger.squish"
+  },
+  "plush.eyae.squish": {
+    "sounds": [
+      "thebrokenscript:plush/eyae"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.eyae.squish"
+  },
+  "plush.garreth.squish": {
+    "sounds": [
+      "thebrokenscript:plush/garreth"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.garreth.squish"
+  },
+  "plush.hermit.squish": {
+    "sounds": [
+      "thebrokenscript:plush/hermit"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.hermit.squish"
+  },
+  "plush.lost.squish": {
+    "sounds": [
+      "thebrokenscript:plush/lost"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.lost.squish"
+  },
+  "plush.lovemist.squish": {
+    "sounds": [
+      "thebrokenscript:plush/l0v3m1st"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.lovemist.squish"
+  },
+  "plush.nahbro.squish": {
+    "sounds": [
+      "thebrokenscript:plush/nahbro"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.nahbro.squish"
+  },
+  "plush.pyrit.squish": {
+    "sounds": [
+      "thebrokenscript:plush/pyrit"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.pyrit.squish"
+  },
+  "plush.redstone.squish": {
+    "sounds": [
+      "thebrokenscript:plush/redstone"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.redstone.squish"
+  },
+  "plush.stevelocks.squish": {
+    "sounds": [
+      "thebrokenscript:plush/stevelocks"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.stevelocks.squish"
+  },
+  "plush.tekkit.squish": {
+    "sounds": [
+      "thebrokenscript:plush/tekkit"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.tekkit.squish"
+  },
+  "plush.zetos.squish": {
+    "sounds": [
+      "thebrokenscript:plush/zetos"
+    ],
+    "subtitle": "subtitles.thebrokenscript.plush.zetos.squish"
+  },
+  "psst": {
+    "sounds": [
+      "thebrokenscript:psst"
+    ]
+  },
+  "purgatory_ambience": {
+    "sounds": [
+      "thebrokenscript:purgatory_ambience"
+    ]
+  },
+  "random_song": {
+    "sounds": [
+      "thebrokenscript:random_song"
+    ]
+  },
+  "rare_thing_spawn": {
+    "sounds": [
+      "thebrokenscript:rare_thing_spawn"
+    ]
+  },
+  "record14": {
+    "sounds": [
+      "thebrokenscript:record14"
+    ]
+  },
+  "reel": {
+    "sounds": [
+      "thebrokenscript:reel"
+    ]
+  },
+  "siluet_chase": {
+    "sounds": [
+      "thebrokenscript:siluet_chase"
+    ]
+  },
+  "spider_noise": {
+    "sounds": [
+      "thebrokenscript:spider_noise"
+    ]
+  },
+  "spider_walk": {
+    "sounds": [
+      "thebrokenscript:spider_walk"
+    ]
+  },
+  "tape_hiss": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:tape_hiss",
+        "stream": true
+      }
+    ]
+  },
+  "tbe_intro": {
+    "sounds": [
+      "thebrokenscript:tbe_intro"
+    ]
+  },
+  "tbespawn1": {
+    "sounds": [
+      "thebrokenscript:tbespawn1"
+    ]
+  },
+  "tbespawn2": {
+    "sounds": [
+      "thebrokenscript:tbespawn2"
+    ]
+  },
+  "tbespawn3": {
+    "sounds": [
+      "thebrokenscript:tbespawn3"
+    ]
+  },
+  "tekkit.gun": {
+    "sounds": [
+      "thebrokenscript:tekkit/bang_1",
+      "thebrokenscript:tekkit/bang_2",
+      "thebrokenscript:tekkit/bang_3",
+      "thebrokenscript:tekkit/bang_4",
+      "thebrokenscript:tekkit/bang_5",
+      "thebrokenscript:tekkit/pew_1",
+      "thebrokenscript:tekkit/pew_2",
+      "thebrokenscript:tekkit/pew_3",
+      "thebrokenscript:tekkit/pew_4",
+      "thebrokenscript:tekkit/pew_5",
+      "thebrokenscript:tekkit/pew_5",
+      "thebrokenscript:tekkit/pow"
+    ]
+  },
+  "text_madness_1": {
+    "sounds": [
+      "thebrokenscript:text_madness_1"
+    ]
+  },
+  "the_broken_end_chase": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:the_broken_end_chase",
+        "stream": true
+      }
+    ]
+  },
+  "the_end_is_near": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:the_end_is_near",
+        "volume": 0.45
+      }
+    ]
+  },
+  "tick": {
+    "sounds": [
+      "thebrokenscript:tick"
+    ]
+  },
+  "tock": {
+    "sounds": [
+      "thebrokenscript:tock"
+    ]
+  },
+  "transform": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:curved/curved_transform",
+        "volume": 0.05
+      },
+      "thebrokenscript:transform"
+    ]
+  },
+  "travel": {
+    "sounds": [
+      "thebrokenscript:travel"
+    ]
+  },
+  "travel_broken": {
+    "sounds": [
+      "thebrokenscript:travel_broken"
+    ]
+  },
+  "trevoga": {
+    "sounds": [
+      "thebrokenscript:trevoga"
+    ],
+    "subtitle": "subtitles.thebrokenscript.trevoga"
+  },
+  "vhs_scratch": {
+    "sounds": [
+      "thebrokenscript:vhs_scratch"
+    ]
+  },
+  "video/alpha3": {
+    "sounds": [
+      {
+        "name": "thebrokenscript:video/alpha3",
+        "stream": true
+      }
+    ]
+  },
+  "white_noise": {
+    "sounds": [
+      "thebrokenscript:white_noise"
+    ]
+  },
+  "woodsfx": {
+    "sounds": [
+      "thebrokenscript:woodsfx",
+      "thebrokenscript:sfx/woodsfx1",
+      "thebrokenscript:woodsfx",
+      "thebrokenscript:sfx/woodsfx2"
+    ]
+  },
+  "you_know_nothing": {
+    "sounds": [
+      "thebrokenscript:you_know_nothing"
+    ]
+  },
+  "you_will_regret_that": {
+    "sounds": [
+      "thebrokenscript:you_will_regret_that"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "thebrokenscript:brickmooncut_chiseled_moonstone"
+    },
+    "tags": [
+      "stonecutter"
+    ],
+    "ingredients": [
+      {
+        "item": "thebrokenscript:moon_stone_bricks"
+      }
+    ],
+    "result": {
+      "item": "thebrokenscript:chiseled_moon_stone_bricks",
+      "count": 1
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    }
+  }
+}

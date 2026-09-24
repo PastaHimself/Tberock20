@@ -1,0 +1,53 @@
+{
+  "blend": { "func": "add", "srcrgb": "one", "dstrgb": "zero" },
+  "vertex": "thebrokenscript:blit_inverse_mat",
+  "fragment": "thebrokenscript:void_box",
+  "attributes": ["Position"],
+  "samplers": [
+      { "name": "DiffuseSampler" },
+      { "name": "DiffuseDepthSampler" }
+  ],
+  "uniforms": [
+    {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values":
+      [
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+      ]
+    },
+      {
+          "name": "InverseTransformMatrix",
+          "type": "matrix4x4",
+          "count": 16,
+          "values":
+          [
+              1.0, 0.0, 0.0, 0.0,
+              0.0, 1.0, 0.0, 0.0,
+              0.0, 0.0, 1.0, 0.0,
+              0.0, 0.0, 0.0, 1.0
+          ]
+      },
+      { "name": "CameraPos","type": "float",     "count": 3,  "values": [ 0.0, 0.0, 0.0 ]},
+      { "name": "T","type": "float",     "count": 1,  "values": [ 0.0]},
+      { "name": "MinBounds","type": "float",     "count": 3,  "values": [0.0,0.0,0.0]},
+      { "name": "MaxBounds","type": "float",     "count": 3,  "values": [0.0,0.0,0.0]},
+
+      {
+      "name": "InSize",
+      "type": "float",
+      "count": 2,
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "OutSize",
+      "type": "float",
+      "count": 2,
+      "values": [1.0, 1.0]
+    }
+  ]
+}

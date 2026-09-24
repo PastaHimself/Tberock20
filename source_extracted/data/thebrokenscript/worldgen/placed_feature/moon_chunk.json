@@ -1,0 +1,21 @@
+{
+  "feature": "thebrokenscript:moon_chunk",
+  "placement": [
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "WORLD_SURFACE_WG"
+    },
+    {
+      "type": "minecraft:random_offset",
+      "xz_spread": 0,
+      "y_spread": {
+        "type": "minecraft:constant",
+        "value": -2
+      }
+    },
+    {
+      "type": "minecraft:rarity_filter",
+      "chance": 400
+    }
+  ]
+}

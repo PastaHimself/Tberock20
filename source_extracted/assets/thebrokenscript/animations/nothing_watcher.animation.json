@@ -1,0 +1,36 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"blink": {
+			"animation_length": 2,
+			"bones": {
+				"eyes": {
+					"scale": {
+						"0.0": {
+							"vector": [1, 1, 1]
+						},
+						"0.125": {
+							"pre": [1, 0, 1],
+							"post": [1, 0, 1],
+							"easing": "step",
+							"easingArgs": [2]
+						},
+						"0.25": {
+							"pre": [1, 1, 1],
+							"post": [1, 1, 1],
+							"easing": "step",
+							"easingArgs": [2]
+						},
+						"2.0": {
+							"pre": [1, 1, 1],
+							"post": [1, 1, 1],
+							"easing": "step",
+							"easingArgs": [2]
+						}
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

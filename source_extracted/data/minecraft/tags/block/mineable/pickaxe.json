@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:concrete",
+    "thebrokenscript:obsidian",
+    "thebrokenscript:moon_stone",
+    "thebrokenscript:moon_stone_bricks",
+    "thebrokenscript:moon_stone_brick_stairs",
+    "thebrokenscript:moon_stone_brick_slab",
+    "thebrokenscript:moon_stone_brick_wall",
+    "thebrokenscript:corrupted_moon_stone_bricks",
+    "thebrokenscript:chiseled_moon_stone_bricks",
+    "thebrokenscript:polished_moon_stone",
+    "thebrokenscript:polished_moon_stone_stairs",
+    "thebrokenscript:polished_moon_stone_slab",
+    "thebrokenscript:polished_moon_stone_wall"
+  ]
+}

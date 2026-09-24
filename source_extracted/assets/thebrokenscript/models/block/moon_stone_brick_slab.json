@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "thebrokenscript:block/moon_stone_bricks",
+    "side": "thebrokenscript:block/moon_stone_bricks",
+    "top": "thebrokenscript:block/moon_stone_bricks"
+  }
+}

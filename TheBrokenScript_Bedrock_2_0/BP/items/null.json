@@ -1,0 +1,17 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "thebrokenscript:null",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "null_item",
+      "minecraft:display_name": {
+        "value": "item.thebrokenscript.null"
+      }
+    }
+  }
+}

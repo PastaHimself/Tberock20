@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "thebrokenscript:block/command_block_giver"
+    }
+  }
+}

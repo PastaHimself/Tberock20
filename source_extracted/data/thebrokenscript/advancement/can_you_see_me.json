@@ -1,0 +1,25 @@
+{
+  "criteria": {
+    "_empty": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "background": "minecraft:textures/block/stone.png",
+    "description": {
+      "translate": "advancement.thebrokenscript.can_you_see_me.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "thebrokenscript:all_dead"
+    },
+    "title": {
+      "translate": "advancement.thebrokenscript.can_you_see_me.title"
+    }
+  },
+  "requirements": [
+    [
+      "_empty"
+    ]
+  ]
+}

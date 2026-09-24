@@ -1,0 +1,24 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:dirt_path",
+    "minecraft:farmland",
+    "minecraft:snow_block",
+    "minecraft:powder_snow",
+    "minecraft:water",
+    "minecraft:ancient_debris",
+    "thebrokenscript:obsidian",
+    "thebrokenscript:r_3",
+    "#minecraft:coal_ores",
+    "#minecraft:iron_ores",
+    "#minecraft:gold_ores",
+    "#minecraft:diamond_ores",
+    "#minecraft:emerald_ores",
+    "#minecraft:lapis_ores",
+    "#minecraft:redstone_ores",
+    "#minecraft:copper_ores",
+    "#minecraft:sculk_replaceable",
+    "#minecraft:dirt",
+    "#minecraft:ice"
+  ]
+}

@@ -1,0 +1,1010 @@
+import { world, system, EquipmentSlot, EntityDamageCause } from "@minecraft/server";
+import * as operationDiagnostics from "../../core/operation_diagnostics.js";
+import * as bossHooks from "../../systems/boss_hooks.js";
+import * as perf from "../../systems/perf.js";
+import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
+import {
+  GROUND_ARM_SOURCE,
+  GROUND_ATTACK_SOURCE,
+  PHASE3_SOURCE,
+  aabbIntersects,
+  phase3BoundaryKillStep,
+  phase3TentacleCandidatePosition,
+  groundArmImpactPlan,
+  groundArmLifecycleStep,
+  groundAttackStep,
+} from "../../systems/integrity_arena_model.js";
+import {
+  FIREBALL_ATTACK_SOURCE,
+  FIREBALL_BEDROCK_ADAPTER,
+  GRAVITY_ATTACK_SOURCE,
+  GRAVITY_BEDROCK_ADAPTER,
+  PHASE3_ATTACK,
+  PHASE3_LIFECYCLE_SOURCE,
+  TENTACLES_ATTACK_SOURCE,
+  TENTACLE_SWIPE_SOURCE,
+  fireballAttackStep,
+  fireballImpactPlan,
+  fireballSegmentHitPlan,
+  gravityAttackStep,
+  phase3AttackCooldown,
+  phase3AttackLength,
+  phase3DamagePlan,
+  phase3DeathStep,
+  maceAttackIsEligible,
+  selectPhase3ImplementedAttack,
+  tentaclesAttackCanUse,
+  tentaclesAttackImpactPlan,
+  tentacleSwipeCenter,
+  tentacleSwipeImpactPlan,
+} from "../../systems/phase3_attack_model.js";
+
+const RUNTIME_FAMILY = "thebrokenscript_phase3_runtime";
+const DYING_TAG = "thebrokenscript.dying";
+const states = new Map();
+const armOwners = new Map();
+const projectileStates = new Map();
+const pendingHurtFrames = new Map();
+const pendingMaceParryCooldowns = new Map();
+const pendingDeaths = new Map();
+let gravityActiveThisTick = false;
+let damageHookInstalled = false;
+let participantIds = null;
+
+function distance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+function callEntityMethod(entity, name, ...args) {
+  try {
+    const method = entity?.[name];
+    return typeof method === "function" ? method.call(entity, ...args) : undefined;
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.62", "best-effort Bedrock API fallback", error);
+    return undefined;
+  }
+}
+
+function isValid(entity) {
+  if (!entity) return false;
+  try { return entity.isValid !== false; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.69", "best-effort Bedrock API fallback", error); return false; }
+}
+
+function health(entity) {
+  try { return entity.getComponent("minecraft:health")?.currentValue ?? 0; } catch (error) {
+    operationDiagnostics.warnOnce("phase3.health", "phase3: health query failed; using zero fallback", error);
+    return 0;
+  }
+}
+
+function isLiving(entity) {
+  return isValid(entity) && health(entity) > 0;
+}
+
+function entityAabb(entity) {
+  try { return entity.getAABB(); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.aabb", "phase3: AABB query failed; preserving no-contact fallback", error);
+    return undefined;
+  }
+}
+
+function isOnGround(entity) {
+  try {
+    const value = entity.isOnGround;
+    return typeof value === "function" ? value.call(entity) === true : value === true;
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.94", "best-effort Bedrock API fallback", error);
+    return false;
+  }
+}
+
+function isStuck(entity) {
+  if (callEntityMethod(entity, "hasTag", "thebrokenscript.stuck") === true) return true;
+  return callEntityMethod(entity, "getProperty", "thebrokenscript:stuck") === true;
+}
+
+function setStuck(entity, stuck) {
+  if (!isValid(entity)) return;
+  if (stuck) {
+    callEntityMethod(entity, "addTag", "thebrokenscript.stuck");
+    callEntityMethod(entity, "setProperty", "thebrokenscript:stuck", true);
+  } else {
+    callEntityMethod(entity, "removeTag", "thebrokenscript.stuck");
+    callEntityMethod(entity, "setProperty", "thebrokenscript:stuck", false);
+  }
+}
+
+function isDying(entity) {
+  if (callEntityMethod(entity, "hasTag", DYING_TAG) === true) return true;
+  return callEntityMethod(entity, "getProperty", "thebrokenscript:dying") === true;
+}
+
+function setDying(entity, dying) {
+  if (!isValid(entity)) return;
+  if (dying) {
+    callEntityMethod(entity, "addTag", DYING_TAG);
+    callEntityMethod(entity, "setProperty", "thebrokenscript:dying", true);
+  } else {
+    callEntityMethod(entity, "removeTag", DYING_TAG);
+    callEntityMethod(entity, "setProperty", "thebrokenscript:dying", false);
+  }
+}
+
+function dimensions() {
+  const result = [];
+  for (const id of ["overworld", "nether", "the_end", "thebrokenscript:stage2", "thebrokenscript:void_shadow"]) {
+    const dim = perf.dim(id);
+    if (dim) result.push(dim);
+  }
+  return result;
+}
+
+function runtimeEntities(dim) {
+  try { return dim.getEntities({ families: [RUNTIME_FAMILY] }); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.entity_query", "phase3: runtime entity query failed", error);
+    return [];
+  }
+}
+
+function rosterPlayers() {
+  try {
+    return world.getAllPlayers().filter((player) => (
+      participantIds === null || participantIds.has(player.id)
+    ));
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.player_query", "phase3: participant query failed", error);
+    return [];
+  }
+}
+
+function nearestPlayer(entity, fixedId = null) {
+  const candidates = rosterPlayers().filter((player) => {
+    try {
+      if (player.dimension.id !== entity.dimension.id || !isLiving(player)) return false;
+      return fixedId === null || player.id === fixedId;
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.163", "best-effort Bedrock API fallback", error);
+      return false;
+    }
+  });
+  candidates.sort((a, b) => distance(entity.location, a.location) - distance(entity.location, b.location));
+  return candidates[0] ?? null;
+}
+
+function spawnAt(dim, typeId, loc) {
+  try { return dim.spawnEntity(typeId, loc); } catch (error) {
+    operationDiagnostics.warnOnce(`phase3.spawn.${typeId}`, `phase3: failed to spawn ${typeId}; preserving no-spawn fallback`, error);
+    return undefined;
+  }
+}
+
+function removeEntity(entity) {
+  try { entity.remove(); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.remove", "phase3: entity removal failed", error);
+  }
+  states.delete(entity.id);
+  armOwners.delete(entity.id);
+  projectileStates.delete(entity.id);
+  pendingHurtFrames.delete(entity.id);
+  pendingMaceParryCooldowns.delete(entity.id);
+  pendingDeaths.delete(entity.id);
+}
+
+function applyEntityAttack(
+  attacker,
+  target,
+  damage,
+  cause = EntityDamageCause.entityAttack,
+  sourceId = null,
+  attributionEntity = null,
+) {
+  if (sourceId) {
+    return applyDamageWithSource(target, damage, sourceId, {
+      cause,
+      damagingEntity: attributionEntity ?? attacker,
+      damagingProjectile: cause === EntityDamageCause.projectile ? attacker : null,
+    }).accepted;
+  }
+  try {
+    target.applyDamage(damage, { cause, damagingEntity: attacker });
+    return true;
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.attack_damage", "phase3: attributed attack failed; using un-attributed fallback", error);
+    try { target.applyDamage(damage); return true; } catch (fallbackError) {
+      operationDiagnostics.errorOnce("phase3.attack_damage_fallback", "phase3: attack damage fallback failed", fallbackError);
+      return false;
+    }
+  }
+}
+
+function damageSourceKind(event) {
+  const cause = event.damageSource?.cause;
+  const source = event.damageSource?.damagingEntity;
+  const projectile = event.damageSource?.damagingProjectile;
+  if (cause === EntityDamageCause.void) return "void";
+  if (cause === EntityDamageCause.selfDestruct) return "self_destruct";
+  // Bedrock's override cause is the closest stable cause for an indirect
+  // health/kill operation; Java calls this GENERIC_KILL in the source entity.
+  if (cause === EntityDamageCause.override) return "generic_kill";
+  if (source?.typeId === "thebrokenscript:integ_fireball"
+    || projectile?.typeId === "thebrokenscript:integ_fireball") return "integ_fireball";
+  if (source?.typeId === "minecraft:player") return "player";
+  return "other";
+}
+
+function phase3DamageState(entity) {
+  const state = states.get(entity.id);
+  return {
+    dying: state?.dying === true || isDying(entity) || pendingDeaths.has(entity.id),
+    hurtFrames: Math.max(state?.hurtFrames ?? 0, pendingHurtFrames.get(entity.id) ?? 0),
+    maceParryCooldown: Math.max(
+      state?.maceParryCooldown ?? 0,
+      pendingMaceParryCooldowns.get(entity.id) ?? 0,
+    ),
+    stuck: isStuck(entity),
+  };
+}
+
+function storePhase3DamageState(entity, plan) {
+  const state = states.get(entity.id);
+  if (state) {
+    state.hurtFrames = Math.max(state.hurtFrames, plan.hurtFrames);
+    if (plan.setMaceParryCooldown) {
+      state.maceParryCooldown = Math.max(
+        state.maceParryCooldown,
+        PHASE3_LIFECYCLE_SOURCE.maceParryWindowTicks,
+      );
+    }
+    return;
+  }
+  pendingHurtFrames.set(entity.id, Math.max(pendingHurtFrames.get(entity.id) ?? 0, plan.hurtFrames));
+  if (plan.setMaceParryCooldown) {
+    pendingMaceParryCooldowns.set(
+      entity.id,
+      Math.max(
+        pendingMaceParryCooldowns.get(entity.id) ?? 0,
+        PHASE3_LIFECYCLE_SOURCE.maceParryWindowTicks,
+      ),
+    );
+  }
+}
+
+function queuePhase3Death(entity) {
+  if (!isValid(entity) || states.get(entity.id)?.dying === true || pendingDeaths.has(entity.id)) return;
+  pendingDeaths.set(entity.id, entity);
+  try {
+    system.run(() => {
+      const queued = pendingDeaths.get(entity.id);
+      if (!queued) return;
+      pendingDeaths.delete(entity.id);
+      if (isValid(queued)) beginPhase3Death(queued);
+    });
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.death_schedule", "phase3: death scheduling failed; clearing pending death", error);
+    pendingDeaths.delete(entity.id);
+  }
+}
+
+function beginPhase3Death(entity) {
+  if (!isValid(entity)) return;
+  const state = states.get(entity.id) ?? initPhase3(entity);
+  if (state.dying) return;
+
+  // Java sets dying, clears its target, finishes the current attack, and moves
+  // to Phase3.CENTER before the delayed super.die call. Bedrock has no direct
+  // target-clear/death-animation equivalent, so the tag/state and teleport
+  // are kept in this adapter and cleanup is driven by the same tick count.
+  state.dying = true;
+  state.deathTicks = 0;
+  finishAttack(entity, state);
+  setDying(entity, true);
+  try { entity.teleport(PHASE3_SOURCE.center); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.death_teleport", "phase3: death-center teleport failed", error);
+  }
+}
+
+function breakParriedMace(player) {
+  try {
+    const equippable = player.getComponent("minecraft:equippable");
+    const mainhand = equippable?.getEquipmentSlot(EquipmentSlot.Mainhand);
+    if (!mainhand?.hasItem() || mainhand.typeId !== "minecraft:mace") return;
+    const item = mainhand.getItem();
+    const durability = item?.getComponent("minecraft:durability");
+    if (!durability) return;
+    durability.damage = durability.maxDurability;
+    mainhand.setItem(item);
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.mace_break", "phase3: parried mace break operation failed", error);
+  }
+}
+
+function queueMaceParry(player) {
+  try { system.run(() => breakParriedMace(player)); } catch (error) {
+    operationDiagnostics.warnOnce("phase3.mace_schedule", "phase3: parried mace cleanup scheduling failed", error);
+  }
+}
+
+function mainhandItemId(player) {
+  try {
+    const slot = player.getComponent("minecraft:equippable")
+      ?.getEquipmentSlot(EquipmentSlot.Mainhand);
+    if (!slot?.hasItem()) return null;
+    return slot.getItem()?.typeId ?? slot.typeId ?? null;
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.330", "best-effort Bedrock API fallback", error);
+    return null;
+  }
+}
+
+function maceAttackFromEvent(event) {
+  const player = event.damageSource?.damagingEntity;
+  if (event.damageSource?.cause !== EntityDamageCause.maceSmash || player?.typeId !== "minecraft:player") {
+    return false;
+  }
+  const fallFlying = player.isFallFlying === true || player.isGliding === true;
+  // Bedrock exposes isFalling but not Java's fallDistance. A native maceSmash
+  // event is the supported evidence that the source threshold was reached.
+  const fallDistance = player.isFalling === true || !fallFlying ? 1.5 : 0;
+  return maceAttackIsEligible({
+    mainhandItemId: mainhandItemId(player),
+    fallDistance,
+    fallFlying,
+  });
+}
+
+function installDamageHook() {
+  if (damageHookInstalled) return;
+  damageHookInstalled = true;
+  try {
+    world.beforeEvents.entityHurt.subscribe((event) => {
+      const target = event.hurtEntity;
+      if (!target || target.typeId !== "thebrokenscript:integrity_phase_3") return;
+
+      const sourceKind = damageSourceKind(event);
+      const state = phase3DamageState(target);
+      const plan = phase3DamagePlan({
+        ...state,
+        sourceKind,
+        incomingAmount: event.damage,
+        maceAttack: sourceKind === "player" && maceAttackFromEvent(event),
+        targetHealth: health(target),
+      });
+
+      if (plan.setMaceParryCooldown) storePhase3DamageState(target, plan);
+      if (plan.parryMace) {
+        event.cancel = true;
+        queueMaceParry(event.damageSource?.damagingEntity);
+        return;
+      }
+      if (plan.beginDeath) {
+        event.cancel = true;
+        queuePhase3Death(target);
+        return;
+      }
+      if (!plan.apply) {
+        // IntegrityPhase3Entity.hurt returns false for all other entities and
+        // damage causes, including ordinary environmental damage.
+        event.cancel = true;
+        return;
+      }
+
+      event.damage = plan.amount;
+      storePhase3DamageState(target, plan);
+    });
+  } catch (error) {
+    operationDiagnostics.errorOnce("phase3.damage_subscription", "phase3: damage-event subscription failed", error);
+  }
+}
+
+function phase3SurfaceAirY(dim, x, z) {
+  try {
+    const top = dim.getTopmostBlock({ x, z });
+    const topY = top?.location?.y;
+    if (typeof topY !== "number") return null;
+    const y = topY + 1;
+    if (y > -40) return null;
+    const block = dim.getBlock({ x, y, z });
+    if (block && block.isAir !== true) return null;
+    return y;
+  } catch (error) {
+    operationDiagnostics.warnOnce("phase3.surface_probe", "phase3: surface-air probe failed", error);
+    return null;
+  }
+}
+
+function setTentacleScale2(tentacle) {
+  callEntityMethod(tentacle, "setProperty", "thebrokenscript:scale", 2);
+  callEntityMethod(tentacle, "triggerEvent", "thebrokenscript:scale_2");
+}
+
+function spawnPhase3Tentacles(entity, state) {
+  const rangeSpan = PHASE3_SOURCE.maxTentacleRangeExclusive - PHASE3_SOURCE.minTentacleRange;
+  for (
+    let index = PHASE3_SOURCE.tentacleCandidateIndexMin;
+    index <= PHASE3_SOURCE.tentacleCandidateIndexMaxInclusive;
+    index += 1
+  ) {
+    const range = PHASE3_SOURCE.minTentacleRange + Math.floor(Math.random() * rangeSpan);
+    const candidate = phase3TentacleCandidatePosition(index, range);
+    const y = phase3SurfaceAirY(entity.dimension, candidate.x, candidate.z);
+    if (y === null) continue;
+    const tentacle = spawnAt(entity.dimension, "thebrokenscript:void_tentacle", {
+      x: candidate.x + 0.5,
+      y,
+      z: candidate.z + 0.5,
+    });
+    if (tentacle?.id) state.tentacleIds.push(tentacle.id);
+  }
+  for (const preset of PHASE3_SOURCE.presetTentacles) {
+    const tentacle = spawnAt(entity.dimension, "thebrokenscript:void_tentacle", {
+      x: preset.x + 0.5,
+      y: preset.y,
+      z: preset.z + 0.5,
+    });
+    if (!tentacle) continue;
+    setTentacleScale2(tentacle);
+    if (tentacle.id) state.tentacleIds.push(tentacle.id);
+  }
+}
+
+function phase3Players(entity) {
+  return rosterPlayers()
+    .filter((player) => {
+      try { return player.dimension.id === entity.dimension.id; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.449", "best-effort Bedrock API fallback", error); return false; }
+    })
+    .map((player) => ({ id: player.id, entity: player }));
+}
+
+function applyVoidMass(player, integrity) {
+  try {
+    applyDamageWithSource(player, 1_000_000, "thebrokenscript:void_mass", {
+      cause: EntityDamageCause.void,
+      damagingEntity: integrity,
+    });
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.460", "best-effort Bedrock API fallback", error);}
+}
+
+function initPhase3(entity) {
+  const restoredDying = isDying(entity);
+  const state = {
+    phase3: true,
+    phase3TentaclesSpawned: false,
+    pendingKills: {},
+    tentacleIds: [],
+    currentAttack: PHASE3_ATTACK.NOOP,
+    previousAttack: null,
+    attackDelay: PHASE3_LIFECYCLE_SOURCE.initialAttackDelayTicks,
+    attackTicks: 0,
+    groundAttackTimer: 0,
+    groundAttackTargetId: null,
+    groundAttackTargetBlockPosition: null,
+    shotFireball: false,
+    stuckTimer: 0,
+    hurtFrames: pendingHurtFrames.get(entity.id) ?? 0,
+    maceParryCooldown: pendingMaceParryCooldowns.get(entity.id) ?? 0,
+    dying: restoredDying || pendingDeaths.has(entity.id),
+    deathTicks: 0,
+  };
+  states.set(entity.id, state);
+  pendingHurtFrames.delete(entity.id);
+  pendingMaceParryCooldowns.delete(entity.id);
+  // The Arena owner is the only module allowed to claim the global active
+  // flag. Standalone Phase 3 entities still work for regression/dev spawns,
+  // but do not end or overwrite an unrelated encounter.
+  if (participantIds !== null) bossHooks.setArenaState(true, false);
+  return state;
+}
+
+function finishAttack(entity, state) {
+  const finishedType = state.currentAttack;
+  state.attackDelay = phase3AttackCooldown(finishedType);
+  state.attackTicks = 0;
+  state.groundAttackTimer = 0;
+  state.groundAttackTargetId = null;
+  state.groundAttackTargetBlockPosition = null;
+  state.shotFireball = false;
+  state.stuckTimer = 0;
+  state.currentAttack = PHASE3_ATTACK.NOOP;
+  setStuck(entity, false);
+}
+
+function blockPositionOf(entity) {
+  return {
+    x: Math.floor(entity.location.x),
+    y: Math.floor(entity.location.y),
+    z: Math.floor(entity.location.z),
+  };
+}
+
+function setArmOwner(arm, owner) {
+  if (arm?.id && isValid(owner)) armOwners.set(arm.id, owner);
+}
+
+function getArmOwner(arm) {
+  const owner = armOwners.get(arm?.id);
+  if (!isValid(owner)) {
+    if (arm?.id) armOwners.delete(arm.id);
+    return null;
+  }
+  return owner;
+}
+
+function spawnGroundArm(owner, targetBlock) {
+  if (!targetBlock) return;
+  const arm = spawnAt(owner.dimension, "thebrokenscript:integrity_arm", {
+    x: targetBlock.x + 0.5,
+    y: targetBlock.y,
+    z: targetBlock.z + 0.5,
+  });
+  if (arm) {
+    setArmOwner(arm, owner);
+    states.set(arm.id, { groundArmTimer: 0, forwardedStuck: false });
+  }
+}
+
+function tickGroundAttack(entity, state) {
+  const target = nearestPlayer(entity, state.groundAttackTargetId);
+  const step = groundAttackStep({
+    timer: state.groundAttackTimer,
+    targetBlockPosition: state.groundAttackTargetBlockPosition,
+    targetBlock: target ? blockPositionOf(target) : null,
+    hasTarget: target !== null,
+    stuck: isStuck(entity),
+  });
+  state.groundAttackTimer = step.timer;
+  state.groundAttackTargetBlockPosition = step.targetBlockPosition;
+  if (target) {
+    try { entity.lookAt?.(target.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.553", "best-effort Bedrock API fallback", error);}
+  }
+  if (step.spawnArm) spawnGroundArm(entity, step.targetBlockPosition);
+}
+
+function fireballMuzzle(entity) {
+  return {
+    x: entity.location.x,
+    y: entity.location.y + FIREBALL_BEDROCK_ADAPTER.muzzleHeightFromFeet,
+    z: entity.location.z,
+  };
+}
+
+function spawnFireball(entity, target) {
+  const from = fireballMuzzle(entity);
+  const fireball = spawnAt(entity.dimension, "thebrokenscript:integ_fireball", from);
+  if (!fireball) return false;
+  projectileStates.set(fireball.id, {
+    ownerId: entity.id,
+    ownerEntity: entity,
+    dirX: target.location.x - from.x,
+    dirY: target.location.y + FIREBALL_BEDROCK_ADAPTER.playerTargetCenterHeight - from.y,
+    dirZ: target.location.z - from.z,
+    life: FIREBALL_BEDROCK_ADAPTER.maxLifetimeTicks,
+  });
+  return true;
+}
+
+function tickFireballAttack(entity, state) {
+  const target = nearestPlayer(entity);
+  if (target) {
+    try { entity.lookAt?.(target.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.584", "best-effort Bedrock API fallback", error);}
+  }
+  const step = fireballAttackStep({
+    attackTicks: state.attackTicks,
+    shotFireball: state.shotFireball,
+    hasTarget: target !== null,
+  });
+  if (step.launch && target) {
+    // Java launches from the animated righttendrils5 bone at the `ballin;`
+    // keyframe. Bedrock server scripts cannot read that client bone transform;
+    // the adapter uses the boss collision-volume midpoint and launches once.
+    if (spawnFireball(entity, target)) state.shotFireball = true;
+  }
+}
+
+function applyTentacleSwipeKnockback(player, impact) {
+  const force = impact.bedrockHorizontalForce;
+  try {
+    // Current stable Script API: applyKnockback(VectorXZ, verticalStrength).
+    player.applyKnockback(force, impact.bedrockVerticalStrength);
+    return;
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.605", "best-effort Bedrock API fallback", error);}
+  callEntityMethod(player, "applyImpulse", {
+    x: force.x,
+    y: impact.bedrockVerticalStrength,
+    z: force.z,
+  });
+}
+
+function tickTentacleSwipe(entity, state) {
+  if (state.attackTicks !== TENTACLE_SWIPE_SOURCE.hitTick) return;
+  const rotation = callEntityMethod(entity, "getRotation");
+  const center = tentacleSwipeCenter({
+    position: entity.location,
+    yawDegrees: Number.isFinite(rotation?.y) ? rotation.y : 0,
+  });
+  const candidates = rosterPlayers()
+    .filter((player) => player.dimension.id === entity.dimension.id && isLiving(player))
+    .map((player) => ({ id: player.id, entity: player, position: player.location }));
+  const impacts = tentacleSwipeImpactPlan({ center, players: candidates });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    applyEntityAttack(entity, candidate.entity, impact.damage);
+    applyTentacleSwipeKnockback(candidate.entity, impact);
+  }
+}
+
+function tickGravityAttack(state) {
+  const step = gravityAttackStep({ attackTicks: state.attackTicks });
+  if (step.flipGravity) gravityActiveThisTick = true;
+}
+
+function tentaclesPlayerRecords(entity) {
+  return rosterPlayers()
+    .filter((player) => {
+      try { return player.dimension.id === entity.dimension.id && isLiving(player); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.640", "best-effort Bedrock API fallback", error); return false; }
+    })
+    .map((player) => ({
+      id: player.id,
+      entity: player,
+      distance: distance(entity.location, player.location),
+      verticalOffset: player.location.y - entity.location.y,
+      dx: player.location.x - entity.location.x,
+      dz: player.location.z - entity.location.z,
+      onGround: isOnGround(player),
+    }));
+}
+
+function tickTentaclesAttack(entity, state) {
+  const candidates = tentaclesPlayerRecords(entity);
+  const impacts = tentaclesAttackImpactPlan({
+    attackTicks: state.attackTicks,
+    players: candidates,
+  });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    // Java uses the custom INTEGRITY_SHIELD_BYPASS damage type. The native
+    // entity-attack cause carries the engine attribution while the source id
+    // remains available to the same-tick Bedrock adapter ledger.
+    applyEntityAttack(entity, candidate.entity, impact.damage, EntityDamageCause.entityAttack, "thebrokenscript:integ_bypass");
+    if (impact.impulse) callEntityMethod(candidate.entity, "applyImpulse", impact.impulse);
+  }
+}
+
+function maybeSelectAttack(entity, state, target) {
+  if (state.currentAttack !== PHASE3_ATTACK.NOOP || !target || state.attackDelay > 0 || isStuck(entity)) return;
+  const tentaclesCandidates = tentaclesPlayerRecords(entity);
+  const selected = selectPhase3ImplementedAttack({
+    hasTarget: true,
+    attackDelay: state.attackDelay,
+    stuck: false,
+    distance: distance(entity.location, target.location),
+    previousAttack: state.previousAttack,
+    tentaclesUsable: tentaclesAttackCanUse({
+      hasTarget: true,
+      players: tentaclesCandidates,
+    }),
+    randomFloat: Math.random(),
+  });
+  if (selected === null) return;
+  state.previousAttack = selected;
+  state.currentAttack = selected;
+  state.attackTicks = 0;
+  state.groundAttackTimer = 0;
+  state.groundAttackTargetId = selected === PHASE3_ATTACK.GROUND_ATTACK ? target.id : null;
+  state.groundAttackTargetBlockPosition = null;
+  state.shotFireball = false;
+  if (selected === PHASE3_ATTACK.TENTACLES) {
+    // TentaclesAttack.setup stops navigation/movement and sets the boss stuck.
+    callEntityMethod(entity, "clearVelocity");
+    setStuck(entity, TENTACLES_ATTACK_SOURCE.setupStuck);
+  }
+}
+
+function tickPhase3(entity) {
+  const state = states.get(entity.id)?.phase3 ? states.get(entity.id) : initPhase3(entity);
+
+  if (state.dying || isDying(entity)) {
+    state.dying = true;
+    const death = phase3DeathStep({
+      dying: true,
+      deathTicks: state.deathTicks,
+    });
+    state.deathTicks = death.deathTicks;
+    if (death.remove) removeEntity(entity);
+    return;
+  }
+
+  // IntegrityPhase3Entity starts a 100-tick stuck timer when it is stuck while
+  // idle. Attacks clear stuck state when they finish.
+  if (isStuck(entity) && state.currentAttack === PHASE3_ATTACK.NOOP) {
+    if (state.stuckTimer <= 0) state.stuckTimer = PHASE3_LIFECYCLE_SOURCE.idleStuckTimeoutTicks;
+    else {
+      state.stuckTimer -= 1;
+      if (state.stuckTimer <= 0) setStuck(entity, false);
+    }
+  } else if (!isStuck(entity)) {
+    state.stuckTimer = 0;
+  }
+
+  if (!state.phase3TentaclesSpawned) {
+    state.phase3TentaclesSpawned = true;
+    spawnPhase3Tentacles(entity, state);
+  }
+
+  const players = phase3Players(entity);
+  const boundary = phase3BoundaryKillStep({
+    pendingKills: state.pendingKills,
+    players: players.map((player) => ({
+      id: player.id,
+      y: player.entity.location.y,
+      inStage3Dimension: player.entity.dimension.id === entity.dimension.id,
+    })),
+  });
+  state.pendingKills = boundary.pendingKills;
+  for (const id of boundary.killIds) {
+    const target = players.find((player) => player.id === id);
+    if (target) applyVoidMass(target.entity, entity);
+  }
+
+  const target = nearestPlayer(entity);
+  if (state.attackDelay > 0) state.attackDelay -= 1;
+  if (state.hurtFrames > 0) state.hurtFrames -= 1;
+  if (state.maceParryCooldown > 0) state.maceParryCooldown -= 1;
+  maybeSelectAttack(entity, state, target);
+  if (state.currentAttack === PHASE3_ATTACK.NOOP || state.attackDelay > 0) return;
+
+  state.attackTicks += 1;
+  if (state.currentAttack === PHASE3_ATTACK.GROUND_ATTACK) tickGroundAttack(entity, state);
+  if (state.currentAttack === PHASE3_ATTACK.FIREBALL) tickFireballAttack(entity, state);
+  if (state.currentAttack === PHASE3_ATTACK.TENTACLE_SWIPE) tickTentacleSwipe(entity, state);
+  if (state.currentAttack === PHASE3_ATTACK.GRAVITY) tickGravityAttack(state);
+  if (state.currentAttack === PHASE3_ATTACK.TENTACLES) tickTentaclesAttack(entity, state);
+
+  const length = phase3AttackLength(state.currentAttack, { stuck: isStuck(entity) });
+  if (state.attackTicks >= length) finishAttack(entity, state);
+}
+
+function nearby(entity, maxDistance) {
+  try { return entity.dimension.getEntities({ location: entity.location, maxDistance }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.765", "best-effort Bedrock API fallback", error); return []; }
+}
+
+function tickGroundArm(arm) {
+  const owner = getArmOwner(arm);
+  const state = states.get(arm.id) ?? { groundArmTimer: 0, forwardedStuck: false };
+  states.set(arm.id, state);
+
+  if (owner && isStuck(arm) && !state.forwardedStuck) {
+    state.forwardedStuck = true;
+    setStuck(owner, true);
+  }
+  if (!isStuck(arm)) state.forwardedStuck = false;
+
+  const hasTentacleNearby = owner !== null && nearby(arm, GROUND_ARM_SOURCE.tentacleSearchRadius)
+    .some((entity) => entity.typeId === "thebrokenscript:void_tentacle");
+  const step = groundArmLifecycleStep({
+    timer: state.groundArmTimer,
+    ownerPresent: owner !== null,
+    hasTentacleNearby,
+  });
+  state.groundArmTimer = step.timer;
+
+  if (step.discard) {
+    removeEntity(arm);
+    return;
+  }
+  if (!step.impact || !owner) return;
+
+  const armAabb = entityAabb(arm);
+  const candidates = rosterPlayers()
+    .filter((entity) => entity.typeId === "minecraft:player" && isLiving(entity))
+    .map((player) => ({
+      id: player.id,
+      entity: player,
+      aabb: entityAabb(player),
+      dx: player.location.x - arm.location.x,
+      dz: player.location.z - arm.location.z,
+    }))
+    .filter((player) => armAabb && player.aabb && aabbIntersects(armAabb, player.aabb));
+  const impacts = groundArmImpactPlan({ intersectingPlayers: candidates });
+  for (const impact of impacts) {
+    const candidate = candidates.find((entry) => entry.id === impact.id);
+    if (!candidate) continue;
+    applyEntityAttack(owner, candidate.entity, impact.damage);
+    callEntityMethod(candidate.entity, "applyImpulse", impact.knockback);
+  }
+}
+
+function explodeFireball(fireball) {
+  try {
+    fireball.dimension.createExplosion(
+      fireball.location,
+      FIREBALL_ATTACK_SOURCE.explosionPower,
+      {
+        breaksBlocks: FIREBALL_ATTACK_SOURCE.breaksBlocks,
+        causesFire: FIREBALL_ATTACK_SOURCE.causesFire,
+        source: fireball,
+      },
+    );
+  } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.825", "best-effort Bedrock API fallback", error);}
+  removeEntity(fireball);
+}
+
+function fireballBlockHit(fireball, next) {
+  const from = fireball.location;
+  const distanceToNext = distance(from, next);
+  const steps = Math.max(1, Math.ceil(distanceToNext * 2));
+  for (let index = 1; index <= steps; index += 1) {
+    const fraction = index / steps;
+    const point = {
+      x: from.x + (next.x - from.x) * fraction,
+      y: from.y + (next.y - from.y) * fraction,
+      z: from.z + (next.z - from.z) * fraction,
+    };
+    try {
+      const block = fireball.dimension.getBlock({
+        x: Math.floor(point.x),
+        y: Math.floor(point.y),
+        z: Math.floor(point.z),
+      });
+      if (block !== undefined && block.isAir !== true) return fraction;
+    } catch (error) {
+      operationDiagnostics.warnOnce("phase3.gravity_impulse", "phase3: inverse-gravity impulse failed", error);
+    }
+  }
+  return null;
+}
+
+function fireballEntityHit(fireball, projectile, from, to) {
+  const candidates = rosterPlayers()
+    .filter((entity) => {
+      try {
+        return entity.dimension.id === fireball.dimension.id
+          && entity.id !== fireball.id
+          && entity.id !== projectile.ownerId
+          && isLiving(entity);
+      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.862", "best-effort Bedrock API fallback", error);
+        return false;
+      }
+    })
+    .map((entity) => ({
+      id: entity.id,
+      entity,
+      aabb: entityAabb(entity),
+    }))
+    .filter((candidate) => candidate.aabb !== undefined);
+  const hit = fireballSegmentHitPlan({
+    from,
+    to,
+    ownerId: projectile.ownerId,
+    targets: candidates,
+  });
+  const candidate = candidates.find((entry) => entry.id === hit?.id);
+  return candidate ? { entity: candidate.entity, t: hit.t } : null;
+}
+
+function tickFireball(fireball) {
+  const projectile = projectileStates.get(fireball.id);
+  if (!projectile) {
+    // Runtime-owned fireballs are initialized at spawn. Remove orphaned legacy
+    // projectiles rather than falling back to the old 0.8/12-damage behavior.
+    removeEntity(fireball);
+    return;
+  }
+
+  const len = Math.hypot(projectile.dirX, projectile.dirY, projectile.dirZ);
+  if (len <= 0) {
+    explodeFireball(fireball);
+    return;
+  }
+  const next = {
+    x: fireball.location.x + (projectile.dirX / len) * FIREBALL_ATTACK_SOURCE.projectileSpeedBlocksPerTick,
+    y: fireball.location.y + (projectile.dirY / len) * FIREBALL_ATTACK_SOURCE.projectileSpeedBlocksPerTick,
+    z: fireball.location.z + (projectile.dirZ / len) * FIREBALL_ATTACK_SOURCE.projectileSpeedBlocksPerTick,
+  };
+  const from = { ...fireball.location };
+  const blockHitT = fireballBlockHit(fireball, next);
+  const entityHit = fireballEntityHit(fireball, projectile, from, next);
+  const impact = fireballImpactPlan({ blockHitT, entityHitT: entityHit?.t });
+  if (impact === "block") {
+    explodeFireball(fireball);
+    return;
+  }
+  try { fireball.teleport(next); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.909", "best-effort Bedrock API fallback", error); removeEntity(fireball); return; }
+
+  if (impact === "entity") {
+    const hit = entityHit.entity;
+    applyEntityAttack(
+      fireball,
+      hit,
+      FIREBALL_ATTACK_SOURCE.entityHitDamage,
+      EntityDamageCause.projectile,
+      "thebrokenscript:integrity_ball",
+      projectile.ownerEntity ?? null,
+    );
+    explodeFireball(fireball);
+    return;
+  }
+
+  projectile.life -= 1;
+  if (projectile.life <= 0) removeEntity(fireball);
+}
+
+function tickEntity(entity) {
+  switch (entity.typeId) {
+    case "thebrokenscript:integrity_phase_3": return tickPhase3(entity);
+    case "thebrokenscript:integrity_arm": return tickGroundArm(entity);
+    case "thebrokenscript:integ_fireball": return tickFireball(entity);
+  }
+}
+
+function applyStage3InverseGravity(players) {
+  if (!gravityActiveThisTick) return;
+  for (const player of players) {
+    try {
+      if (player.dimension.id !== GRAVITY_ATTACK_SOURCE.stage3Dimension || !isLiving(player)) continue;
+      // Java replaces Player#getDefaultGravity with -0.0125 while the global
+      // Phase 3 gravity flag is active. Script API has no player gravity setter,
+      // so add the equivalent upward velocity increment exactly once per tick.
+      callEntityMethod(player, "applyImpulse", {
+        x: 0,
+        y: GRAVITY_BEDROCK_ADAPTER.upwardImpulsePerTick,
+        z: 0,
+      });
+    } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.phase3_runtime.js.950", "best-effort Bedrock API fallback", error);}
+  }
+}
+
+function onTick() {
+  const players = rosterPlayers();
+  if (players.length === 0 && participantIds !== null) return;
+  if (players.length === 0) {
+    try {
+      if (world.getAllPlayers().length === 0) return;
+    } catch (error) {
+      operationDiagnostics.warnOnce("phase3.player_count", "phase3: player-count query failed", error);
+      return;
+    }
+  }
+  gravityActiveThisTick = false;
+  for (const dim of dimensions()) {
+    for (const entity of runtimeEntities(dim)) {
+      try { tickEntity(entity); } catch (error) {
+        operationDiagnostics.errorOnce(`phase3.tick.${entity.typeId}`, `phase3: runtime tick failed for ${entity.typeId}`, error);
+      }
+    }
+  }
+  applyStage3InverseGravity(players);
+}
+
+export function begin(scheduler) {
+  installDamageHook();
+  scheduler.every("tbs.phase3_runtime_tick", 1, onTick);
+}
+
+export function setParticipantIds(ids) {
+  participantIds = new Set(
+    Array.isArray(ids)
+      ? ids.filter((id) => typeof id === "string" && id.length > 0)
+      : [],
+  );
+}
+
+export function clearParticipantIds() {
+  participantIds = null;
+  armOwners.clear();
+}
+
+export function cleanup() {
+  for (const dim of dimensions()) {
+    for (const entity of runtimeEntities(dim)) removeEntity(entity);
+  }
+  states.clear();
+  armOwners.clear();
+  projectileStates.clear();
+  pendingHurtFrames.clear();
+  pendingMaceParryCooldowns.clear();
+  pendingDeaths.clear();
+  gravityActiveThisTick = false;
+  participantIds = null;
+}
+
+export function getParticipantIds() {
+  return participantIds === null ? [] : [...participantIds].sort();
+}

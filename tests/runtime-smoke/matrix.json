@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "matrix_id": "tbs-bedrock-runtime-smoke-v1",
+  "purpose": "Engine-level smoke coverage for the The Broken Script 2.0 Bedrock port.",
+  "runtime_contract": {
+    "minecraft_product_line": "1.26.50-preview",
+    "server_api": "2.11.0-beta",
+    "server_ui": "2.1.0",
+    "typing_packages": [
+      "@minecraft/server@2.11.0-beta.1.26.50-preview.26",
+      "@minecraft/server-ui@2.3.0-beta.1.26.50-preview.26"
+    ],
+    "required_experiments": [
+      "Beta APIs"
+    ]
+  },
+  "world": {
+    "name": "TBS 2.0 Runtime Smoke 1.26.50 Preview",
+    "seed": "260501126",
+    "difficulty": "normal",
+    "operator_mode": "creative",
+    "cheats": true,
+    "pack_artifact": "dist/The_Broken_Script_2_0.mcaddon",
+    "reset_between_scenarios": true,
+    "fixed_overworld_spawn": "0 80 0",
+    "fixed_dimension_probe": "0 201 0"
+  },
+  "evidence": {
+    "content_log": {
+      "required": true,
+      "capture": "Enable Content Log File and Content Log GUI before opening the world; preserve the latest log for the run.",
+      "accepted_sources": [
+        "content_log_file",
+        "content_log_history",
+        "screen_capture"
+      ]
+    },
+    "report": {
+      "required": true,
+      "path": "tests/runtime-smoke/latest-report.json",
+      "validator": "python tools/validate_runtime_smoke_report.py tests/runtime-smoke/latest-report.json --matrix tests/runtime-smoke/matrix.json --artifact dist/The_Broken_Script_2_0.mcaddon --expected-commit <full-40-hex-candidate-commit> --expected-artifact-sha256 <full-64-hex-packaged-artifact-sha256> --require-complete",
+      "bindings": {
+        "candidate_commit": "exact full 40-hex Git SHA for the checkout under test",
+        "artifact_path": "dist/The_Broken_Script_2_0.mcaddon",
+        "artifact_sha256": "exact full 64-hex SHA-256 of the packaged .mcaddon"
+      }
+    }
+  },
+  "release_gate": {
+    "require_complete_report_on_tags": true,
+    "parity_critical_diagnostic_severities": [
+      "error",
+      "warning"
+    ],
+    "allowed_nonblocking_diagnostic_severities": [
+      "info"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "bootstrap",
+      "title": "Fresh-world creation and pack initialization",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Create a new world from the fixed seed and exact runtime contract.",
+        "Attach the generated .mcaddon and enable the Beta APIs experiment."
+      ],
+      "steps": [
+        "Open the world and wait 30 seconds after the first player spawn.",
+        "Run `/scriptevent tbs:help` and `/scriptevent tbs:events` as the operator.",
+        "Confirm the custom pack is listed in world settings and keep the content log open."
+      ],
+      "pass_criteria": [
+        "The world opens without a pack-load dialog or script initialization error.",
+        "The help response appears and the event count is returned.",
+        "The content log contains no pack-loading error or parity-critical warning."
+      ],
+      "commands": [
+        "/scriptevent tbs:help",
+        "/scriptevent tbs:events"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "screen_capture"
+      ]
+    },
+    {
+      "id": "persistence",
+      "title": "World and player save, quit, and reload",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Complete the bootstrap scenario in the same world.",
+        "Use one named test player and leave at least one known inventory slot available."
+      ],
+      "steps": [
+        "Run `/scriptevent tbs:adv can_you_see_me` and record the title/message.",
+        "Run `/scriptevent tbs:arena start`, note the arena state, then save and quit to the title screen.",
+        "Reopen the same world, run the advancement and arena commands again, and then stop the arena."
+      ],
+      "pass_criteria": [
+        "The already-awarded advancement is not awarded a second time after reload.",
+        "World initialization does not reset the saved arena or progression state unexpectedly.",
+        "No dynamic-property serialization or migration error appears in the content log."
+      ],
+      "commands": [
+        "/scriptevent tbs:adv can_you_see_me",
+        "/scriptevent tbs:arena start",
+        "/scriptevent tbs:arena stop"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "before_after_screenshots"
+      ]
+    },
+    {
+      "id": "death_respawn",
+      "title": "Death and respawn with active story, quest, boss, and effect state",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use a copy of the persistence world after its first successful reload.",
+        "Keep cheats enabled and have the operator at the fixed overworld spawn."
+      ],
+      "steps": [
+        "Award `can_someone_hear_me`, apply both developer effects, and start the arena state.",
+        "Summon `thebrokenscript:integrity_phase_1` and record the player and boss state before death.",
+        "Run `/kill @s`, respawn, wait 30 seconds, and inspect the content log and arena cleanup."
+      ],
+      "pass_criteria": [
+        "The player respawns without a script exception and player state remains scoped to that player.",
+        "Boss and arena state either follows the documented cleanup path or remains active without duplicate controllers.",
+        "Temporary effects and entity references do not produce stale-handle errors after respawn."
+      ],
+      "commands": [
+        "/scriptevent tbs:adv can_someone_hear_me",
+        "/scriptevent tbs:effect heart_corruption 10",
+        "/scriptevent tbs:effect why_cant_you_leave 10",
+        "/scriptevent tbs:arena start",
+        "/summon thebrokenscript:integrity_phase_1 ~ ~ ~",
+        "/kill @s"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "before_after_screenshots"
+      ]
+    },
+    {
+      "id": "leave_rejoin_restart",
+      "title": "Leave, rejoin, and server-restart persistence",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use a world with a known player advancement and a known world-state marker.",
+        "For the server-restart leg, use Bedrock Dedicated Server or the platform's equivalent full process restart."
+      ],
+      "steps": [
+        "Leave the world with the player state active and record the content-log timestamp.",
+        "Rejoin, verify the player state and world state, then stop the server process cleanly.",
+        "Start the server again, rejoin with the same player, and repeat the state checks."
+      ],
+      "pass_criteria": [
+        "Player leave/rejoin does not duplicate subscriptions or reset per-player dynamic properties.",
+        "A clean server restart preserves world state and reloads the pack once.",
+        "No duplicate-event, stale-entity, or initialization errors are introduced by either reconnect."
+      ],
+      "commands": [
+        "/scriptevent tbs:adv can_you_see_me",
+        "/scriptevent tbs:arena start",
+        "/scriptevent tbs:events"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "server_restart_timestamp"
+      ]
+    },
+    {
+      "id": "multiplayer",
+      "title": "Two-player and multi-player ownership and targeting",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use two distinct player accounts on the same world; add a third player when a server is available.",
+        "Place players at least 32 blocks apart before starting the encounter."
+      ],
+      "steps": [
+        "Award a different advancement to each player and apply an effect to only player A.",
+        "Start the arena and summon one boss near player A while player B remains outside the participant radius.",
+        "Move player B into the radius, reconnect player A, and observe targeting, damage attribution, and cleanup."
+      ],
+      "pass_criteria": [
+        "Player-scoped state, effects, advancement flags, and coordinates do not leak between players.",
+        "Boss participant and target selection remains stable when a player joins, leaves, or re-enters.",
+        "Damage, projectile ownership, and cleanup do not cross-attribute to the wrong player."
+      ],
+      "commands": [
+        "/scriptevent tbs:adv can_you_see_me",
+        "/scriptevent tbs:adv can_someone_hear_me",
+        "/scriptevent tbs:effect heart_corruption 10",
+        "/scriptevent tbs:arena start",
+        "/summon thebrokenscript:fractured ~ ~ ~"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "player_a_player_b_screenshots"
+      ]
+    },
+    {
+      "id": "dimensions",
+      "title": "Dimension travel, return, safe arrival, and failure recovery",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use a fresh world after bootstrap and keep the player at the fixed overworld spawn.",
+        "Test both a custom realm and a vanilla return destination."
+      ],
+      "steps": [
+        "Run `/scriptevent tbs:dim clan_void` and wait for the readiness-gated teleport to complete.",
+        "Verify the landing platform, dimension id, player state, and return route, then run `/scriptevent tbs:dim overworld`.",
+        "Repeat once with the destination region unloaded or an invalid dimension id and record the failure response."
+      ],
+      "pass_criteria": [
+        "Custom-dimension registration and first-entry initialization complete without a script error.",
+        "The player arrives on safe footing, returns to the intended dimension, and retains player state.",
+        "Invalid or unavailable destinations fail visibly and do not strand or corrupt the player."
+      ],
+      "commands": [
+        "/scriptevent tbs:dim clan_void",
+        "/scriptevent tbs:dim overworld",
+        "/scriptevent tbs:dim not_a_real_dimension"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "arrival_coordinates",
+        "dimension_id_capture"
+      ]
+    },
+    {
+      "id": "boss_lifecycle",
+      "title": "Boss start, abort, death, reconnect, victory, cleanup, and replay prevention",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use a disposable copy of the smoke world with cheats enabled.",
+        "Have one-player and two-player runs available; do not reuse an encounter after a failed cleanup."
+      ],
+      "steps": [
+        "Start the arena, summon Integrity phase 1, and record encounter participants and active sounds/effects.",
+        "Run separate abort, player-death, and player-reconnect attempts; then complete a victory attempt using the supported test setup.",
+        "After each attempt, wait for cleanup, inspect entities and state, and try to start the encounter a second time."
+      ],
+      "pass_criteria": [
+        "Every terminal path converges to the documented cleanup state with no duplicate arena generation.",
+        "Participant tracking, audio, projectiles, effects, and entity references are cleared or retained exactly as documented.",
+        "Replay prevention works after victory and a new encounter can start only when the source rules permit it."
+      ],
+      "commands": [
+        "/scriptevent tbs:arena start",
+        "/summon thebrokenscript:integrity_phase_1 ~ ~ ~",
+        "/summon thebrokenscript:fractured ~ ~ ~",
+        "/scriptevent tbs:arena stop"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "encounter_timeline",
+        "entity_cleanup_capture"
+      ]
+    },
+    {
+      "id": "story_progression",
+      "title": "Story thresholds and one-shot progression",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use a fresh world with one online player for the complete threshold run.",
+        "Record the exact story-clock tick at the beginning and after every threshold."
+      ],
+      "steps": [
+        "Run the story clock continuously through days 5, 6, 10, 12, 15, 20, 24, 32, 38, and 48 while the player remains online.",
+        "Record every title, action bar, book, coordinate, moon, and progression side effect at the threshold where it occurs.",
+        "Save, reload, and pass each crossed threshold again; verify one-shot events remain consumed and no earlier threshold fires twice."
+      ],
+      "pass_criteria": [
+        "Every registered threshold fires at its documented tick and in source order.",
+        "One-shot story events remain consumed across reload and do not duplicate after reconnect.",
+        "The content log contains no threshold handler exception or failed persistence write."
+      ],
+      "commands": [
+        "/scriptevent tbs:events",
+        "/scriptevent tbs:adv can_someone_hear_me"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "threshold_timeline",
+        "before_after_screenshots"
+      ]
+    },
+    {
+      "id": "event_suppression",
+      "title": "Event suppression during boss arenas and other suppressors",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Use a fresh world with the ambient event system initialized.",
+        "Have the content log capture enabled at Info or Verbose level."
+      ],
+      "steps": [
+        "Observe the world for the configured ambient-event window and record normal event output.",
+        "Start an arena and repeat the same observation window while suppression is active.",
+        "Stop or abort the arena, wait for cleanup, and observe one final window for correct resumption."
+      ],
+      "pass_criteria": [
+        "Normal ambient events can run before the suppressor is active.",
+        "Suppressed event families do not fire while the boss arena or documented suppressor is active.",
+        "Events resume once and only once after cleanup, with no leaked timers or duplicate subscriptions."
+      ],
+      "commands": [
+        "/scriptevent tbs:events",
+        "/scriptevent tbs:arena start",
+        "/scriptevent tbs:arena stop"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "event_window_timeline"
+      ]
+    },
+    {
+      "id": "diagnostics",
+      "title": "Runtime diagnostics and release-blocking classification",
+      "priority": "P0",
+      "parity_critical": true,
+      "preconditions": [
+        "Enable Content Log File and Content Log GUI before beginning any scenario.",
+        "Preserve the complete log and annotate each message with the scenario and timestamp that produced it."
+      ],
+      "steps": [
+        "Review the content log after every scenario, including pack load, reload, reconnect, dimension, boss, and story transitions.",
+        "Classify each error or warning as parity-critical or non-critical using the report schema; do not discard warnings silently.",
+        "Run the report validator locally and, for a release candidate, with `--require-complete`."
+      ],
+      "pass_criteria": [
+        "The report contains a diagnostic entry or an explicit empty diagnostics list for every completed run.",
+        "Any parity-critical error or warning makes the report validator fail.",
+        "A release-tag workflow cannot pass without a complete, validated runtime report."
+      ],
+      "commands": [
+        "python tools/validate_runtime_smoke_matrix.py tests/runtime-smoke/matrix.json",
+        "python tools/validate_runtime_smoke_report.py tests/runtime-smoke/latest-report.json --matrix tests/runtime-smoke/matrix.json --require-complete"
+      ],
+      "evidence": [
+        "content_log",
+        "report",
+        "validator_output"
+      ]
+    }
+  ]
+}

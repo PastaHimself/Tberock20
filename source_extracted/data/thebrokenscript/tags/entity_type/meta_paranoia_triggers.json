@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "#thebrokenscript:meta_paranoia_triggers_corrupt",
+    "#thebrokenscript:meta_paranoia_triggers_glitch"
+  ]
+}

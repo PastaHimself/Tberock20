@@ -1,0 +1,11 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:biome": {
+    "description": {
+      "identifier": "thebrokenscript:concrete"
+    },
+    "components": {
+      "minecraft:climate": { "temperature": 0.5, "downfall": 0.0 }
+    }
+  }
+}

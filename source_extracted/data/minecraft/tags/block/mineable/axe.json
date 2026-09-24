@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "thebrokenscript:mono_planks",
+    "thebrokenscript:mono_stairs",
+    "thebrokenscript:mono_slab",
+    "thebrokenscript:mono_library",
+    "thebrokenscript:void_log",
+    "thebrokenscript:void_wood",
+    "thebrokenscript:void_planks",
+    "thebrokenscript:void_plank_slab",
+    "thebrokenscript:void_plank_stairs",
+    "thebrokenscript:void_plank_door",
+    "thebrokenscript:void_log_door",
+    "thebrokenscript:void_wood_trapdoor",
+    "thebrokenscript:void_roots",
+    "thebrokenscript:void_root"
+  ]
+}

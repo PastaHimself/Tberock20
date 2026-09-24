@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/door_top_left",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "bottom": "thebrokenscript:block/void_log_door_bottom",
+    "top": "thebrokenscript:block/void_log_door_top"
+  }
+}

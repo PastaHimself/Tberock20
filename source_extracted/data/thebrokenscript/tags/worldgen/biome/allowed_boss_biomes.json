@@ -1,0 +1,99 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:plains",
+    "minecraft:forest",
+    {
+      "id": "biomesoplenty:fir_clearing",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:crag",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:field",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:grasslands",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:lavender_fields",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:marsh",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:origin_valey",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:overgrown_greens",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:pasture",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:prairie",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:pumpkin_patch",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:rocky_shrubland",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:shrubland",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:allium_shrubland",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:amaranth_grassland",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:basalt_barrera",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:coconino_meadow",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:orchard",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:prairie",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:pumpkin_valley",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:rose_fields",
+      "required": false
+    },
+    {
+      "id": "nomansland:lavender_field",
+      "required": false
+    },
+    {
+      "id": "nomansland:prairie",
+      "required": false
+    }
+  ]
+}

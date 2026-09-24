@@ -1,0 +1,48 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "thebrokenscript:block/void_vine"
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "thebrokenscript:block/void_vine",
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "thebrokenscript:block/void_vine",
+        "y": 180
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "thebrokenscript:block/void_vine",
+        "y": 270
+      },
+      "when": {
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "thebrokenscript:block/void_vine",
+        "x": 270
+      },
+      "when": {
+        "up": "true"
+      }
+    }
+  ]
+}

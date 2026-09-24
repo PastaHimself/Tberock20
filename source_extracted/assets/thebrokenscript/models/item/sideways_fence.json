@@ -1,0 +1,9 @@
+{
+  "parent": "thebrokenscript:block/sideways_fence",
+  "overrides": [
+    {
+      "model": "thebrokenscript:item/gore",
+      "predicate": {}
+    }
+  ]
+}

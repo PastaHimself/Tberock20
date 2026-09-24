@@ -1,0 +1,12 @@
+{
+  "type": "thebrokenscript:clan_void",
+  "generator": {
+    "type": "thebrokenscript:clan_void_generator",
+    "biome_source": {
+      "type": "thebrokenscript:clan_void_biomes",
+      "void": "thebrokenscript:void",
+      "day_a": "thebrokenscript:day_a"
+    },
+    "settings": "thebrokenscript:clan_void"
+  }
+}
