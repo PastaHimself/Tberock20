@@ -480,6 +480,10 @@ def validate_particles(
         "source_definitions": len(source_files),
         "deployed_definitions": len(deployed_files),
         "java_particle_callsite_types": sorted(java_particle_callsites),
+        "java_particle_callsites": {
+            particle_id: sorted(paths)
+            for particle_id, paths in sorted(java_particle_callsites.items())
+        },
         "java_particle_provider_types": sorted(provider_ids),
         "unadapted_callsite_types": unadapted_callsite_types,
         "rock_burst_count": 400,
