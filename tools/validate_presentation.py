@@ -25,6 +25,8 @@ PARTICLE_EVENT_COUNTS = {
     "null_particle": 5,
     "eyes": 5,
     "particle_of_curved": 55,
+    "paper_particle": 1,
+    "wretched_particle": 2,
 }
 PARTICLE_TYPE_FIELDS = {
     "NULL_PARTICLE": "null_particle",
@@ -35,7 +37,13 @@ PARTICLE_TYPE_FIELDS = {
     "NULL_STRUCTURE_PARTICLE": "null_structure_particle",
     "PAPER_PARTICLE": "paper_particle",
 }
-ADAPTED_PARTICLE_CALLSITE_TYPES = {"null_particle", "eyes", "particle_of_curved"}
+ADAPTED_PARTICLE_CALLSITE_TYPES = {
+    "null_particle",
+    "eyes",
+    "paper_particle",
+    "particle_of_curved",
+    "wretched_particle",
+}
 
 RECORD_ITEM_BY_EVENT = {
     "jimbob.full": "attribute_mutilation.json",
