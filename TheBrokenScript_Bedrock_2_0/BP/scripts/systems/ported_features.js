@@ -682,7 +682,12 @@ function collectPortalBounds(controller) {
       let block;
       try {
         block = controller.dimension.getBlock(next);
-      } catch {
+      } catch (error) {
+        operationDiagnostics.warnOnce(
+          "ported_features.portal_extender_lookup",
+          "ported_features: portal extender lookup failed",
+          error,
+        );
         continue;
       }
       if (!block || block.typeId !== PORTAL_EXTENDER_ID) continue;
@@ -711,7 +716,12 @@ function resolvePortalController(reference) {
     if (!block) return { status: "unavailable" };
     if (block.typeId !== PORTAL_CONTROLLER_ID) return { status: "missing" };
     return { status: "valid", block };
-  } catch {
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "ported_features.portal_controller_lookup",
+      "ported_features: portal controller lookup failed",
+      error,
+    );
     return { status: "unavailable" };
   }
 }
