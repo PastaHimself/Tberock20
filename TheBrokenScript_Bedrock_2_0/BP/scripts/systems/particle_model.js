@@ -120,6 +120,16 @@ export const SOURCE_PARTICLE_EVENTS = Object.freeze({
     count: 55,
     offset: Object.freeze([3, 3, 3]),
   }),
+  library_paper: Object.freeze({
+    effectId: "thebrokenscript:paper_particle",
+    count: 1,
+    offset: Object.freeze([0, 0, 0]),
+  }),
+  wretched_tick: Object.freeze({
+    effectId: "thebrokenscript:wretched_particle",
+    count: 2,
+    offset: Object.freeze([3, 3, 3]),
+  }),
 });
 
 export function particleDefinition(id) {
@@ -141,4 +151,16 @@ export function particleLifetimeRangeSeconds(id) {
     min: definition.lifetimeTicks.min / TICKS_PER_SECOND,
     max: definition.lifetimeTicks.max / TICKS_PER_SECOND,
   });
+}
+
+export function shouldSpawnLibraryPaper(random = Math.random) {
+  return Number(random()) < 0.01;
+}
+
+export function libraryPaperOrigin(location, random = Math.random) {
+  return {
+    x: location.x + (Number(random()) - 0.5) * 32,
+    y: location.y + (Number(random()) - 0.5) * 16,
+    z: location.z + (Number(random()) - 0.5) * 32,
+  };
 }
