@@ -49,6 +49,10 @@ class P1ParityValidatorTests(unittest.TestCase):
         )
         self.assertEqual(13, self.report["dimensions"]["policy_count"])
         self.assertEqual(1, self.report["portals"]["cooldown_ticks"])
+        self.assertTrue(self.report["portals"]["runtime_relink_cleanup"])
+        self.assertTrue(self.report["portals"]["runtime_same_dimension_links"])
+        self.assertTrue(self.report["portals"]["runtime_living_entity_tick_sweep"])
+        self.assertTrue(self.report["portals"]["runtime_controller_validation"])
         self.assertTrue(
             all(
                 adapter["hook_present"]
