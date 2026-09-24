@@ -16,6 +16,7 @@ export const SAFE_LANDING_BLOCK = "minecraft:bedrock";
 
 const inFlight = new Map();
 const initializers = new Map();
+const heldTickingAreas = new Map();
 
 function finiteCoordinate(value, name) {
   const number = Number(value);
@@ -147,47 +148,104 @@ function buildFallbackLanding(dimension, location, heightRange) {
   return undefined;
 }
 
-function tickingAreaIdentifier(dimensionId, regionKey) {
+function tickingAreaIdentifier(dimensionId, regionKey, stage = SAFE_LANDING_STAGE) {
   const key = dimensionStatePropertyKey(
     dimensionId,
-    SAFE_LANDING_STAGE,
+    stage,
     regionKey,
     SAFE_LANDING_VERSION,
   );
   return `tbs_dim_${key.slice("tbs:dim_init_".length)}`;
 }
 
-async function withTemporaryTickingArea(worldLike, dimension, dimensionId, regionKey, bounds, action) {
+async function withTemporaryTickingArea(
+  worldLike,
+  dimension,
+  dimensionId,
+  regionKey,
+  bounds,
+  action,
+  stage = SAFE_LANDING_STAGE,
+) {
   const manager = worldLike?.tickingAreaManager;
   if (!manager?.createTickingArea || !manager?.removeTickingArea) {
     throw new Error("world.tickingAreaManager is unavailable");
   }
 
-  const identifier = tickingAreaIdentifier(dimensionId, regionKey);
+  const identifier = tickingAreaIdentifier(dimensionId, regionKey, stage);
   const options = { dimension, ...bounds };
-  let created = false;
+  let state = heldTickingAreas.get(identifier);
 
-  if (typeof manager.hasTickingArea === "function" && manager.hasTickingArea(identifier)) {
-    manager.removeTickingArea(identifier);
-  }
-  if (typeof manager.hasCapacity === "function" && !manager.hasCapacity(options)) {
-    throw new Error(`no ticking-area capacity for '${dimensionId}' region '${regionKey}'`);
+  if (!state) {
+    state = {
+      references: 0,
+      created: false,
+      ready: undefined,
+    };
+    state.ready = (async () => {
+      if (typeof manager.hasTickingArea === "function" && manager.hasTickingArea(identifier)) {
+        manager.removeTickingArea(identifier);
+      }
+      if (typeof manager.hasCapacity === "function" && !manager.hasCapacity(options)) {
+        throw new Error(`no ticking-area capacity for '${dimensionId}' region '${regionKey}'`);
+      }
+      await manager.createTickingArea(identifier, options);
+      state.created = true;
+    })();
+    heldTickingAreas.set(identifier, state);
   }
 
+  state.references += 1;
   try {
-    await manager.createTickingArea(identifier, options);
-    created = true;
+    await state.ready;
     return await action();
   } finally {
-    if (created) {
-      try {
-        manager.removeTickingArea(identifier);
-      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.dimension_generation.js.184", "best-effort Bedrock API fallback", error);
-        // Cleanup failure must not convert a successfully initialized region into
-        // an uninitialized one. A later run will reclaim the deterministic ID.
+    state.references -= 1;
+    if (state.references <= 0 && heldTickingAreas.get(identifier) === state) {
+      heldTickingAreas.delete(identifier);
+      if (state.created) {
+        try {
+          manager.removeTickingArea(identifier);
+        } catch (error) {
+          operationDiagnostics.warnOnce(
+            "audit.BP.scripts.systems.dimension_generation.js.ticking_area_cleanup",
+            "best-effort Bedrock API fallback",
+            error,
+          );
+          // Cleanup failure must not convert a successfully initialized region into
+          // an uninitialized one. A later run will reclaim the deterministic ID.
+        }
       }
     }
   }
+}
+
+export async function withLoadedDimensionRegion(
+  {
+    world,
+    dimension,
+    dimensionId,
+    location,
+    radius = 1,
+  },
+  action,
+) {
+  const normalized = normalizeDimensionId(dimensionId);
+  if (!normalized || !dimension) {
+    throw new Error(`invalid dimension '${String(dimensionId ?? "")}' for ticking-area hold`);
+  }
+  if (typeof action !== "function") throw new TypeError("action must be a function");
+
+  const regionKey = landingRegionKey(location);
+  return withTemporaryTickingArea(
+    world,
+    dimension,
+    normalized,
+    regionKey,
+    landingAreaBounds(location, radius),
+    action,
+    "transfer",
+  );
 }
 
 function initializerRegionKey(spec, location, dimension) {
