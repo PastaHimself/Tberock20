@@ -1,5 +1,5 @@
 import * as operationDiagnostics from "../core/operation_diagnostics.js";
-import { BlockPermutation, GameMode, system, world } from "@minecraft/server";
+import { BlockPermutation, EquipmentSlot, GameMode, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import {
@@ -150,7 +150,7 @@ export function init(blockComponentRegistry) {
           );
           continue;
         }
-        if (!creative || heldItemTypeId(player) !== "thebrokenscript:null_structure") continue;
+        if (!creative || !isHoldingTypeId(player, "thebrokenscript:null_structure")) continue;
         spawnSourceParticle(block, "null_structure_marker", center);
         return;
       }
@@ -248,6 +248,21 @@ function heldItemTypeId(player) {
     return inventory?.getItem(player.selectedSlotIndex)?.typeId;
   } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.custom_blocks.js.211", "best-effort Bedrock API fallback", error);
     return undefined;
+  }
+}
+
+function isHoldingTypeId(player, expectedTypeId) {
+  if (heldItemTypeId(player) === expectedTypeId) return true;
+  try {
+    return player.getComponent("minecraft:equippable")
+      ?.getEquipment(EquipmentSlot.Offhand)?.typeId === expectedTypeId;
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "custom_blocks.holding_offhand",
+      "custom_blocks: offhand item query failed",
+      error,
+    );
+    return false;
   }
 }
 
