@@ -11,7 +11,7 @@ import {
   isKnownDimensionId,
   normalizeDimensionId
 } from "./dimension_ids.js";
-import { ensureDimensionReady } from "./dimension_generation.js";
+import { ensureDimensionReady, withLoadedDimensionRegion } from "./dimension_generation.js";
 import { createDimensionHandleCache } from "./perf_model.js";
 import {
   getDimensionEntryLocation as readDimensionEntryLocation,
@@ -102,6 +102,28 @@ export function resetCache() {
 }
 
 /**
+ * Keep a destination region loaded for the complete lifetime of an operation.
+ * Unlike teleportWhenReady this does not alter the requested coordinates or
+ * create safe landing terrain, which is required for exact portal targets.
+ */
+export async function withLoadedRegion(dimId, location, action, radius = 1) {
+  const normalized = normalizeDimensionId(dimId);
+  const dim = get(normalized);
+  if (!dim || typeof action !== "function") return undefined;
+
+  return withLoadedDimensionRegion(
+    {
+      world,
+      dimension: dim,
+      dimensionId: normalized,
+      location,
+      radius,
+    },
+    () => action(dim),
+  );
+}
+
+/**
  * Immediate compatibility path. New custom-dimension entry points should prefer
  * teleportWhenReady so the target region is loaded and has safe footing first.
  */
@@ -149,6 +171,23 @@ export async function teleportWhenReady(entity, dimId, location) {
   }
 
   try {
+    if (isCustomDimensionId(normalized)) {
+      const teleported = await withLoadedDimensionRegion(
+        {
+          world,
+          dimension: dim,
+          dimensionId: normalized,
+          location: target,
+          radius: 1,
+        },
+        () => {
+          entity.teleport(target, teleportOptions(normalized, dim));
+          return true;
+        },
+      );
+      return teleported === true;
+    }
+
     entity.teleport(target, teleportOptions(normalized, dim));
     return true;
   } catch (error) {
