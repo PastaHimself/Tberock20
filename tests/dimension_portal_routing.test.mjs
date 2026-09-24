@@ -62,3 +62,70 @@ test("linked portal activation reserves cooldown and owns failed linked routes",
   assert.match(customBlocks, /if \(hasLinkedPortal\(block\)\)/);
   assert.match(customBlocks, /await teleportLinkedPortal\(player, block\);\s*return;/);
 });
+
+
+test("portal relinking removes both endpoints' obsolete reverse links", async () => {
+  const modulePath = path.join(ROOT, "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_feature_logic.js");
+  const { linkPortals, linkedPortal } = await import(pathToFileURL(modulePath));
+
+  const a = { dimensionId: "overworld", x: 0, y: 64, z: 0 };
+  const b = { dimensionId: "overworld", x: 10, y: 64, z: 0 };
+  const c = { dimensionId: "overworld", x: 20, y: 64, z: 0 };
+  const d = { dimensionId: "overworld", x: 30, y: 64, z: 0 };
+
+  let links = linkPortals({}, a, b);
+  links = linkPortals(links, c, d);
+  links = linkPortals(links, a, c);
+
+  assert.deepEqual(linkedPortal(links, a), c);
+  assert.deepEqual(linkedPortal(links, c), a);
+  assert.equal(linkedPortal(links, b), undefined);
+  assert.equal(linkedPortal(links, d), undefined);
+});
+
+test("portal link model rejects cross-dimension source parity", async () => {
+  const modulePath = path.join(ROOT, "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_feature_logic.js");
+  const { samePortalDimension } = await import(pathToFileURL(modulePath));
+  assert.equal(
+    samePortalDimension(
+      { dimensionId: "overworld", x: 0, y: 64, z: 0 },
+      { dimensionId: "thebrokenscript:library", x: 0, y: 64, z: 0 },
+    ),
+    false,
+  );
+});
+
+test("portal relative-position model preserves offset and passenger Y semantics", async () => {
+  const modulePath = path.join(ROOT, "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_feature_logic.js");
+  const { portalTargetLocation, samePortalBoundsSize } = await import(pathToFileURL(modulePath));
+  const source = { min: { x: 0, y: 60, z: 0 }, max: { x: 3, y: 64, z: 2 } };
+  const destination = { min: { x: 100, y: 20, z: 50 }, max: { x: 103, y: 24, z: 52 } };
+
+  assert.equal(samePortalBoundsSize(source, destination), true);
+  assert.deepEqual(
+    portalTargetLocation(source, destination, { x: 1.25, y: 62.5, z: 0.75 }, false),
+    { x: 101.25, y: 22.5, z: 50.75 },
+  );
+  assert.deepEqual(
+    portalTargetLocation(source, destination, { x: 1.25, y: 62.5, z: 0.75 }, true),
+    { x: 101.25, y: 20, z: 50.75 },
+  );
+});
+
+test("portal runtime restores the Java one-tick living-entity sweep contract", () => {
+  const ported = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js");
+  assert.match(ported, /scheduler\.every\("ported_features\.portals",\s*1,\s*tickLinkedPortals\)/);
+  assert.match(ported, /dimension\.getEntities\(\{\s*location:\s*bounds\.min,\s*volume:/s);
+  assert.match(ported, /entity\.getComponent\("minecraft:health"\)/);
+  assert.match(ported, /entity\.getAABB\(\)/);
+  assert.match(ported, /keepVelocity:\s*true/);
+  assert.match(ported, /samePortalBoundsSize\(sourceBounds,\s*destinationBounds\)/);
+  assert.match(ported, /PORTAL_EXTENDER_ID/);
+});
+
+test("portal runtime validates stale controller links before use", () => {
+  const ported = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js");
+  assert.match(ported, /resolvePortalController\(destination\)/);
+  assert.match(ported, /links = unlinkPortal\(links,\s*source\)/);
+  assert.match(ported, /block\.typeId !== PORTAL_CONTROLLER_ID/);
+});
