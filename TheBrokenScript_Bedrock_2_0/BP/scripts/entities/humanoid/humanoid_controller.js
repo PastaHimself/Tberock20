@@ -624,6 +624,12 @@ function tickFaraway(e) {
           operationDiagnostics.warnOnce("humanoid.faraway_look", "humanoid: Faraway look-at handoff failed", error);
         }
 
+        spawnSourceParticle(
+          e,
+          Math.random() < 0.5 ? "faraway_null_burst" : "faraway_eyes_burst",
+          origin,
+        );
+
         try { e.remove(); } catch (error) {
           operationDiagnostics.warnOnce("humanoid.faraway_remove", "humanoid: Faraway removal failed", error);
         }
