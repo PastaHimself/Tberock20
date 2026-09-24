@@ -105,7 +105,13 @@ class ShaftSourceParityTests(unittest.TestCase):
 
     def test_null_structure_block_has_no_fabricated_click_to_shaft_action(self):
         script = (BP_ROOT / "scripts/systems/custom_blocks.js").read_text(encoding="utf-8")
-        self.assertIn('register("thebrokenscript:be_null_structure", {});', script)
+        start = script.index('register("thebrokenscript:be_null_structure"')
+        end = script.index('register("thebrokenscript:be_shadow_bug"', start)
+        null_structure = script[start:end]
+
+        self.assertIn("onTick(ev)", null_structure)
+        self.assertIn('spawnSourceParticle(player, "null_structure_marker", center)', null_structure)
+        self.assertNotIn("onPlayerInteract", null_structure)
         self.assertNotIn("placeJigsawStructure", script)
         self.assertNotIn("buildShaft", script)
 
