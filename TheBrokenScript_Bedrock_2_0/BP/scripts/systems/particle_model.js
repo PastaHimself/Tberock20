@@ -125,6 +125,16 @@ export const SOURCE_PARTICLE_EVENTS = Object.freeze({
     count: 50,
     offset: Object.freeze([3, 3, 3]),
   }),
+  faraway_null_burst: Object.freeze({
+    effectId: "thebrokenscript:faraway_null_burst",
+    count: 555,
+    offset: Object.freeze([2, 2, 2]),
+  }),
+  faraway_eyes_burst: Object.freeze({
+    effectId: "thebrokenscript:faraway_eyes_burst",
+    count: 555,
+    offset: Object.freeze([2, 2, 2]),
+  }),
   null_structure_marker: Object.freeze({
     effectId: "thebrokenscript:null_structure_particle",
     count: 1,
