@@ -125,6 +125,11 @@ export const SOURCE_PARTICLE_EVENTS = Object.freeze({
     count: 50,
     offset: Object.freeze([3, 3, 3]),
   }),
+  null_structure_marker: Object.freeze({
+    effectId: "thebrokenscript:null_structure_particle",
+    count: 1,
+    offset: Object.freeze([0, 0, 0]),
+  }),
   library_paper: Object.freeze({
     effectId: "thebrokenscript:paper_particle",
     count: 1,
