@@ -134,6 +134,10 @@ jobs:
         if: always()
         run: python tools/validate_mcstructures.py --report artifacts/mcstructure-validation.json
 
+      - name: Inventory Stage 2 source template palette
+        if: always()
+        run: python tools/inventory_stage2_palette.py --report artifacts/stage2-palette-inventory.json
+
       - name: Check all behavior-pack JavaScript syntax
         if: always()
         shell: bash
