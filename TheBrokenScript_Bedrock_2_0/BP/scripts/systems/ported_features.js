@@ -10,17 +10,35 @@ import {
   HAND_CANNON_RANGE,
   circuitPaintingPlacement,
   firstHandCannonTarget,
+  aabbIntersectsPortal,
+  canEnterPortal,
+  isPortalReference,
   linkPortals,
   linkedPortal,
-  canEnterPortal,
+  portalBoundsSize,
   portalCooldownUntil,
   portalKey,
+  portalTargetLocation,
+  samePortalBoundsSize,
+  samePortalDimension,
+  unlinkPortal,
 } from "./ported_feature_logic.js";
 
 const PORTAL_ANCHOR_PROPERTY = "tbs:portal_anchor_v1";
 const PORTAL_LINKS_PROPERTY = "tbs:portal_links_v1";
 const PORTAL_COOLDOWN_PROPERTY = "tbs:portal_cooldown_until";
 const PORTAL_COOLDOWN_TICKS = 1;
+const PORTAL_CONTROLLER_ID = "thebrokenscript:portal_controller";
+const PORTAL_EXTENDER_ID = "thebrokenscript:portal_extender";
+const PORTAL_NEIGHBORS = [
+  { x: 1, y: 0, z: 0 },
+  { x: -1, y: 0, z: 0 },
+  { x: 0, y: 1, z: 0 },
+  { x: 0, y: -1, z: 0 },
+  { x: 0, y: 0, z: 1 },
+  { x: 0, y: 0, z: -1 },
+];
+const portalIncoming = new Map();
 const LIBRARY_BOOK_NUMBER_PROPERTY = "thebrokenscript:library_book_num";
 const HEART_CORRUPTION_UNTIL = "tbs:heart_corruption_until";
 const WHY_LEAVE_UNTIL = "tbs:why_leave_until";
@@ -101,6 +119,7 @@ export function init(itemComponentRegistry) {
 }
 
 export function begin(scheduler) {
+  scheduler.every("ported_features.portals", 1, tickLinkedPortals);
   scheduler.every("ported_features.effects", 20, tickPortedEffects);
 }
 
@@ -212,7 +231,7 @@ export async function showLibraryBook(player) {
 }
 
 export function usePortalLinker(player, block) {
-  if (!isPlayer(player) || block?.typeId !== "thebrokenscript:portal_controller") return false;
+  if (!isPlayer(player) || block?.typeId !== PORTAL_CONTROLLER_ID) return false;
   if (player.isSneaking !== true) return false;
   const selected = blockReference(block);
   const previous = readPlayerJson(player, PORTAL_ANCHOR_PROPERTY);
@@ -231,22 +250,35 @@ export function usePortalLinker(player, block) {
     return true;
   }
 
+  if (!isPortalReference(previous)) {
+    clearPortalAnchor(player);
+    player.sendMessage("§cStored portal anchor was invalid. Select Portal A again.");
+    return false;
+  }
+
   if (portalKey(previous) === portalKey(selected)) {
-    try { player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined); } catch (error) {
-      operationDiagnostics.warnOnce("ported_features.portal_cancel", "ported_features: portal cancel state clear failed", error);
-    }
+    clearPortalAnchor(player);
     player.sendMessage("§7Portal link canceled.");
     return false;
   }
 
-  const links = linkPortals(readPortalLinks(), previous, selected);
-  try {
-    world.setDynamicProperty(PORTAL_LINKS_PROPERTY, JSON.stringify(links));
-    player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined);
-  } catch (error) {
-    operationDiagnostics.errorOnce("ported_features.portal_link", "ported_features: portal-link state write failed", error);
+  if (!samePortalDimension(previous, selected)) {
+    clearPortalAnchor(player);
+    player.sendMessage("§cPortals must be linked within the same dimension.");
     return false;
   }
+
+  const previousController = resolvePortalController(previous);
+  if (previousController.status !== "valid") {
+    clearPortalAnchor(player);
+    player.sendMessage("§cPortal A is no longer available. Select it again.");
+    return false;
+  }
+
+  const links = linkPortals(readPortalLinks(), previous, selected);
+  if (!writePortalLinks(links)) return false;
+  clearPortalAnchor(player);
+
   player.sendMessage("§dPortal controllers linked.");
   try { player.playSound("travel", { volume: 1.0, pitch: 1.15 }); } catch (error) {
     operationDiagnostics.warnOnce("ported_features.portal_link_sound", "ported_features: portal-link sound failed", error);
@@ -271,11 +303,41 @@ export async function teleportLinkedPortal(player, block) {
   const currentTick = Number(system.currentTick ?? 0);
   const cooldownUntil = Number(player.getDynamicProperty(PORTAL_COOLDOWN_PROPERTY) ?? 0);
   if (!canEnterPortal(currentTick, cooldownUntil)) return false;
-  const destination = linkedPortal(readPortalLinks(), blockReference(block));
+
+  const source = blockReference(block);
+  let links = readPortalLinks();
+  const destination = linkedPortal(links, source);
   if (!destination) return false;
 
-  // Reserve the one-tick bounce guard before awaiting dimension preparation.
-  // This makes two same-tick interactions observe the same persisted lock.
+  const reverse = isPortalReference(destination)
+    ? linkedPortal(links, destination)
+    : undefined;
+  if (
+    !isPortalReference(destination)
+    || !samePortalDimension(source, destination)
+    || !isPortalReference(reverse)
+    || portalKey(reverse) !== portalKey(source)
+  ) {
+    links = unlinkPortal(links, source);
+    writePortalLinks(links);
+    return true;
+  }
+
+  const resolved = resolvePortalController(destination);
+  if (resolved.status === "missing") {
+    links = unlinkPortal(links, source);
+    writePortalLinks(links);
+    player.sendMessage("§7The linked portal no longer exists; the stale link was cleared.");
+    return true;
+  }
+  if (resolved.status !== "valid") {
+    operationDiagnostics.warnOnce(
+      "ported_features.portal_destination_unavailable",
+      "ported_features: linked portal controller is currently unavailable",
+    );
+    return true;
+  }
+
   const reservation = portalCooldownUntil(currentTick, PORTAL_COOLDOWN_TICKS);
   try {
     player.setDynamicProperty(PORTAL_COOLDOWN_PROPERTY, reservation);
@@ -296,8 +358,6 @@ export async function teleportLinkedPortal(player, block) {
   if (!teleported) {
     clearPortalReservation(player, reservation);
     operationDiagnostics.errorOnce("ported_features.portal_destination", "ported_features: linked portal destination was not ready");
-    // A linked controller was handled, so its failure must not fall through to
-    // the unlinked clan_void destination.
     return true;
   }
 
@@ -454,6 +514,236 @@ function placeCircuitPainting(player, block, face) {
     operationDiagnostics.errorOnce("ported_features.painting_place", "ported_features: circuit painting placement failed", err);
     return false;
   }
+}
+
+function tickLinkedPortals() {
+  let links = readPortalLinks();
+  let dirty = false;
+  const visited = new Set();
+
+  for (const [sourceKey, destination] of Object.entries(links)) {
+    if (visited.has(sourceKey)) continue;
+    if (!isPortalReference(destination)) {
+      delete links[sourceKey];
+      dirty = true;
+      continue;
+    }
+
+    const destinationKey = portalKey(destination);
+    const source = links[destinationKey];
+    if (!isPortalReference(source) || portalKey(source) !== sourceKey) {
+      delete links[sourceKey];
+      dirty = true;
+      continue;
+    }
+
+    visited.add(sourceKey);
+    visited.add(destinationKey);
+
+    if (!samePortalDimension(source, destination)) {
+      links = unlinkPortal(links, source);
+      portalIncoming.delete(sourceKey);
+      portalIncoming.delete(destinationKey);
+      dirty = true;
+      continue;
+    }
+
+    const sourceController = resolvePortalController(source);
+    const destinationController = resolvePortalController(destination);
+    if (sourceController.status === "missing" || destinationController.status === "missing") {
+      links = unlinkPortal(links, source);
+      portalIncoming.delete(sourceKey);
+      portalIncoming.delete(destinationKey);
+      dirty = true;
+      continue;
+    }
+    if (sourceController.status !== "valid" || destinationController.status !== "valid") continue;
+
+    const sourceBounds = collectPortalBounds(sourceController.block);
+    const destinationBounds = collectPortalBounds(destinationController.block);
+    if (!samePortalBoundsSize(sourceBounds, destinationBounds)) continue;
+
+    processPortalPair(
+      sourceKey,
+      destinationKey,
+      sourceController.block,
+      destinationController.block,
+      sourceBounds,
+      destinationBounds,
+    );
+  }
+
+  if (dirty) writePortalLinks(links);
+}
+
+function processPortalPair(sourceKey, destinationKey, sourceBlock, destinationBlock, sourceBounds, destinationBounds) {
+  const sourceIncoming = new Set(portalIncoming.get(sourceKey) ?? []);
+  const destinationIncoming = new Set(portalIncoming.get(destinationKey) ?? []);
+
+  processPortalEntities(
+    entitiesInPortal(sourceBlock.dimension, sourceBounds, true),
+    sourceBounds,
+    destinationBounds,
+    sourceIncoming,
+    destinationIncoming,
+  );
+  processPortalEntities(
+    entitiesInPortal(destinationBlock.dimension, destinationBounds, true),
+    destinationBounds,
+    sourceBounds,
+    destinationIncoming,
+    sourceIncoming,
+  );
+
+  portalIncoming.set(
+    sourceKey,
+    new Set(entitiesInPortal(sourceBlock.dimension, sourceBounds, false).map((entity) => entity.id)),
+  );
+  portalIncoming.set(
+    destinationKey,
+    new Set(entitiesInPortal(destinationBlock.dimension, destinationBounds, false).map((entity) => entity.id)),
+  );
+}
+
+function processPortalEntities(entities, sourceBounds, destinationBounds, sourceIncoming, destinationIncoming) {
+  for (const entity of entities) {
+    if (sourceIncoming.has(entity.id)) continue;
+    destinationIncoming.add(entity.id);
+
+    try {
+      const isPassenger = Boolean(entity.getComponent("minecraft:riding"));
+      entity.teleport(
+        portalTargetLocation(sourceBounds, destinationBounds, entity.location, isPassenger),
+        {
+          rotation: entity.getRotation(),
+          keepVelocity: true,
+        },
+      );
+    } catch (error) {
+      operationDiagnostics.warnOnce(
+        "ported_features.portal_tick_teleport",
+        "ported_features: source-backed portal entity teleport failed",
+        error,
+      );
+    }
+  }
+}
+
+function entitiesInPortal(dimension, bounds, livingOnly) {
+  let entities;
+  try {
+    entities = dimension.getEntities({
+      location: bounds.min,
+      volume: portalBoundsSize(bounds),
+    });
+  } catch (error) {
+    operationDiagnostics.warnOnce(
+      "ported_features.portal_entity_query",
+      "ported_features: portal entity query failed",
+      error,
+    );
+    return [];
+  }
+
+  return entities.filter((entity) => {
+    try {
+      if (livingOnly && !entity.getComponent("minecraft:health")) return false;
+      return aabbIntersectsPortal(entity.getAABB(), bounds);
+    } catch (error) {
+      operationDiagnostics.warnOnce(
+        "ported_features.portal_entity_bounds",
+        "ported_features: portal entity bounds query failed",
+        error,
+      );
+      return false;
+    }
+  });
+}
+
+function collectPortalBounds(controller) {
+  const origin = integerLocation(controller.location);
+  const min = { ...origin };
+  const max = { x: origin.x + 1, y: origin.y + 1, z: origin.z + 1 };
+  const queue = [origin];
+  const visited = new Set([blockLocationKey(origin)]);
+
+  for (let cursor = 0; cursor < queue.length; cursor += 1) {
+    const current = queue[cursor];
+    for (const offset of PORTAL_NEIGHBORS) {
+      const next = {
+        x: current.x + offset.x,
+        y: current.y + offset.y,
+        z: current.z + offset.z,
+      };
+      const key = blockLocationKey(next);
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      let block;
+      try {
+        block = controller.dimension.getBlock(next);
+      } catch {
+        continue;
+      }
+      if (!block || block.typeId !== PORTAL_EXTENDER_ID) continue;
+
+      queue.push(next);
+      min.x = Math.min(min.x, next.x);
+      min.y = Math.min(min.y, next.y);
+      min.z = Math.min(min.z, next.z);
+      max.x = Math.max(max.x, next.x + 1);
+      max.y = Math.max(max.y, next.y + 1);
+      max.z = Math.max(max.z, next.z + 1);
+    }
+  }
+
+  return { min, max };
+}
+
+function resolvePortalController(reference) {
+  if (!isPortalReference(reference)) return { status: "missing" };
+
+  const dimension = dimensions.get(reference.dimensionId);
+  if (!dimension) return { status: "unavailable" };
+
+  try {
+    const block = dimension.getBlock(reference);
+    if (!block) return { status: "unavailable" };
+    if (block.typeId !== PORTAL_CONTROLLER_ID) return { status: "missing" };
+    return { status: "valid", block };
+  } catch {
+    return { status: "unavailable" };
+  }
+}
+
+function writePortalLinks(links) {
+  try {
+    world.setDynamicProperty(PORTAL_LINKS_PROPERTY, JSON.stringify(links));
+    return true;
+  } catch (error) {
+    operationDiagnostics.errorOnce("ported_features.portal_link", "ported_features: portal-link state write failed", error);
+    return false;
+  }
+}
+
+function clearPortalAnchor(player) {
+  try {
+    player.setDynamicProperty(PORTAL_ANCHOR_PROPERTY, undefined);
+  } catch (error) {
+    operationDiagnostics.warnOnce("ported_features.portal_anchor_clear", "ported_features: portal anchor state clear failed", error);
+  }
+}
+
+function integerLocation(location) {
+  return {
+    x: Math.floor(location.x),
+    y: Math.floor(location.y),
+    z: Math.floor(location.z),
+  };
+}
+
+function blockLocationKey(location) {
+  return location.x + "," + location.y + "," + location.z;
 }
 
 function clearPortalReservation(player, reservation) {
