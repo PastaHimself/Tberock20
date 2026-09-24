@@ -12885,6 +12885,7 @@
       "bedrock_files": [
         "BP/scripts/systems/custom_blocks.js",
         "BP/scripts/systems/ported_features.js",
+        "BP/scripts/systems/ported_feature_logic.js",
         "BP/scripts/main.js",
         "BP/scripts/core/state.js",
         "BP/scripts/core/scheduler.js",
@@ -12892,7 +12893,7 @@
       ],
       "status": "ported",
       "parity": "approximation",
-      "notes": "2026-09-13 audit: The source package is reconciled at behavior level: its supported semantics are absorbed into the listed shipping BP/RP modules, not represented as a line-for-line Java package."
+      "notes": "2026-09-24 parity pass: source one-tick same-dimension LivingEntity portal scanning is restored with connected extender bounds, relative placement, incoming guards, velocity retention, relink cleanup, and controller validation. Bedrock maps Java LivingEntity to documented minecraft:health entities; real-engine chunk-edge/multiplayer behavior remains runtime-verified."
     },
     {
       "source_id": "code.boss/integrity",
