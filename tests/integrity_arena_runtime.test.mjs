@@ -52,3 +52,19 @@ test("Phase 3 runtime is the sole owner of runtime-family entities", async () =>
   assert.doesNotMatch(controller, /case "thebrokenscript:integ_fireball": return tickFireball/);
   assert.match(phase3Runtime, /families: \[RUNTIME_FAMILY\]/);
 });
+
+
+test("Phase 2 waits for Stage 2 generation before spawn and roster transfer", async () => {
+  const runtime = await readFile(runtimePath, "utf8");
+  assert.match(runtime, /stage2GeneratorRuntime\.ensureStage2ArenaCore\(world, dimension\)/);
+  assert.match(runtime, /arena\.stage2Ready = false/);
+  assert.match(runtime, /arena\.stage2Ready = true/);
+  assert.match(runtime, /arena\.stage2BuildFailed = true/);
+  assert.match(runtime, /arena\.stage2Ready !== true\) return/);
+  assert.match(runtime, /arena\.phaseTicks >= PHASE2_SOURCE\.transferDelayTicks/);
+  assert.match(runtime, /arena\.stage2TransferDone = true/);
+
+  const ensureIndex = runtime.indexOf("ensureStage2ArenaCore");
+  const spawnIndex = runtime.indexOf('"thebrokenscript:integrity_phase_2"', ensureIndex);
+  assert.ok(ensureIndex >= 0 && spawnIndex > ensureIndex, "Phase 2 entity must spawn only after generation");
+});
