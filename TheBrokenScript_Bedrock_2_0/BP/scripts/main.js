@@ -38,6 +38,7 @@ import * as progression from "./systems/progression.js";
 import * as commands from "./systems/commands.js";
 import * as dimensions from "./systems/dimensions.js";
 import * as portedFeatures from "./systems/ported_features.js";
+import * as particleRuntime from "./systems/particle_runtime.js";
 import * as perf from "./systems/perf.js";
 import * as doorRuntime from "./systems/door_runtime.js";
 import * as modifiedChunks from "./systems/modified_chunks.js";
@@ -95,6 +96,7 @@ function onWorldLoad() {
     horrorChat.begin();
     progression.begin(scheduler);
     commands.begin();
+    particleRuntime.begin(scheduler, world);
     portedFeatures.begin(scheduler);
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
