@@ -255,7 +255,7 @@ def _source_block_ids(repo: Path) -> list[str]:
     identifiers.update(
         f"{NAMESPACE}:{name}"
         for name in re.findall(
-            r'TBSReg\\.INSTANCE\\.(?:block|defaultBlock)\\("([^"]+)"',
+            r'TBSReg\.INSTANCE\.(?:block|defaultBlock)\("([^"]+)"',
             registry,
         )
     )

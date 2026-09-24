@@ -35,7 +35,7 @@ def source_block_ids() -> set[str]:
     ids.update(
         f"thebrokenscript:{name}"
         for name in re.findall(
-            r'TBSReg\\.INSTANCE\\.(?:block|defaultBlock)\\("([^"]+)"',
+            r'TBSReg\.INSTANCE\.(?:block|defaultBlock)\("([^"]+)"',
             registry,
         )
     )
