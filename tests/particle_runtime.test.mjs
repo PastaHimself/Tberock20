@@ -106,6 +106,7 @@ test("Faraway controller retains the source funny-setting particle branch", () =
   assert.match(faraway, /config\.get\("danger\.funnySetting"\)/);
   assert.match(faraway, /Math\.random\(\) > 0\.99/);
   assert.match(faraway, /spawnSourceParticle\(e, "faraway_fard", origin\)/);
+  assert.match(faraway, /"faraway_null_burst" : "faraway_eyes_burst"/);
 });
 
 
@@ -116,7 +117,8 @@ test("Null Structure marker uses its source particle bridge and creative-held ga
   );
   assert.match(source, /register\("thebrokenscript:be_null_structure",\s*\{\s*onTick/s);
   assert.match(source, /getGameMode\(\) === GameMode\.Creative/);
-  assert.match(source, /heldItemTypeId\(player\) !== "thebrokenscript:null_structure"/);
+  assert.match(source, /isHoldingTypeId\(player, "thebrokenscript:null_structure"\)/);
+  assert.match(source, /EquipmentSlot\.Offhand/);
   assert.match(source, /spawnSourceParticle\(block, "null_structure_marker", center\)/);
 
   const block = JSON.parse(readFileSync(
