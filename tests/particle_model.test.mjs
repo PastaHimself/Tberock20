@@ -86,11 +86,13 @@ test("known Java sendParticles callsites keep source counts and spread", () => {
     effectId: "thebrokenscript:null_structure_particle",
     count: 1,
     offset: [0, 0, 0],
+    scope: "player",
   });
   assert.deepEqual(SOURCE_PARTICLE_EVENTS.library_paper, {
     effectId: "thebrokenscript:paper_particle",
     count: 1,
     offset: [0, 0, 0],
+    scope: "player",
   });
   assert.deepEqual(SOURCE_PARTICLE_EVENTS.wretched_tick, {
     effectId: "thebrokenscript:wretched_particle",
