@@ -442,6 +442,25 @@ def reconcile_horror_event(row: dict[str, Any], key: str, current_events: set[st
 
 def reconcile_code_package(row: dict[str, Any], key: str) -> None:
     source_id = row["source_id"]
+    if source_id == "code.block/portal":
+        decide(
+            row,
+            status="ported",
+            parity="approximation",
+            identifier="script:block/portal",
+            files=[
+                "BP/scripts/systems/custom_blocks.js",
+                "BP/scripts/systems/ported_features.js",
+                "BP/scripts/systems/ported_feature_logic.js",
+                "BP/scripts/main.js",
+                "BP/scripts/core/state.js",
+                "BP/scripts/core/scheduler.js",
+                "BEDROCK_ARCHITECTURE.md",
+            ],
+            notes="The source portal package is represented by the restored same-dimension one-tick living-entity sweep, connected extender bounds, relative placement, incoming guards, preserved velocity, relink cleanup, and controller validation.",
+        )
+        row["notes"] = "2026-09-24 parity pass: source one-tick same-dimension LivingEntity portal scanning is restored with connected extender bounds, relative placement, incoming guards, velocity retention, relink cleanup, and controller validation. Bedrock maps Java LivingEntity to documented minecraft:health entities; real-engine chunk-edge/multiplayer behavior remains runtime-verified."
+        return
     if source_id.startswith("code.compat"):
         decide(
             row,
