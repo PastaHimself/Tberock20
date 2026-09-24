@@ -10,7 +10,7 @@
     "components": {
       "minecraft:material_instances": {
         "*": {
-          "texture": "null_structure"
+          "texture": "empty"
         }
       },
       "minecraft:destructible_by_mining": {
@@ -21,7 +21,16 @@
         "explosion_resistance": 5
       },
       "minecraft:geometry": "minecraft:geometry.full_block",
-      "thebrokenscript:be_null_structure": {}
+      "thebrokenscript:be_null_structure": {},
+      "minecraft:collision_box": false,
+      "minecraft:selection_box": true,
+      "minecraft:tick": {
+        "interval_range": [
+          1,
+          1
+        ],
+        "looping": true
+      }
     }
   }
 }
