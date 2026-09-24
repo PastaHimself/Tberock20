@@ -67,6 +67,16 @@ test("known Java sendParticles callsites keep source counts and spread", () => {
     count: 55,
     offset: [3, 3, 3],
   });
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.library_paper, {
+    effectId: "thebrokenscript:paper_particle",
+    count: 1,
+    offset: [0, 0, 0],
+  });
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.wretched_tick, {
+    effectId: "thebrokenscript:wretched_particle",
+    count: 2,
+    offset: [3, 3, 3],
+  });
   assert.deepEqual(particleEventSpec("curved_despawn"), SOURCE_PARTICLE_EVENTS.curved_despawn);
 });
 
@@ -80,6 +90,11 @@ test("Bedrock emitters expose the source identifiers and event cardinalities", (
   assert.equal(readParticle("eyes").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 5);
   assert.equal(readParticle("null_particle").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 5);
   assert.equal(readParticle("particle_of_curved").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 55);
+  assert.equal(readParticle("wretched_particle").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 2);
+  assert.deepEqual(
+    readParticle("wretched_particle").particle_effect.components["minecraft:emitter_shape_box"].half_dimensions,
+    [3, 3, 3],
+  );
 });
 
 test("unknown particle identifiers fail loudly", () => {
