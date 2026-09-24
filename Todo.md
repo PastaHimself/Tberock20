@@ -19,7 +19,6 @@ An unchecked item means work remains, not necessarily that the feature is absent
 ## P1 — Confirmed implementation gaps and deferred assets
 
 - [ ] **Implementation — particles:** complete dedicated runtime bridges for `fardaway`, `wretched_particle`, `null_structure_particle`, and `paper_particle` where source callsites require them. Preserve source triggers, timing, count, spread, attachment, and cleanup; verify visible output in-engine.
-- [ ] **Implementation — portal scope:** address Java's same-dimension living-entity tick sweep using supported Bedrock behavior. The shipped player-click route does not reproduce it. Establish source requirements before adding mob/item/projectile transfer; document any residual limitation.
 - [ ] **Implementation/verification — structures:** complete or validate Integrity Stage 2 and XCSF reconstruction/placement within supported generator/processor capabilities. Inventorying all 314 templates is not proof that their placement behavior is ported.
 - [ ] **Deferred — Nostalgia pack:** obtain a complete reliable source archive, inventory missing overrides, resolve broad vanilla sound/model conflicts with the main RP, and validate the optional pack. Do not claim a complete import from the partial multipart archive.
 - [ ] **Deferred — custom fonts:** resolve A-009 only with verified Bedrock glyph-page mappings; retain standard-glyph formatting until that evidence exists.
@@ -183,7 +182,7 @@ Close a task only when its applicable evidence exists:
 ## Work order
 
 1. Produce runtime smoke evidence and fix gameplay-critical failures.
-2. Finish particle bridges, portal scope, and supported Stage 2/XCSF work.
+2. Finish particle bridges and supported Stage 2/XCSF work; runtime-verify the restored portal sweep.
 3. Close entity/combat, block/item/quest, dimension, and structure verification gaps.
 4. Verify animation/audio/UI behavior and profile real multiplayer loads.
 5. Complete deferred optional assets when reliable source material is available.
