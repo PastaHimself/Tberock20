@@ -107,8 +107,17 @@ silently reroll it.
   and Java-only processors remain identified as conversion boundaries rather
   than being presented as a different, fabricated generator.
 - Portal linking is sneak-gated like Java, does not consume the linker, keeps
-  two anchors and bidirectional links in persisted namespaced state, waits for
-  the destination, and applies a one-tick persisted arrival guard.
+  two anchors and bidirectional links in persisted namespaced state, removes
+  obsolete reverse links when either endpoint is relinked, rejects
+  cross-dimension pairs, validates both controller blocks before use, waits for
+  the destination on the interaction adapter, and applies a one-tick persisted
+  arrival guard.
+- The source controller's one-tick portal sweep is restored for same-dimension
+  Bedrock entities carrying the documented `minecraft:health` component (the
+  closest supported `LivingEntity` boundary). Connected extender blocks grow
+  the portal AABB, equal-size portals preserve relative XYZ offsets, riders use
+  the source zero-Y offset, arrival UUIDs are guarded against same-tick bounce,
+  and `TeleportOptions.keepVelocity` preserves motion.
 - The protected-void entry preserves the source `(11, 71, 6)` position and
   180-degree yaw without passing non-coordinate metadata to the Bedrock
   teleport location object. Other source entry variants/search rules remain
@@ -118,11 +127,12 @@ silently reroll it.
 
 The Bedrock custom-dimension registration surface currently creates a void
 generator. Exact Java `noise_settings` terrain and custom `ChunkGenerator`
-behavior are therefore not claimed. Java portal ticking also sweeps living
-entities in the same dimension; the shipped Bedrock route is player-click
-based and does not claim item/projectile parity. Static checks cannot replace
-in-game multiplayer and world-sample comparison, so those runtime checks
-remain separate validation gates.
+behavior are therefore not claimed. Java's `LivingEntity` class boundary has
+no one-to-one Bedrock Script API type, so the portal sweep uses the documented
+`minecraft:health` component as its supported runtime adapter; item and
+projectile entities remain excluded because the Java implementation does not
+teleport them. Static checks cannot replace in-game multiplayer and world-sample
+comparison, so those runtime checks remain separate validation gates.
 
 ## Validation entry point
 
