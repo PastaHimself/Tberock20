@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { spawnSourceParticle } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/particle_runtime.js";
+import { readFileSync } from "node:fs";
+import {
+  spawnSourceParticle,
+  tickLibraryPaper,
+} from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/particle_runtime.js";
 
 test("source particle runtime resolves the source event id at the entity location", () => {
   const calls = [];
@@ -41,4 +45,52 @@ test("source particle runtime contains Bedrock API failures", () => {
 
   assert.equal(spawnSourceParticle(entity, "eyes"), false);
   assert.equal(spawnSourceParticle(null, "eyes"), false);
+});
+
+
+test("Library paper ambience preserves source probability and spawn volume", () => {
+  const calls = [];
+  const player = {
+    location: { x: 100, y: 50, z: -20 },
+    dimension: {
+      id: "thebrokenscript:library",
+      spawnParticle: (...args) => calls.push(args),
+    },
+  };
+  const values = [0.005, 0.75, 0.25, 0.5];
+  const random = () => values.shift();
+  const runtimeWorld = { getAllPlayers: () => [player] };
+
+  assert.equal(tickLibraryPaper(runtimeWorld, random), 1);
+  assert.deepEqual(calls, [[
+    "thebrokenscript:paper_particle",
+    { x: 108, y: 46, z: -20 },
+  ]]);
+});
+
+test("Library paper ambience ignores other dimensions and failed 1% trials", () => {
+  const calls = [];
+  const library = {
+    location: { x: 0, y: 0, z: 0 },
+    dimension: { id: "thebrokenscript:library", spawnParticle: (...args) => calls.push(args) },
+  };
+  const overworld = {
+    location: { x: 0, y: 0, z: 0 },
+    dimension: { id: "minecraft:overworld", spawnParticle: (...args) => calls.push(args) },
+  };
+  assert.equal(tickLibraryPaper({ getAllPlayers: () => [library, overworld] }, () => 0.5), 0);
+  assert.deepEqual(calls, []);
+});
+
+test("Follow controller uses the dedicated per-tick Wretched bridge", () => {
+  const source = readFileSync(
+    "TheBrokenScript_Bedrock_2_0/BP/scripts/entities/misc/misc_controller.js",
+    "utf8",
+  );
+  const start = source.indexOf("function tickFollow");
+  const end = source.indexOf("function tickWanderDespawn", start);
+  const tickFollow = source.slice(start, end);
+  assert.match(tickFollow, /spawnSourceParticle\(e, "wretched_tick"\)/);
+  assert.doesNotMatch(tickFollow, /basic_smoke_particle/);
+  assert.doesNotMatch(tickFollow, /currentTick % 30/);
 });
