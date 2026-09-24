@@ -1118,6 +1118,26 @@ def _portal_contract(repo: Path) -> dict[str, Any]:
             re.search(r"\blinkPortals\s*\(", logic)
             and re.search(r"\blinkedPortal\s*\(", logic)
         ),
+        "runtime_relink_cleanup": bool(
+            re.search(r"\bunlinkPortal\s*\(", logic)
+            and re.search(r"next\s*=\s*unlinkPortal\(next,\s*second\)", logic)
+        ),
+        "runtime_same_dimension_links": bool(
+            re.search(r"\bsamePortalDimension\s*\(", logic)
+            and re.search(r"samePortalDimension\(previous,\s*selected\)", runtime)
+        ),
+        "runtime_living_entity_tick_sweep": bool(
+            re.search(r'scheduler\.every\(\s*["\']ported_features\.portals["\']\s*,\s*1\s*,\s*tickLinkedPortals\s*\)', runtime)
+            and "minecraft:health" in runtime
+            and re.search(r"\.getEntities\s*\(", runtime)
+            and re.search(r"\.getAABB\s*\(", runtime)
+            and re.search(r"keepVelocity\s*:\s*true", runtime)
+        ),
+        "runtime_controller_validation": bool(
+            "resolvePortalController" in runtime
+            and "PORTAL_CONTROLLER_ID" in runtime
+            and re.search(r"unlinkPortal\(links,\s*source\)", runtime)
+        ),
         "safe_arrival": bool(
             re.search(r"\bteleportWhenReady\s*\(", runtime)
             and re.search(
@@ -1134,7 +1154,7 @@ def _portal_contract(repo: Path) -> dict[str, Any]:
         "fallback_destination": "clan_void"
         if re.search(r'\bteleportWhenReady\([^\n]*["\']clan_void["\']', custom_blocks)
         else None,
-        "entity_scope": "player click route; Java's same-dimension living-entity tick sweep remains an explicit adapter limitation",
+        "entity_scope": "same-dimension one-tick health-bearing entity sweep with connected extender bounds, relative offsets, incoming guards, and preserved velocity",
     }
 
 
@@ -1306,6 +1326,14 @@ def validate_report(report: dict[str, Any]) -> list[str]:
         errors.append("portal arrival must have the one-tick persisted bounce guard")
     if not portals.get("safe_arrival"):
         errors.append("portal arrival is not readiness/safe-landing gated")
+    if not portals.get("runtime_relink_cleanup"):
+        errors.append("portal relinking does not remove obsolete reverse links")
+    if not portals.get("runtime_same_dimension_links"):
+        errors.append("portal links are not constrained to the source same-dimension contract")
+    if not portals.get("runtime_living_entity_tick_sweep"):
+        errors.append("portal runtime is missing the source one-tick living-entity sweep")
+    if not portals.get("runtime_controller_validation"):
+        errors.append("portal runtime does not validate linked controller blocks before use")
 
     commands = content.get("commands", {})
     if commands.get("java_root_permission_level") != 4:
@@ -1365,7 +1393,7 @@ def build_report(repo: Path = ROOT) -> dict[str, Any]:
             "Bedrock custom dimensions currently expose a void generator; exact Java noise_settings terrain generation is not claimed.",
             "The source corpus contains 314 NBT templates; six Shaft templates remain source-identical staged assets and the inventory records the remaining conversion boundary.",
             "Java block-entity storage/rendering and entity/item tags use explicit script/dynamic-property/query adapters where Bedrock lacks a portable equivalent.",
-            "Java portal ticking moves living entities in the same dimension; the shipped Bedrock interaction route is player-click based and does not claim item/projectile parity.",
+            "Java portal ticking moves LivingEntity instances in the same dimension; Bedrock maps that class boundary to health-bearing entities, preserves relative position and velocity, and intentionally excludes item/projectile entities.",
             "Static CI cannot replace an in-game multiplayer/world-sample comparison; runtime smoke and structure validators remain separate gates.",
         ],
     }
