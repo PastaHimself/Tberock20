@@ -139,11 +139,13 @@ export const SOURCE_PARTICLE_EVENTS = Object.freeze({
     effectId: "thebrokenscript:null_structure_particle",
     count: 1,
     offset: Object.freeze([0, 0, 0]),
+    scope: "player",
   }),
   library_paper: Object.freeze({
     effectId: "thebrokenscript:paper_particle",
     count: 1,
     offset: Object.freeze([0, 0, 0]),
+    scope: "player",
   }),
   wretched_tick: Object.freeze({
     effectId: "thebrokenscript:wretched_particle",
