@@ -1,5 +1,5 @@
 import * as operationDiagnostics from "../core/operation_diagnostics.js";
-import { BlockPermutation, system, world } from "@minecraft/server";
+import { BlockPermutation, GameMode, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import {
@@ -8,6 +8,7 @@ import {
   teleportLinkedPortal,
 } from "./ported_features.js";
 import * as worldState from "./world_state.js";
+import { spawnSourceParticle } from "./particle_runtime.js";
 
 // Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -113,12 +114,48 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  // Java parity: NullStructureBlock is a passive, invisible marker. Its block entity
-  // stores a structureId plus once-per-player/world trigger state; event handlers query
-  // nearby markers and perform the requested action. It has no use/interact behavior.
-  // Keep the custom component registered because block JSONs reference it, but do not
-  // synthesize a click-to-place structure action here.
-  register("thebrokenscript:be_null_structure", {});
+  // Java NullStructureBlock is invisible and emits its marker particle only for a
+  // Creative player holding the marker item. Bedrock selection boxes are block-global,
+  // so the JSON keeps a static selectable outline while collision stays disabled.
+  register("thebrokenscript:be_null_structure", {
+    onTick(ev) {
+      const { block } = ev;
+      const center = {
+        x: block.location.x + 0.5,
+        y: block.location.y + 0.5,
+        z: block.location.z + 0.5,
+      };
+
+      let nearby = [];
+      try {
+        nearby = block.dimension.getPlayers({ location: center, maxDistance: 32 });
+      } catch (error) {
+        operationDiagnostics.warnOnce(
+          "custom_blocks.null_structure_players",
+          "custom_blocks: null-structure player query failed",
+          error,
+        );
+        return;
+      }
+
+      for (const player of nearby) {
+        let creative = false;
+        try {
+          creative = player.getGameMode() === GameMode.Creative;
+        } catch (error) {
+          operationDiagnostics.warnOnce(
+            "custom_blocks.null_structure_gamemode",
+            "custom_blocks: null-structure game-mode query failed",
+            error,
+          );
+          continue;
+        }
+        if (!creative || heldItemTypeId(player) !== "thebrokenscript:null_structure") continue;
+        spawnSourceParticle(block, "null_structure_marker", center);
+        return;
+      }
+    }
+  });
 
   register("thebrokenscript:be_shadow_bug", {
     onRandomTick(ev) {
