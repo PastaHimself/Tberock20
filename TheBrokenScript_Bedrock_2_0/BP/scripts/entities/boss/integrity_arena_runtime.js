@@ -3,6 +3,7 @@ import { world } from "@minecraft/server";
 import { logger } from "../../core/logging.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as dimensions from "../../systems/dimensions.js";
+import * as stage2GeneratorRuntime from "../../systems/stage2_generator_runtime.js";
 import * as phase3Runtime from "./phase3_runtime.js";
 import {
   ARENA_SOURCE,
@@ -207,16 +208,49 @@ function beginPhase2() {
   arena.phase = INTEGRITY_PHASE.PHASE_2;
   arena.phaseTicks = 0;
   arena.phaseEntityId = null;
-  const entity = spawnAt(dimension, "thebrokenscript:integrity_phase_2", PHASE2_SOURCE.recoveryTeleport);
-  if (!entity) return false;
-  arena.phaseEntityId = entity.id;
+  arena.stage2Ready = false;
+  arena.stage2BuildFailed = false;
+  arena.stage2TransferDone = false;
   setArenaFlags(true, false);
+
+  void stage2GeneratorRuntime.ensureStage2ArenaCore(world, dimension)
+    .then(() => {
+      if (!arena || arena.phase !== INTEGRITY_PHASE.PHASE_2) return;
+      const entity = spawnAt(
+        dimension,
+        "thebrokenscript:integrity_phase_2",
+        PHASE2_SOURCE.recoveryTeleport,
+      );
+      if (!entity) {
+        arena.stage2BuildFailed = true;
+        logger.error("integrity arena: Stage 2 geometry completed but Phase 2 entity spawn failed");
+        return;
+      }
+      arena.phaseEntityId = entity.id;
+      arena.stage2Ready = true;
+    })
+    .catch((error) => {
+      logger.error("integrity arena: Stage 2 source geometry generation failed", error);
+      if (arena?.phase === INTEGRITY_PHASE.PHASE_2) {
+        arena.stage2BuildFailed = true;
+      }
+    });
   return true;
 }
 
 function tickPhase2() {
-  if (arena.phaseTicks === PHASE2_SOURCE.transferDelayTicks) {
+  if (arena.stage2BuildFailed === true) {
+    stop("stage2_generation_failed");
+    return;
+  }
+  if (arena.stage2Ready !== true) return;
+
+  // Java transfers after 20 ticks into an already-generated dimension. The
+  // Bedrock adapter may need longer to lazily build unloaded chunks, so never
+  // transfer before both the source delay and successful arena generation.
+  if (arena.stage2TransferDone !== true && arena.phaseTicks >= PHASE2_SOURCE.transferDelayTicks) {
     teleportRoster("thebrokenscript:stage2", PHASE2_SOURCE.recoveryTeleport);
+    arena.stage2TransferDone = true;
   }
   for (const { player } of rosterRecords()) {
     try {
