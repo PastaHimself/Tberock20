@@ -21,6 +21,14 @@ export const STAGE2_NOWHERE_EDGE_THRESHOLD = 2.895;
 export const STAGE2_NOWHERE_POINT_CLEARANCE = 8;
 export const STAGE2_NOWHERE_CENTER_CLEARANCE = 3;
 export const STAGE2_NOWHERE_MAX_POINT_ATTEMPTS = 50;
+export const STAGE2_CHUNK_SEED_X = 341873128712n;
+export const STAGE2_CHUNK_SEED_Z = 132897987541n;
+export const STAGE2_TEMPLATE_ROTATIONS = Object.freeze([
+  "none",
+  "rotate90",
+  "rotate180",
+  "rotate270",
+]);
 
 function integerSeed(value) {
   if (typeof value === "bigint") return value;
@@ -68,9 +76,142 @@ export class JavaLegacyRandom {
     return origin + this.nextInt(bound - origin);
   }
 
+  nextBoolean() {
+    return this.next(1) !== 0;
+  }
+
   nextFloat() {
     return this.next(24) / (1 << 24);
   }
+}
+
+function stage2ChunkRandom(worldSeed, chunkX, chunkZ) {
+  if (!Number.isInteger(chunkX) || !Number.isInteger(chunkZ)) {
+    throw new TypeError("Stage 2 chunk coordinates must be integers");
+  }
+  return new JavaLegacyRandom(
+    integerSeed(worldSeed)
+      + BigInt(chunkX) * STAGE2_CHUNK_SEED_X
+      + BigInt(chunkZ) * STAGE2_CHUNK_SEED_Z,
+  );
+}
+
+function sourceTransform(random) {
+  return {
+    mirror: random.nextBoolean() ? "front_back" : "none",
+    rotation: STAGE2_TEMPLATE_ROTATIONS[random.nextInt(4)],
+  };
+}
+
+export function stage2SurfaceTemplatePlan(worldSeed, chunkX, chunkZ) {
+  if (stage2CoreChunkRegion(chunkX, chunkZ) !== "interior") return null;
+  const random = stage2ChunkRandom(worldSeed, chunkX, chunkZ);
+  const transform = sourceTransform(random);
+  return Object.freeze({
+    structureId: random.nextFloat() < 0.99 ? "fieldbase" : "fieldbase2",
+    y: 252,
+    ...transform,
+  });
+}
+
+const FLOOR3_VARIANTS = Object.freeze([
+  null,
+  "woodfloor1",
+  "woodfloor2",
+  "woodfloor3",
+  "woodfloor4",
+  "woodfloor5",
+  "woodfloor6",
+  "woodfloor7",
+]);
+
+function floor3Template(variant, randomExtra) {
+  if (variant >= 1 && variant <= 7) return FLOOR3_VARIANTS[variant];
+  if (variant === 8) return randomExtra ? "woodfloor8" : "woodfloor4";
+  if (variant === 9) return randomExtra ? "woodfloor9" : "woodfloor4";
+  const choices = {
+    10: ["tek_woodfloor1", "woodfloor1"],
+    11: ["tek_woodfloor2", "woodfloor1"],
+    12: ["tek_woodfloor3", "woodfloor2"],
+    13: ["tek_woodfloor4", "woodfloor2"],
+    14: ["tek_woodfloor6", "woodfloor3"],
+    15: ["tek_woodfloor7", "woodfloor3"],
+    16: ["tek_woodfloor8", "woodfloor4"],
+    17: ["tek_woodfloor9", "woodfloor4"],
+    18: ["tek_woodfloor10", "woodfloor1"],
+    20: ["tek_woodfloor12", "woodfloor2"],
+    21: ["tek_woodfloor13", "woodfloor2"],
+    22: ["tek_woodfloor14", "woodfloor3"],
+    23: ["tek_woodfloor15", "woodfloor3"],
+    24: ["tek_woodfloor16", "woodfloor4"],
+    25: ["tek_woodfloor17", "woodfloor4"],
+    26: ["tek_woodfloor18", "woodfloor1"],
+    27: ["tek_woodfloor20", "woodfloor2"],
+    28: ["tek_woodfloor21", "woodfloor2"],
+    29: ["tek_woodfloor22", "woodfloor3"],
+    30: ["tek_woodfloor23", "woodfloor3"],
+    31: ["tek_woodfloor24", "woodfloor4"],
+    32: ["tek_woodfloor25", "woodfloor4"],
+    33: ["tek_woodfloor26", "woodfloor1"],
+    34: ["tek_woodfloor27", "woodfloor1"],
+    35: ["tek_woodfloor28", "woodfloor2"],
+  };
+  if (variant === 19) return "woodfloor1";
+  if (variant === 36) return "woodfloor2";
+  if (variant === 37) return "woodfloor6";
+  const choice = choices[variant];
+  if (!choice) throw new RangeError("Stage 2 floor-3 variant must be in 1..37");
+  return randomExtra ? choice[0] : choice[1];
+}
+
+export function stage2RoomTemplatePlan(worldSeed, chunkX, chunkZ) {
+  if (stage2CoreChunkRegion(chunkX, chunkZ) !== "interior") return null;
+  const random = stage2ChunkRandom(worldSeed, chunkX, chunkZ);
+  const transform = sourceTransform(random);
+  const variantF1 = random.nextIntRange(1, 8);
+  const variantF2 = random.nextIntRange(1, 6);
+  const variantF3 = random.nextIntRange(1, 38);
+  const variantF4 = random.nextIntRange(1, 7);
+  const randomExtra = random.nextFloat() >= 0.9875;
+  const special = random.nextFloat() <= 0.95;
+
+  const floor1 = "clanvoidnew" + variantF1;
+  let floor2;
+  if (variantF2 === 1) floor2 = "clandimensionroom1";
+  else if (variantF2 === 2) floor2 = "clandimensionroom2";
+  else if (variantF2 === 3 || variantF2 === 4) floor2 = "clandimensionroom3";
+  else floor2 = special ? "clandimensionroom2" : "clandimensionroom5";
+
+  let floor4 = "stone1";
+  if (special && random.nextFloat() < 0.05) {
+    floor4 = "stone" + (variantF4 + 1);
+  }
+
+  return Object.freeze({
+    transform: Object.freeze(transform),
+    randomExtra,
+    special,
+    variants: Object.freeze({ variantF1, variantF2, variantF3, variantF4 }),
+    placements: Object.freeze([
+      Object.freeze({ structureId: floor1, y: 200 }),
+      Object.freeze({ structureId: floor2, y: 207 }),
+      Object.freeze({ structureId: floor3Template(variantF3, randomExtra), y: 217 }),
+      Object.freeze({ structureId: floor4, y: 233 }),
+    ]),
+  });
+}
+
+export function stage2TunnelTemplatePlan(primaryRandom = Math.random, alternateRandom = Math.random) {
+  if (Number(primaryRandom()) < 0.9) {
+    return Object.freeze({ structureId: "bedrockhallway1", y: 160, mirror: "none", rotation: "none" });
+  }
+  const roll = Math.max(0, Math.min(0.999999999, Number(alternateRandom())));
+  return Object.freeze({
+    structureId: "bedrockhallway" + (2 + Math.floor(roll * 9)),
+    y: 160,
+    mirror: "none",
+    rotation: "none",
+  });
 }
 
 export function stage2ChunkOrigin(chunkX, chunkZ) {
