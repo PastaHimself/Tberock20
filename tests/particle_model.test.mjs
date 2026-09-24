@@ -72,6 +72,16 @@ test("known Java sendParticles callsites keep source counts and spread", () => {
     count: 50,
     offset: [3, 3, 3],
   });
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.faraway_null_burst, {
+    effectId: "thebrokenscript:faraway_null_burst",
+    count: 555,
+    offset: [2, 2, 2],
+  });
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.faraway_eyes_burst, {
+    effectId: "thebrokenscript:faraway_eyes_burst",
+    count: 555,
+    offset: [2, 2, 2],
+  });
   assert.deepEqual(SOURCE_PARTICLE_EVENTS.null_structure_marker, {
     effectId: "thebrokenscript:null_structure_particle",
     count: 1,
@@ -115,4 +125,13 @@ test("Bedrock emitters expose the source identifiers and event cardinalities", (
 test("unknown particle identifiers fail loudly", () => {
   assert.throws(() => particleDefinition("missing_particle"), /Unknown source particle/);
   assert.throws(() => particleEventSpec("missing_event"), /Unknown source particle event/);
+});
+
+
+test("Faraway disappearance burst adapters retain source 555 count and spread 2", () => {
+  for (const name of ["faraway_null_burst", "faraway_eyes_burst"]) {
+    const effect = readParticle(name).particle_effect;
+    assert.equal(effect.components["minecraft:emitter_rate_instant"].num_particles, 555);
+    assert.deepEqual(effect.components["minecraft:emitter_shape_box"].half_dimensions, [2, 2, 2]);
+  }
 });
