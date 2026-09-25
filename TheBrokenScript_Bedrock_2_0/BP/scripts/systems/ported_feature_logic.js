@@ -63,3 +63,14 @@ export function linkPortals(existing, first, second) {
 export function linkedPortal(links, portal) {
   return links?.[portalKey(portal)];
 }
+
+export function linkedPortalDestinationExists(dimension, destination) {
+  try {
+    return dimension?.getBlock({
+      x: destination.x, y: destination.y, z: destination.z,
+    })?.typeId === "thebrokenscript:portal_controller";
+  } catch (error) {
+    operationDiagnostics.warnOnce("portal.destination_unavailable", "portal: destination controller could not be inspected", error);
+    return false;
+  }
+}

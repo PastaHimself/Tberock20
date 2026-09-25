@@ -62,3 +62,19 @@ test("linked portal activation reserves cooldown and owns failed linked routes",
   assert.match(customBlocks, /if \(hasLinkedPortal\(block\)\)/);
   assert.match(customBlocks, /await teleportLinkedPortal\(player, block\);\s*return;/);
 });
+
+test("linked travel validates its destination controller before teleporting", async () => {
+  const modulePath = path.join(ROOT, "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_feature_logic.js");
+  const { linkedPortalDestinationExists } = await import(pathToFileURL(modulePath));
+  const destination = { x: 4, y: 70, z: 9 };
+  const portal = { typeId: "thebrokenscript:portal_controller" };
+  assert.equal(linkedPortalDestinationExists({ getBlock: () => portal }, destination), true);
+  assert.equal(linkedPortalDestinationExists({ getBlock: () => ({ typeId: "minecraft:air" }) }, destination), false);
+  assert.equal(linkedPortalDestinationExists({ getBlock: () => undefined }, destination), false);
+  assert.equal(linkedPortalDestinationExists({ getBlock: () => { throw new Error("unloaded"); } }, destination), false);
+
+  const ported = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_features.js");
+  const dimensions = read("TheBrokenScript_Bedrock_2_0/BP/scripts/systems/dimensions.js");
+  assert.match(ported, /validateDestination:\s*\(dimension\)\s*=>\s*linkedPortalDestinationExists\(dimension, destination\)/);
+  assert.match(dimensions, /if \(validateDestination && !validateDestination\(dim\)\) return false;/);
+});

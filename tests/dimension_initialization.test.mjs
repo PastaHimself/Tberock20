@@ -131,6 +131,58 @@ test("first custom-dimension entry creates a persisted safe landing and cleans i
   assert.equal(dimension.blocks.size, 9);
 });
 
+test("another destination in the same chunk receives its own safe landing", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension();
+  const enter = (x, z) => ensureDimensionReady({
+    world, dimension, dimensionId: "clan_void", location: { x, y: 201, z }, logger,
+  });
+
+  await enter(1.5, 1.5);
+  const second = await enter(14.5, 14.5);
+
+  assert.deepEqual(second, { ready: true, location: { x: 14.5, y: 201, z: 14.5 } });
+  assert.equal(dimension.getBlock({ x: 14, y: 200, z: 14 }).typeId, SAFE_LANDING_BLOCK);
+});
+
+test("a damaged cached landing is repaired before a return visit", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension();
+  const args = {
+    world, dimension, dimensionId: "clan_void", location: { x: 5.5, y: 201, z: 5.5 }, logger,
+  };
+  await ensureDimensionReady(args);
+  dimension.blocks.delete("5:200:5");
+
+  const returnVisit = await ensureDimensionReady(args);
+
+  assert.equal(returnVisit.ready, true);
+  assert.equal(dimension.getBlock({ x: 5, y: 200, z: 5 }).typeId, SAFE_LANDING_BLOCK);
+});
+
+test("a cached destination reloads its chunk when blocks cannot be inspected yet", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension();
+  const args = {
+    world, dimension, dimensionId: "clan_void", location: { x: 6.5, y: 201, z: 6.5 }, logger,
+  };
+  await ensureDimensionReady(args);
+  const getBlock = dimension.getBlock.bind(dimension);
+  let unavailable = true;
+  dimension.getBlock = (location) => {
+    if (unavailable) throw new Error("location in unloaded chunk");
+    return getBlock(location);
+  };
+  const createTickingArea = world.tickingAreaManager.createTickingArea;
+  world.tickingAreaManager.createTickingArea = async (...options) => {
+    unavailable = false;
+    return createTickingArea(...options);
+  };
+
+  assert.equal((await ensureDimensionReady(args)).ready, true);
+  assert.equal(world.calls.create, 2);
+});
+
 test("registered terrain initializer runs once before landing resolution", async () => {
   const world = fakeWorld();
   const dimension = fakeDimension();
@@ -225,6 +277,24 @@ test("existing terrain is preferred over writing a fallback landing platform", a
   assert.equal(result.ready, true);
   assert.equal(result.location.y, 201);
   assert.equal(dimension.blocks.size, preexistingWrites);
+});
+
+test("liquid below a destination is replaced by safe footing", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension();
+  dimension.setBlockType({ x: 9, y: 200, z: 9 }, "minecraft:water");
+  const getBlock = dimension.getBlock.bind(dimension);
+  dimension.getBlock = (location) => {
+    const block = getBlock(location);
+    return { ...block, isSolid: block.typeId !== "minecraft:water" && !block.isAir };
+  };
+
+  const result = await ensureDimensionReady({
+    world, dimension, dimensionId: "clan_void", location: { x: 9.5, y: 201, z: 9.5 }, logger,
+  });
+
+  assert.equal(result.ready, true);
+  assert.equal(dimension.getBlock({ x: 9, y: 200, z: 9 }).typeId, SAFE_LANDING_BLOCK);
 });
 
 test("persisted landing state remembers a resolved Y offset across re-entry", async () => {

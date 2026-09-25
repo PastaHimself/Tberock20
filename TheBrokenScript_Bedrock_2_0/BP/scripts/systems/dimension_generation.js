@@ -47,6 +47,10 @@ export function landingRegionKey(location) {
   return `${Math.floor(x / 16)}:${Math.floor(y / 16)}:${Math.floor(z / 16)}`;
 }
 
+function landingSiteKey(location) {
+  return `${Math.floor(location.x)}:${Math.floor(location.y)}:${Math.floor(location.z)}`;
+}
+
 export function landingAreaBounds(location, radius = 1) {
   const safeRadius = Math.max(0, Math.floor(Number(radius)));
   const x = Math.floor(finiteCoordinate(location?.x, "location.x"));
@@ -99,6 +103,10 @@ function isAir(block) {
   return block?.isAir === true || block?.typeId === "minecraft:air";
 }
 
+function hasFooting(block) {
+  return Boolean(block && !isAir(block) && block.isSolid !== false);
+}
+
 function candidateFeetY(centerY, minY, maxY, radius = 16) {
   const values = [centerY];
   for (let offset = 1; offset <= radius; offset++) {
@@ -116,6 +124,18 @@ function blocksAt(dimension, x, y, z) {
   };
 }
 
+function isLandingSafe(dimension, location) {
+  try {
+    const { floor, feet, head } = blocksAt(
+      dimension, Math.floor(location.x), Math.floor(location.y), Math.floor(location.z),
+    );
+    return hasFooting(floor) && isAir(feet) && isAir(head);
+  } catch (error) {
+    operationDiagnostics.warnOnce("dimension_generation.cached_landing_unavailable", "dimension generation: cached landing could not be inspected", error);
+    return false;
+  }
+}
+
 function findNaturalLanding(dimension, location, heightRange) {
   const x = Math.floor(location.x);
   const z = Math.floor(location.z);
@@ -123,7 +143,7 @@ function findNaturalLanding(dimension, location, heightRange) {
   const maxY = Math.floor(heightRange.max) - 2;
   for (const y of candidateFeetY(location.y, minY, maxY)) {
     const blocks = blocksAt(dimension, x, y, z);
-    if (!isAir(blocks.floor) && isAir(blocks.feet) && isAir(blocks.head)) return y;
+    if (hasFooting(blocks.floor) && isAir(blocks.feet) && isAir(blocks.head)) return y;
   }
   return undefined;
 }
@@ -259,7 +279,7 @@ async function initializeLanding(context, regionKey) {
     regionKey,
     location,
   );
-  if (persistedLocation && initializerReady) {
+  if (persistedLocation && initializerReady && isLandingSafe(dimension, persistedLocation)) {
     return { ready: true, location: persistedLocation };
   }
 
@@ -326,7 +346,7 @@ export async function ensureDimensionReady({
     return { ready: false, location };
   }
 
-  const regionKey = landingRegionKey(target);
+  const regionKey = landingSiteKey(target);
   const spec = initializers.get(normalized);
   const initializerKey = spec
     ? initializerRegionKey(spec, target, dimension)
@@ -339,13 +359,18 @@ export async function ensureDimensionReady({
     regionKey,
     target,
   );
-  if (persistedLocation && initializerReady) {
+  if (persistedLocation && initializerReady && isLandingSafe(dimension, persistedLocation)) {
     return { ready: true, location: persistedLocation };
   }
 
   const flightKey = `${normalized}|${regionKey}`;
   const existing = inFlight.get(flightKey);
-  if (existing) return existing;
+  if (existing) {
+    return existing.then((result) => ({
+      ...result,
+      location: result.ready ? { ...target, y: result.location.y } : target,
+    }));
+  }
 
   const pending = initializeLanding(
     {

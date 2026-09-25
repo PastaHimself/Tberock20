@@ -7,6 +7,7 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 3. **Custom fluid physics remain unavailable** — `void_liquid` uses the existing translucent block/script approximation (A-001).
 4. **Custom mob-effect registry entries remain unavailable** — `heart_corruption` and `why_cant_you_leave` now run as finite script effects. The latter uses the original eyes texture through a native Bedrock particle. A custom potion icon and Java's `MAX_HEALTH -1` attribute modifier cannot be reproduced exactly (A-002).
 5. **Custom advancements remain unavailable** — the existing progression flags and toast-style presentation are the shipped replacement (A-006).
+   The `polaroid_craft` trigger remains approximate: on the pinned `@minecraft/server` 2.11.0-beta API, the periodic inventory scan detects possession, so receiving a Polaroid from another player can award a craft advancement. Exact recipe-craft detection needs an API migration and an in-game check.
 6. **Custom painting variants remain unavailable** — Chunk 20 ships `circuit_cave` as a breakable 4×2 decorative entity with the original 128×64 texture and a consumable placement item (A-005).
 7. **Noise-based custom terrain generation remains unavailable** — the dimension terrain and structures remain supported approximations (A-007).
 8. **Beta APIs are required by the shipping behavior pack** — the effective pack floor is Bedrock 1.26.50 and the BP declares `@minecraft/server` `2.11.0-beta`; worlds must enable Beta APIs. Dimensions are retained.
