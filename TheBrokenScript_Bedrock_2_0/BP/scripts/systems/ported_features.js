@@ -6,12 +6,14 @@ import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
 import { applyDamageWithSource } from "./damage_source_runtime.js";
+import { libraryBookPageView } from "./library_book_pages.js";
 import {
   HAND_CANNON_RANGE,
   circuitPaintingPlacement,
   firstHandCannonTarget,
   linkPortals,
   linkedPortal,
+  linkedPortalDestinationExists,
   canEnterPortal,
   portalCooldownUntil,
   portalKey,
@@ -198,13 +200,19 @@ export async function showLibraryBook(player) {
   }
 
   try {
-    player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.2 });
-    await new ActionFormData()
-      .title("§8Library Book")
-      .body(`§7Source library book #${bookNumber}\n\n§8The full Java book screen is represented by this stable Bedrock form adapter.`)
-      .button("Close")
-      .show(player);
-    return true;
+    let page = 0;
+    while (true) {
+      const view = libraryBookPageView(bookNumber, page);
+      player.playSound("item.book.page_turn", { volume: 1.0, pitch: 1.2 });
+      const form = new ActionFormData()
+        .title(`§8Library Book ${bookNumber} §7${view.totalPages ? `${page + 1}/${view.totalPages}` : ""}`)
+        .body(view.content);
+      for (const button of view.buttons) form.button(button.label);
+      const response = await form.show(player);
+      const nextPage = view.buttons[response.selection]?.nextPage;
+      if (response.canceled || nextPage == null) return true;
+      page = nextPage;
+    }
   } catch (err) {
     operationDiagnostics.warnOnce("ported_features.library_book_form", "ported_features: library book form failed", err);
     return false;
@@ -292,6 +300,7 @@ export async function teleportLinkedPortal(player, block) {
       y: destination.y + 1.1,
       z: destination.z + 0.5,
     },
+    { validateDestination: (dimension) => linkedPortalDestinationExists(dimension, destination) },
   );
   if (!teleported) {
     clearPortalReservation(player, reservation);

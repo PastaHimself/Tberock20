@@ -18,6 +18,7 @@ An unchecked item means work remains, not necessarily that the feature is absent
 
 ## P1 — Confirmed implementation gaps and deferred assets
 
+- [ ] **Implementation — Polaroid craft advancement:** replace the inventory-possession trigger with a recipe-craft event when moving beyond the pinned `@minecraft/server` 2.11.0-beta / 1.26.50 Preview contract; verify crafting, receiving, and moving the item between containers in-game.
 - [ ] **Implementation — particles:** complete dedicated runtime bridges for `fardaway`, `wretched_particle`, `null_structure_particle`, and `paper_particle` where source callsites require them. Preserve source triggers, timing, count, spread, attachment, and cleanup; verify visible output in-engine.
 - [ ] **Implementation — portal scope:** address Java's same-dimension living-entity tick sweep using supported Bedrock behavior. The shipped player-click route does not reproduce it. Establish source requirements before adding mob/item/projectile transfer; document any residual limitation.
 - [ ] **Implementation/verification — structures:** complete or validate Integrity Stage 2 and XCSF reconstruction/placement within supported generator/processor capabilities. Inventorying all 314 templates is not proof that their placement behavior is ported.

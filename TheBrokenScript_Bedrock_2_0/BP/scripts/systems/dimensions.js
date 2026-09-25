@@ -126,8 +126,12 @@ export function teleportTo(entity, dimId, location) {
 /**
  * Resolve the destination, initialize/load custom-dimension landing state, and
  * teleport only after the destination region is ready.
+ * @param {import("@minecraft/server").Entity} entity
+ * @param {string} dimId
+ * @param {import("@minecraft/server").Vector3} [location]
+ * @param {{ validateDestination?: (dimension: import("@minecraft/server").Dimension) => boolean }} [options]
  */
-export async function teleportWhenReady(entity, dimId, location) {
+export async function teleportWhenReady(entity, dimId, location, { validateDestination } = {}) {
   const normalized = normalizeDimensionId(dimId);
   const dim = get(normalized);
   if (!dim) return false;
@@ -149,6 +153,7 @@ export async function teleportWhenReady(entity, dimId, location) {
   }
 
   try {
+    if (validateDestination && !validateDestination(dim)) return false;
     entity.teleport(target, teleportOptions(normalized, dim));
     return true;
   } catch (error) {

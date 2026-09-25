@@ -89,3 +89,33 @@ test("simultaneous multiplayer entry into one region shares one initialization f
   assert.equal(world.removes, 1);
   assert.equal(inFlightDimensionInitializationCount(), 0);
 });
+
+test("simultaneous destinations within one region retain each player's coordinates", async () => {
+  const world = delayedWorld();
+  const dimension = voidDimension();
+  const args = { world, dimension, dimensionId: "clan_void", logger: { error() {} } };
+  const first = ensureDimensionReady({ ...args, location: { x: 1.5, y: 201, z: 1.5 } });
+  const second = ensureDimensionReady({ ...args, location: { x: 14.5, y: 201, z: 14.5 } });
+
+  world.release();
+  const [a, b] = await Promise.all([first, second]);
+
+  assert.deepEqual(a.location, { x: 1.5, y: 201, z: 1.5 });
+  assert.deepEqual(b.location, { x: 14.5, y: 201, z: 14.5 });
+  assert.equal(dimension.getBlock({ x: 14, y: 200, z: 14 }).typeId, "minecraft:bedrock");
+});
+
+test("travelers to one block share preparation but retain their own precise positions", async () => {
+  const world = delayedWorld();
+  const dimension = voidDimension();
+  const args = { world, dimension, dimensionId: "clan_void", logger: { error() {} } };
+  const first = ensureDimensionReady({ ...args, location: { x: 1.2, y: 201, z: 1.2 } });
+  const second = ensureDimensionReady({ ...args, location: { x: 1.7, y: 201, z: 1.7 } });
+
+  world.release();
+  const [a, b] = await Promise.all([first, second]);
+
+  assert.deepEqual(a.location, { x: 1.2, y: 201, z: 1.2 });
+  assert.deepEqual(b.location, { x: 1.7, y: 201, z: 1.7 });
+  assert.equal(world.creates, 1);
+});

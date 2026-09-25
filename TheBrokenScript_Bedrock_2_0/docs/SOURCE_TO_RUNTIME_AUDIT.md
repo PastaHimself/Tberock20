@@ -24,9 +24,9 @@ Integration-point inventory:
 
 ## Runtime graph
 
-Manifest entry: `BP/scripts/main.js`; 94 JavaScript modules and 290 import edges.
+Manifest entry: `BP/scripts/main.js`; 96 JavaScript modules and 324 import edges.
 
-Reachable from manifest: **88**; unresolved imports: **0**; unreachable modules: **6**.
+Reachable from manifest: **90**; unresolved imports: **0**; unreachable modules: **6**.
 
 The runtime boundary is the behavior-pack script module entry and its early-execution hooks. See the [Bedrock Script API early-execution guidance](https://github.com/MicrosoftDocs/minecraft-creator/blob/main/creator/Documents/scripting/execution-privilege.md) and [startup registration guidance](https://github.com/MicrosoftDocs/minecraft-creator/blob/main/creator/Documents/scripting/custom-commands.md).
 
