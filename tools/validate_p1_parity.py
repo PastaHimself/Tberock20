@@ -1394,7 +1394,7 @@ def build_report(repo: Path = ROOT) -> dict[str, Any]:
         "portals": portals,
         "warnings": [
             "Bedrock custom dimensions currently expose a void generator; exact Java noise_settings terrain generation is not claimed.",
-            "Five Stage 2 templates and nine central XCSF tiles are converted; remaining room variants and outer XCSF terrain remain outside this fallback.",
+            "Five Stage 2 templates and nine central XCSF tiles are converted; a reusable outer floor supports tentacles, while remaining room variants and exact outer XCSF terrain still need conversion.",
             "Java block-entity storage/rendering and entity/item tags use explicit script/dynamic-property/query adapters where Bedrock lacks a portable equivalent.",
             "Linked portal controllers now move players and living entities within one dimension; item and projectile transfer remains outside the Java living-entity rule.",
             "Static CI cannot replace an in-game multiplayer/world-sample comparison; runtime smoke and structure validators remain separate gates.",

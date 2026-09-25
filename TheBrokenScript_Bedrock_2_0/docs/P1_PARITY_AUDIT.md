@@ -105,8 +105,10 @@ silently reroll it.
   The six Shaft templates are source-identical staged assets. Five Stage 2
   room/surface templates are converted to native structures and placed in
   persistent cells with source floor/barrier elevations. Nine XCSF-derived
-  tiles place the central 96×96 Phase 3 arena at Y −64. The remaining room
-  variants and outer arena are still conversion boundaries.
+  tiles place the central 96×96 Phase 3 arena at Y −64. A reusable native
+  R3 floor supports the boss's distant tentacle attacks outside the core.
+  The remaining room variants and exact outer XCSF geometry remain conversion
+  boundaries.
 - Portal linking is sneak-gated like Java, does not consume the linker, keeps
   two anchors and bidirectional links in persisted namespaced state, waits for
   the destination, and applies a one-tick persisted arrival guard.

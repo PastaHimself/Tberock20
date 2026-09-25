@@ -81,6 +81,12 @@ def convert_arena(source: Path) -> dict[tuple[int, int], bytes]:
             for tile, layer in layers.items()}
 
 
+def outer_platform() -> bytes:
+    # A Bedrock-specific floor for attacks beyond the converted core. Reuse
+    # one 32x32 template across the ring rather than shipping duplicate bytes.
+    return build_mcstructure((32, 1, 32), ["thebrokenscript:r_3"], [0] * 1024)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -92,6 +98,9 @@ def main() -> None:
         path = output / f"phase3_core_{x}_{z}.mcstructure"
         path.write_bytes(payload)
         print(f"{path.relative_to(args.root)} ({len(payload)} bytes)")
+    platform = output / "phase3_outer_platform.mcstructure"
+    platform.write_bytes(outer_platform())
+    print(f"{platform.relative_to(args.root)} ({platform.stat().st_size} bytes)")
 
 
 if __name__ == "__main__":
