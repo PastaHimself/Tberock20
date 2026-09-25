@@ -43,6 +43,10 @@ import * as doorRuntime from "./systems/door_runtime.js";
 import * as modifiedChunks from "./systems/modified_chunks.js";
 import * as chunkRemoverRuntime from "./systems/chunk_remover_runtime.js";
 import * as nullSourceController from "./entities/null/null_source_controller.js";
+import { libraryPaperOrigin } from "./systems/particle_model.js";
+import { spawnSourceParticle } from "./systems/particle_runtime.js";
+import { beginStage2Terrain, registerStage2Terrain } from "./systems/stage2_terrain_runtime.js";
+import * as phase3ArenaLayout from "./systems/phase3_arena_layout_runtime.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
 function onStartup(event) {
@@ -59,9 +63,12 @@ function onStartup(event) {
 function onWorldLoad() {
     perf.reset();
     dimensions.resetCache();
+    registerStage2Terrain();
     state.init();
     worldState.init();
     scheduler.begin();
+    beginStage2Terrain(scheduler);
+    phase3ArenaLayout.begin(scheduler);
     modifiedChunks.begin();
     doorRuntime.begin();
     chunkRemoverRuntime.begin();
@@ -96,6 +103,12 @@ function onWorldLoad() {
     progression.begin(scheduler);
     commands.begin();
     portedFeatures.begin(scheduler);
+    scheduler.every("tbs.libraryPaper", 1, () => {
+        for (const player of world.getAllPlayers()) {
+            const origin = libraryPaperOrigin(player.dimension.id, player.location);
+            if (origin) spawnSourceParticle(player, "paper_particle", origin);
+        }
+    });
     events.subscribeGuarded(
         world.afterEvents.playerJoin,
         "core.playerJoin",

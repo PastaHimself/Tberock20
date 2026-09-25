@@ -1,12 +1,15 @@
-import { EntityDamageCause, GameMode, system, world } from "@minecraft/server";
+import { EntityDamageCause, GameMode, ItemStack, system, world } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { logger } from "../core/logging.js";
 import * as operationDiagnostics from "../core/operation_diagnostics.js";
 import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
+import * as progression from "./progression.js";
+import { finishPolaroid } from "./polaroid_craft.js";
 import { applyDamageWithSource } from "./damage_source_runtime.js";
 import { libraryBookPageView } from "./library_book_pages.js";
+import { PortalSweep } from "./portal_auto_travel.js";
 import {
   HAND_CANNON_RANGE,
   circuitPaintingPlacement,
@@ -30,6 +33,16 @@ const HAND_CANNON_COOLDOWN_TICKS = 4;
 const LIBRARY_BOOK_MAX_ID = 250;
 const cannonReadyAt = new Map();
 const registered = [];
+const linkedPortalFlights = new Set();
+const portalSweep = new PortalSweep({
+  getDimension: (id) => dimensions.get(id),
+  getEntity: (id) => world.getEntity(id),
+  shouldSkipEntity: (entity) => entity.typeId === "minecraft:player"
+    && (linkedPortalFlights.has(entity.id) || portalCooldownActive(entity)),
+  onPlayerTravel: (player) => player.setDynamicProperty(
+    PORTAL_COOLDOWN_PROPERTY, portalCooldownUntil(Number(system.currentTick ?? 0)),
+  ),
+});
 
 export function init(itemComponentRegistry) {
   function register(name, handlers) {
@@ -50,6 +63,17 @@ export function init(itemComponentRegistry) {
     onUse(event) {
       system.run(() => {
         void showPolaroid(event.source);
+      });
+    },
+  });
+  register("thebrokenscript:finish_polaroid", {
+    onUse(event) {
+      system.run(() => {
+        try {
+          finishPolaroid(event.source, (id) => new ItemStack(id, 1), progression.award);
+        } catch (error) {
+          operationDiagnostics.warnOnce("ported_features.finish_polaroid", "ported_features: could not finish Polaroid frame", error);
+        }
       });
     },
   });
@@ -104,10 +128,15 @@ export function init(itemComponentRegistry) {
 
 export function begin(scheduler) {
   scheduler.every("ported_features.effects", 20, tickPortedEffects);
+  portalSweep.clear();
+  scheduler.every("ported_features.linked_portal_entities", 1, () => {
+    portalSweep.step(readPortalLinks());
+  });
 }
 
 export function clearTransientPlayerState(player, initialSpawn = false) {
   if (!isPlayer(player) || !initialSpawn) return;
+  portalSweep.arrivals.delete(player.id);
   for (const property of [PORTAL_ANCHOR_PROPERTY, PORTAL_COOLDOWN_PROPERTY, HEART_CORRUPTION_UNTIL, WHY_LEAVE_UNTIL]) {
     try { player.setDynamicProperty(property, undefined); } catch (error) {
       operationDiagnostics.warnOnce("ported_features.clear_transient", `ported_features: failed to clear '${property}'`, error);
@@ -292,16 +321,24 @@ export async function teleportLinkedPortal(player, block) {
     return true;
   }
 
-  const teleported = await dimensions.teleportWhenReady(
-    player,
-    destination.dimensionId,
-    {
-      x: destination.x + 0.5,
-      y: destination.y + 1.1,
-      z: destination.z + 0.5,
-    },
-    { validateDestination: (dimension) => linkedPortalDestinationExists(dimension, destination) },
-  );
+  let teleported = false;
+  linkedPortalFlights.add(player.id);
+  try {
+    teleported = await dimensions.teleportWhenReady(
+      player,
+      destination.dimensionId,
+      {
+        x: destination.x + 0.5,
+        y: destination.y + 1.1,
+        z: destination.z + 0.5,
+      },
+      { validateDestination: (dimension) => linkedPortalDestinationExists(dimension, destination) },
+    );
+  } catch (error) {
+    operationDiagnostics.errorOnce("ported_features.portal_prepare", "ported_features: linked portal preparation failed", error);
+  } finally {
+    linkedPortalFlights.delete(player.id);
+  }
   if (!teleported) {
     clearPortalReservation(player, reservation);
     operationDiagnostics.errorOnce("ported_features.portal_destination", "ported_features: linked portal destination was not ready");
@@ -309,6 +346,7 @@ export async function teleportLinkedPortal(player, block) {
     // the unlinked clan_void destination.
     return true;
   }
+  portalSweep.markArrival(player, destination);
 
   try {
     player.onScreenDisplay.setTitle("§5LINK ESTABLISHED", {

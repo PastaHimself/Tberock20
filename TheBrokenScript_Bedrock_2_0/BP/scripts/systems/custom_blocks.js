@@ -1,5 +1,5 @@
 import * as operationDiagnostics from "../core/operation_diagnostics.js";
-import { BlockPermutation, system, world } from "@minecraft/server";
+import { BlockPermutation, GameMode, system, world } from "@minecraft/server";
 import * as dimensions from "./dimensions.js";
 import { logger } from "../core/logging.js";
 import {
@@ -8,6 +8,7 @@ import {
   teleportLinkedPortal,
 } from "./ported_features.js";
 import * as worldState from "./world_state.js";
+import { spawnSourceParticle } from "./particle_runtime.js";
 
 // Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -118,7 +119,25 @@ export function init(blockComponentRegistry) {
   // nearby markers and perform the requested action. It has no use/interact behavior.
   // Keep the custom component registered because block JSONs reference it, but do not
   // synthesize a click-to-place structure action here.
-  register("thebrokenscript:be_null_structure", {});
+  register("thebrokenscript:be_null_structure", {
+    onTick(ev) {
+      const { block } = ev;
+      for (const player of world.getAllPlayers()) {
+        try {
+          if (player.dimension.id !== block.dimension.id
+              || player.getGameMode() !== GameMode.Creative
+              || heldItemTypeId(player) !== "thebrokenscript:null_structure"
+              || distance(player.location, block.location) > 32) continue;
+          spawnSourceParticle(block, "null_structure_particle", {
+            x: block.location.x + 0.5, y: block.location.y + 0.5, z: block.location.z + 0.5,
+          });
+          break;
+        } catch (error) {
+          operationDiagnostics.warnOnce("custom_blocks.null_structure_particle", "custom_blocks: null structure marker particle failed", error);
+        }
+      }
+    },
+  });
 
   register("thebrokenscript:be_shadow_bug", {
     onRandomTick(ev) {

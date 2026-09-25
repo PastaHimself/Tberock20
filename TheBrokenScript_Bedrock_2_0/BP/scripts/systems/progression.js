@@ -86,26 +86,8 @@ export function has(playerOrId, maybeId) {
   return hasForPlayer(playerOrId, maybeId);
 }
 
-// Polaroid craft detection: periodic inventory scan (no itemCrafted event)
-let scanCount = 0;
 export function begin(scheduler) {
-  scheduler.every("tbs.progression_scan", 300, () => {
-    scanCount++;
-    for (const p of world.getAllPlayers()) {
-      try {
-        const inv = p.getComponent("minecraft:inventory")?.container;
-        if (!inv) continue;
-        for (let i = 0; i < inv.size; i++) {
-          const item = inv.getItem(i);
-          if (item && item.typeId === "thebrokenscript:polaroid") {
-            award(p, "polaroid_craft");
-            break;
-          }
-        }
-      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.progression.js.104", "best-effort Bedrock API fallback", error);}
-    }
-    void scanCount;
-  });
+  void scheduler;
 
   // you_ve_brought_it_upon_yourself — damaging a boss counts (source trigger approx)
   try {

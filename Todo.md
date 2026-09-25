@@ -1,6 +1,6 @@
 # The Broken Script 2.0 — Remaining Bedrock Port Work
 
-Updated: 2026-09-22
+Updated: 2026-09-25
 
 This replaces the previous cumulative TODO with the remaining documented work. Completed audit history is omitted; its evidence remains in the repository audits and Git history. This list covers all 57 previously partial checklist items plus concrete omissions/deferred work identified by the supporting audits. It is not a claim that a fresh full Java-to-Bedrock audit or engine test has been performed.
 
@@ -18,10 +18,10 @@ An unchecked item means work remains, not necessarily that the feature is absent
 
 ## P1 — Confirmed implementation gaps and deferred assets
 
-- [ ] **Implementation — Polaroid craft advancement:** replace the inventory-possession trigger with a recipe-craft event when moving beyond the pinned `@minecraft/server` 2.11.0-beta / 1.26.50 Preview contract; verify crafting, receiving, and moving the item between containers in-game.
-- [ ] **Implementation — particles:** complete dedicated runtime bridges for `fardaway`, `wretched_particle`, `null_structure_particle`, and `paper_particle` where source callsites require them. Preserve source triggers, timing, count, spread, attachment, and cleanup; verify visible output in-engine.
-- [ ] **Implementation — portal scope:** address Java's same-dimension living-entity tick sweep using supported Bedrock behavior. The shipped player-click route does not reproduce it. Establish source requirements before adding mob/item/projectile transfer; document any residual limitation.
-- [ ] **Implementation/verification — structures:** complete or validate Integrity Stage 2 and XCSF reconstruction/placement within supported generator/processor capabilities. Inventorying all 314 templates is not proof that their placement behavior is ported.
+- [x] **Implementation — Polaroid craft fallback:** five pieces craft a frame; using it makes the Polaroid and awards the advancement. The inventory-possession award is removed. Verify the two-step interaction, transfers, and full inventory in-game; direct recipe-craft events require a newer API.
+- [x] **Implementation — particles:** runtime callsites now emit `fardaway`, `wretched_particle`, `null_structure_particle`, and `paper_particle` with source count/spread/timing adapters. Verify their visible output in-engine.
+- [x] **Implementation — portal scope:** same-dimension linked controllers now scan living entities each tick, preserving arrival offset and suppressing immediate return. Verify loaded-chunk behavior and multiplayer in-engine; Java's rule excludes items and projectiles.
+- [ ] **Implementation/verification — structures:** Stage 2 has source-height floor/barrier layers plus five converted room/surface templates in three-chunk cells. Nine native structure tiles reconstruct the 96×96 central XCSF arena. Convert remaining room variants and outer XCSF layout; verify actual placement, boss movement, and persistence in-engine.
 - [ ] **Deferred — Nostalgia pack:** obtain a complete reliable source archive, inventory missing overrides, resolve broad vanilla sound/model conflicts with the main RP, and validate the optional pack. Do not claim a complete import from the partial multipart archive.
 - [ ] **Deferred — custom fonts:** resolve A-009 only with verified Bedrock glyph-page mappings; retain standard-glyph formatting until that evidence exists.
 

@@ -101,10 +101,29 @@ export const SOURCE_PARTICLE_DEFINITIONS = Object.freeze({
   }),
 });
 
-// These are the three source sendParticles callsites that have a concrete
-// Bedrock runtime consumer. The emitter JSON carries the count and box spread
-// because Dimension.spawnParticle accepts an effect id and origin only.
+// Emitter JSON carries the source count and box spread because
+// Dimension.spawnParticle accepts an effect id and origin only.
 export const SOURCE_PARTICLE_EVENTS = Object.freeze({
+  fardaway: Object.freeze({
+    effectId: "thebrokenscript:fardaway",
+    count: 50,
+    offset: Object.freeze([3, 3, 3]),
+  }),
+  wretched_particle: Object.freeze({
+    effectId: "thebrokenscript:wretched_particle",
+    count: 2,
+    offset: Object.freeze([3, 3, 3]),
+  }),
+  null_structure_particle: Object.freeze({
+    effectId: "thebrokenscript:null_structure_particle",
+    count: 1,
+    offset: Object.freeze([0, 0, 0]),
+  }),
+  paper_particle: Object.freeze({
+    effectId: "thebrokenscript:paper_particle",
+    count: 1,
+    offset: Object.freeze([0, 0, 0]),
+  }),
   null_particle: Object.freeze({
     effectId: "thebrokenscript:null_particle",
     count: 5,
@@ -141,4 +160,18 @@ export function particleLifetimeRangeSeconds(id) {
     min: definition.lifetimeTicks.min / TICKS_PER_SECOND,
     max: definition.lifetimeTicks.max / TICKS_PER_SECOND,
   });
+}
+
+export function farawayAppearance(funnySetting, rarityRoll, variantRoll) {
+  if (!funnySetting || rarityRoll <= 0.99) return "phantom";
+  return variantRoll > 0.5 ? "baby" : "fard";
+}
+
+export function libraryPaperOrigin(dimensionId, playerLocation, random = Math.random) {
+  if (dimensionId !== "thebrokenscript:library" || random() >= 0.01) return undefined;
+  return {
+    x: playerLocation.x + (random() - 0.5) * 32,
+    y: playerLocation.y + (random() - 0.5) * 16,
+    z: playerLocation.z + (random() - 0.5) * 32,
+  };
 }

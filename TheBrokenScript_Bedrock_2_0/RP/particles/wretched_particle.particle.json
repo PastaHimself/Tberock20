@@ -11,11 +11,11 @@
     "components": {
       "minecraft:emitter_lifetime_once": {},
       "minecraft:emitter_rate_instant": {
-        "num_particles": 1
+        "num_particles": 2
       },
-      "minecraft:emitter_shape_point": {
+      "minecraft:emitter_shape_box": {
         "offset": [0, 0, 0],
-        "direction": [0, 1, 0]
+        "half_dimensions": [3, 3, 3]
       },
       "minecraft:particle_lifetime_expression": {
         "max_lifetime": "Math.max(0.05, (17 + Math.floor(Math.random(0, 20)) - 10) / 20.0)"

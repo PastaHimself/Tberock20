@@ -74,3 +74,27 @@ export function linkedPortalDestinationExists(dimension, destination) {
     return false;
   }
 }
+
+export function portalReferenceFromKey(key) {
+  const match = /^([^|]+)\|(-?\d+),(-?\d+),(-?\d+)$/.exec(key);
+  if (!match) return undefined;
+  const [, dimensionId, x, y, z] = match;
+  return { dimensionId, x: Number(x), y: Number(y), z: Number(z) };
+}
+
+export function insidePortalVolume(portal, location) {
+  return location.x >= portal.x && location.x < portal.x + 1
+    && location.y >= portal.y + 1 && location.y < portal.y + 3
+    && location.z >= portal.z && location.z < portal.z + 1;
+}
+
+export function automaticPortalTarget(source, destination, location) {
+  if (!source || !destination || source.dimensionId !== destination.dimensionId
+      || ![source.x, source.y, source.z, destination.x, destination.y, destination.z]
+        .every(Number.isSafeInteger) || !insidePortalVolume(source, location)) return undefined;
+  return {
+    x: destination.x + (location.x - source.x),
+    y: destination.y + (location.y - source.y),
+    z: destination.z + (location.z - source.z),
+  };
+}

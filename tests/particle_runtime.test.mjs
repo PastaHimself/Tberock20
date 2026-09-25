@@ -27,6 +27,8 @@ test("source particle runtime accepts an explicit origin for despawn effects", (
 
   assert.equal(spawnSourceParticle(entity, "curved_despawn", origin), true);
   assert.deepEqual(calls, [["thebrokenscript:particle_of_curved", origin]]);
+  assert.equal(spawnSourceParticle(entity, "fardaway", origin), true);
+  assert.deepEqual(calls[1], ["thebrokenscript:fardaway", origin]);
 });
 
 test("source particle runtime contains Bedrock API failures", () => {
