@@ -16,7 +16,11 @@ from validate_jigsaw_nbt_connectors import load_java_nbt
 from validate_mcstructures import validate_mcstructure_bytes
 
 TEMPLATES = ("fieldbase", "clanvoidnew1", "clandimensionroom1", "woodfloor1", "stone1")
-BLOCK_NAMES = {"minecraft:grass": "minecraft:short_grass"}
+BLOCK_NAMES = {
+    "minecraft:grass": "minecraft:short_grass",
+    "minecraft:wall_torch": "minecraft:torch",
+    "minecraft:oak_door": "minecraft:wooden_door",
+}
 IGNORED = {"minecraft:air", "minecraft:cave_air", "minecraft:structure_void"}
 
 

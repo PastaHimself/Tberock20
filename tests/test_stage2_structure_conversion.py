@@ -21,6 +21,11 @@ class Stage2StructureConversionTests(unittest.TestCase):
                 palette = root["structure"]["palette"]["default"]["block_palette"]
                 self.assertGreater(sum(index >= 0 for index in layer), 250)
                 self.assertTrue(all(entry["name"].startswith(("minecraft:", "thebrokenscript:")) for entry in palette))
+                self.assertTrue(all(entry["name"] not in {"minecraft:oak_door", "minecraft:wall_torch"} for entry in palette))
+                if name == "woodfloor1":
+                    self.assertIn("minecraft:wooden_door", [entry["name"] for entry in palette])
+                if name == "clanvoidnew1":
+                    self.assertIn("minecraft:torch", [entry["name"] for entry in palette])
                 if name == "fieldbase":
                     self.assertEqual(palette[layer[0]]["name"], "minecraft:bedrock")
                     self.assertEqual(palette[layer[16]]["name"], "minecraft:grass_block")
