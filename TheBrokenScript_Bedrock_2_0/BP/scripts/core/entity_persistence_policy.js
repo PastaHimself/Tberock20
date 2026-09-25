@@ -21,6 +21,7 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:why_leave_until": Object.freeze({ scope: "player", persistence: "transient", clear: "expiry-or-player-spawn" }),
     "tbs:jim_stage": Object.freeze({ scope: "block", persistence: "persistent", owner: "jim-trigger" }),
     "tbs:jim_stage_touch": Object.freeze({ scope: "entity", persistence: "transient", clear: "next-tick" }),
+    "tbs:faraway_appearance": Object.freeze({ scope: "entity", persistence: "transient", clear: "entity-removal" }),
     // Java stores this field in each NullMaze/NullFlying entity's persistent
     // NBT. Bedrock has no portable NBT attachment, so the runtime maps it to
     // one explicitly declared entity dynamic property.
@@ -40,6 +41,7 @@ export const ENTITY_DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbe:lifetime": DYNAMIC_PROPERTY_POLICY["tbe:lifetime"],
     "tbe:variant": DYNAMIC_PROPERTY_POLICY["tbe:variant"],
     "tbs:jim_stage_touch": DYNAMIC_PROPERTY_POLICY["tbs:jim_stage_touch"],
+    "tbs:faraway_appearance": DYNAMIC_PROPERTY_POLICY["tbs:faraway_appearance"],
     "tbs:despawn_timer": DYNAMIC_PROPERTY_POLICY["tbs:despawn_timer"],
 });
 

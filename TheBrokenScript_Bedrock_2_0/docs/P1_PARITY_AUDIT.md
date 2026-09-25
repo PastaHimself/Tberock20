@@ -20,9 +20,10 @@ dimension/portal contracts.
   marker, renderer, or persistent-state adapters. Portal controller and
   extender state is stored in namespaced dynamic properties; custom geometry
   remains governed by the existing block definitions and placement handlers.
-- All 40 source recipes match ingredient signatures, result identifiers, and
-  result counts. Stonecutter recipes are represented by Bedrock shapeless
-  recipes tagged `stonecutter`.
+- All 40 source recipes preserve their ingredient signatures and counts. The
+  Polaroid recipe produces a one-use frame as the pinned API's explicit
+  craft-progression adapter; its finishing action produces the source item.
+  Stonecutter recipes are Bedrock shapeless recipes tagged `stonecutter`.
 - All 138 source loot tables are present, including the 26 plush tables and
   the intentional empty `null` table. Explosion survival, shears-only flora
   drops, output identifiers, empty/no-drop tables, and source weights are
@@ -37,12 +38,11 @@ dimension/portal contracts.
   the corresponding disc family.
 - The five source advancements keep their exact English titles and
   descriptions. Awards are persisted per player and duplicate awards are
-  suppressed across reloads and alternate event paths. Recipe-crafted
-  progression uses the existing persisted inventory scan because this target
-  Bedrock ABI has no equivalent stable custom recipe event.
+  suppressed across reloads and alternate event paths. The Polaroid frame
+  requires five source pieces; using it awards progression on the pinned ABI.
 - The source advancement criteria and their live hooks are inventoried: the
   three impossible criteria remain explicitly event-award adapters,
-  `polaroid_craft` uses the persisted inventory scan, and the boss/proximity
+  `polaroid_craft` uses the frame's finishing action, and the boss/proximity
   awards resolve through the existing horror, humanoid, and TBE controller
   paths. Source icon/background and client advancement-screen presentation
   remain Bedrock UI limitations.
@@ -101,14 +101,20 @@ silently reroll it.
 - Registration remains in the startup event, uses
   `DimensionRegistry.registerCustomDimension`, and routes teleports through
   ticking-area readiness plus a safe platform/landing fallback.
-- The complete source structure corpus is inventoried: 314 NBT templates,
-  parsed/inventory status for every entry, and explicit conversion status.
-  The six Shaft templates are source-identical staged assets; Stage 2/XCSF
-  and Java-only processors remain identified as conversion boundaries rather
-  than being presented as a different, fabricated generator.
+- The complete source structure corpus is inventoried: 314 NBT templates.
+  The six Shaft templates are source-identical staged assets. Five Stage 2
+  room/surface templates are converted to native structures and placed in
+  persistent cells with source floor/barrier elevations. Nine XCSF-derived
+  tiles place the central 96×96 Phase 3 arena at Y −64. A reusable native
+  R3 floor supports the boss's distant tentacle attacks outside the core.
+  The remaining room variants and exact outer XCSF geometry remain conversion
+  boundaries.
 - Portal linking is sneak-gated like Java, does not consume the linker, keeps
   two anchors and bidirectional links in persisted namespaced state, waits for
   the destination, and applies a one-tick persisted arrival guard.
+- A per-tick same-dimension sweep teleports players and living entities from
+  linked controllers; items and projectiles are outside Java's living-entity
+  scope. The Bedrock entry volume uses the two blocks above the controller.
 - The protected-void entry preserves the source `(11, 71, 6)` position and
   180-degree yaw without passing non-coordinate metadata to the Bedrock
   teleport location object. Other source entry variants/search rules remain
@@ -117,10 +123,9 @@ silently reroll it.
 ## Explicit Bedrock boundaries
 
 The Bedrock custom-dimension registration surface currently creates a void
-generator. Exact Java `noise_settings` terrain and custom `ChunkGenerator`
-behavior are therefore not claimed. Java portal ticking also sweeps living
-entities in the same dimension; the shipped Bedrock route is player-click
-based and does not claim item/projectile parity. Static checks cannot replace
+generator. Exact Java `noise_settings` terrain and full custom `ChunkGenerator`
+behavior are therefore not claimed. Stage 2 and the Phase 3 core use source
+geometry within supported placement APIs. Static checks cannot replace
 in-game multiplayer and world-sample comparison, so those runtime checks
 remain separate validation gates.
 

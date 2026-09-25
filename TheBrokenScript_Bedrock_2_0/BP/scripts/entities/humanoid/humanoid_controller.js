@@ -7,6 +7,9 @@ import * as effects from "../../systems/ai/effects.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
+import { config } from "../../core/config.js";
+import { farawayAppearance } from "../../systems/particle_model.js";
+import { spawnSourceParticle } from "../../systems/particle_runtime.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // stare: life 500, LOOKABLE aura ≤512 + slowness 60t amp55
@@ -578,7 +581,19 @@ function tickDeceiver(e) {
 function tickFaraway(e) {
   let life = getNum(e, "life", FARAWAY_LIFE);
   let delay = getNum(e, "delay", 0);
-  if (!timers.has(e.id)) { life = FARAWAY_LIFE; delay = 0; timers.set(e.id, { life, delay }); }
+  if (!timers.has(e.id)) {
+    life = FARAWAY_LIFE;
+    delay = 0;
+    let appearance = "phantom";
+    try {
+      appearance = e.getDynamicProperty("tbs:faraway_appearance")
+        ?? farawayAppearance(config.get("danger.funnySetting"), Math.random(), Math.random());
+      e.setDynamicProperty("tbs:faraway_appearance", appearance);
+    } catch (error) {
+      operationDiagnostics.warnOnce("humanoid.faraway_variant", "humanoid: could not persist Faraway appearance", error);
+    }
+    timers.set(e.id, { life, delay, appearance });
+  }
   const player = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 400);
   if (player) {
     const seen = (distance(e.location, player.location) < 38 && hasLineOfSightApprox(player, e) && inFovCone(player, e))
@@ -586,14 +601,16 @@ function tickFaraway(e) {
     if (seen) {
       delay++; setNum(e, "delay", delay);
       if (delay >= 25) {
+        const appearance = timers.get(e.id)?.appearance ?? "phantom";
+        const origin = { ...e.location };
+        if (appearance === "fard") spawnSourceParticle(e, "fardaway", origin);
         try { e.remove(); } catch (error) {
           operationDiagnostics.warnOnce("humanoid.faraway_remove", "humanoid: faraway removal failed", error);
         } deleteTimers(e);
-        // variant: baby/fard easter eggs ledgered (funnySetting config pending)
-        try { player.playSound("thebrokenscript:phantom", { volume: 1, pitch: 0 }); } catch (error) {
+        try { player.playSound(appearance === "fard" ? "fardaway" : appearance === "baby" ? "baby" : "phantom", { volume: 1, pitch: 1 }); } catch (error) {
           operationDiagnostics.warnOnce("humanoid.faraway_sound", "humanoid: faraway sound failed", error);
         }
-        title(player, "snimok_ekrana_2024-11-02_090828", 15);
+        title(player, appearance === "fard" ? "fardaway" : appearance === "baby" ? "baby" : "snimok_ekrana_2024-11-02_090828", 15);
         try {
           const part = Math.random() < 0.5 ? "minecraft:basic_flame_particle" : "minecraft:redstone_wire_dust_particle";
           e.dimension.spawnParticle(part, { x: e.location.x, y: e.location.y + 1, z: e.location.z });

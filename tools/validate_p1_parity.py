@@ -582,6 +582,7 @@ def _recipe_contract(repo: Path) -> dict[str, Any]:
     missing = sorted(source_names - bp_names)
     extra = sorted(bp_names - source_names)
     mismatches: list[str] = []
+    adapters: dict[str, str] = {}
     for name in sorted(source_names & bp_names):
         try:
             source_signature = _recipe_signature(_load_json(source_root / f"{name}.json"), source=True)
@@ -589,6 +590,31 @@ def _recipe_contract(repo: Path) -> dict[str, Any]:
         except (OSError, json.JSONDecodeError) as error:
             mismatches.append(f"{name}: invalid recipe JSON: {error}")
             continue
+        if name == "polaroid" and source_signature != bp_signature:
+            frame_item = repo / f"{ADDON_NAME}/BP/items/polaroid_frame.json"
+            script_root = repo / f"{ADDON_NAME}/BP/scripts/systems"
+            try:
+                frame = _load_json(frame_item)["minecraft:item"]
+                components = frame["components"]
+                runtime = _read(script_root / "ported_features.js")
+                assembly = _read(script_root / "polaroid_craft.js")
+                valid = (
+                    source_signature["kind"] == bp_signature["kind"]
+                    and source_signature["ingredients"] == bp_signature["ingredients"]
+                    and source_signature["result"] == {"item": "thebrokenscript:polaroid", "count": 1}
+                    and bp_signature["result"] == {"item": "thebrokenscript:polaroid_frame", "count": 1}
+                    and frame["description"]["identifier"] == "thebrokenscript:polaroid_frame"
+                    and "thebrokenscript:finish_polaroid" in components
+                    and 'register("thebrokenscript:finish_polaroid"' in runtime
+                    and 'finishPolaroid(event.source' in runtime
+                    and 'makeItem("thebrokenscript:polaroid")' in assembly
+                    and 'award(player, "polaroid_craft")' in assembly
+                )
+            except (OSError, KeyError, json.JSONDecodeError):
+                valid = False
+            if valid:
+                adapters[name] = "five-piece recipe yields a one-use frame; use produces the Polaroid and awards progression"
+                continue
         if source_signature != bp_signature:
             mismatches.append(
                 f"{name}: source={json.dumps(source_signature, sort_keys=True)} "
@@ -607,6 +633,7 @@ def _recipe_contract(repo: Path) -> dict[str, Any]:
         "missing": missing,
         "extra": extra,
         "recipe_mismatches": mismatches,
+        "recipe_adapters": adapters,
         "stonecutter_recipes": stonecutters,
         "category_adapter": "Java crafting categories map to Bedrock crafting_table; stonecutting maps to a shapeless recipe tagged stonecutter",
     }
@@ -886,7 +913,7 @@ def _advancement_contract(repo: Path) -> dict[str, Any]:
             "entities/tbe/tbe_controller.js",
             "systems/progression.js",
         ],
-        "polaroid_craft": ["systems/progression.js"],
+        "polaroid_craft": ["systems/polaroid_craft.js"],
     }
     trigger_adapters: dict[str, Any] = {}
     for identifier, relative_paths in trigger_sources.items():
@@ -914,7 +941,7 @@ def _advancement_contract(repo: Path) -> dict[str, Any]:
         "advancement_descriptions": descriptions,
         "advancement_trigger_adapters": trigger_adapters,
         "idempotence": "per-player dynamic property plus in-memory duplicate suppression",
-        "trigger_adapter": "recipe_crafted is observed by the persisted inventory scan because Bedrock has no matching stable custom recipe event in this target ABI",
+        "trigger_adapter": "recipe_crafted uses a five-piece crafting-table frame and a one-use finishing action on the pinned ABI",
     }
 
 
@@ -1101,6 +1128,8 @@ def _portal_contract(repo: Path) -> dict[str, Any]:
     )
     cooldown_match = re.search(r"PORTAL_COOLDOWN_TICKS\s*=\s*(\d+)", runtime)
     cooldown = int(cooldown_match.group(1)) if cooldown_match else None
+    sweep = _strip_js_comments(_read(repo / f"{ADDON_NAME}/BP/scripts/systems/portal_auto_travel.js"))
+    living_sweep = "getEntities({" in sweep and 'getComponent("minecraft:health")' in sweep and "portalSweep.step" in runtime
     return {
         "source_activation_requires_sneak": "isShiftKeyDown" in linker_source,
         "source_item_consumed": bool(re.search(r"\.(shrink|consume)\s*\(", linker_source)),
@@ -1134,7 +1163,8 @@ def _portal_contract(repo: Path) -> dict[str, Any]:
         "fallback_destination": "clan_void"
         if re.search(r'\bteleportWhenReady\([^\n]*["\']clan_void["\']', custom_blocks)
         else None,
-        "entity_scope": "player click route; Java's same-dimension living-entity tick sweep remains an explicit adapter limitation",
+        "runtime_living_sweep": living_sweep,
+        "entity_scope": "same-dimension linked player and living-entity tick sweep; items and projectiles excluded" if living_sweep else "player click only",
     }
 
 
@@ -1170,6 +1200,7 @@ def _content_contract(repo: Path, component_source: str) -> dict[str, Any]:
         "missing_recipes": recipes["missing"],
         "extra_recipes": recipes["extra"],
         "recipe_mismatches": recipes["recipe_mismatches"],
+        "recipe_adapters": recipes["recipe_adapters"],
         "stonecutter_recipes": recipes["stonecutter_recipes"],
         "recipe_category_adapter": recipes["category_adapter"],
         "source_loot_table_count": loot["source_count"],
@@ -1363,9 +1394,9 @@ def build_report(repo: Path = ROOT) -> dict[str, Any]:
         "portals": portals,
         "warnings": [
             "Bedrock custom dimensions currently expose a void generator; exact Java noise_settings terrain generation is not claimed.",
-            "The source corpus contains 314 NBT templates; six Shaft templates remain source-identical staged assets and the inventory records the remaining conversion boundary.",
+            "Five Stage 2 templates and nine central XCSF tiles are converted; a reusable outer floor supports tentacles, while remaining room variants and exact outer XCSF terrain still need conversion.",
             "Java block-entity storage/rendering and entity/item tags use explicit script/dynamic-property/query adapters where Bedrock lacks a portable equivalent.",
-            "Java portal ticking moves living entities in the same dimension; the shipped Bedrock interaction route is player-click based and does not claim item/projectile parity.",
+            "Linked portal controllers now move players and living entities within one dimension; item and projectile transfer remains outside the Java living-entity rule.",
             "Static CI cannot replace an in-game multiplayer/world-sample comparison; runtime smoke and structure validators remain separate gates.",
         ],
     }

@@ -94,9 +94,9 @@ export const PHASE2_SOURCE = Object.freeze({
 });
 
 // Stage2Generator.java is a Java custom chunk generator. Bedrock's static
-// dimension JSON cannot execute this generator, so this is an audit model only.
-// Every structure id below is a source template reference; it is not a claim
-// that a Java NBT template can be placed by the Bedrock runtime unchanged.
+// dimension JSON cannot execute it. stage2_terrain_runtime.js consumes the
+// heights here and five converted templates; remaining variants stay source
+// references until their Bedrock structure assets are built and validated.
 const STAGE2_FLOOR2_VARIANTS = Object.freeze([
   Object.freeze({ variant: 1, structureId: "clandimensionroom1", specialStructureId: null, ordinaryStructureId: null }),
   Object.freeze({ variant: 2, structureId: "clandimensionroom2", specialStructureId: null, ordinaryStructureId: null }),

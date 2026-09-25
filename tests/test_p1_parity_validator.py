@@ -39,6 +39,7 @@ class P1ParityValidatorTests(unittest.TestCase):
         content = self.report["content"]
         self.assertEqual([], content["missing_source_loot_tables"])
         self.assertEqual([], content["recipe_mismatches"])
+        self.assertIn("polaroid", content["recipe_adapters"])
         self.assertEqual([], content["item_behavior"]["missing_items"])
         self.assertEqual([], content["item_behavior"]["mismatches"])
         self.assertEqual(12, len(content["item_behavior"]["record_items"]))
@@ -49,6 +50,7 @@ class P1ParityValidatorTests(unittest.TestCase):
         )
         self.assertEqual(13, self.report["dimensions"]["policy_count"])
         self.assertEqual(1, self.report["portals"]["cooldown_ticks"])
+        self.assertTrue(self.report["portals"]["runtime_living_sweep"])
         self.assertTrue(
             all(
                 adapter["hook_present"]

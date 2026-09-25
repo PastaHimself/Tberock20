@@ -8,6 +8,8 @@ import {
   particleDefinition,
   particleEventSpec,
   particleLifetimeRangeSeconds,
+  farawayAppearance,
+  libraryPaperOrigin,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/particle_model.js";
 
 const PARTICLE_DIR = join(process.cwd(), "TheBrokenScript_Bedrock_2_0", "RP", "particles");
@@ -33,6 +35,23 @@ test("source particle catalog preserves every declared resource definition", () 
   assert.equal(particleDefinition("fardaway").targetTexture, "textures/particle/funny/fardaway");
   assert.equal(particleDefinition("follows_particle").javaProvider, false);
   assert.equal(particleDefinition("revuxor_particle").portability, "resource_only");
+});
+
+test("Faraway's funny variant is rare, gated, and selects its source branch", () => {
+  assert.equal(farawayAppearance(false, 0.999, 0.1), "phantom");
+  assert.equal(farawayAppearance(true, 0.99, 0.1), "phantom");
+  assert.equal(farawayAppearance(true, 0.991, 0.5), "fard");
+  assert.equal(farawayAppearance(true, 0.991, 0.501), "baby");
+});
+
+test("paper appears only for the 1 percent library roll, within Java's spread", () => {
+  const player = { x: 10, y: 80, z: -5 };
+  assert.equal(libraryPaperOrigin("overworld", player, () => 0), undefined);
+  assert.equal(libraryPaperOrigin("thebrokenscript:library", player, () => 0.01), undefined);
+  const rolls = [0, 0.75, 0.25, 0.5];
+  assert.deepEqual(libraryPaperOrigin("thebrokenscript:library", player, () => rolls.shift()), {
+    x: 18, y: 76, z: -5,
+  });
 });
 
 test("Java particle providers retain source size, lifetime, and render contracts", () => {
@@ -68,6 +87,14 @@ test("known Java sendParticles callsites keep source counts and spread", () => {
     offset: [3, 3, 3],
   });
   assert.deepEqual(particleEventSpec("curved_despawn"), SOURCE_PARTICLE_EVENTS.curved_despawn);
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.fardaway, {
+    effectId: "thebrokenscript:fardaway", count: 50, offset: [3, 3, 3],
+  });
+  assert.deepEqual(SOURCE_PARTICLE_EVENTS.wretched_particle, {
+    effectId: "thebrokenscript:wretched_particle", count: 2, offset: [3, 3, 3],
+  });
+  assert.equal(SOURCE_PARTICLE_EVENTS.null_structure_particle.effectId, "thebrokenscript:null_structure_particle");
+  assert.equal(SOURCE_PARTICLE_EVENTS.paper_particle.effectId, "thebrokenscript:paper_particle");
 });
 
 test("Bedrock emitters expose the source identifiers and event cardinalities", () => {
@@ -80,6 +107,11 @@ test("Bedrock emitters expose the source identifiers and event cardinalities", (
   assert.equal(readParticle("eyes").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 5);
   assert.equal(readParticle("null_particle").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 5);
   assert.equal(readParticle("particle_of_curved").particle_effect.components["minecraft:emitter_rate_instant"].num_particles, 55);
+  for (const [name, count] of [["fardaway", 50], ["wretched_particle", 2]]) {
+    const components = readParticle(name).particle_effect.components;
+    assert.equal(components["minecraft:emitter_rate_instant"].num_particles, count);
+    assert.deepEqual(components["minecraft:emitter_shape_box"].half_dimensions, [3, 3, 3]);
+  }
 });
 
 test("unknown particle identifiers fail loudly", () => {

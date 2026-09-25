@@ -78,3 +78,16 @@ test("linked travel validates its destination controller before teleporting", as
   assert.match(ported, /validateDestination:\s*\(dimension\)\s*=>\s*linkedPortalDestinationExists\(dimension, destination\)/);
   assert.match(dimensions, /if \(validateDestination && !validateDestination\(dim\)\) return false;/);
 });
+
+test("automatic portal travel preserves position within a controller and stays in one dimension", async () => {
+  const modulePath = path.join(ROOT, "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/ported_feature_logic.js");
+  const { automaticPortalTarget } = await import(pathToFileURL(modulePath));
+  const source = { dimensionId: "overworld", x: 4, y: 70, z: 9 };
+  const destination = { dimensionId: "overworld", x: -12, y: 85, z: 6 };
+  assert.deepEqual(automaticPortalTarget(source, destination, { x: 4.25, y: 71.7, z: 9.75 }), {
+    x: -11.75, y: 86.7, z: 6.75,
+  });
+  assert.equal(automaticPortalTarget(source, destination, { x: 5.01, y: 71.7, z: 9.75 }), undefined);
+  assert.equal(automaticPortalTarget(source, destination, { x: 4.25, y: 70.9, z: 9.75 }), undefined);
+  assert.equal(automaticPortalTarget(source, { ...destination, dimensionId: "thebrokenscript:library" }, { x: 4.25, y: 71.7, z: 9.75 }), undefined);
+});

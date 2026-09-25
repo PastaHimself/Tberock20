@@ -7,6 +7,7 @@ import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
+import { spawnSourceParticle } from "../../systems/particle_runtime.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // xxram_2die: chat beats 1/500/1500/2000/2500/3000/3500, blink-teleport ≤25 within 520,
@@ -392,10 +393,8 @@ function tickHetzer(e) {
 
 // ── follow ("No Texture") ────────────────────────────────────────────────────
 function tickFollow(e) {
-  // wretched particle drip
-  if (system.currentTick % 30 === 0) {
-    try { e.dimension.spawnParticle("minecraft:basic_smoke_particle", { x: e.location.x, y: e.location.y + 1, z: e.location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.397", "best-effort Bedrock API fallback", error);}
-  }
+  // NoTextureEntity.baseTick sends two wretched particles around the entity each tick.
+  spawnSourceParticle(e, "wretched_particle");
   // disruption block placement every ~20 ticks (Chunk 08 block now available)
   if (system.currentTick % 20 === 0) {
     try {
