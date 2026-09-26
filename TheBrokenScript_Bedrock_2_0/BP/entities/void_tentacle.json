@@ -75,7 +75,8 @@
       },
       "minecraft:scale": {
         "value": 1
-      }
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {
       "thebrokenscript:scale_1": {

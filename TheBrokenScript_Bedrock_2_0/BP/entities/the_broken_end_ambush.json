@@ -24,7 +24,7 @@
         "value": 0.45
       },
       "minecraft:attack": {
-        "damage": 50
+        "damage": 600
       },
       "minecraft:follow_range": {
         "value": 2016,
@@ -45,7 +45,8 @@
       "minecraft:breathable": {
         "total_supply": 15,
         "suffocate_time": 0
-      }
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {}
   }

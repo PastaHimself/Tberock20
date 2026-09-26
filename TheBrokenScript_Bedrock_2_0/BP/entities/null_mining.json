@@ -41,7 +41,11 @@
       "minecraft:health": {
         "value": 80,
         "max": 80
-      }
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1
+      },
+      "minecraft:fire_immune": {}
     }
   }
 }

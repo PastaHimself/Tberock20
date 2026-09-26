@@ -21,7 +21,7 @@
         "value": 0
       },
       "minecraft:attack": {
-        "damage": 50
+        "damage": 63
       },
       "minecraft:persistent": {},
       "minecraft:physics": {},
@@ -41,7 +41,8 @@
       "minecraft:health": {
         "value": 910,
         "max": 910
-      }
+      },
+      "minecraft:fire_immune": {}
     }
   }
 }

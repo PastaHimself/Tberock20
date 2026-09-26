@@ -21,18 +21,18 @@
         "max": 20
       },
       "minecraft:movement": {
-        "value": 0.3
+        "value": 0.1
       },
       "minecraft:attack": {
-        "damage": 0
+        "damage": 1
       },
       "minecraft:follow_range": {
-        "value": 64,
-        "max": 64
+        "value": 400,
+        "max": 400
       },
       "minecraft:collision_box": {
-        "width": 0.6,
-        "height": 1.8
+        "width": 1,
+        "height": 2
       },
       "minecraft:physics": {},
       "minecraft:push_through": {

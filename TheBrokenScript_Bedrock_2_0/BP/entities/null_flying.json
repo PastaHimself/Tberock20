@@ -52,7 +52,8 @@
       "minecraft:behavior.look_at_player": {
         "priority": 0,
         "look_distance": 256
-      }
+      },
+      "minecraft:fire_immune": {}
     }
   }
 }
