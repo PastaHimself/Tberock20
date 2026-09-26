@@ -749,7 +749,12 @@ def validate_ui_and_camera(
     source_images = sorted(screen_source.rglob("*.png"))
     counts["source_screen_images"] = len(source_images)
     for source_image in source_images:
-        deployed_image = screen_deployed / source_image.relative_to(screen_source)
+        source_relative = source_image.relative_to(screen_source)
+        deployed_image = screen_deployed / (
+            "garfunkle_sealed.png"
+            if source_relative.as_posix() == "very_serious/what_if_garfunkle_was_betrayed_and_sealed_for_a_thousand_years.png"
+            else source_relative
+        )
         if not deployed_image.is_file():
             errors.append(f"Missing source screen texture: {relative(root, deployed_image)}")
         elif source_image.read_bytes() != deployed_image.read_bytes():

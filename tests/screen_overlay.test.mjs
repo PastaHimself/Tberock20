@@ -80,7 +80,8 @@ test("every runtime screen has a texture and animated frame maps stay within sou
   const ui = await runtimeFixture();
   const rp = new URL("RP/", BASE);
   for (const id of ui.SCREEN_IDS) {
-    assert.ok((await stat(new URL(`textures/ui/tbs/screens/${id}.png`, rp))).size > 0, id);
+    const asset = id.startsWith("very_serious/what_if_garfunkle_was_") ? "garfunkle_sealed" : id;
+    assert.ok((await stat(new URL(`textures/ui/tbs/screens/${asset}.png`, rp))).size > 0, id);
   }
   const screen = JSON.parse(await readFile(new URL("ui/tbs_screens.json", rp), "utf8"));
   const hud = JSON.parse(await readFile(new URL("ui/hud_screen.json", rp), "utf8"));

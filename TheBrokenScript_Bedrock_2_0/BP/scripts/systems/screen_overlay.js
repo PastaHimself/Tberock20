@@ -12,6 +12,7 @@ export const SCREEN_IDS = Object.freeze([
   "snimok_ekrana_2024-11-02_090828", "tbe_curious",
   "tbescreenframe_1", "tbescreenframe_2", "tbescreenframe_3", "tbescreenframe_4",
   "transition", "oblit_2_effect", "very_serious/baby", "very_serious/fardaway", "wecanhearyou",
+  "very_serious/what_if_garfunkle_was_betrayed_and_sealed_for_a_thousand_years",
 ]);
 
 const knownScreens = new Set(SCREEN_IDS);

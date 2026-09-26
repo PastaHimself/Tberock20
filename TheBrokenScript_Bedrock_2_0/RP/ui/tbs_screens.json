@@ -16,7 +16,7 @@
       },
       {
         "binding_type": "view",
-        "source_property_name": "(not ((#hud_title_text_string - 'tbs:screen/') = #hud_title_text_string) and not (#hud_title_text_string = 'tbs:screen/clear') and ((#hud_title_text_string - 'tbs:screen/tbe_curious/') = #hud_title_text_string) and ((#hud_title_text_string - 'tbs:screen/transition/') = #hud_title_text_string) and ((#hud_title_text_string - 'tbs:screen/oblit_2_effect/') = #hud_title_text_string) and not (#hud_title_text_string = 'tbs:screen/nullinterface') and not (#hud_title_text_string = 'tbs:screen/null_interface_2') and not (#hud_title_text_string = 'tbs:screen/nullinterface_3') and not (#hud_title_text_string = 'tbs:screen/nulled_gui'))",
+        "source_property_name": "(not ((#hud_title_text_string - 'tbs:screen/') = #hud_title_text_string) and not (#hud_title_text_string = 'tbs:screen/clear') and ((#hud_title_text_string - 'tbs:screen/tbe_curious/') = #hud_title_text_string) and ((#hud_title_text_string - 'tbs:screen/transition/') = #hud_title_text_string) and ((#hud_title_text_string - 'tbs:screen/oblit_2_effect/') = #hud_title_text_string) and not (#hud_title_text_string = 'tbs:screen/nullinterface') and not (#hud_title_text_string = 'tbs:screen/null_interface_2') and not (#hud_title_text_string = 'tbs:screen/nullinterface_3') and not (#hud_title_text_string = 'tbs:screen/nulled_gui') and not (#hud_title_text_string = 'tbs:screen/very_serious/what_if_garfunkle_was_betrayed_and_sealed_for_a_thousand_years'))",
         "target_property_name": "#visible"
       },
       {
@@ -992,6 +992,27 @@
             }
           ]
         }
+      }
+    ]
+  },
+  "short_path_garfunkle_sealed": {
+    "type": "image",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "fill": true,
+    "layer": 30,
+    "texture": "textures/ui/tbs/screens/garfunkle_sealed",
+    "bindings": [
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_type": "global"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(#hud_title_text_string = 'tbs:screen/very_serious/what_if_garfunkle_was_betrayed_and_sealed_for_a_thousand_years')",
+        "target_property_name": "#visible"
       }
     ]
   }

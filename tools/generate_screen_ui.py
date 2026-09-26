@@ -16,6 +16,11 @@ SHEETS = {
     "oblit_2_effect": (5, 1, 640, 480),
 }
 MENU_SCREENS = ("nullinterface", "null_interface_2", "nullinterface_3", "nulled_gui")
+# Creator Tools rejects paths longer than 100 characters. Keep the source
+# screen ID while storing this one unusually long filename under a short path.
+SHORT_PATH_SCREENS = {
+    "very_serious/what_if_garfunkle_was_betrayed_and_sealed_for_a_thousand_years": "garfunkle_sealed",
+}
 
 
 def build():
@@ -28,7 +33,7 @@ def build():
     )
     menu_check = " and ".join(
         f"not (#hud_title_text_string = 'tbs:screen/{name}')"
-        for name in MENU_SCREENS
+        for name in (*MENU_SCREENS, *SHORT_PATH_SCREENS)
     )
     texture_binding = {
         "binding_type": "view",
@@ -79,6 +84,19 @@ def build():
             "controls": [],
         },
     }
+    for source_id, short_name in SHORT_PATH_SCREENS.items():
+        controls[f"short_path_{short_name}"] = {
+            "type": "image", "size": ["100%", "100%"], "fill": True,
+            "layer": 30, "texture": f"textures/ui/tbs/screens/{short_name}",
+            "bindings": [
+                {"binding_name": "#hud_title_text_string", "binding_type": "global"},
+                {
+                    "binding_type": "view",
+                    "source_property_name": f"(#hud_title_text_string = 'tbs:screen/{source_id}')",
+                    "target_property_name": "#visible",
+                },
+            ],
+        }
     for name, (frames, columns, width, height) in SHEETS.items():
         for index in range(frames):
             frame = index + 1
