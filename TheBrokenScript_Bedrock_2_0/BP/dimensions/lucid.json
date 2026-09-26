@@ -1,0 +1,20 @@
+{
+  "format_version": "1.26.50",
+  "minecraft:dimension": {
+    "description": {
+      "identifier": "thebrokenscript:lucid"
+    },
+    "components": {
+      "minecraft:dimension_height": {
+        "min_y": -512,
+        "height_range": 1024
+      },
+      "minecraft:default_biome": {
+        "biome": "thebrokenscript:lucid"
+      },
+      "minecraft:generation": {
+        "generator_type": "void"
+      }
+    }
+  }
+}

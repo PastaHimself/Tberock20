@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import struct
 from pathlib import Path
+from typing import Any, Mapping
 
 from validate_jigsaw_nbt_connectors import load_java_nbt
 from validate_mcstructures import validate_mcstructure_bytes
@@ -26,6 +27,10 @@ IGNORED = {"minecraft:air", "minecraft:cave_air", "minecraft:structure_void"}
 
 def _int(value: int) -> bytes:
     return struct.pack("<i", value)
+
+
+def _byte(value: int) -> bytes:
+    return struct.pack("<b", value)
 
 
 def _string(value: str) -> bytes:
@@ -49,15 +54,47 @@ def _int_list(items: list[int]) -> bytes:
     return _list(3, [_int(item) for item in items])
 
 
-def build_mcstructure(size: tuple[int, int, int], palette: list[str], layer: list[int]) -> bytes:
+def _palette_parts(entry: str | Mapping[str, Any]) -> tuple[str, Mapping[str, Any]]:
+    if isinstance(entry, str):
+        return entry, {}
+    name = entry.get("name")
+    states = entry.get("states", {})
+    if not isinstance(name, str) or not name:
+        raise ValueError("palette entry name must be a non-empty string")
+    if not isinstance(states, Mapping):
+        raise ValueError(f"palette states for {name} must be a mapping")
+    return name, states
+
+
+def _state_tag(name: str, value: Any) -> bytes:
+    if isinstance(value, bool):
+        return _tag(1, name, _byte(1 if value else 0))
+    if isinstance(value, int):
+        return _tag(3, name, _int(value))
+    if isinstance(value, str):
+        return _tag(8, name, _string(value))
+    raise ValueError(f"unsupported Bedrock state value for {name}: {value!r}")
+
+
+def build_mcstructure(
+    size: tuple[int, int, int],
+    palette: list[str | Mapping[str, Any]],
+    layer: list[int],
+) -> bytes:
     sx, sy, sz = size
     if len(layer) != sx * sy * sz:
         raise ValueError("block layer does not match structure size")
-    blocks = [_compound(
-        _tag(8, "name", _string(name)),
-        _tag(3, "version", _int(18168865)),
-        _tag(10, "states", _compound()),
-    ) for name in palette]
+    blocks = []
+    for entry in palette:
+        name, states = _palette_parts(entry)
+        blocks.append(_compound(
+            _tag(8, "name", _string(name)),
+            _tag(3, "version", _int(18168865)),
+            _tag(10, "states", _compound(*(
+                _state_tag(state_name, state_value)
+                for state_name, state_value in sorted(states.items())
+            ))),
+        ))
     default_palette = _compound(
         _tag(9, "block_palette", _list(10, blocks)),
         _tag(10, "block_position_data", _compound()),
