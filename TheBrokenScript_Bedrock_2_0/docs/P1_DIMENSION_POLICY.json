@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source": "source_extracted/data/thebrokenscript/dimension_type and dimension",
   "bedrock_adapter": {
-    "terrain": "minecraft:custom_dimension void generator plus readiness-gated safe landing",
+    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, and Limbo has a separately persisted source-structure stage",
     "environment": "Source dimension-type values are retained as policy evidence; the current Script API does not expose equivalent per-dimension setters for every value.",
     "fog": "RP fog and biome-client identifiers are explicit resource adapters; Java client DimensionSpecialEffects are not claimed as exact server parity.",
     "worldgen_boundary": "Exact Java noise_settings and custom ChunkGenerator terrain are blocked by the supported Bedrock registration surface."
@@ -90,6 +90,9 @@
       "min_y": -64,
       "height": 320,
       "logical_height": 64,
+      "bedrock_terrain": "Exact scripted thebrokenscript:limbo layer at Y=0 in bounded three-chunk cells.",
+      "bedrock_structures": "All nine Java Limbo templates are converted to native .mcstructure assets. The fixed house is placed at -5,1,-5; rare templates use the Java source order, one placement per template, one candidate per 3x3 chunks, and the 1024 squared-chunk separation ledger. Common Java block states are mapped to typed Bedrock states. Script API restores non-empty sign text, container contents, writable-book pages, item damage, and jukebox records after placement.",
+      "bedrock_structure_adapter_limits": "Generation order is deterministic by three-chunk cell rather than Java chunk-decoration order. Bed/banner/flower-pot block-entity presentation, legacy color/aux variants on inventory beds and banners, and source properties on custom blocks that do not expose equivalent Bedrock states remain adapters requiring in-engine review.",
       "entry": { "x": 0, "y": 201, "z": 0 },
       "source_entry_search": "recursive safe-surface search with depth 10 and 25-block offsets",
       "return_route": "overworld on explicit player return",
@@ -108,6 +111,7 @@
       "min_y": -1024,
       "height": 2064,
       "logical_height": 64,
+      "bedrock_height_adapter": "Bedrock descriptor uses min_y=-512 and height_range=1024 because the source -1024/2064 range exceeds the supported schema.",
       "entry": { "x": 0, "y": 201, "z": 0 },
       "return_route": "overworld on explicit player return",
       "death_respawn": "Bedrock default respawn with transient state cleanup"
@@ -125,6 +129,7 @@
       "min_y": -64,
       "height": 320,
       "logical_height": 64,
+      "bedrock_terrain": "Exact scripted thebrokenscript:nothing layer at Y=0 in bounded three-chunk cells.",
       "entry": { "x": 0, "y": 201, "z": 0 },
       "source_entry_search": "recursive safe-surface search with Y=64 fallback and 1200-tick exit state",
       "return_route": "overworld on explicit player return",

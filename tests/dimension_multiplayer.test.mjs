@@ -4,6 +4,8 @@ import test from "node:test";
 import {
   ensureDimensionReady,
   inFlightDimensionInitializationCount,
+  registerDimensionInitializer,
+  unregisterDimensionInitializer,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/dimension_generation.js";
 
 function delayedWorld() {
@@ -118,4 +120,31 @@ test("travelers to one block share preparation but retain their own precise posi
   assert.deepEqual(a.location, { x: 1.2, y: 201, z: 1.2 });
   assert.deepEqual(b.location, { x: 1.7, y: 201, z: 1.7 });
   assert.equal(world.creates, 1);
+});
+
+test("different landing sites share one in-flight terrain stage for the same region", async () => {
+  const world = delayedWorld();
+  const dimension = voidDimension();
+  let releaseInitializer;
+  const initializerGate = new Promise((resolve) => { releaseInitializer = resolve; });
+  let runs = 0;
+  registerDimensionInitializer("nothing", async () => {
+    runs += 1;
+    await initializerGate;
+  }, { stage: "terrain", version: 1, regionKey: () => "cell:0:0" });
+  try {
+    const args = { world, dimension, dimensionId: "nothing", logger: { error() {} } };
+    const first = ensureDimensionReady({ ...args, location: { x: 1.5, y: 201, z: 1.5 } });
+    const second = ensureDimensionReady({ ...args, location: { x: 14.5, y: 201, z: 14.5 } });
+    world.release();
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(runs, 1);
+    releaseInitializer();
+    const [a, b] = await Promise.all([first, second]);
+    assert.equal(a.ready, true);
+    assert.equal(b.ready, true);
+    assert.equal(runs, 1);
+  } finally {
+    unregisterDimensionInitializer("nothing");
+  }
 });

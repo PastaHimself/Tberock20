@@ -61,12 +61,15 @@ function fakeWorld({ delayed = false } = {}) {
 
 function fakeDimension({ min = -64, max = 320 } = {}) {
   const blocks = new Map();
+  const calls = { getBlock: 0 };
   const key = ({ x, y, z }) => `${x}:${y}:${z}`;
   return {
     id: "thebrokenscript:clan_void",
     heightRange: { min, max },
     blocks,
+    calls,
     getBlock(location) {
+      calls.getBlock += 1;
       const typeId = blocks.get(key(location)) ?? "minecraft:air";
       return { typeId, isAir: typeId === "minecraft:air" };
     },
@@ -218,6 +221,72 @@ test("registered terrain initializer runs once before landing resolution", async
   } finally {
     unregisterDimensionInitializer("clan_void");
   }
+});
+
+test("multiple initializer stages run in registration order and persist independently", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension();
+  const calls = [];
+  registerDimensionInitializer("clan_void", ({ dimension: targetDimension, location }) => {
+    calls.push("terrain");
+    targetDimension.setBlockType(
+      { x: Math.floor(location.x), y: Math.floor(location.y) - 1, z: Math.floor(location.z) },
+      "minecraft:stone",
+    );
+  }, { stage: "terrain", version: 1 });
+  registerDimensionInitializer("clan_void", () => calls.push("structures"), {
+    stage: "structures", version: 1,
+  });
+  try {
+    const args = {
+      world, dimension, dimensionId: "clan_void",
+      location: { x: 3.5, y: 201, z: 3.5 }, logger,
+    };
+    assert.equal((await ensureDimensionReady(args)).ready, true);
+    assert.equal((await ensureDimensionReady(args)).ready, true);
+    assert.deepEqual(calls, ["terrain", "structures"]);
+    assert.equal(world.calls.create, 1);
+  } finally {
+    unregisterDimensionInitializer("clan_void");
+  }
+});
+
+test("source terrain far below the requested entry is used instead of a fallback pad", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension();
+  registerDimensionInitializer("nothing", ({ dimension: targetDimension, location }) => {
+    targetDimension.setBlockType(
+      { x: Math.floor(location.x), y: 0, z: Math.floor(location.z) },
+      "thebrokenscript:nothing",
+    );
+  }, { stage: "source_nothing_terrain", version: 1, preferredLandingY: 1 });
+  try {
+    const result = await ensureDimensionReady({
+      world, dimension, dimensionId: "nothing",
+      location: { x: 0.5, y: 201, z: 0.5 }, logger,
+    });
+    assert.deepEqual(result, { ready: true, location: { x: 0.5, y: 1, z: 0.5 } });
+    assert.equal(dimension.blocks.size, 1);
+  } finally {
+    unregisterDimensionInitializer("nothing");
+  }
+});
+
+test("unrelated custom dimensions retain the bounded landing search", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension({ min: -512, max: 512 });
+  dimension.setBlockType({ x: 0, y: 0, z: 0 }, "minecraft:stone");
+
+  const result = await ensureDimensionReady({
+    world,
+    dimension,
+    dimensionId: "lucid",
+    location: { x: 0.5, y: 201, z: 0.5 },
+    logger,
+  });
+
+  assert.equal(result.location.y, 201);
+  assert.ok(dimension.calls.getBlock < 150, `unexpected deep scan: ${dimension.calls.getBlock}`);
 });
 
 test("a later terrain initializer upgrades an already-persisted landing region", async () => {

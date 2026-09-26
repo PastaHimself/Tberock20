@@ -46,6 +46,8 @@ import * as nullSourceController from "./entities/null/null_source_controller.js
 import { libraryPaperOrigin } from "./systems/particle_model.js";
 import { spawnSourceParticle } from "./systems/particle_runtime.js";
 import { beginStage2Terrain, registerStage2Terrain } from "./systems/stage2_terrain_runtime.js";
+import { beginSimpleDimensionTerrain, registerSimpleDimensionTerrain } from "./systems/simple_dimension_terrain_runtime.js";
+import { beginLimboStructures, registerLimboStructures } from "./systems/limbo_structures_runtime.js";
 import * as phase3ArenaLayout from "./systems/phase3_arena_layout_runtime.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
@@ -63,10 +65,14 @@ function onStartup(event) {
 function onWorldLoad() {
     perf.reset();
     dimensions.resetCache();
+    registerSimpleDimensionTerrain();
+    registerLimboStructures();
     registerStage2Terrain();
     state.init();
     worldState.init();
     scheduler.begin();
+    beginSimpleDimensionTerrain(scheduler);
+    beginLimboStructures(scheduler);
     beginStage2Terrain(scheduler);
     phase3ArenaLayout.begin(scheduler);
     modifiedChunks.begin();
