@@ -21,7 +21,7 @@
         "value": 0
       },
       "minecraft:attack": {
-        "damage": 63
+        "damage": 50
       },
       "minecraft:persistent": {},
       "minecraft:physics": {},

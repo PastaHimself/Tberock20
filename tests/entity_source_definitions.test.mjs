@@ -57,8 +57,9 @@ test("Bedrock entity values follow explicit Java registry attributes", () => {
     for (const [, name, value] of body.matchAll(attribute)) {
       if (!ids[name]) continue;
       const [id, property] = ids[name];
-      // Bedrock's knockback resistance is normalized to [0, 1].
-      const expected = name === "KnockbackResistance" ? Math.min(Number(value), 1) : Number(value);
+      // The Bedrock schema caps native melee damage at 50 and knockback resistance at 1.
+      const expected = name === "KnockbackResistance" ? Math.min(Number(value), 1)
+        : name === "AttackDamage" ? Math.min(Number(value), 50) : Number(value);
       assert.equal(component(slug, id)?.[property], expected, `${slug}: ${name}`);
       checked++;
     }
@@ -112,7 +113,8 @@ test("entity classes with their own attributes retain the Java values", () => {
     const java = fs.readFileSync(path.join(root, "decompiled/net/thebrokenscript/entity", source), "utf8");
     const match = java.match(new RegExp(`\\.add\\(Attributes\\.${attribute},\\s*(\\d+(?:\\.\\d+)?)\\)`));
     assert.ok(match, `${slug}: missing Java ${attribute}`);
-    const expected = attribute === "KNOCKBACK_RESISTANCE" ? Math.min(Number(match[1]), 1) : Number(match[1]);
+    const expected = attribute === "KNOCKBACK_RESISTANCE" ? Math.min(Number(match[1]), 1)
+      : attribute === "ATTACK_DAMAGE" ? Math.min(Number(match[1]), 50) : Number(match[1]);
     assert.equal(component(slug, id)?.[property], expected, `${slug}: ${attribute}`);
   }
 });
