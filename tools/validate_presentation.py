@@ -744,6 +744,21 @@ def validate_ui_and_camera(
     ui_files = sorted(ui_dir.glob("*.json")) if ui_dir.is_dir() else []
     counts["ui_files"] = len(ui_files)
     ui_documents = {path.name: load_json(path, root, errors) for path in ui_files}
+    screen_source = root / "source_extracted/assets/thebrokenscript/textures/screens"
+    screen_deployed = rp / "textures/ui/tbs/screens"
+    source_images = sorted(screen_source.rglob("*.png"))
+    counts["source_screen_images"] = len(source_images)
+    for source_image in source_images:
+        deployed_image = screen_deployed / source_image.relative_to(screen_source)
+        if not deployed_image.is_file():
+            errors.append(f"Missing source screen texture: {relative(root, deployed_image)}")
+        elif source_image.read_bytes() != deployed_image.read_bytes():
+            errors.append(f"Screen texture differs from source: {relative(root, deployed_image)}")
+    if not isinstance(ui_documents.get("tbs_screens.json"), dict):
+        errors.append("Source screen UI definition is missing")
+    screen_defs = ui_documents.get("_ui_defs.json")
+    if not isinstance(screen_defs, dict) or "ui/tbs_screens.json" not in screen_defs.get("ui_defs", []):
+        errors.append("Source screen UI is not registered in _ui_defs.json")
     definitions = ui_documents.get("_ui_defs.json")
     hud = ui_documents.get("hud_screen.json")
     overlay = ui_documents.get("vhs_overlay.json")

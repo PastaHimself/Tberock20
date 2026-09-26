@@ -7,6 +7,7 @@ import * as gaze from "../../systems/ai/gaze.js";
 import * as effects from "../../systems/ai/effects.js";
 import * as spawnHelpers from "../../systems/ai/spawn_helpers.js";
 import { logger } from "../../core/logging.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 
 const CIRCUIT_FAMILY = [
   "thebrokenscript:circuit",
@@ -65,7 +66,7 @@ function tickStalk(entity) {
   if (!gaze.isLookingAtEntity(player, entity, 14)) return;
 
   if (Math.random() < 0.5) {
-    player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
+    showScreen(player, "blick", 10);
     entity.remove(); entityTimers.delete(entity.id); return;
   }
   if (Math.random() < 0.7) {
@@ -86,7 +87,7 @@ function tickStare(entity) {
   try { entity.lookAt?.(player.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.circuit.circuit_controller.js.85", "best-effort Bedrock API fallback", error);}
   if (!gaze.isLookingAtEntity(player, entity, 14)) return;
   if (Math.random() < 0.5) {
-    player.onScreenDisplay.setTitle("Â§kâ–ˆâ–ˆ Â§r blick Â§kâ–ˆâ–ˆ", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 });
+    showScreen(player, "blick", 10);
     entity.remove(); entityTimers.delete(entity.id); return;
   }
   if (Math.random() < 0.7) {

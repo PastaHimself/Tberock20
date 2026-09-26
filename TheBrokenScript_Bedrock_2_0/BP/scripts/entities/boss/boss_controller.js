@@ -6,6 +6,7 @@ import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as perf from "../../systems/perf.js";
 import { registerChordProjectileLaunch } from "./chord_projectile_runtime.js";
 import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 import {
   GROUND_ARM_SOURCE,
   GROUND_ATTACK_SOURCE,
@@ -729,6 +730,14 @@ function tickMurderfur(e) {
 function tickFever(e) {
   const target = entityFinder.closestPlayerForEntity(world.getAllPlayers(), e, 256);
   if (!target) return;
+  if (distance(e.location, target.location) < 2) {
+    showScreen(target, "be_not_afraid", 6);
+    try { e.remove(); } catch (error) {
+      operationDiagnostics.warnOnce("boss.fever_contact_remove", "fever: contact removal failed", error);
+    }
+    deleteTimers(e);
+    return;
+  }
   if (distance(e.location, target.location) > 4 && system.currentTick % 5 === 0) {
     approach(e, target, 0.2);
     try { e.teleport({ x: e.location.x, y: e.location.y + 0.05, z: e.location.z }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.boss_controller.js.734", "best-effort Bedrock API fallback", error);}

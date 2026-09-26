@@ -6,6 +6,7 @@ import * as dimensions from "../../systems/dimensions.js";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import * as operationDiagnostics from "../../core/operation_diagnostics.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 import * as perf from "../../systems/perf.js";
 import { spawnSourceParticle } from "../../systems/particle_runtime.js";
 
@@ -54,11 +55,6 @@ function tryPlaySoundAt(dim, loc, sound, vol = 1, pitch = 1) {
 function setFakeTime(dim, t) {
   try { dim.runCommand(`time set ${t}`); } catch (error) {
     operationDiagnostics.warnOnce("misc.fake_time", `misc: fake-time command '${t}' failed`, error);
-  }
-}
-function title(player, text, stay = 10) {
-  try { player.onScreenDisplay.setTitle(text, { fadeInDuration: 0, stayDuration: stay, fadeOutDuration: 0 }); } catch (error) {
-    operationDiagnostics.warnOnce("misc.title", "misc: title presentation failed", error);
   }
 }
 function chatAll(dim, text) {
@@ -360,7 +356,7 @@ function tickPhantom(e) {
       return;
     }
     if (distance(e.location, player.location) < 25) {
-      title(player, "blick", 20);
+      showScreen(player, "blick", 20);
       try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.misc.misc_controller.js.363", "best-effort Bedrock API fallback", error);} deleteTimers(e);
       return;
     }

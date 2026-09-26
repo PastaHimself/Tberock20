@@ -4,6 +4,7 @@ import * as dimensions from "./dimensions.js";
 import * as playerState from "./player_state.js";
 import * as worldState from "./world_state.js";
 import { logger } from "../core/logging.js";
+import { showScreen } from "./screen_overlay.js";
 import {
   REGAIN_HALF_BY_TIER,
   REPUTATION_TIER_BY_DELTA as SOURCE_REPUTATION_TIER_BY_DELTA,
@@ -213,7 +214,10 @@ function executeResponse(definition, sender) {
     case "can_you_see_me":
       try { sender.playSound("ambient.cave", { volume: 10 }); } catch (err) { reportAdapterFailure("can-you-see-me-sound", err); }
       broadcast("<null> Yes.");
-      scheduleForPlayer(sender, 60, () => broadcast("<null> Hello."));
+      scheduleForPlayer(sender, 60, (player) => {
+        broadcast("<null> Hello.");
+        showScreen(player, "snimok_ekrana_2024-11-02_090828", 10);
+      });
       return;
     case "hello":
       try { sender.playSound("ambient.cave", { volume: 10 }); } catch (err) { reportAdapterFailure("hello-sound", err); }

@@ -1,0 +1,998 @@
+{
+  "namespace": "tbs_screens",
+  "fullscreen": {
+    "type": "image",
+    "texture": "#texture",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "fill": true,
+    "layer": 30,
+    "bindings": [
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_type": "global"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#hud_title_text_string - 'tbs:screen/') = #hud_title_text_string) and not (#hud_title_text_string = 'tbs:screen/clear') and ((#hud_title_text_string - 'tbs:screen/tbe_curious/') = #hud_title_text_string) and ((#hud_title_text_string - 'tbs:screen/transition/') = #hud_title_text_string) and ((#hud_title_text_string - 'tbs:screen/oblit_2_effect/') = #hud_title_text_string) and not (#hud_title_text_string = 'tbs:screen/nullinterface') and not (#hud_title_text_string = 'tbs:screen/null_interface_2') and not (#hud_title_text_string = 'tbs:screen/nullinterface_3') and not (#hud_title_text_string = 'tbs:screen/nulled_gui'))",
+        "target_property_name": "#visible"
+      },
+      {
+        "binding_type": "view",
+        "binding_condition": "visible",
+        "source_property_name": "('textures/ui/tbs/screens/' + (#hud_title_text_string - 'tbs:screen/'))",
+        "target_property_name": "#texture"
+      }
+    ]
+  },
+  "menu": {
+    "type": "image",
+    "texture": "#texture",
+    "size": [
+      176,
+      166
+    ],
+    "anchor_from": "center",
+    "anchor_to": "center",
+    "layer": 30,
+    "bindings": [
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_type": "global"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "((#hud_title_text_string = 'tbs:screen/nullinterface') or (#hud_title_text_string = 'tbs:screen/null_interface_2') or (#hud_title_text_string = 'tbs:screen/nullinterface_3') or (#hud_title_text_string = 'tbs:screen/nulled_gui'))",
+        "target_property_name": "#visible"
+      },
+      {
+        "binding_type": "view",
+        "binding_condition": "visible",
+        "source_property_name": "('textures/ui/tbs/screens/' + (#hud_title_text_string - 'tbs:screen/'))",
+        "target_property_name": "#texture"
+      }
+    ]
+  },
+  "animated": {
+    "type": "panel",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "layer": 30,
+    "controls": [
+      {
+        "tbe_curious_frame_1": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/tbe_curious",
+          "uv": [
+            0,
+            0
+          ],
+          "uv_size": [
+            642,
+            481
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/tbe_curious/1')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "tbe_curious_frame_2": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/tbe_curious",
+          "uv": [
+            0,
+            481
+          ],
+          "uv_size": [
+            642,
+            481
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/tbe_curious/2')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "tbe_curious_frame_3": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/tbe_curious",
+          "uv": [
+            0,
+            962
+          ],
+          "uv_size": [
+            642,
+            481
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/tbe_curious/3')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "tbe_curious_frame_4": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/tbe_curious",
+          "uv": [
+            0,
+            1443
+          ],
+          "uv_size": [
+            642,
+            481
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/tbe_curious/4')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_1": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            0
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/1')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_2": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            0
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/2')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_3": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            0
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/3')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_4": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            480
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/4')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_5": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            480
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/5')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_6": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            480
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/6')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_7": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            960
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/7')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_8": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            960
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/8')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_9": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            960
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/9')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_10": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            1440
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/10')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_11": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            1440
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/11')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_12": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            1440
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/12')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_13": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            1920
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/13')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_14": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            1920
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/14')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_15": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            1920
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/15')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_16": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            2400
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/16')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_17": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            2400
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/17')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_18": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            2400
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/18')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_19": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            2880
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/19')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_20": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            640,
+            2880
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/20')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_21": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            1280,
+            2880
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/21')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "transition_frame_22": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/transition",
+          "uv": [
+            0,
+            3360
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/transition/22')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "oblit_2_effect_frame_1": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/oblit_2_effect",
+          "uv": [
+            0,
+            0
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/oblit_2_effect/1')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "oblit_2_effect_frame_2": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/oblit_2_effect",
+          "uv": [
+            0,
+            480
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/oblit_2_effect/2')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "oblit_2_effect_frame_3": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/oblit_2_effect",
+          "uv": [
+            0,
+            960
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/oblit_2_effect/3')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "oblit_2_effect_frame_4": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/oblit_2_effect",
+          "uv": [
+            0,
+            1440
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/oblit_2_effect/4')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "oblit_2_effect_frame_5": {
+          "type": "image",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "fill": true,
+          "texture": "textures/ui/tbs/screens/oblit_2_effect",
+          "uv": [
+            0,
+            1920
+          ],
+          "uv_size": [
+            640,
+            480
+          ],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_type": "global"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#hud_title_text_string = 'tbs:screen/oblit_2_effect/5')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
