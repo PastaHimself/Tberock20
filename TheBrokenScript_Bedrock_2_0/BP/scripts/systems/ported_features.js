@@ -10,6 +10,7 @@ import { finishPolaroid } from "./polaroid_craft.js";
 import { applyDamageWithSource } from "./damage_source_runtime.js";
 import { libraryBookPageView } from "./library_book_pages.js";
 import { PortalSweep } from "./portal_auto_travel.js";
+import { usePlush, useFluidBucket, collectFluid } from "./item_block_runtime.js";
 import {
   HAND_CANNON_RANGE,
   circuitPaintingPlacement,
@@ -58,6 +59,38 @@ export function init(itemComponentRegistry) {
     onUse(event) {
       system.run(() => fireHandCannon(event.source));
     },
+  });
+  register("thebrokenscript:plush_use", {
+    onUseOn(event) {
+      const { source, itemStack, block, blockFace } = event;
+      system.run(() => usePlush(source, itemStack, block, blockFace));
+    },
+  });
+  register("thebrokenscript:void_bucket_use", {
+    onUseOn(event) {
+      const { source, block, blockFace } = event;
+      system.run(() => useFluidBucket(source, block, blockFace));
+    },
+  });
+  world.beforeEvents.itemUse.subscribe((event) => {
+    if (!event.source.isSneaking || !/^thebrokenscript:[a-z0-9_]+_plush$/.test(event.itemStack?.typeId ?? "")) return;
+    event.cancel = true;
+    const { source, itemStack } = event;
+    system.run(() => usePlush(source, itemStack));
+  });
+  world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
+    if (!event.isFirstEvent) return;
+    const { player, itemStack, block, blockFace } = event;
+    if (/^thebrokenscript:[a-z0-9_]+_plush$/.test(itemStack?.typeId ?? "")) {
+      event.cancel = true;
+      system.run(() => usePlush(player, itemStack, block, blockFace));
+    } else if (itemStack?.typeId === "thebrokenscript:void_liquid_bucket") {
+      event.cancel = true;
+      system.run(() => useFluidBucket(player, block, blockFace));
+    } else if (block.typeId === "thebrokenscript:void_goop_still" && itemStack?.typeId === "minecraft:bucket") {
+      event.cancel = true;
+      system.run(() => collectFluid(player, block));
+    }
   });
   register("thebrokenscript:polaroid_use", {
     onUse(event) {
@@ -123,7 +156,7 @@ export function init(itemComponentRegistry) {
       system.run(() => void showLibraryBook(event.source));
     },
   });
-  logger.info(`ported_features: ${registered.length}/11 item components registered`);
+  logger.info(`ported_features: ${registered.length}/13 item components registered`);
 }
 
 export function begin(scheduler) {

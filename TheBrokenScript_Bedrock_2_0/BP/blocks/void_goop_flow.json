@@ -4,21 +4,168 @@
     "description": {
       "identifier": "thebrokenscript:void_goop_flow",
       "menu_category": {
-        "category": "construction",
-        "is_hidden_in_commands": false
+        "category": "none"
+      },
+      "states": {
+        "thebrokenscript:level": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
       }
     },
     "components": {
-      "minecraft:loot": "loot_tables/blocks/void_goop_flow.json",
+      "minecraft:loot": "loot_tables/empty.json",
       "minecraft:material_instances": {
         "*": {
           "texture": "void_goop_flow",
           "render_method": "blend"
         }
       },
-      "minecraft:collision_box": true,
-      "minecraft:light_dampening": 1,
-      "minecraft:geometry": "minecraft:geometry.full_block"
-    }
+      "minecraft:collision_box": false,
+      "minecraft:light_dampening": 0,
+      "minecraft:geometry": "geometry.tbs_void_flow_1",
+      "minecraft:replaceable": {},
+      "minecraft:tick": {
+        "interval_range": [
+          5,
+          5
+        ],
+        "looping": true
+      },
+      "thebrokenscript:void_fluid": {}
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 1",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              14,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_1"
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 2",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              12,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_2"
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 3",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              10,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_3"
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 4",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              8,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_4"
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 5",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              6,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_5"
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 6",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              4,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_6"
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:level') == 7",
+        "components": {
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              2,
+              16
+            ]
+          },
+          "minecraft:geometry": "geometry.tbs_void_flow_7"
+        }
+      }
+    ]
   }
 }

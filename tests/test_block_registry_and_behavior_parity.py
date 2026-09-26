@@ -14,9 +14,11 @@ SOURCE_DISRUPTION_BLOCK = REPO_ROOT / "decompiled/net/thebrokenscript/block/Disr
 
 # These two definitions pre-date this TODO 12 PR and have no repository source blockstate.
 # Keep their exception exact: any additional Bedrock-only block remains a test failure.
+PLUSH_GEOMETRY_ROOT = REPO_ROOT / "source_extracted/assets/thebrokenscript/geo/plush"
 BEDROCK_ONLY_BLOCK_IDS = {
     "thebrokenscript:void_goop_flow",
     "thebrokenscript:void_goop_still",
+    *(f"thebrokenscript:{path.stem.removesuffix('.geo')}_plush_block" for path in PLUSH_GEOMETRY_ROOT.glob("*.geo.json")),
 }
 
 
@@ -51,7 +53,7 @@ class BlockRegistryAndBehaviorParityTests(unittest.TestCase):
         self.assertEqual(
             BEDROCK_ONLY_BLOCK_IDS,
             bedrock_ids - source_ids,
-            "only the two pre-existing Bedrock-only void-goop definitions may lack source blockstates",
+            "only source-backed plush geometry and void-goop definitions may lack source blockstates",
         )
         self.assertEqual(
             source_ids,

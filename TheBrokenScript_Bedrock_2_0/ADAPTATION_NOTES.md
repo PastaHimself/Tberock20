@@ -3,14 +3,7 @@
 Every entry documents an engine-driven adaptation (prompt §35). Seed set from Chunk 00; expanded as chunks run.
 
 ## A-001 — Custom fluid `void_liquid`
-1. **Source feature**: Void liquid fluid (source + flowing) with custom block, used by void dimensions.
-2. **Source behavior**: the source builds head 14×14 at (1, 88, 10), chest 18×18 at (1, 68, 10), four 15×15 subentities at frontleft/frontright/backleft/backright, and four 45-block Leg targets. The head/chest FracturedPartEntity children call Roam.swap() first; burning arrows ignite the parent for 20 seconds, spectral arrows add glowing for 400 ticks, and accepted part hits temporarily set the parent's hit-via-part flag. The four FracturedSubEntity legs delegate to the parent without invoking swap or applying those arrow side effects. MultipartEntityPart uses positive body yaw, while Leg.tick rotates target offsets by negative body yaw. A FracturedRoam head/chest hit enters SWITCHING only from NORMAL, and the host promotes to the main Fractured entity after the source 103-tick switching duration.
-3. **Source evidence**: `neoforge/fluids/`, `TBSFluids*.class`, `item.thebrokenscript.void_liquid_bucket`.
-4. **Bedrock limitation**: No data-driven or script-registered custom fluids.
-5. **Docs checked**: Creator block/item references; scripting module docs (no fluid registration API).
-6. **Replacement design**: Translucent tinted custom block + scripted swim/damage/particle/bucket logic; bucket item swaps liquid blocks.
-7. **Player-visible difference**: No true flow simulation unless scripted; visuals approximated.
-8. **Parity class**: `VALIDATED_APPROXIMATION` target.
+The Java source declares a source and seven flowing strengths (horizontal level decrease of one), a source-only bucket, a replaceable non-colliding block, and no block drop (`decompiled/net/thebrokenscript/neoforge/fluids/VoidLiquidFluid.java`, `TBSFluids.java`). Bedrock cannot register this Java fluid type. The Bedrock adaptation uses `void_goop_still` and seven `void_goop_flow` states. A five-tick custom component spreads down and horizontally, decreases strength from neighboring fluid, and removes unsupported flow. Source bucket placement consumes the filled bucket in Survival, gives an empty bucket, and collection reverses this only for a source. Both blocks have no collision, no drops, and a replaceable component. The seven flowing geometries vary visually with strength. Native viscosity, flowing-liquid physics, bucket interaction with dispensers, and custom fog remain engine differences. Parity: `VALIDATED_APPROXIMATION` for scripted placement and flow; engine validation is still required.
 
 ## A-002 — Custom mob effects (`heart_corruption`, `why_cant_you_leave`)
 1–3. **Feature/behavior/evidence**: `HeartCorruptionMobEffect` is harmful/magenta and applies a `MAX_HEALTH -1` attribute modifier. `WhyCantYouLeaveMobEffect` is neutral/black and substitutes the custom `eyes` particle; its event duration is 1000 ticks.
@@ -326,3 +319,10 @@ The source-backed models keep the provenance of the remaining non-trivial numeri
 4. `0.999999999` is only the Bedrock normalized-roll clamp for an exclusive `[0, 1)` random boundary. It is not presented as a recovered Java literal.
 
 Parity class: `VALIDATED_APPROXIMATION` for the supported adapters; the Java child-entity collision hierarchy and exact client/runtime engine behavior remain subject to the limitations recorded in `KNOWN_LIMITATIONS.md`.
+
+## A-036 — Plush equipment, placement, and block vegetation
+The source `PlushItem` extends `BlockItem` and `Equipable`: ordinary use equips on the head, placement creates a plush block, and sneaking squeezes it. The 26 source geometries and item textures now back separate Bedrock world blocks and head attachables; native head wearability, block loot, facing, and interaction sounds are present. The world block IDs have `_block` suffix because the same names already identify custom items. The Java GeckoLib squish and Tekkit/Hermit neighbor merge animations have no direct Bedrock block-entity animation equivalent; static models and sound/action-bar feedback are used. Head-model alignment and animation appearance need an in-game client smoke test. Parity: `VALIDATED_APPROXIMATION`.
+
+`VoidBudBlock` orients to the clicked face and checks its opposite neighbor for support; `NewVeinBlock` needs firm support above or below and updates face connectivity for four adjacent walls and neighboring veins. The Bedrock blocks now reflect these rules via placement trait and 20-tick components. Vein faces use a single texture and geometry per connected face rather than Java's complete multipart limb and tip combinations. Support changes can lag by up to 20 ticks. Parity: `VALIDATED_APPROXIMATION`.
+
+The hand cannon source checks one hard-coded Java account UUID or a per-stack `ADMINISTRATIVE_OVERRIDE` component during inventory ticks. Bedrock does not expose a Java UUID for a Bedrock account, and the port has no operator-provided identity mapping or equivalent item grant path. The existing cannon fire mechanics remain functional; the Java-specific ownership restriction remains open instead of deleting items belonging to Bedrock users. In-game authorization parity requires a defined Bedrock account identity and override grant policy.

@@ -11,7 +11,12 @@
       "minecraft:icon": "ebridger_plush",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.ebridger_plush"
-      }
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.head"
+      },
+      "thebrokenscript:plush_use": {}
     }
   }
 }

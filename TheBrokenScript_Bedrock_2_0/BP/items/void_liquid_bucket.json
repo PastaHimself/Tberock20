@@ -4,14 +4,16 @@
     "description": {
       "identifier": "thebrokenscript:void_liquid_bucket",
       "menu_category": {
-        "category": "items"
+        "category": "none"
       }
     },
     "components": {
       "minecraft:icon": "void_liquid_bucket",
       "minecraft:display_name": {
         "value": "item.thebrokenscript.void_liquid_bucket"
-      }
+      },
+      "minecraft:max_stack_size": 1,
+      "thebrokenscript:void_bucket_use": {}
     }
   }
 }
