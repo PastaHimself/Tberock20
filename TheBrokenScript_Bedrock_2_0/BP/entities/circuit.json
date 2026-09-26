@@ -77,7 +77,11 @@
       },
       "minecraft:behavior.random_look_around": {
         "priority": 7
-      }
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {}
   }

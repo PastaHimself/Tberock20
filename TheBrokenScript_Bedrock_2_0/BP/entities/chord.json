@@ -47,8 +47,9 @@
         "suffocate_time": 0
       },
       "minecraft:knockback_resistance": {
-        "value": 1.0
-      }
+        "value": 0
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {}
   }

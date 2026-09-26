@@ -45,7 +45,8 @@
       "minecraft:breathable": {
         "total_supply": 15,
         "suffocate_time": 0
-      }
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {}
   }

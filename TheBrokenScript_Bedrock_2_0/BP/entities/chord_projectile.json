@@ -55,7 +55,8 @@
       },
       "minecraft:knockback_resistance": {
         "value": 1.0
-      }
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {
       "thebrokenscript:chord_projectile_restore_gravity": {

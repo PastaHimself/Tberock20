@@ -41,4 +41,6 @@ Engine-level gaps verified against official documentation (see BEDROCK_COMPATIBI
 
 28. **Numeric provenance has explicit engine boundaries** — `LOSS_HUGE` regain uses Java's integer-half result `17`; `13000` and `24000` are recovered `TimeOfDay.java` values, while `23000` is a Bedrock event-gate adapter. The `1e-9` swept-AABB epsilon and `0.999999999` exclusive-roll clamp are Bedrock numerical adapters with no claimed Java literal (A-035).
 
+29. **High Java melee attributes exceed the validated native component range** — Mojang Creator Tools 0.17.7 rejects `minecraft:attack.damage` values above 50. The Java registrations for FeverStalk (200), NullIsHere and NullUnbeatableBossfight (313), NullWatching (63), and TheBrokenEnd and Ambush (600) therefore retain 50 in their Bedrock native attack component. Their scripted damage paths remain separate; native melee damage beyond 50 is not claimed source-exact until an engine-tested adapter is available.
+
 All reachable Java behavior is either implemented, approximated with an explicit player-visible difference, or retained here as engine-unsupported.

@@ -14,8 +14,8 @@
         "value": 0.3
       },
       "minecraft:follow_range": {
-        "value": 64,
-        "max": 64
+        "value": 816,
+        "max": 816
       },
       "minecraft:push_through": {
         "value": 0
@@ -45,7 +45,8 @@
       "minecraft:health": {
         "value": 110,
         "max": 110
-      }
+      },
+      "minecraft:fire_immune": {}
     }
   }
 }

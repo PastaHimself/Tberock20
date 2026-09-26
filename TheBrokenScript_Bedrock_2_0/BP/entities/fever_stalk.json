@@ -24,7 +24,7 @@
         "value": 0.4
       },
       "minecraft:attack": {
-        "damage": 10
+        "damage": 50
       },
       "minecraft:follow_range": {
         "value": 916,
@@ -48,7 +48,8 @@
       },
       "minecraft:knockback_resistance": {
         "value": 1.0
-      }
+      },
+      "minecraft:fire_immune": {}
     },
     "events": {}
   }

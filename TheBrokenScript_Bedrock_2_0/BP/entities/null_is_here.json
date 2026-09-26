@@ -41,7 +41,8 @@
       "minecraft:health": {
         "value": 910,
         "max": 910
-      }
+      },
+      "minecraft:fire_immune": {}
     }
   }
 }
