@@ -81,6 +81,7 @@ function player(dimension, typeId, amount = 1, creative = false) {
 test("all 26 plush items place a source model, carry head wearability, and drop the same item", async () => {
   const { readdir } = await import("node:fs/promises");
   const files = (await readdir(resolve(pack, "BP/items"))).filter(name => name.endsWith("_plush.json"));
+  const terrain = JSON.parse(await readFile(resolve(pack, "RP/textures/terrain_texture.json"))).texture_data;
   assert.equal(files.length, 26);
   for (const filename of files) {
     const name = filename.slice(0, -11);
@@ -91,13 +92,19 @@ test("all 26 plush items place a source model, carry head wearability, and drop 
     assert.equal(item.components["minecraft:max_stack_size"], 1);
     assert.equal(block.components["minecraft:collision_box"], false);
     assert.equal(block.components["minecraft:geometry"], geometry["minecraft:geometry"][0].description.identifier);
+    assert.deepEqual(terrain[`plush_${name}`].textures, [`textures/items/plush/${name}`]);
     const loot = JSON.parse(await readFile(resolve(pack, "BP", block.components["minecraft:loot"])));
     assert.equal(loot.pools[0].entries[0].name, item.description.identifier);
     const worn = JSON.parse(await readFile(resolve(pack, "RP/attachables", filename)))["minecraft:attachable"].description;
-    const wornModel = JSON.parse(await readFile(resolve(pack, "RP/models/attachables/plush", `${name}.geo.json`)));
+    const wornModel = JSON.parse(await readFile(resolve(pack, "RP/models/entity/plush", `${name}.geo.json`)));
     assert.equal(worn.identifier, item.description.identifier);
     assert.equal(worn.geometry.default, wornModel["minecraft:geometry"][0].description.identifier);
     assert.equal(wornModel["minecraft:geometry"][0].bones[0].binding, "q.item_slot_to_bone_name(context.item_slot)");
+    if (name === "lost") {
+      const cubeCount = model => model["minecraft:geometry"][0].bones.reduce((total, bone) => total + (bone.cubes?.length ?? 0), 0);
+      assert.equal(cubeCount(geometry), 50);
+      assert.equal(cubeCount(wornModel), 100);
+    }
   }
 });
 
