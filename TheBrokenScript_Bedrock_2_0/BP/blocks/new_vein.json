@@ -5,6 +5,48 @@
       "identifier": "thebrokenscript:new_vein",
       "menu_category": {
         "category": "construction"
+      },
+      "states": {
+        "thebrokenscript:up": [
+          false,
+          true
+        ],
+        "thebrokenscript:down": [
+          false,
+          true
+        ],
+        "thebrokenscript:north": [
+          false,
+          true
+        ],
+        "thebrokenscript:south": [
+          false,
+          true
+        ],
+        "thebrokenscript:east": [
+          false,
+          true
+        ],
+        "thebrokenscript:west": [
+          false,
+          true
+        ],
+        "thebrokenscript:north_wall": [
+          false,
+          true
+        ],
+        "thebrokenscript:south_wall": [
+          false,
+          true
+        ],
+        "thebrokenscript:east_wall": [
+          false,
+          true
+        ],
+        "thebrokenscript:west_wall": [
+          false,
+          true
+        ]
       }
     },
     "components": {
@@ -15,10 +57,28 @@
           "render_method": "alpha_test_single_sided"
         }
       },
-      "minecraft:geometry": "geometry.tbs_cross",
+      "minecraft:geometry": {
+        "identifier": "geometry.tbs_new_vein",
+        "bone_visibility": {
+          "up": "query.block_state('thebrokenscript:up')",
+          "down": "query.block_state('thebrokenscript:down')",
+          "north": "query.block_state('thebrokenscript:north') || query.block_state('thebrokenscript:north_wall')",
+          "south": "query.block_state('thebrokenscript:south') || query.block_state('thebrokenscript:south_wall')",
+          "east": "query.block_state('thebrokenscript:east') || query.block_state('thebrokenscript:east_wall')",
+          "west": "query.block_state('thebrokenscript:west') || query.block_state('thebrokenscript:west_wall')"
+        }
+      },
       "minecraft:collision_box": false,
       "minecraft:selection_box": true,
-      "minecraft:light_dampening": 0
+      "minecraft:light_dampening": 0,
+      "minecraft:tick": {
+        "interval_range": [
+          20,
+          20
+        ],
+        "looping": true
+      },
+      "thebrokenscript:new_vein_connections": {}
     }
   }
 }

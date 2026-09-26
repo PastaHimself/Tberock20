@@ -583,6 +583,84 @@
       "textures": [
         "textures/blocks/stack_trace"
       ]
+    },
+    "plush_bennie": {
+      "textures": "textures/items/plush/bennie"
+    },
+    "plush_berry": {
+      "textures": "textures/items/plush/berry"
+    },
+    "plush_dominik": {
+      "textures": "textures/items/plush/dominik"
+    },
+    "plush_ebridger": {
+      "textures": "textures/items/plush/ebridger"
+    },
+    "plush_elderly": {
+      "textures": "textures/items/plush/elderly"
+    },
+    "plush_eldritch": {
+      "textures": "textures/items/plush/eldritch"
+    },
+    "plush_eyae": {
+      "textures": "textures/items/plush/eyae"
+    },
+    "plush_garreth": {
+      "textures": "textures/items/plush/garreth"
+    },
+    "plush_hermit": {
+      "textures": "textures/items/plush/hermit"
+    },
+    "plush_jd": {
+      "textures": "textures/items/plush/jd"
+    },
+    "plush_lost": {
+      "textures": "textures/items/plush/lost"
+    },
+    "plush_lovemist": {
+      "textures": "textures/items/plush/lovemist"
+    },
+    "plush_mc": {
+      "textures": "textures/items/plush/mc"
+    },
+    "plush_moji": {
+      "textures": "textures/items/plush/moji"
+    },
+    "plush_nahbro": {
+      "textures": "textures/items/plush/nahbro"
+    },
+    "plush_pyrit": {
+      "textures": "textures/items/plush/pyrit"
+    },
+    "plush_raevant": {
+      "textures": "textures/items/plush/raevant"
+    },
+    "plush_rdh": {
+      "textures": "textures/items/plush/rdh"
+    },
+    "plush_redstone": {
+      "textures": "textures/items/plush/redstone"
+    },
+    "plush_shadow": {
+      "textures": "textures/items/plush/shadow"
+    },
+    "plush_skie": {
+      "textures": "textures/items/plush/skie"
+    },
+    "plush_stevelocks": {
+      "textures": "textures/items/plush/stevelocks"
+    },
+    "plush_tekkit": {
+      "textures": "textures/items/plush/tekkit"
+    },
+    "plush_wendigo": {
+      "textures": "textures/items/plush/wendigo"
+    },
+    "plush_yharim": {
+      "textures": "textures/items/plush/yharim"
+    },
+    "plush_zetos": {
+      "textures": "textures/items/plush/zetos"
     }
   }
 }

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "thebrokenscript:pyrit_plush",
+      "item": {
+        "thebrokenscript:pyrit_plush": "query.is_owner_identifier_any('minecraft:player') && context.item_slot == 'head'"
+      },
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/items/plush/pyrit"
+      },
+      "geometry": {
+        "default": "geometry.tbs_plush_worn_pyrit"
+      },
+      "render_controllers": [
+        "controller.render.item_default"
+      ]
+    }
+  }
+}

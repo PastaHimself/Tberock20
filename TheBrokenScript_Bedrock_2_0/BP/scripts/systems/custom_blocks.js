@@ -10,6 +10,7 @@ import {
 import * as worldState from "./world_state.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
 import { openCommandBlockScreen } from "./command_block_screen.js";
+import { collectFluid, interactPlush, tickFluid, tickVoidBud, tickNewVein } from "./item_block_runtime.js";
 
 // Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -171,6 +172,24 @@ export function init(blockComponentRegistry) {
   });
 
   register("thebrokenscript:be_jim_trigger", makeJimTrigger());
+
+  register("thebrokenscript:void_fluid", {
+    onTick(event) { tickFluid(event.block); },
+    onPlayerInteract(event) {
+      if (event.player) system.run(() => collectFluid(event.player, event.block));
+    },
+  });
+  register("thebrokenscript:plush_block", {
+    onPlayerInteract(event) {
+      if (event.player) interactPlush(event.player, event.block);
+    },
+  });
+  register("thebrokenscript:void_bud_support", {
+    onTick(event) { tickVoidBud(event.block); },
+  });
+  register("thebrokenscript:new_vein_connections", {
+    onTick(event) { tickNewVein(event.block); },
+  });
 
   logger.info(`custom_blocks: ${registered.length} component(s) registered`);
 }

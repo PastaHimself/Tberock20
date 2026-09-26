@@ -1,0 +1,94 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:block": {
+    "description": {
+      "identifier": "thebrokenscript:hermit_plush_block",
+      "states": {
+        "thebrokenscript:direction": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ]
+      },
+      "menu_category": {
+        "category": "none"
+      }
+    },
+    "components": {
+      "minecraft:loot": "loot_tables/blocks/hermit_plush.json",
+      "minecraft:geometry": "geometry.tbs_plush_hermit",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "plush_hermit",
+          "render_method": "alpha_test"
+        }
+      },
+      "minecraft:collision_box": false,
+      "minecraft:selection_box": {
+        "origin": [
+          -4,
+          0,
+          -4
+        ],
+        "size": [
+          8,
+          10,
+          8
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "thebrokenscript:plush_block": {}
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('thebrokenscript:direction') == 'north'",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:direction') == 'east'",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [
+              0,
+              90,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:direction') == 'south'",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [
+              0,
+              180,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "query.block_state('thebrokenscript:direction') == 'west'",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [
+              0,
+              270,
+              0
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
