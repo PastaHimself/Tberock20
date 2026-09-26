@@ -29,7 +29,8 @@ class PresentationValidationTests(unittest.TestCase):
         self.assertEqual(result["counts"]["source_sound_definitions"], 143)
         self.assertEqual(result["counts"]["deployed_sound_definitions"], 142)
         self.assertEqual(result["counts"]["record_items"], 10)
-        self.assertEqual(result["counts"]["ui_files"], 3)
+        self.assertEqual(result["counts"]["ui_files"], 4)
+        self.assertEqual(result["counts"]["source_screen_images"], 59)
 
     def test_missing_animation_is_reported(self):
         with tempfile.TemporaryDirectory() as directory:

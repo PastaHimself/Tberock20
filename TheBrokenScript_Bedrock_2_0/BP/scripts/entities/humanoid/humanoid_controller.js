@@ -10,6 +10,7 @@ import * as perf from "../../systems/perf.js";
 import { config } from "../../core/config.js";
 import { farawayAppearance } from "../../systems/particle_model.js";
 import { spawnSourceParticle } from "../../systems/particle_runtime.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // stare: life 500, LOOKABLE aura ≤512 + slowness 60t amp55
@@ -59,11 +60,6 @@ function setFakeTime(dim, t) {
   }
 }
 
-function title(player, text, stayTicks = 10) {
-  try { player.onScreenDisplay.setTitle(text, { fadeInDuration: 0, stayDuration: stayTicks, fadeOutDuration: 0 }); } catch (error) {
-    operationDiagnostics.warnOnce("humanoid.title", "humanoid: title presentation failed", error);
-  }
-}
 
 function hasLineOfSightApprox(player, entity) {
   try {
@@ -148,7 +144,7 @@ function gazeReaction(e, chaserId, player) {
     if (spawned) spawnHelpers.applyRandomRotation(spawned);
   } else {
     tryPlaySoundAt(e.dimension, player.location, "thebrokenscript:text_madness_1", 10, 0);
-    title(player, "cantyousee", 10);
+    showScreen(player, "cantyousee", 10);
   }
 }
 
@@ -448,7 +444,7 @@ function tickHallucination(e) {
         try { ownerEnt.playSound("thebrokenscript:hallucination_fade", { volume: 10, pitch: 1 }); } catch (error) {
           operationDiagnostics.warnOnce("humanoid.hallucination_sound", "humanoid: hallucination fade sound failed", error);
         }
-        title(ownerEnt, "blick", 3);
+        showScreen(ownerEnt, "blick", 3);
         return;
       }
     }
@@ -610,7 +606,7 @@ function tickFaraway(e) {
         try { player.playSound(appearance === "fard" ? "fardaway" : appearance === "baby" ? "baby" : "phantom", { volume: 1, pitch: 1 }); } catch (error) {
           operationDiagnostics.warnOnce("humanoid.faraway_sound", "humanoid: faraway sound failed", error);
         }
-        title(player, appearance === "fard" ? "fardaway" : appearance === "baby" ? "baby" : "snimok_ekrana_2024-11-02_090828", 15);
+        showScreen(player, appearance === "fard" ? "very_serious/fardaway" : appearance === "baby" ? "very_serious/baby" : "snimok_ekrana_2024-11-02_090828", 15);
         try {
           const part = Math.random() < 0.5 ? "minecraft:basic_flame_particle" : "minecraft:redstone_wire_dust_particle";
           e.dimension.spawnParticle(part, { x: e.location.x, y: e.location.y + 1, z: e.location.z });

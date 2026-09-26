@@ -3,6 +3,7 @@ import * as operationDiagnostics from "../../core/operation_diagnostics.js";
 import * as bossHooks from "../../systems/boss_hooks.js";
 import * as perf from "../../systems/perf.js";
 import { applyDamageWithSource } from "../../systems/damage_source_runtime.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 import {
   GROUND_ARM_SOURCE,
   GROUND_ATTACK_SOURCE,
@@ -738,6 +739,10 @@ function tickPhase3(entity) {
     })),
   });
   state.pendingKills = boundary.pendingKills;
+  for (const id of boundary.startedIds) {
+    const target = players.find((player) => player.id === id);
+    if (target) showScreen(target.entity, "transition", 0);
+  }
   for (const id of boundary.killIds) {
     const target = players.find((player) => player.id === id);
     if (target) applyVoidMass(target.entity, entity);

@@ -3,5 +3,15 @@
   "hud_screen": {
     "render_only_when_topmost": true,
     "$additional_screen_content": "vhs_overlay.root"
+  },
+  "hud_title_text": {
+    "bindings": [
+      { "binding_name": "#hud_title_text_string", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "((#hud_title_text_string - 'tbs:screen/') = #hud_title_text_string)",
+        "target_property_name": "#visible"
+      }
+    ]
   }
 }

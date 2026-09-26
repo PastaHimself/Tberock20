@@ -9,6 +9,7 @@ import {
 } from "./ported_features.js";
 import * as worldState from "./world_state.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
+import { openCommandBlockScreen } from "./command_block_screen.js";
 
 // Chunk 08: custom block components.
 // BE equivalents: command, portal_controller, portal_extender, null_structure,
@@ -68,15 +69,20 @@ export function init(blockComponentRegistry) {
     }
   });
 
-  // Java CorruptedCommandBlock stores its placed location and flips its `code` state
-  // once the world-level codeApplied flag becomes true. The Java menu/UI remains a
-  // separate, currently unsupported adapter concern; do not fabricate command text here.
+  // Java CorruptedCommandBlock stores its placed location, opens the code-entry
+  // container on use, and flips its state when a valid code has been applied.
   register("thebrokenscript:be_command", {
     onPlace(ev) {
       const { x, y, z } = ev.block.location;
       worldState.set("commandBlockX", x);
       worldState.set("commandBlockY", y);
       worldState.set("commandBlockZ", z);
+    },
+    onPlayerInteract(ev) {
+      if (!ev.player) return;
+      const player = ev.player;
+      const { x, y, z } = ev.block.location;
+      system.run(() => { void openCommandBlockScreen(player, { x, y, z }); });
     },
     onTick(ev) {
       if (!worldState.get("codeApplied")) return;

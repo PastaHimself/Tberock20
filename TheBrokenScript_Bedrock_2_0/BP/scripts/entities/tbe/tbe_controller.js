@@ -12,6 +12,7 @@ import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import { captureBanSpawnContext, shouldSummonBan } from "./tbe_kill_followup_model.js";
 import * as operationDiagnostics from "../../core/operation_diagnostics.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // the_broken_end : HP1000 ATK600 0.6×25 size, speed 0.45, follow 64, grace 150, life 1000, chase range 128
@@ -145,24 +146,6 @@ function setFakeTime(dim, timeStr) {
   }
 }
 
-/**
- * @param {import("@minecraft/server").Player} player
- * @param {string} subtitle
- * @param {number} [stayDuration]
- */
-function showSubtitle(player, subtitle, stayDuration = 10) {
-  try {
-    player.onScreenDisplay.setTitle(" ", {
-      subtitle,
-      fadeInDuration: 0,
-      stayDuration,
-      fadeOutDuration: 0,
-    });
-  } catch (error) {
-    operationDiagnostics.warnOnce("tbe.subtitle", "tbe: subtitle presentation failed", error);
-  }
-}
-
 function hasLineOfSightApprox(player, entity) {
   // Bedrock has no cheap LOS, approximate with raycast testing obstruction up to entity
   try {
@@ -228,16 +211,14 @@ function tickBrokenEnd(e) {
       const r = Math.random();
       if (r < 0.7) {
         setFakeTime(e.dimension, "midnight");
-        showSubtitle(player, " ");
-        // frame1.png overlay approx via title image path — use title text for portability
-        try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.233", "best-effort Bedrock API fallback", error);}
+        showScreen(player, "frame1", 10);
         tryPlaySoundAt(e.dimension, e.location, "thebrokenscript:the_end_is_near", 4, 0.4);
       } else if (Math.random() < 0.7) {
         setFakeTime(e.dimension, "day");
-        try { player.onScreenDisplay.setTitle("§k▓▓ §r", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.237", "best-effort Bedrock API fallback", error);}
+        showScreen(player, "frame2", 10);
       } else if (Math.random() < 0.7) {
         setFakeTime(e.dimension, "noon");
-        try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.240", "best-effort Bedrock API fallback", error);}
+        showScreen(player, "wecanhearyou", 10);
       }
     }
 
@@ -246,16 +227,16 @@ function tickBrokenEnd(e) {
     // source increments every tick when targeting player and shows frames at 3/6/9/12 then reset
     // approximate: at 3/6/9/12 show titles
     if (state.interferences === 3) {
-      showSubtitle(player, "tbescreenframe_1");
+      showScreen(player, "tbescreenframe_1", 5);
       try { e.dimension.spawnParticle("minecraft:campfire_cosy_smoke", { x: e.location.x, y: e.location.y + 1.5, z: e.location.z }); } catch (error) {
         operationDiagnostics.warnOnce("tbe.interference_particle", "tbe: interference particle failed", error);
       }
     } else if (state.interferences === 6) {
-      showSubtitle(player, "tbescreenframe_2");
+      showScreen(player, "tbescreenframe_2", 5);
     } else if (state.interferences === 9) {
-      showSubtitle(player, "tbescreenframe_3");
+      showScreen(player, "tbescreenframe_3", 5);
     } else if (state.interferences >= 12) {
-      showSubtitle(player, "tbescreenframe_4");
+      showScreen(player, "tbescreenframe_4", 5);
       state.interferences = 0;
     }
 
@@ -587,7 +568,7 @@ function tickCurious(e) {
     try { e.remove(); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.587", "best-effort Bedrock API fallback", error);}
     timers.delete(e.id);
     try { player.addEffect("blindness", 45, { amplifier: 1, showParticles: false }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.589", "best-effort Bedrock API fallback", error);}
-    try { player.onScreenDisplay.setTitle("§k▓▓▓ §r tbe_curious §k▓▓▓", { fadeInDuration: 0, stayDuration: 25, fadeOutDuration: 10 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.tbe.tbe_controller.js.590", "best-effort Bedrock API fallback", error);}
+    showScreen(player, "tbe_curious", 25);
     // look-at eyes approx: force player rotation via teleport with same pos + facing entity
     try {
       const dx = e.location.x - player.location.x;

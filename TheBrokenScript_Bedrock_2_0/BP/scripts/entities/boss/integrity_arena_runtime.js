@@ -353,8 +353,9 @@ export function begin(scheduler) {
 /**
  * @param {import("@minecraft/server").Player} triggerPlayer
  * @param {"phase1"|"phase3"} [requestedPhase]
+ * @param {{x:number,y:number,z:number}} [requestedCenter]
  */
-export function start(triggerPlayer, requestedPhase = INTEGRITY_PHASE.PHASE_1) {
+export function start(triggerPlayer, requestedPhase = INTEGRITY_PHASE.PHASE_1, requestedCenter) {
   if (!triggerPlayer?.id || triggerPlayer.typeId !== "minecraft:player") {
     return { accepted: false, reason: "player_required" };
   }
@@ -362,7 +363,7 @@ export function start(triggerPlayer, requestedPhase = INTEGRITY_PHASE.PHASE_1) {
   const players = allPlayers().filter((player) => {
     try { return player.dimension.id === triggerPlayer.dimension.id; } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.boss.integrity_arena_runtime.js.362", "best-effort Bedrock API fallback", error); return false; }
   });
-  const center = {
+  const center = requestedCenter ?? {
     x: Math.floor(triggerPlayer.location.x) + 0.5,
     y: Math.floor(triggerPlayer.location.y) + 0.5,
     z: Math.floor(triggerPlayer.location.z) + 0.5,

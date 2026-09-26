@@ -1,5 +1,6 @@
 {
   "ui_defs": [
-    "ui/vhs_overlay.json"
+    "ui/vhs_overlay.json",
+    "ui/tbs_screens.json"
   ]
 }

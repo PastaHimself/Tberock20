@@ -7,6 +7,7 @@ import * as progression from "./progression.js";
 import { logger } from "../core/logging.js";
 import { applyWhyCantYouLeave } from "./ported_features.js";
 import { spawnSourceParticle } from "./particle_runtime.js";
+import { showScreen } from "./screen_overlay.js";
 import {
   EVENT_FREQUENCY,
   SOURCE_EVENT_DEFINITIONS,
@@ -165,26 +166,29 @@ const H = {
       scheduleForPlayer(p, delay, (player) => title(player, "§4OpenGL Error 1282: GL_INVALID_OPERATION", 60));
     }
   },
-  nulled_gui(p) { title(p, "§k███ §rGUI nulled §k███", 40); },
+  nulled_gui(p) {
+    showScreen(p, "nulled_gui", 40);
+    playNear(p, SOUNDS.glitch, 10, 0.1);
+  },
   screen_dupe(p) { actionBar(p, "§7[screen duplicated]"); },
   fake_disconnect(p) {
     title(p, "§cDisconnected", 50, "§7End of stream");
     scheduleForPlayer(p, 100, (player) => title(player, "§freconnected", 30));
   },
   close_menu(p) { title(p, " ", 5); },
-  keep_playing(p) { title(p, "§fkeep playing.", 40); },
+  keep_playing(p) { showScreen(p, "keepplaying", 15); },
   why_cant_you_leave(p) { applyWhyCantYouLeave(p, 1000); },
   rejoin(p) { title(p, "§frejoined the game", 30); },
   isolation(p) { title(p, "§8you are alone.", 60); },
   collinlock(p) { title(p, "§7collinlock_ joined", 30); },
-  jframe_1(p) { title(p, "§7[The Broken Script]", 40); },
-  jframe_2(p) { title(p, "§7[Error] — cannot close window", 40); },
-  jframe_3(p) { title(p, "§7[hello?]", 40); },
-  jframe_4(p) { title(p, "§7[I see you]", 40); },
-  jframe_5(p) { title(p, "§7[behind you]", 40); },
-  wrong_overlay(p) { title(p, "§k▓▓▓", 15); },
+  jframe_1(p) { showScreen(p, "frame1", 20); },
+  jframe_2(p) { showScreen(p, "frame2", 20); },
+  jframe_3(p) { showScreen(p, "frame3", 20); },
+  jframe_4(p) { showScreen(p, "frame4", 20); },
+  jframe_5(p) { showScreen(p, "frame5", 20); },
+  wrong_overlay(p) { showScreen(p, "blick", 10); },
   bsod(p) {
-    title(p, "§f:(", 80, "§7A problem has been detected.");
+    showScreen(p, "bsodd", 180);
     if (Math.random() >= 0.55) scheduleForPlayer(p, 225, (player) => H.strike_lightning(player));
   },
   sky_blue(p) {
@@ -204,8 +208,13 @@ const H = {
   },
   null_is_near(p) { title(p, "§7he is close.", 40); playNear(p, SOUNDS.heartbeat, 8, 0.8); },
   stare_at_player(p) { title(p, "§8...", 30); },
-  behind_you(p) { playNear(p, SOUNDS.psst, 10, 0.8); },
-  run(p) { title(p, "§fRUN", 20); playNear(p, SOUNDS.kills_player, 5, 1.2); },
+  behind_you(p) {
+    playNear(p, SOUNDS.psst, 10, 0.8);
+    for (const [delay, length] of [[0, 3], [7, 2], [11, 2], [19, 15]]) {
+      scheduleForPlayer(p, delay, (player) => showScreen(player, "behindyou", length));
+    }
+  },
+  run(p) { showScreen(p, "run", 15); playNear(p, SOUNDS.kills_player, 5, 1.2); },
 
   damage(p) { try { p.applyDamage(2); } catch (err) { reportAdapterFailure("damage", err); } },
   look_and_damage(p) {
@@ -323,7 +332,10 @@ const H = {
   // dispatchers. They still have a concrete Bedrock adapter instead of being
   // silently omitted from the weighted registry.
   null_book(p) { giveItem(p, "minecraft:book", 1); title(p, "§7a book appeared.", 25); },
-  null_interface_trigger(p) { [H.null_title, H.nulled_gui, H.null_scare][Math.floor(Math.random() * 3)](p); },
+  null_interface_trigger(p) {
+    const screens = ["nullinterface", "null_interface_2", "nullinterface_3"];
+    showScreen(p, screens[Math.floor(Math.random() * screens.length)], 40);
+  },
   obfuscated_sign(p) { placeAt(p, "minecraft:oak_sign"); title(p, "§kread carefully", 25); },
   text(p) { H.txt(p); },
   title_event(p) { title(p, ["§knull§r", "§4ERROR", "§7..."].sort(() => Math.random() - 0.5)[0], 35); },

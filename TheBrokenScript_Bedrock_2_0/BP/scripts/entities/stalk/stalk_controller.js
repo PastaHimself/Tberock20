@@ -8,6 +8,7 @@ import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
 import * as perf from "../../systems/perf.js";
 import { spawnSourceParticle } from "../../systems/particle_runtime.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 
 // ── constants from decompiled sources ──────────────────────────────────────
 // curved: approach only when NOT in FOV cone (0.55), ≤10 → transform 100t → hostile,
@@ -192,6 +193,18 @@ function tickObliteration(e) {
   const close = distance(e.location, player.location) < 20;
 
   if (isTwo) {
+    // The Java client animates oblit_2_effect while beneath O2's bounding box.
+    // Match the horizontal footprint and lower half here in the server runtime.
+    if (system.currentTick % 10 === 0) {
+      for (const underneath of world.getAllPlayers()) {
+        if (underneath.dimension.id !== e.dimension.id) continue;
+        if (Math.abs(underneath.location.x - e.location.x) < 1.5
+            && Math.abs(underneath.location.z - e.location.z) < 1.5
+            && underneath.location.y < e.location.y) {
+          showScreen(underneath, "oblit_2_effect", 5);
+        }
+      }
+    }
     // triangle kick: staring at O2 accumulates ticks; >100 (5s) → kick attempt
     const key = `stare_${player.id}`;
     let s = getNum(e, key, 0);

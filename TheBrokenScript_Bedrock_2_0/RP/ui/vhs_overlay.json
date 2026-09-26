@@ -87,6 +87,15 @@
     "layer": 20,
     "controls": [
       {
+        "source_screen@tbs_screens.fullscreen": {}
+      },
+      {
+        "source_menu@tbs_screens.menu": {}
+      },
+      {
+        "source_animations@tbs_screens.animated": {}
+      },
+      {
         "color_wash": {
           "type": "image",
           "texture": "textures/ui/vhs/color_wash",

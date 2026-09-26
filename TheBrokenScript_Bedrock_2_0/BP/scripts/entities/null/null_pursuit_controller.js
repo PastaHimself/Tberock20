@@ -4,6 +4,7 @@ import { EntityDamageCause } from "@minecraft/server";
 import * as entityFinder from "../../systems/ai/entity_finder.js";
 import * as gaze from "../../systems/ai/gaze.js";
 import { logger } from "../../core/logging.js";
+import { showScreen } from "../../systems/screen_overlay.js";
 
 const timers = new Map();
 const LIFETIMES = {
@@ -69,7 +70,7 @@ function tickInvade(e) {
   if (!player) return;
   if (!gaze.isLookingAtEntity(player, e, 14)) return;
   if (Math.random() < 0.7) {
-    try { player.onScreenDisplay.setTitle("wecanhearyou", { fadeInDuration: 0, stayDuration: 10, fadeOutDuration: 0 }); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.71", "best-effort Bedrock API fallback", error);}
+    showScreen(player, "wecanhearyou", 10);
     try { e.dimension.spawnEntity("minecraft:lightning_bolt", e.location); } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.entities.null.null_pursuit_controller.js.72", "best-effort Bedrock API fallback", error);}
   }
   e.remove(); timers.delete(e.id);
