@@ -52,6 +52,15 @@ function landingSiteKey(location) {
   return `${Math.floor(location.x)}:${Math.floor(location.y)}:${Math.floor(location.z)}`;
 }
 
+function resolvedLandingForTarget(target, resolved) {
+  const movedToAnotherColumn =
+    Math.floor(resolved.x) !== Math.floor(target.x)
+    || Math.floor(resolved.z) !== Math.floor(target.z);
+  return movedToAnotherColumn
+    ? { ...resolved }
+    : { ...target, y: resolved.y };
+}
+
 export function landingAreaBounds(location, radius = 1) {
   const safeRadius = Math.max(0, Math.floor(Number(radius)));
   const x = Math.floor(finiteCoordinate(location?.x, "location.x"));
@@ -167,6 +176,56 @@ function findNaturalLanding(dimension, location, heightRange, preferredLandingYs
   for (const y of candidates) {
     const blocks = blocksAt(dimension, x, y, z);
     if (hasFooting(blocks.floor) && isAir(blocks.feet) && isAir(blocks.head)) return y;
+  }
+  return undefined;
+}
+
+function nearbyRingOffsets(radius) {
+  const offsets = [
+    { x: radius, z: 0 },
+    { x: -radius, z: 0 },
+    { x: 0, z: radius },
+    { x: 0, z: -radius },
+  ];
+  for (let offset = -radius; offset <= radius; offset++) {
+    for (const candidate of [
+      { x: offset, z: -radius },
+      { x: offset, z: radius },
+      { x: -radius, z: offset },
+      { x: radius, z: offset },
+    ]) {
+      if (!offsets.some(({ x, z }) => x === candidate.x && z === candidate.z)) {
+        offsets.push(candidate);
+      }
+    }
+  }
+  return offsets;
+}
+
+function findNearbyPreferredLanding(dimension, location, heightRange, preferredLandingYs, radius = 8) {
+  const originX = Math.floor(location.x);
+  const originZ = Math.floor(location.z);
+  const minY = Math.ceil(heightRange.min) + 1;
+  const maxY = Math.floor(heightRange.max) - 2;
+  for (const preferredY of [...new Set(preferredLandingYs)]) {
+    if (preferredY < minY || preferredY > maxY) continue;
+    for (let distance = 1; distance <= radius; distance++) {
+      for (const offset of nearbyRingOffsets(distance)) {
+        const x = originX + offset.x;
+        const z = originZ + offset.z;
+        let blocks;
+        try {
+          blocks = blocksAt(dimension, x, preferredY, z);
+        } catch { /* audit: expected-fallback unloaded neighbor */
+          // The generated cell is loaded, but a ring candidate can cross into
+          // an unloaded neighboring cell. Skip it and continue inward/around.
+          continue;
+        }
+        if (hasFooting(blocks.floor) && isAir(blocks.feet) && isAir(blocks.head)) {
+          return { x: x + 0.5, y: preferredY, z: z + 0.5 };
+        }
+      }
+    }
   }
   return undefined;
 }
@@ -325,10 +384,13 @@ function persistedLandingLocation(worldLike, dimensionId, regionKey, location) {
   );
   if (!persisted.initialized) return undefined;
 
+  const persistedX = Number(persisted.data?.x);
   const persistedY = Number(persisted.data?.y);
+  const persistedZ = Number(persisted.data?.z);
   return {
-    ...location,
+    x: Number.isFinite(persistedX) ? persistedX : location.x,
     y: Number.isFinite(persistedY) ? persistedY : location.y,
+    z: Number.isFinite(persistedZ) ? persistedZ : location.z,
   };
 }
 
@@ -344,7 +406,10 @@ async function initializeLanding(context, regionKey) {
     location,
   );
   if (persistedLocation && initializersReady && isLandingSafe(dimension, persistedLocation)) {
-    return { ready: true, location: persistedLocation };
+    return {
+      ready: true,
+      location: resolvedLandingForTarget(location, persistedLocation),
+    };
   }
 
   const bounds = combinedInitializerBounds(states, location, dimension);
@@ -367,20 +432,27 @@ async function initializeLanding(context, regionKey) {
         range,
         states.map(({ spec }) => spec.preferredLandingY).filter(Number.isFinite),
       );
-      const landingY =
-        naturalY ?? buildFallbackLanding(dimension, location, range);
-      if (landingY === undefined) {
+      const preferredLandingYs = states
+        .map(({ spec }) => spec.preferredLandingY)
+        .filter(Number.isFinite);
+      const nearbyLocation = naturalY === undefined
+        ? findNearbyPreferredLanding(dimension, location, range, preferredLandingYs)
+        : undefined;
+      const fallbackY = naturalY === undefined && nearbyLocation === undefined
+        ? buildFallbackLanding(dimension, location, range)
+        : undefined;
+      if (naturalY === undefined && nearbyLocation === undefined && fallbackY === undefined) {
         throw new Error(`no safe landing position found for '${dimensionId}'`);
       }
 
-      const readyLocation = { ...location, y: landingY };
+      const readyLocation = nearbyLocation ?? { ...location, y: naturalY ?? fallbackY };
       markDimensionRegionInitialized(
         world,
         dimensionId,
         SAFE_LANDING_STAGE,
         regionKey,
         SAFE_LANDING_VERSION,
-        { y: landingY },
+        readyLocation,
       );
       return { ready: true, location: readyLocation };
     },
@@ -423,16 +495,22 @@ export async function ensureDimensionReady({
     target,
   );
   if (persistedLocation && initializersReady && isLandingSafe(dimension, persistedLocation)) {
-    return { ready: true, location: persistedLocation };
+    return {
+      ready: true,
+      location: resolvedLandingForTarget(target, persistedLocation),
+    };
   }
 
   const flightKey = `${normalized}|${regionKey}`;
   const existing = inFlight.get(flightKey);
   if (existing) {
-    return existing.then((result) => ({
-      ...result,
-      location: result.ready ? { ...target, y: result.location.y } : target,
-    }));
+    return existing.then((result) => {
+      if (!result.ready) return { ...result, location: target };
+      return {
+        ...result,
+        location: resolvedLandingForTarget(target, result.location),
+      };
+    });
   }
 
   const pending = initializeLanding(

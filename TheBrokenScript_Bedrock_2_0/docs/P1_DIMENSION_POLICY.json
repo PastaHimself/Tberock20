@@ -2,10 +2,10 @@
   "schema_version": 1,
   "source": "source_extracted/data/thebrokenscript/dimension_type and dimension",
   "bedrock_adapter": {
-    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, and Limbo has a separately persisted source-structure stage",
+    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, Limbo has a separately persisted source-structure stage, Backrooms reproduces the Level 0 layers, palettes, light grid, empty-room gate, and wall ranges in bounded cells, and Library places its source 16x17x16 templates in the original 15-level per-chunk stack",
     "environment": "Source dimension-type values are retained as policy evidence; the current Script API does not expose equivalent per-dimension setters for every value.",
     "fog": "RP fog and biome-client identifiers are explicit resource adapters; Java client DimensionSpecialEffects are not claimed as exact server parity.",
-    "worldgen_boundary": "Exact Java noise_settings and custom ChunkGenerator terrain are blocked by the supported Bedrock registration surface."
+    "worldgen_boundary": "Exact Java noise_settings and custom ChunkGenerator registration are blocked by the supported Bedrock surface. Backrooms uses deterministic world-seeded gradient fields because the Java generator constructs unseeded process-local Perlin instances and shares traversal-order-dependent wall RNG."
   },
   "dimensions": {
     "backrooms": {
@@ -23,7 +23,9 @@
       "logical_height": 512,
       "entry": { "x": 0, "y": 201, "z": 0 },
       "return_route": "overworld on explicit player return; generic safe landing adapter",
-      "death_respawn": "Bedrock default respawn with transient state cleanup"
+      "death_respawn": "Bedrock default respawn with transient state cleanup",
+      "bedrock_terrain": "Level 0 is generated in persisted 3x3-chunk cells with bedrock at Y=0, moist carpet at Y=1, ceiling tiles at Y=9, normal/red palettes, the source 4-block ceiling-light grid with light level 15, threshold-gated empty and unlit rooms, and source-range randomized wall bands from Y=2 through Y=8.",
+      "noise_adapter": "The source thresholds and octave sets are retained, but stable world-seeded, equal-mean gradient octaves replace Java's unseeded static Perlin instances; per-chunk wall RNG is coordinate-seeded instead of depending on chunk traversal order."
     },
     "clan_void": {
       "source_dimension_type": "thebrokenscript:clan_void",
@@ -73,6 +75,7 @@
       "min_y": -64,
       "height": 320,
       "logical_height": 64,
+      "bedrock_terrain": "Every generated chunk is persisted independently and places the source 16x17x16 library template at levels -3 through 11 (Y = level * 17), selecting library2 at levels 0, 4, and 8. Source air and structure void are omitted, and mono slab top/bottom states are retained.",
       "entry": { "x": 0, "y": 201, "z": 0 },
       "return_route": "overworld on explicit player return",
       "death_respawn": "Bedrock default respawn with transient state cleanup"
