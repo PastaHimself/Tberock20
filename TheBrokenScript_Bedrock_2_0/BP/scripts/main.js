@@ -50,6 +50,7 @@ import { beginSimpleDimensionTerrain, registerSimpleDimensionTerrain } from "./s
 import { beginLimboStructures, registerLimboStructures } from "./systems/limbo_structures_runtime.js";
 import { beginBackroomsTerrain, registerBackroomsTerrain } from "./systems/backrooms_terrain_runtime.js";
 import { beginLibraryTerrain, registerLibraryTerrain } from "./systems/library_terrain_runtime.js";
+import { beginConcreteTerrain, registerConcreteTerrain } from "./systems/concrete_terrain_runtime.js";
 import * as phase3ArenaLayout from "./systems/phase3_arena_layout_runtime.js";
 
 /** @param {import("@minecraft/server").StartupEvent} event */
@@ -71,6 +72,7 @@ function onWorldLoad() {
     registerLimboStructures();
     registerBackroomsTerrain();
     registerLibraryTerrain();
+    registerConcreteTerrain();
     registerStage2Terrain();
     state.init();
     worldState.init();
@@ -79,6 +81,7 @@ function onWorldLoad() {
     beginLimboStructures(scheduler);
     beginBackroomsTerrain(scheduler);
     beginLibraryTerrain(scheduler);
+    beginConcreteTerrain(scheduler);
     beginStage2Terrain(scheduler);
     phase3ArenaLayout.begin(scheduler);
     modifiedChunks.begin();

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source": "source_extracted/data/thebrokenscript/dimension_type and dimension",
   "bedrock_adapter": {
-    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, Limbo has a separately persisted source-structure stage, Backrooms reproduces the Level 0 layers, palettes, light grid, empty-room gate, and wall ranges in bounded cells, and Library places its source 16x17x16 templates in the original 15-level per-chunk stack",
+    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, Limbo has a separately persisted source-structure stage, Backrooms reproduces the Level 0 layers, palettes, light grid, empty-room gate, and wall ranges in bounded cells, Library places its source 16x17x16 templates in the original 15-level per-chunk stack, and Concrete places its rotated 9x10x16 source template in the original 33-level stacks at chunk X -5, 0, and 5",
     "environment": "Source dimension-type values are retained as policy evidence; the current Script API does not expose equivalent per-dimension setters for every value.",
     "fog": "RP fog and biome-client identifiers are explicit resource adapters; Java client DimensionSpecialEffects are not claimed as exact server parity.",
     "worldgen_boundary": "Exact Java noise_settings and custom ChunkGenerator registration are blocked by the supported Bedrock surface. Backrooms uses deterministic world-seeded gradient fields because the Java generator constructs unseeded process-local Perlin instances and shares traversal-order-dependent wall RNG."
@@ -40,6 +40,7 @@
       "min_y": -64,
       "height": 384,
       "logical_height": 384,
+      "bedrock_terrain": "Only chunk X columns -5, 0, and 5 are generated. Every eligible chunk is persisted independently and places the source 9x10x16 concrete template at levels -6 through 26 (Y = level * 9). The source clockwise-180 rotation is baked into the native structure; source air is omitted and the level-0 water channel is retained.",
       "entry": { "x": 0, "y": 201, "z": 0 },
       "source_entry_variants": [201, 206, 216, 253],
       "return_route": "source-specific fall routes are handled by the lifecycle adapter; explicit portal return uses the linked destination",

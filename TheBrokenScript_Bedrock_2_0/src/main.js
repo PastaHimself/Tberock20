@@ -37,6 +37,7 @@ import { beginSimpleDimensionTerrain, registerSimpleDimensionTerrain } from "./s
 import { beginLimboStructures, registerLimboStructures } from "./systems/limbo_structures_runtime.js";
 import { beginBackroomsTerrain, registerBackroomsTerrain } from "./systems/backrooms_terrain_runtime.js";
 import { beginLibraryTerrain, registerLibraryTerrain } from "./systems/library_terrain_runtime.js";
+import { beginConcreteTerrain, registerConcreteTerrain } from "./systems/concrete_terrain_runtime.js";
 
 function onStartup() {
     logger.info("startup: early-execution hook registered (script modules active)");
@@ -49,6 +50,7 @@ function onWorldLoad() {
     registerLimboStructures();
     registerBackroomsTerrain();
     registerLibraryTerrain();
+    registerConcreteTerrain();
     state.init();
     worldState.init();
     scheduler.begin();
@@ -56,6 +58,7 @@ function onWorldLoad() {
     beginLimboStructures(scheduler);
     beginBackroomsTerrain(scheduler);
     beginLibraryTerrain(scheduler);
+    beginConcreteTerrain(scheduler);
     scheduler.every("tbs.worldLifecycle", 1, () => {
         worldState.tickFirstJoin(world.getAllPlayers().length);
     });
