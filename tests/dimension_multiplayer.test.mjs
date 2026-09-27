@@ -8,7 +8,7 @@ import {
   unregisterDimensionInitializer,
 } from "../TheBrokenScript_Bedrock_2_0/BP/scripts/systems/dimension_generation.js";
 
-function delayedWorld() {
+function delayedWorld({ maxActiveTickingAreas = Infinity } = {}) {
   const properties = new Map();
   let release;
   const gate = new Promise((resolve) => {
@@ -16,6 +16,7 @@ function delayedWorld() {
   });
   let creates = 0;
   let removes = 0;
+  let active = 0;
 
   return {
     release,
@@ -24,6 +25,9 @@ function delayedWorld() {
     },
     get removes() {
       return removes;
+    },
+    get active() {
+      return active;
     },
     getDynamicProperty(key) {
       return properties.get(key);
@@ -36,14 +40,16 @@ function delayedWorld() {
         return false;
       },
       hasCapacity() {
-        return true;
+        return active < maxActiveTickingAreas;
       },
       async createTickingArea() {
         creates += 1;
+        active += 1;
         await gate;
       },
       removeTickingArea() {
         removes += 1;
+        active = Math.max(0, active - 1);
       },
     },
   };
@@ -120,6 +126,53 @@ test("travelers to one block share preparation but retain their own precise posi
   assert.deepEqual(a.location, { x: 1.2, y: 201, z: 1.2 });
   assert.deepEqual(b.location, { x: 1.7, y: 201, z: 1.7 });
   assert.equal(world.creates, 1);
+});
+
+test("different landing sites reuse one ticking area for shared initializer bounds", async () => {
+  const world = delayedWorld({ maxActiveTickingAreas: 1 });
+  const dimension = voidDimension();
+  let runs = 0;
+
+  registerDimensionInitializer("nothing", () => {
+    runs += 1;
+  }, {
+    stage: "terrain",
+    version: 1,
+    regionKey: () => "cell:0:0",
+    bounds: () => ({
+      from: { x: 0, y: -64, z: 0 },
+      to: { x: 47, y: 319, z: 47 },
+    }),
+  });
+
+  try {
+    const args = { world, dimension, dimensionId: "nothing", logger: { error() {} } };
+    const first = ensureDimensionReady({
+      ...args,
+      location: { x: 1.5, y: 201, z: 1.5 },
+    });
+    const second = ensureDimensionReady({
+      ...args,
+      location: { x: 14.5, y: 201, z: 14.5 },
+    });
+
+    assert.equal(world.creates, 1);
+    assert.equal(world.active, 1);
+
+    world.release();
+    const [a, b] = await Promise.all([first, second]);
+
+    assert.equal(a.ready, true);
+    assert.equal(b.ready, true);
+    assert.deepEqual(a.location, { x: 1.5, y: 201, z: 1.5 });
+    assert.deepEqual(b.location, { x: 14.5, y: 201, z: 14.5 });
+    assert.equal(runs, 1);
+    assert.equal(world.creates, 1);
+    assert.equal(world.removes, 1);
+    assert.equal(world.active, 0);
+  } finally {
+    unregisterDimensionInitializer("nothing");
+  }
 });
 
 test("different landing sites share one in-flight terrain stage for the same region", async () => {

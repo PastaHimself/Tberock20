@@ -17,6 +17,7 @@ export const SAFE_LANDING_BLOCK = "minecraft:bedrock";
 const inFlight = new Map();
 const initializerFlights = new Map();
 const initializers = new Map();
+const temporaryTickingAreaLeases = new WeakMap();
 
 function finiteCoordinate(value, name) {
   const number = Number(value);
@@ -200,34 +201,71 @@ function tickingAreaIdentifier(dimensionId, regionKey) {
   return `tbs_dim_${key.slice("tbs:dim_init_".length)}`;
 }
 
+function tickingAreaBoundsKey(dimensionId, bounds) {
+  const { from, to } = bounds;
+  return [
+    dimensionId,
+    from.x, from.y, from.z,
+    to.x, to.y, to.z,
+  ].join("|");
+}
+
+function tickingAreaLeasePool(worldLike) {
+  let pool = temporaryTickingAreaLeases.get(worldLike);
+  if (!pool) {
+    pool = new Map();
+    temporaryTickingAreaLeases.set(worldLike, pool);
+  }
+  return pool;
+}
+
 async function withTemporaryTickingArea(worldLike, dimension, dimensionId, regionKey, bounds, action) {
   const manager = worldLike?.tickingAreaManager;
   if (!manager?.createTickingArea || !manager?.removeTickingArea) {
     throw new Error("world.tickingAreaManager is unavailable");
   }
 
-  const identifier = tickingAreaIdentifier(dimensionId, regionKey);
-  const options = { dimension, ...bounds };
-  let created = false;
+  const pool = tickingAreaLeasePool(worldLike);
+  const leaseKey = tickingAreaBoundsKey(dimensionId, bounds);
+  let lease = pool.get(leaseKey);
 
-  if (typeof manager.hasTickingArea === "function" && manager.hasTickingArea(identifier)) {
-    manager.removeTickingArea(identifier);
-  }
-  if (typeof manager.hasCapacity === "function" && !manager.hasCapacity(options)) {
-    throw new Error(`no ticking-area capacity for '${dimensionId}' region '${regionKey}'`);
+  if (!lease) {
+    const identifier = tickingAreaIdentifier(dimensionId, regionKey);
+    const options = { dimension, ...bounds };
+    lease = {
+      created: false,
+      identifier,
+      users: 0,
+      ready: undefined,
+    };
+    lease.ready = (async () => {
+      if (typeof manager.hasTickingArea === "function" && manager.hasTickingArea(identifier)) {
+        manager.removeTickingArea(identifier);
+      }
+      if (typeof manager.hasCapacity === "function" && !manager.hasCapacity(options)) {
+        throw new Error(`no ticking-area capacity for '${dimensionId}' region '${regionKey}'`);
+      }
+      await manager.createTickingArea(identifier, options);
+      lease.created = true;
+    })();
+    pool.set(leaseKey, lease);
   }
 
+  lease.users += 1;
   try {
-    await manager.createTickingArea(identifier, options);
-    created = true;
+    await lease.ready;
     return await action();
   } finally {
-    if (created) {
-      try {
-        manager.removeTickingArea(identifier);
-      } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.dimension_generation.js.184", "best-effort Bedrock API fallback", error);
-        // Cleanup failure must not convert a successfully initialized region into
-        // an uninitialized one. A later run will reclaim the deterministic ID.
+    lease.users -= 1;
+    if (lease.users === 0 && pool.get(leaseKey) === lease) {
+      pool.delete(leaseKey);
+      if (lease.created) {
+        try {
+          manager.removeTickingArea(lease.identifier);
+        } catch (error) { operationDiagnostics.warnOnce("audit.BP.scripts.systems.dimension_generation.js.224", "best-effort Bedrock API fallback", error);
+          // Cleanup failure must not convert a successfully initialized region into
+          // an uninitialized one. A later run will reclaim the deterministic ID.
+        }
       }
     }
   }
