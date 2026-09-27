@@ -1,6 +1,6 @@
 # The Broken Script 2.0 — Remaining Bedrock Port Work
 
-Updated: 2026-09-25
+Updated: 2026-09-26
 
 This replaces the previous cumulative TODO with the remaining documented work. Completed audit history is omitted; its evidence remains in the repository audits and Git history. This list covers all 57 previously partial checklist items plus concrete omissions/deferred work identified by the supporting audits. It is not a claim that a fresh full Java-to-Bedrock audit or engine test has been performed.
 
@@ -21,7 +21,9 @@ An unchecked item means work remains, not necessarily that the feature is absent
 - [x] **Implementation — Polaroid craft fallback:** five pieces craft a frame; using it makes the Polaroid and awards the advancement. The inventory-possession award is removed. Verify the two-step interaction, transfers, and full inventory in-game; direct recipe-craft events require a newer API.
 - [x] **Implementation — particles:** runtime callsites now emit `fardaway`, `wretched_particle`, `null_structure_particle`, and `paper_particle` with source count/spread/timing adapters. Verify their visible output in-engine.
 - [x] **Implementation — portal scope:** same-dimension linked controllers now scan living entities each tick, preserving arrival offset and suppressing immediate return. Verify loaded-chunk behavior and multiplayer in-engine; Java's rule excludes items and projectiles.
-- [ ] **Implementation/verification — structures:** Stage 2 has source-height floor/barrier layers plus five converted room/surface templates in three-chunk cells. Nine native tiles reconstruct the 96×96 central XCSF arena; a reusable outer floor gives the boss's distant tentacles footing. Convert remaining room variants and exact outer XCSF layout; verify actual placement, boss movement, and persistence in-engine.
+- [ ] **Implementation/verification — structures:** Stage 2 has source-height floor/barrier layers plus five converted room/surface templates in three-chunk cells. Nine native tiles reconstruct the 96×96 central XCSF arena; a reusable outer floor gives the boss's distant tentacles footing. Limbo now has all nine native source templates, mapped Bedrock permutations, source spacing/count rules, and Script API restoration for its lore-bearing signs, inventories, books, item damage, and records. Convert remaining Stage 2 room variants and exact outer XCSF layout; verify Limbo/Stage 2 placement, metadata, boss movement, and persistence in-engine.
+- [x] **Implementation — dimension generation foundation:** all 13 custom realms now have 1.26.50 dimension descriptors; readiness supports ordered, independently persisted stages and deduplicates concurrent multiplayer generation. Nothing and Limbo reproduce their source Y=0 single-layer terrain in bounded cells, and Limbo's structure stage is independently resumable.
+- [ ] **Implementation — remaining dimension terrain:** add Backrooms, Lucid, Library, Concrete, Protected Void, Null Torture, Nowhere, Clan Void, Moon, and the remaining Stage 2/Void Shadow layouts on the staged generator foundation.
 - [ ] **Deferred — Nostalgia pack:** obtain a complete reliable source archive, inventory missing overrides, resolve broad vanilla sound/model conflicts with the main RP, and validate the optional pack. Do not claim a complete import from the partial multipart archive.
 - [ ] **Deferred — custom fonts:** resolve A-009 only with verified Bedrock glyph-page mappings; retain standard-glyph formatting until that evidence exists.
 

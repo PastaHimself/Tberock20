@@ -15,6 +15,7 @@ export const SAFE_LANDING_VERSION = 1;
 export const SAFE_LANDING_BLOCK = "minecraft:bedrock";
 
 const inFlight = new Map();
+const initializerFlights = new Map();
 const initializers = new Map();
 
 function finiteCoordinate(value, name) {
@@ -75,11 +76,20 @@ export function registerDimensionInitializer(dimensionId, initializer, options =
   }
   const version = Math.max(1, Math.floor(Number(options.version ?? 1)));
   if (!Number.isFinite(version)) throw new TypeError("initializer version must be finite");
+  const preferredLandingY = options.preferredLandingY === undefined
+    ? undefined
+    : Math.floor(finiteCoordinate(options.preferredLandingY, "preferredLandingY"));
 
-  initializers.set(normalized, {
+  let stages = initializers.get(normalized);
+  if (!stages) {
+    stages = new Map();
+    initializers.set(normalized, stages);
+  }
+  stages.set(stage, {
     initializer,
     stage,
     version,
+    preferredLandingY,
     regionKey:
       typeof options.regionKey === "function"
         ? options.regionKey
@@ -91,8 +101,15 @@ export function registerDimensionInitializer(dimensionId, initializer, options =
   });
 }
 
-export function unregisterDimensionInitializer(dimensionId) {
-  return initializers.delete(normalizeDimensionId(dimensionId));
+export function unregisterDimensionInitializer(dimensionId, stage) {
+  const normalized = normalizeDimensionId(dimensionId);
+  if (stage === undefined) return initializers.delete(normalized);
+
+  const stages = initializers.get(normalized);
+  if (!stages) return false;
+  const removed = stages.delete(String(stage).trim());
+  if (stages.size === 0) initializers.delete(normalized);
+  return removed;
 }
 
 export function inFlightDimensionInitializationCount() {
@@ -136,12 +153,18 @@ function isLandingSafe(dimension, location) {
   }
 }
 
-function findNaturalLanding(dimension, location, heightRange) {
+function findNaturalLanding(dimension, location, heightRange, preferredLandingYs = []) {
   const x = Math.floor(location.x);
   const z = Math.floor(location.z);
   const minY = Math.ceil(heightRange.min) + 1;
   const maxY = Math.floor(heightRange.max) - 2;
-  for (const y of candidateFeetY(location.y, minY, maxY)) {
+  const candidates = candidateFeetY(location.y, minY, maxY);
+  for (const preferredY of preferredLandingYs) {
+    if (preferredY >= minY && preferredY <= maxY && !candidates.includes(preferredY)) {
+      candidates.push(preferredY);
+    }
+  }
+  for (const y of candidates) {
     const blocks = blocksAt(dimension, x, y, z);
     if (hasFooting(blocks.floor) && isAir(blocks.feet) && isAir(blocks.head)) return y;
   }
@@ -216,6 +239,33 @@ function initializerRegionKey(spec, location, dimension) {
   return regionKey;
 }
 
+function registeredInitializers(dimensionId) {
+  return [...(initializers.get(dimensionId)?.values() ?? [])];
+}
+
+function initializerStates(worldLike, dimensionId, dimension, location) {
+  return registeredInitializers(dimensionId).map((spec) => {
+    const regionKey = initializerRegionKey(spec, location, dimension);
+    return {
+      spec,
+      regionKey,
+      ready: initializerIsReady(worldLike, dimensionId, spec, regionKey),
+    };
+  });
+}
+
+function combinedInitializerBounds(states, location, dimension) {
+  const combined = landingAreaBounds(location, 1);
+  for (const { spec } of states) {
+    const bounds = spec.bounds(location, dimension);
+    for (const axis of ["x", "y", "z"]) {
+      combined.from[axis] = Math.min(combined.from[axis], bounds.from[axis]);
+      combined.to[axis] = Math.max(combined.to[axis], bounds.to[axis]);
+    }
+  }
+  return combined;
+}
+
 function initializerIsReady(worldLike, dimensionId, spec, regionKey) {
   return isDimensionRegionInitialized(
     worldLike,
@@ -230,21 +280,39 @@ async function runRegisteredInitializer(context, spec, regionKey) {
   const { world, dimension, dimensionId, location } = context;
   if (initializerIsReady(world, dimensionId, spec, regionKey)) return false;
 
-  await spec.initializer({
-    world,
-    dimension,
-    dimensionId,
-    location,
-    regionKey,
-  });
-  markDimensionRegionInitialized(
-    world,
+  const flightKey = dimensionStatePropertyKey(
     dimensionId,
     spec.stage,
     regionKey,
     spec.version,
   );
-  return true;
+  const existing = initializerFlights.get(flightKey);
+  if (existing) {
+    await existing;
+    return false;
+  }
+
+  const pending = (async () => {
+    await spec.initializer({
+      world,
+      dimension,
+      dimensionId,
+      location,
+      regionKey,
+    });
+    markDimensionRegionInitialized(
+      world,
+      dimensionId,
+      spec.stage,
+      regionKey,
+      spec.version,
+    );
+    return true;
+  })().finally(() => {
+    if (initializerFlights.get(flightKey) === pending) initializerFlights.delete(flightKey);
+  });
+  initializerFlights.set(flightKey, pending);
+  return pending;
 }
 
 function persistedLandingLocation(worldLike, dimensionId, regionKey, location) {
@@ -266,12 +334,8 @@ function persistedLandingLocation(worldLike, dimensionId, regionKey, location) {
 
 async function initializeLanding(context, regionKey) {
   const { world, dimension, dimensionId, location } = context;
-  const spec = initializers.get(dimensionId);
-  const initializerKey = spec
-    ? initializerRegionKey(spec, location, dimension)
-    : undefined;
-  const initializerReady =
-    !spec || initializerIsReady(world, dimensionId, spec, initializerKey);
+  const states = initializerStates(world, dimensionId, dimension, location);
+  const initializersReady = states.every(({ ready }) => ready);
 
   const persistedLocation = persistedLandingLocation(
     world,
@@ -279,13 +343,11 @@ async function initializeLanding(context, regionKey) {
     regionKey,
     location,
   );
-  if (persistedLocation && initializerReady && isLandingSafe(dimension, persistedLocation)) {
+  if (persistedLocation && initializersReady && isLandingSafe(dimension, persistedLocation)) {
     return { ready: true, location: persistedLocation };
   }
 
-  const bounds = spec
-    ? spec.bounds(location, dimension)
-    : landingAreaBounds(location, 1);
+  const bounds = combinedInitializerBounds(states, location, dimension);
 
   return withTemporaryTickingArea(
     world,
@@ -294,12 +356,17 @@ async function initializeLanding(context, regionKey) {
     regionKey,
     bounds,
     async () => {
-      if (spec && !initializerReady) {
-        await runRegisteredInitializer(context, spec, initializerKey);
+      for (const { spec, regionKey: initializerKey, ready } of states) {
+        if (!ready) await runRegisteredInitializer(context, spec, initializerKey);
       }
 
       const range = dimension.heightRange;
-      const naturalY = findNaturalLanding(dimension, location, range);
+      const naturalY = findNaturalLanding(
+        dimension,
+        location,
+        range,
+        states.map(({ spec }) => spec.preferredLandingY).filter(Number.isFinite),
+      );
       const landingY =
         naturalY ?? buildFallbackLanding(dimension, location, range);
       if (landingY === undefined) {
@@ -347,19 +414,15 @@ export async function ensureDimensionReady({
   }
 
   const regionKey = landingSiteKey(target);
-  const spec = initializers.get(normalized);
-  const initializerKey = spec
-    ? initializerRegionKey(spec, target, dimension)
-    : undefined;
-  const initializerReady =
-    !spec || initializerIsReady(world, normalized, spec, initializerKey);
+  const states = initializerStates(world, normalized, dimension, target);
+  const initializersReady = states.every(({ ready }) => ready);
   const persistedLocation = persistedLandingLocation(
     world,
     normalized,
     regionKey,
     target,
   );
-  if (persistedLocation && initializerReady && isLandingSafe(dimension, persistedLocation)) {
+  if (persistedLocation && initializersReady && isLandingSafe(dimension, persistedLocation)) {
     return { ready: true, location: persistedLocation };
   }
 

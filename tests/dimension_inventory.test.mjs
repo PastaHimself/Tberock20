@@ -15,6 +15,14 @@ const JAVA_DIMENSION_DIR = path.join(
   ROOT,
   "source_extracted/data/thebrokenscript/dimension"
 );
+const JAVA_DIMENSION_TYPE_DIR = path.join(
+  ROOT,
+  "source_extracted/data/thebrokenscript/dimension_type"
+);
+const BEDROCK_DIMENSION_DIR = path.join(
+  ROOT,
+  "TheBrokenScript_Bedrock_2_0/BP/dimensions"
+);
 const TBS_DIMENSIONS_JAVA = path.join(
   ROOT,
   "decompiled/net/thebrokenscript/registry/TBSDimensions.java"
@@ -53,4 +61,40 @@ test("backrooms source resource is backed by the custom Java generator", () => {
 
   assert.equal(backrooms.type, "thebrokenscript:backrooms");
   assert.equal(backrooms.generator?.type, "thebrokenscript:backrooms_generator");
+});
+
+test("every custom realm has a source-height Bedrock void descriptor", () => {
+  const biomeByRealm = {
+    backrooms: "minecraft:the_void",
+    clan_void: "thebrokenscript:void",
+    concrete: "thebrokenscript:concrete",
+    library: "thebrokenscript:library",
+    limbo: "thebrokenscript:limbo",
+    lucid: "thebrokenscript:lucid",
+    nothing: "thebrokenscript:nothing",
+    nowhere: "thebrokenscript:nowhere",
+    null_torture: "thebrokenscript:null_biome",
+    protected_void: "thebrokenscript:protected_void",
+    stage2: "thebrokenscript:stage2",
+    the_moon: "thebrokenscript:moon",
+    void_shadow: "thebrokenscript:stage3",
+  };
+  assert.deepEqual(
+    sorted(readdirSync(BEDROCK_DIMENSION_DIR).filter((name) => name.endsWith(".json"))),
+    sorted(CUSTOM_REALM_NAMES.map((name) => `${name}.json`)),
+  );
+  for (const realm of CUSTOM_REALM_NAMES) {
+    const sourceType = JSON.parse(readFileSync(path.join(JAVA_DIMENSION_TYPE_DIR, `${realm}.json`), "utf8"));
+    const descriptor = JSON.parse(readFileSync(path.join(BEDROCK_DIMENSION_DIR, `${realm}.json`), "utf8"));
+    const root = descriptor["minecraft:dimension"];
+    const components = root?.components;
+    const expectedHeight = realm === "lucid"
+      ? { min_y: -512, height_range: 1024 }
+      : { min_y: sourceType.min_y, height_range: sourceType.height };
+    assert.equal(descriptor.format_version, "1.26.50", realm);
+    assert.equal(root?.description?.identifier, `thebrokenscript:${realm}`, realm);
+    assert.deepEqual(components?.["minecraft:dimension_height"], expectedHeight, realm);
+    assert.deepEqual(components?.["minecraft:default_biome"], { biome: biomeByRealm[realm] }, realm);
+    assert.deepEqual(components?.["minecraft:generation"], { generator_type: "void" }, realm);
+  }
 });
