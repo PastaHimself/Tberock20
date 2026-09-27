@@ -122,6 +122,27 @@ test("travelers to one block share preparation but retain their own precise posi
   assert.equal(world.creates, 1);
 });
 
+test("sequential travelers to one block retain their precise positions from the cached landing", async () => {
+  const world = delayedWorld();
+  const dimension = voidDimension();
+  const args = { world, dimension, dimensionId: "clan_void", logger: { error() {} } };
+
+  const firstPending = ensureDimensionReady({
+    ...args,
+    location: { x: 1.2, y: 201, z: 1.2 },
+  });
+  world.release();
+  const first = await firstPending;
+  const second = await ensureDimensionReady({
+    ...args,
+    location: { x: 1.7, y: 201, z: 1.7 },
+  });
+
+  assert.deepEqual(first.location, { x: 1.2, y: 201, z: 1.2 });
+  assert.deepEqual(second.location, { x: 1.7, y: 201, z: 1.7 });
+  assert.equal(world.creates, 1);
+});
+
 test("different landing sites share one in-flight terrain stage for the same region", async () => {
   const world = delayedWorld();
   const dimension = voidDimension();

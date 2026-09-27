@@ -223,6 +223,88 @@ test("registered terrain initializer runs once before landing resolution", async
   }
 });
 
+test("a blocked preferred landing moves to nearby generated floor and persists its full position", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension({ min: 0, max: 512 });
+  registerDimensionInitializer(
+    "backrooms",
+    ({ dimension: targetDimension }) => {
+      for (let x = -2; x <= 2; x++) {
+        for (let z = -2; z <= 2; z++) {
+          targetDimension.setBlockType({ x, y: 1, z }, "thebrokenscript:moist_carpet");
+        }
+      }
+      targetDimension.setBlockType({ x: 0, y: 2, z: 0 }, "thebrokenscript:ugly_wallpaper");
+      targetDimension.setBlockType({ x: 0, y: 3, z: 0 }, "thebrokenscript:ugly_wallpaper");
+    },
+    { stage: "source_backrooms_level_zero", version: 1, preferredLandingY: 2 },
+  );
+
+  try {
+    const args = {
+      world,
+      dimension,
+      dimensionId: "backrooms",
+      location: { x: 0, y: 201, z: 0 },
+      logger,
+    };
+    const first = await ensureDimensionReady(args);
+    assert.equal(first.ready, true);
+    assert.equal(first.location.y, 2);
+    assert.notDeepEqual(
+      { x: Math.floor(first.location.x), z: Math.floor(first.location.z) },
+      { x: 0, z: 0 },
+    );
+    assert.equal(
+      dimension.getBlock({
+        x: Math.floor(first.location.x),
+        y: 1,
+        z: Math.floor(first.location.z),
+      }).typeId,
+      "thebrokenscript:moist_carpet",
+    );
+
+    const second = await ensureDimensionReady(args);
+    assert.deepEqual(second, first);
+    assert.equal(world.calls.create, 1);
+  } finally {
+    unregisterDimensionInitializer("backrooms");
+  }
+});
+
+test("nearby preferred landing skips unloaded candidates at a generated-cell edge", async () => {
+  const world = fakeWorld();
+  const dimension = fakeDimension({ min: 0, max: 512 });
+  const getBlock = dimension.getBlock.bind(dimension);
+  dimension.getBlock = (location) => {
+    if (location.x > 0) throw new Error("location in unloaded neighboring cell");
+    return getBlock(location);
+  };
+  registerDimensionInitializer(
+    "backrooms",
+    ({ dimension: targetDimension }) => {
+      targetDimension.setBlockType({ x: 0, y: 1, z: 0 }, "thebrokenscript:moist_carpet");
+      targetDimension.setBlockType({ x: 0, y: 2, z: 0 }, "thebrokenscript:ugly_wallpaper");
+      targetDimension.setBlockType({ x: 0, y: 3, z: 0 }, "thebrokenscript:ugly_wallpaper");
+      targetDimension.setBlockType({ x: -1, y: 1, z: 0 }, "thebrokenscript:moist_carpet");
+    },
+    { stage: "source_backrooms_level_zero", version: 1, preferredLandingY: 2 },
+  );
+
+  try {
+    const result = await ensureDimensionReady({
+      world,
+      dimension,
+      dimensionId: "backrooms",
+      location: { x: 0, y: 201, z: 0 },
+      logger,
+    });
+    assert.deepEqual(result, { ready: true, location: { x: -0.5, y: 2, z: 0.5 } });
+  } finally {
+    unregisterDimensionInitializer("backrooms");
+  }
+});
+
 test("multiple initializer stages run in registration order and persist independently", async () => {
   const world = fakeWorld();
   const dimension = fakeDimension();
