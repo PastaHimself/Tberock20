@@ -3,6 +3,12 @@
   "minecraft:block": {
     "description": {
       "identifier": "thebrokenscript:mono_slab",
+      "states": {
+        "thebrokenscript:top": [
+          false,
+          true
+        ]
+      },
       "menu_category": {
         "category": "construction"
       }
@@ -34,6 +40,26 @@
         ]
       },
       "minecraft:light_dampening": 0
-    }
+    },
+    "permutations": [
+      {
+        "condition": "query.block_state('thebrokenscript:top')",
+        "components": {
+          "minecraft:geometry": "geometry.tbs_slab_top",
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              8,
+              -8
+            ],
+            "size": [
+              16,
+              8,
+              16
+            ]
+          }
+        }
+      }
+    ]
   }
 }

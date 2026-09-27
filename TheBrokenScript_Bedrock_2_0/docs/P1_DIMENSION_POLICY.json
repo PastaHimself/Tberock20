@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source": "source_extracted/data/thebrokenscript/dimension_type and dimension",
   "bedrock_adapter": {
-    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, Limbo has a separately persisted source-structure stage, and Backrooms reproduces the Level 0 layers, palettes, light grid, empty-room gate, and wall ranges in bounded cells",
+    "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, Limbo has a separately persisted source-structure stage, Backrooms reproduces the Level 0 layers, palettes, light grid, empty-room gate, and wall ranges in bounded cells, and Library places its source 16x17x16 templates in the original 15-level per-chunk stack",
     "environment": "Source dimension-type values are retained as policy evidence; the current Script API does not expose equivalent per-dimension setters for every value.",
     "fog": "RP fog and biome-client identifiers are explicit resource adapters; Java client DimensionSpecialEffects are not claimed as exact server parity.",
     "worldgen_boundary": "Exact Java noise_settings and custom ChunkGenerator registration are blocked by the supported Bedrock surface. Backrooms uses deterministic world-seeded gradient fields because the Java generator constructs unseeded process-local Perlin instances and shares traversal-order-dependent wall RNG."
@@ -75,6 +75,7 @@
       "min_y": -64,
       "height": 320,
       "logical_height": 64,
+      "bedrock_terrain": "Every generated chunk is persisted independently and places the source 16x17x16 library template at levels -3 through 11 (Y = level * 17), selecting library2 at levels 0, 4, and 8. Source air and structure void are omitted, and mono slab top/bottom states are retained.",
       "entry": { "x": 0, "y": 201, "z": 0 },
       "return_route": "overworld on explicit player return",
       "death_respawn": "Bedrock default respawn with transient state cleanup"
