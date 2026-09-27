@@ -230,7 +230,7 @@ async function withTemporaryTickingArea(worldLike, dimension, dimensionId, regio
   let lease = pool.get(leaseKey);
 
   if (!lease) {
-    const identifier = tickingAreaIdentifier(dimensionId, regionKey);
+    const identifier = tickingAreaIdentifier(dimensionId, leaseKey);
     const options = { dimension, ...bounds };
     lease = {
       created: false,
