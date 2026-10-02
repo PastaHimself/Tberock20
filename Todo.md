@@ -1,6 +1,6 @@
 # The Broken Script 2.0 — Remaining Bedrock Port Work
 
-Updated: 2026-09-27
+Updated: 2026-09-273
 
 This replaces the previous cumulative TODO with the remaining documented work. Completed audit history is omitted; its evidence remains in the repository audits and Git history. This list covers all 57 previously partial checklist items plus concrete omissions/deferred work identified by the supporting audits. It is not a claim that a fresh full Java-to-Bedrock audit or engine test has been performed.
 
