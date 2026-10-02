@@ -2371,6 +2371,18 @@
         "storage": "dynamic",
         "reset": "never",
         "default": false
+      },
+      "shutdown": {
+        "type": "number",
+        "storage": "dynamic",
+        "reset": "never",
+        "default": 0
+      },
+      "spawnedShutdownWindow": {
+        "type": "boolean",
+        "storage": "dynamic",
+        "reset": "never",
+        "default": false
       }
     },
     "compatibilityDefaults": {

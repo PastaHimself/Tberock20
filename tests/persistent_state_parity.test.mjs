@@ -282,6 +282,7 @@ test("entity policy makes persistent, transient, and non-persistent state explic
   assert.deepEqual(NON_PERSISTENT_ENTITY_TYPES, [
     "thebrokenscript:integrity_arm",
     "thebrokenscript:chord_projectile",
+    "thebrokenscript:maze_shadows",
   ]);
   assert.equal(integrityArm["minecraft:entity"].components["minecraft:persistent"], undefined);
   assert.deepEqual(tbeAmbush["minecraft:entity"].components["minecraft:persistent"], {});

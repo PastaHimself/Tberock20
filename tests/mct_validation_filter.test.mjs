@@ -50,6 +50,9 @@ const compatibilityEvidence = {
   uiTextureIdentifiers: new Set(['textures/ui/vhs/color_wash']),
   subpacksValid: true,
   lightingKeyframesValid: true,
+  highAttackValues: new Map([
+    ['/behavior_packs/bp/entities/the_broken_end.json', 600],
+  ]),
 };
 
 const officialSubpackWarning = {
@@ -94,6 +97,13 @@ const officialCustomUiTextureWarning = {
   message: 'Link to texture is not found in this pack',
   data: '/resource_packs/rp/ui/vhs_overlay.json to `textures/ui/vhs/color_wash`',
   path: '/resource_packs/rp/ui/vhs_overlay.json',
+};
+
+const sourceBackedHighAttackWarning = {
+  type: 'warning',
+  generatorId: 'JSONF',
+  message: 'At minecraft:entity.components.minecraft:attack.damage, value 600 is above maximum value 50.',
+  path: '/behavior_packs/bp/entities/the_broken_end.json',
 };
 
 
@@ -194,13 +204,14 @@ test('classifies only evidence-backed current-schema compatibility findings', ()
       officialCustomBlockItemWarning,
       officialVanillaRecipeItemWarning,
       officialCustomUiTextureWarning,
+      sourceBackedHighAttackWarning,
     ),
     compatibilityEvidence,
   );
 
   assert.deepEqual(result.blockers, []);
   assert.deepEqual(result.warnings, []);
-  assert.equal(result.compatibility.length, 5);
+  assert.equal(result.compatibility.length, 6);
 });
 
 
@@ -238,6 +249,25 @@ test('does not classify an item link for a custom item as an auto-created block 
 
   assert.deepEqual(result.compatibility, []);
   assert.equal(result.warnings.length, 1);
+});
+
+
+test('accepts only exact source-backed high attack warnings', () => {
+  const exact = classifyMctFindings(reportWith(sourceBackedHighAttackWarning), compatibilityEvidence);
+  assert.deepEqual(exact.warnings, []);
+  assert.deepEqual(exact.compatibility, [sourceBackedHighAttackWarning]);
+
+  const wrongValue = {
+    ...sourceBackedHighAttackWarning,
+    message: 'At minecraft:entity.components.minecraft:attack.damage, value 601 is above maximum value 50.',
+  };
+  const wrongPath = {
+    ...sourceBackedHighAttackWarning,
+    path: '/behavior_packs/bp/entities/example.json',
+  };
+  const result = classifyMctFindings(reportWith(wrongValue, wrongPath), compatibilityEvidence);
+  assert.deepEqual(result.compatibility, []);
+  assert.deepEqual(result.warnings, [wrongValue, wrongPath]);
 });
 
 

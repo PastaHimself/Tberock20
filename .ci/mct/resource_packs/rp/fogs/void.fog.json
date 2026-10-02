@@ -1,0 +1,22 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "thebrokenscript:fog_void"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 0,
+        "fog_end": 64,
+        "render_distance_type": "fixed",
+        "fog_color": "#06060a"
+      },
+      "water": {
+        "fog_start": 0,
+        "fog_end": 32,
+        "render_distance_type": "fixed",
+        "fog_color": "#000010"
+      }
+    }
+  }
+}

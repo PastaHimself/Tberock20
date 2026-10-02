@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "thebrokenscript:eldritch_plush",
+      "item": {
+        "thebrokenscript:eldritch_plush": "query.is_owner_identifier_any('minecraft:player') && context.item_slot == 'head'"
+      },
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/items/plush/eldritch"
+      },
+      "geometry": {
+        "default": "geometry.tbs_plush_worn_eldritch"
+      },
+      "render_controllers": [
+        "controller.render.item_default"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1129 @@
+{
+  "content": {
+    "advancement_descriptions": {
+      "can_someone_hear_me": "This place is not for you.",
+      "can_you_see_me": "Can you see me?",
+      "nullnullnull": "nullnullnull",
+      "polaroid_craft": "A memory.",
+      "you_ve_brought_it_upon_yourself": "It was your fault."
+    },
+    "advancement_idempotence": "per-player dynamic property plus in-memory duplicate suppression",
+    "advancement_ids": [
+      "can_someone_hear_me",
+      "can_you_see_me",
+      "nullnullnull",
+      "polaroid_craft",
+      "you_ve_brought_it_upon_yourself"
+    ],
+    "advancement_source_criteria": {
+      "can_someone_hear_me": {
+        "_empty": {
+          "trigger": "minecraft:impossible"
+        }
+      },
+      "can_you_see_me": {
+        "_empty": {
+          "trigger": "minecraft:impossible"
+        }
+      },
+      "nullnullnull": {
+        "_empty": {
+          "trigger": "minecraft:impossible"
+        }
+      },
+      "polaroid_craft": {
+        "craft_polaroid": {
+          "conditions": {
+            "recipe_id": "thebrokenscript:polaroid"
+          },
+          "trigger": "minecraft:recipe_crafted"
+        }
+      },
+      "you_ve_brought_it_upon_yourself": {
+        "_empty": {
+          "trigger": "minecraft:impossible"
+        }
+      }
+    },
+    "advancement_titles": {
+      "can_someone_hear_me": "Go away",
+      "can_you_see_me": "Here I am.",
+      "nullnullnull": "nullnullnull",
+      "polaroid_craft": "Look at the bigger picture",
+      "you_ve_brought_it_upon_yourself": "You've brought it upon yourself."
+    },
+    "advancement_trigger_adapter": "recipe_crafted uses a five-piece crafting-table frame and a one-use finishing action on the pinned ABI",
+    "advancement_trigger_adapters": {
+      "can_someone_hear_me": {
+        "hook_present": true,
+        "source_criteria": {
+          "_empty": {
+            "trigger": "minecraft:impossible"
+          }
+        },
+        "source_files": [
+          "systems/horror_events.js"
+        ]
+      },
+      "can_you_see_me": {
+        "hook_present": true,
+        "source_criteria": {
+          "_empty": {
+            "trigger": "minecraft:impossible"
+          }
+        },
+        "source_files": [
+          "entities/humanoid/humanoid_spawn_rules.js"
+        ]
+      },
+      "nullnullnull": {
+        "hook_present": true,
+        "source_criteria": {
+          "_empty": {
+            "trigger": "minecraft:impossible"
+          }
+        },
+        "source_files": [
+          "systems/horror_events.js"
+        ]
+      },
+      "polaroid_craft": {
+        "hook_present": true,
+        "source_criteria": {
+          "craft_polaroid": {
+            "conditions": {
+              "recipe_id": "thebrokenscript:polaroid"
+            },
+            "trigger": "minecraft:recipe_crafted"
+          }
+        },
+        "source_files": [
+          "systems/polaroid_craft.js"
+        ]
+      },
+      "you_ve_brought_it_upon_yourself": {
+        "hook_present": true,
+        "source_criteria": {
+          "_empty": {
+            "trigger": "minecraft:impossible"
+          }
+        },
+        "source_files": [
+          "entities/tbe/tbe_controller.js",
+          "systems/progression.js"
+        ]
+      }
+    },
+    "bedrock_block_count": 151,
+    "bedrock_block_form_count": 151,
+    "bedrock_direct_item_count": 79,
+    "bedrock_loot_table_count": 153,
+    "bedrock_recipe_count": 40,
+    "block_entities": {
+      "adapters": {
+        "a_flower": {
+          "block": "thebrokenscript:a_flower",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/a_flower.json",
+          "component": "thebrokenscript:be_a_flower",
+          "kind": "interaction_adapter",
+          "source_registered": true
+        },
+        "all_dead": {
+          "block": "thebrokenscript:flesh",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/flesh.json",
+          "component": null,
+          "kind": "renderer_only_block_adapter",
+          "source_registered": true
+        },
+        "command": {
+          "block": "thebrokenscript:command",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/command.json",
+          "component": "thebrokenscript:be_command",
+          "kind": "scripted_state",
+          "source_registered": true
+        },
+        "exit": {
+          "block": "thebrokenscript:exit",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/exit.json",
+          "component": "thebrokenscript:be_exit",
+          "kind": "interaction_adapter",
+          "source_registered": true
+        },
+        "null_structure": {
+          "block": "thebrokenscript:null_structure",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/null_structure.json",
+          "component": "thebrokenscript:be_null_structure",
+          "kind": "passive_marker_adapter",
+          "source_registered": true
+        },
+        "portal_controller": {
+          "block": "thebrokenscript:portal_controller",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/portal_controller.json",
+          "component": "thebrokenscript:be_portal_controller",
+          "kind": "persistent_link_adapter",
+          "source_registered": true
+        },
+        "portal_extender": {
+          "block": "thebrokenscript:portal_extender",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/portal_extender.json",
+          "component": "thebrokenscript:be_portal_extender",
+          "kind": "interaction_adapter",
+          "source_registered": true
+        },
+        "shadow_bug": {
+          "block": "thebrokenscript:shadow_bug",
+          "block_file": "TheBrokenScript_Bedrock_2_0/BP/blocks/shadow_bug.json",
+          "component": "thebrokenscript:be_shadow_bug",
+          "kind": "random_tick_adapter",
+          "source_registered": true
+        }
+      },
+      "extra_source": [],
+      "missing_runtime": [],
+      "missing_source": [],
+      "source_count": 8,
+      "source_registered": [
+        "command",
+        "all_dead",
+        "exit",
+        "shadow_bug",
+        "portal_controller",
+        "portal_extender",
+        "null_structure",
+        "a_flower"
+      ]
+    },
+    "commands": {
+      "debug_gate": "operator permission is supplied by the custom-command Admin gate; broader regression hooks remain on /scriptevent",
+      "developer_surface": "Bedrock /scriptevent tbs:* hooks",
+      "developer_surface_separate": true,
+      "devmode_codes": [
+        "2018",
+        "544253"
+      ],
+      "devmode_effects": [
+        "thebrokenscript:circuit",
+        "thebrokenscript:the_broken_end"
+      ],
+      "devmode_invalid_message": true,
+      "devmode_mandatory_code_string": true,
+      "devmode_spawn_count": 1000,
+      "java_command_source_files": [
+        "decompiled/net/thebrokenscript/command/DevModeCommand.java",
+        "decompiled/net/thebrokenscript/command/ReputationCommand.java",
+        "decompiled/net/thebrokenscript/command/TBSCommands.java",
+        "decompiled/net/thebrokenscript/command/dev/ArenaCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/BossCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/CodeCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/CoordCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/DevCommands.java",
+        "decompiled/net/thebrokenscript/command/dev/EntityCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/FXCommands.java",
+        "decompiled/net/thebrokenscript/command/dev/GameProfileResponse.java",
+        "decompiled/net/thebrokenscript/command/dev/GiveCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/JimArenaCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/PlayerCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/ReputationDebugCommand.java",
+        "decompiled/net/thebrokenscript/command/dev/SetCommands.java",
+        "decompiled/net/thebrokenscript/command/dev/StructureCommandsKt.java",
+        "decompiled/net/thebrokenscript/command/dev/SummonCommand.java",
+        "decompiled/net/thebrokenscript/command/dev/UserAPI.java",
+        "decompiled/net/thebrokenscript/command/dev/WorldCommandsKt.java"
+      ],
+      "java_dev_commands_by_file": {
+        "decompiled/net/thebrokenscript/command/dev/ArenaCommandsKt.java": [
+          "arms",
+          "create",
+          "destroy",
+          "kill_phase_3",
+          "next",
+          "start"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/BossCommandsKt.java": [
+          "animate [entity]",
+          "bar [players] [show] [value]",
+          "jim_bar [players] [show] [value]",
+          "kit [players]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/CodeCommandsKt.java": [
+          "get",
+          "reroll",
+          "status"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/CoordCommandsKt.java": [
+          "clanvoid",
+          "day_A",
+          "maze",
+          "stone",
+          "wood"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/DevCommands.java": [
+          "update_capes [players]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/EntityCommandsKt.java": [
+          "inhabit [targets]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/FXCommands.java": [
+          "off",
+          "on",
+          "set [r] [g] [b]",
+          "set [value]",
+          "toggle"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/GameProfileResponse.java": [],
+        "decompiled/net/thebrokenscript/command/dev/GiveCommandsKt.java": [
+          "legacy_book [id]",
+          "library_book [id] [players]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/JimArenaCommandsKt.java": [
+          "create",
+          "destroy",
+          "start"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/PlayerCommandsKt.java": [
+          "credits [players]",
+          "list",
+          "rep [players] [amount]",
+          "send [players] [dim]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/ReputationDebugCommand.java": [
+          "add [amount]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/SetCommands.java": [
+          "gone",
+          "joined",
+          "moon_phase [value]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/StructureCommandsKt.java": [
+          "null_id [pos] [structure_id]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/SummonCommand.java": [
+          "fake_player [user]"
+        ],
+        "decompiled/net/thebrokenscript/command/dev/UserAPI.java": [],
+        "decompiled/net/thebrokenscript/command/dev/WorldCommandsKt.java": [
+          "carve",
+          "corrupt [pos] [radius]",
+          "gametime [tick]",
+          "resetSeed",
+          "var [name]"
+        ]
+      },
+      "java_root_commands": [
+        "devmode [code]",
+        "reputation"
+      ],
+      "java_root_groups": [
+        "arena",
+        "boss",
+        "code",
+        "coord",
+        "custom_sky",
+        "dev",
+        "entity",
+        "fx",
+        "give",
+        "jim_arena",
+        "null",
+        "player",
+        "reputation",
+        "set",
+        "structure",
+        "summon",
+        "world"
+      ],
+      "java_root_permission_level": 4,
+      "production_commands": [
+        {
+          "cheats_required": false,
+          "mandatory_code_string": true,
+          "name": "tbs:devmode",
+          "permission_level": "Admin",
+          "player_only": true,
+          "registered": true
+        },
+        {
+          "cheats_required": false,
+          "mandatory_code_string": false,
+          "name": "tbs:reputation",
+          "permission_level": "Admin",
+          "player_only": true,
+          "registered": true
+        }
+      ],
+      "runtime_command_names": [
+        "tbs:chunk_remove",
+        "tbs:devmode",
+        "tbs:reputation"
+      ]
+    },
+    "empty_source_loot_tables": [
+      "blocks:a_flower",
+      "blocks:block_is_missing_id",
+      "blocks:decomposed_semiotics",
+      "blocks:deviation",
+      "blocks:disruption",
+      "blocks:exit",
+      "blocks:hello",
+      "blocks:necrosis",
+      "blocks:null",
+      "blocks:null_structure",
+      "blocks:portal_controller",
+      "blocks:portal_extender",
+      "blocks:shadow_bug",
+      "blocks:void_bush",
+      "blocks:void_root",
+      "blocks:void_roots",
+      "blocks:white"
+    ],
+    "entity_tag_adapter": "runtime entity-family/query predicates are documented; Bedrock has no portable Java tag directory equivalent",
+    "extra_bedrock_blocks": [
+      "thebrokenscript:bennie_plush_block",
+      "thebrokenscript:berry_plush_block",
+      "thebrokenscript:dominik_plush_block",
+      "thebrokenscript:ebridger_plush_block",
+      "thebrokenscript:elderly_plush_block",
+      "thebrokenscript:eldritch_plush_block",
+      "thebrokenscript:eyae_plush_block",
+      "thebrokenscript:garreth_plush_block",
+      "thebrokenscript:hermit_plush_block",
+      "thebrokenscript:jd_plush_block",
+      "thebrokenscript:lost_plush_block",
+      "thebrokenscript:lovemist_plush_block",
+      "thebrokenscript:mc_plush_block",
+      "thebrokenscript:moji_plush_block",
+      "thebrokenscript:nahbro_plush_block",
+      "thebrokenscript:pyrit_plush_block",
+      "thebrokenscript:raevant_plush_block",
+      "thebrokenscript:rdh_plush_block",
+      "thebrokenscript:redstone_plush_block",
+      "thebrokenscript:shadow_plush_block",
+      "thebrokenscript:skie_plush_block",
+      "thebrokenscript:stevelocks_plush_block",
+      "thebrokenscript:tekkit_plush_block",
+      "thebrokenscript:void_goop_flow",
+      "thebrokenscript:void_goop_still",
+      "thebrokenscript:wendigo_plush_block",
+      "thebrokenscript:yharim_plush_block",
+      "thebrokenscript:zetos_plush_block"
+    ],
+    "extra_recipes": [],
+    "flora_item_tag_adapter": {
+      "bedrock_predicate": "minecraft:shears",
+      "source_members": [
+        "minecraft:shears"
+      ],
+      "source_tag": "thebrokenscript:can_be_used_for_void_flora",
+      "validated": true
+    },
+    "item_behavior": {
+      "cod_items": [
+        "bennie_cod",
+        "v1_cod",
+        "shadowmaster_cod",
+        "redstone_cod",
+        "corrupt_ebridger_cod",
+        "dominik_cod",
+        "ebridger_cod",
+        "eldritch_cod",
+        "evil_codstone_cod",
+        "eyae_cod",
+        "garreth_cod",
+        "jd_cod",
+        "lost_need_cod",
+        "pencil_cod",
+        "v2_cod",
+        "tekkit_cod",
+        "zetos_cod"
+      ],
+      "mismatches": [],
+      "missing_items": [],
+      "native_food_adapter": {
+        "circuit_bread": {
+          "can_always_eat": true,
+          "nutrition": -10,
+          "saturation_modifier": 0,
+          "use_duration": 0.8
+        },
+        "cod": {
+          "nutrition": 2,
+          "saturation_modifier": 0.1,
+          "use_duration": 1.6
+        },
+        "null_bread": {
+          "can_always_eat": true,
+          "nutrition": -2,
+          "saturation_modifier": 0,
+          "use_duration": 0.8
+        },
+        "null_cod": {
+          "can_always_eat": true,
+          "nutrition": -3,
+          "saturation_modifier": 0
+        }
+      },
+      "negative_food_adapter": "Bedrock documents nutrition as an integer and the source negative values are carried directly; the value is also covered by the JSON/MCT validation gates.",
+      "not_in_creative": [
+        "piece_1",
+        "piece_2",
+        "piece_3",
+        "piece_4",
+        "piece_5",
+        "polaroid",
+        "torn_paper",
+        "book",
+        "integrity_fireball",
+        "hand_cannon"
+      ],
+      "record_items": {
+        "attribute_mutilation": {
+          "comparator_signal": 13,
+          "duration": 157,
+          "sound_definition": "jimbob.full",
+          "sound_event": "lt.reaction.miscmystical2"
+        },
+        "credits": {
+          "comparator_signal": 13,
+          "duration": 165,
+          "sound_definition": "credits",
+          "sound_event": "lt.reaction.miscmystical"
+        },
+        "instability": {
+          "comparator_signal": 13,
+          "duration": 233.5,
+          "sound_definition": "instability",
+          "sound_event": "lt.reaction.icebomb"
+        },
+        "instability_music_box": {
+          "comparator_signal": 13,
+          "duration": 179,
+          "sound_definition": "instability_music_box",
+          "sound_event": "lt.reaction.miscfire"
+        },
+        "instabilityv2": {
+          "comparator_signal": 13,
+          "duration": 239,
+          "sound_definition": "instability_v2",
+          "sound_event": "lt.reaction.mgsalt"
+        },
+        "instabilityv3": {
+          "comparator_signal": 13,
+          "duration": 278,
+          "sound_definition": "instability_v3",
+          "sound_event": "lt.reaction.miscexplosion"
+        },
+        "lilly": {
+          "comparator_signal": 1,
+          "duration": 208,
+          "sound_definition": "lilly_theme",
+          "sound_event": "lt.reaction.fire"
+        },
+        "lilly_v2": {
+          "comparator_signal": 1,
+          "duration": 204,
+          "sound_definition": "lilly_theme_v2",
+          "sound_event": "lt.reaction.fireball"
+        },
+        "record_14": {
+          "comparator_signal": 13,
+          "duration": 61,
+          "sound_definition": "record14",
+          "sound_event": "lt.reaction.fertilizer"
+        },
+        "record_15": {
+          "comparator_signal": 13,
+          "duration": 78,
+          "sound_definition": "disc15_betray",
+          "sound_event": "lt.reaction.epaste2"
+        },
+        "record_16": {
+          "comparator_signal": 13,
+          "duration": 98,
+          "sound_definition": "disc16_youcant",
+          "sound_event": "lt.reaction.epaste"
+        },
+        "record_17": {
+          "comparator_signal": 13,
+          "duration": 63.5,
+          "sound_definition": "disc17",
+          "sound_event": "lt.reaction.bleach"
+        }
+      },
+      "scripted_use_adapters": {
+        "book": "non-stackable ItemStack dynamic property stores a stable 1..250 source book id; form UI is the Bedrock menu adapter",
+        "faraway_salmon": "onConsume applies Instant Damage for 2 ticks at amplifier 5 and Wither for 1000 ticks at amplifier 100",
+        "gore": "onUse removes one selected item outside Creative",
+        "n": "onUse removes one selected item outside Creative",
+        "revuxorfish": "onConsume applies Wither for 240 ticks at amplifier 4",
+        "torn_paper": "onUse opens a stable Bedrock form in place of the Java menu"
+      }
+    },
+    "loot_adapter_tables": {
+      "moon_stone_brick_slab": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "polished_moon_stone_slab": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "protected_void_slab": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "sideways_cobblestone_stairs": "minecraft:cobblestone_stairs -> thebrokenscript:sideways_cobblestone_stairs",
+      "smooth_stone_vertical_slab": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "spruce_wood_slab": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "ud_oak_door": "minecraft:oak_door -> thebrokenscript:ud_oak_door",
+      "void_bloom": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition",
+      "void_blossom": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition",
+      "void_bud": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition",
+      "void_budding": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition",
+      "void_door": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "void_grass": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition",
+      "void_log_door": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "void_plank_door": "block_state_property / set_count is represented by the documented single-block Bedrock geometry adapter",
+      "void_sprout": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition",
+      "void_vine": "Java tag match_tool is represented by a direct minecraft:shears match_tool condition"
+    },
+    "loot_mismatches": [],
+    "missing_block_tag_members": [],
+    "missing_recipes": [],
+    "missing_scripted_item_components": [],
+    "missing_source_blocks": [],
+    "missing_source_loot_tables": [],
+    "recipe_adapters": {
+      "polaroid": "five-piece recipe yields a one-use frame; use produces the Polaroid and awards progression"
+    },
+    "recipe_category_adapter": "Java crafting categories map to Bedrock crafting_table; stonecutting maps to a shapeless recipe tagged stonecutter",
+    "recipe_mismatches": [],
+    "scripted_item_components": {
+      "thebrokenscript:book": {
+        "component": "thebrokenscript:library_book_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/book.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:circuit_cave_painting": {
+        "component": "thebrokenscript:circuit_cave_place",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/circuit_cave_painting.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:desyncer": {
+        "component": "thebrokenscript:desyncer_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/desyncer.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:faraway_salmon": {
+        "component": "thebrokenscript:faraway_salmon_consume",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/faraway_salmon.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:gore": {
+        "component": "thebrokenscript:gore_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/gore.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:hand_cannon": {
+        "component": "thebrokenscript:hand_cannon_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/hand_cannon.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:n": {
+        "component": "thebrokenscript:n_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/n.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:polaroid": {
+        "component": "thebrokenscript:polaroid_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/polaroid.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:portal_linker": {
+        "component": "thebrokenscript:portal_linker_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/portal_linker.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:revuxorfish": {
+        "component": "thebrokenscript:revuxorfish_consume",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/revuxorfish.json",
+        "registered": true,
+        "used_by_item": true
+      },
+      "thebrokenscript:torn_paper": {
+        "component": "thebrokenscript:torn_paper_use",
+        "item_file": "TheBrokenScript_Bedrock_2_0/BP/items/torn_paper.json",
+        "registered": true,
+        "used_by_item": true
+      }
+    },
+    "source_advancement_descriptions": {
+      "can_someone_hear_me": "This place is not for you.",
+      "can_you_see_me": "Can you see me?",
+      "nullnullnull": "nullnullnull",
+      "polaroid_craft": "A memory.",
+      "you_ve_brought_it_upon_yourself": "It was your fault."
+    },
+    "source_advancement_titles": {
+      "can_someone_hear_me": "Go away",
+      "can_you_see_me": "Here I am.",
+      "nullnullnull": "nullnullnull",
+      "polaroid_craft": "Look at the bigger picture",
+      "you_ve_brought_it_upon_yourself": "You've brought it upon yourself."
+    },
+    "source_block_count": 123,
+    "source_block_entity_count": 8,
+    "source_block_loot_count": 137,
+    "source_block_tag_count": 6,
+    "source_condition_table_count": 138,
+    "source_custom_block_membership_count": 13,
+    "source_entity_loot_count": 1,
+    "source_item_model_count": 191,
+    "source_item_tags": {
+      "thebrokenscript:can_be_used_for_void_flora": [
+        "minecraft:shears"
+      ],
+      "thebrokenscript:creepy_discs": [
+        "minecraft:music_disc_11",
+        "minecraft:music_disc_13",
+        "minecraft:music_disc_5"
+      ]
+    },
+    "source_loot_table_count": 138,
+    "source_recipe_count": 40,
+    "special_item_behavior": {
+      "circuit_cave_painting": "selected-item consumption on placement",
+      "desyncer": "persisted effect/state adapter",
+      "hand_cannon": "100-block view ray, spectator exclusion, four-tick cooldown",
+      "polaroid": "use feedback and persisted craft progression scan",
+      "portal_linker": "sneak-gated two-anchor persistent link"
+    },
+    "stonecutter_recipes": [
+      "brickmooncut_chiseled_moonstone",
+      "moonstonebrcikcut_to_wall",
+      "moonstonebrickcut_to_brickslabs",
+      "moonstonebrickcut_to_brickstairs",
+      "moonstonecut_to_bricks",
+      "moonstonecut_to_brickslabs",
+      "moonstonecut_to_brickstairs",
+      "moonstonecut_to_polished",
+      "moonstonecut_to_polishslabs",
+      "moonstonecut_to_polishstairs",
+      "moonstonecut_to_polishwall",
+      "moonstonecut_to_wall",
+      "plainmooncut_chiseled_moonstone",
+      "polishedmoonstone_to_polishedstairs",
+      "polishmoonstonecut_to_polishslabs",
+      "polishmoonstonecut_to_wall"
+    ],
+    "tag_adapters": [
+      "thebrokenscript:can_be_used_for_void_flora",
+      "thebrokenscript:creepy_discs"
+    ],
+    "unresolved_source_item_models": [],
+    "vanilla_item_adapters": {
+      "thebrokenscript:totem": "minecraft:totem_of_undying"
+    },
+    "worldgen_biome_tag_adapter": "source optional biome tag is retained as source evidence; Bedrock placement uses explicit registered biome IDs"
+  },
+  "dimensions": {
+    "environment_adapter": {
+      "environment": "Source dimension-type values are retained as policy evidence; the current Script API does not expose equivalent per-dimension setters for every value.",
+      "fog": "RP fog and biome-client identifiers are explicit resource adapters; Java client DimensionSpecialEffects are not claimed as exact server parity.",
+      "terrain": "minecraft:custom_dimension void generator plus readiness-gated scripted region generation; Nothing and Limbo reproduce their source Y=0 single-layer terrain, Limbo has a separately persisted source-structure stage, Backrooms reproduces the Level 0 layers, palettes, light grid, empty-room gate, and wall ranges in bounded cells, and Library places its source 16x17x16 templates in the original 15-level per-chunk stack",
+      "worldgen_boundary": "Exact Java noise_settings and custom ChunkGenerator registration are blocked by the supported Bedrock surface. Backrooms uses deterministic world-seeded gradient fields because the Java generator constructs unseeded process-local Perlin instances and shares traversal-order-dependent wall RNG."
+    },
+    "missing_policy_ids": [],
+    "missing_registration_ids": [],
+    "policies": {
+      "backrooms": {
+        "ambient_light": 0,
+        "bed_works": true,
+        "bedrock_terrain": "Level 0 is generated in persisted 3x3-chunk cells with bedrock at Y=0, moist carpet at Y=1, ceiling tiles at Y=9, normal/red palettes, the source 4-block ceiling-light grid with light level 15, threshold-gated empty and unlit rooms, and source-range randomized wall bands from Y=2 through Y=8.",
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 24000,
+        "has_skylight": false,
+        "height": 512,
+        "logical_height": 512,
+        "min_y": 0,
+        "natural": true,
+        "noise_adapter": "The source thresholds and octave sets are retained, but stable world-seeded, equal-mean gradient octaves replace Java's unseeded static Perlin instances; per-chunk wall RNG is coordinate-seeded instead of depending on chunk traversal order.",
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return; generic safe landing adapter",
+        "source_biome": "minecraft:the_void",
+        "source_dimension_type": "thebrokenscript:backrooms",
+        "source_generator": "thebrokenscript:backrooms_generator"
+      },
+      "clan_void": {
+        "ambient_light": 0,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 6000,
+        "has_skylight": true,
+        "height": 384,
+        "logical_height": 384,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": true,
+        "return_route": "source-specific fall routes are handled by the lifecycle adapter; explicit portal return uses the linked destination",
+        "source_biome": "thebrokenscript:clan_void_biomes",
+        "source_dimension_type": "thebrokenscript:clan_void",
+        "source_entry_variants": [
+          201,
+          206,
+          216,
+          253
+        ],
+        "source_generator": "thebrokenscript:clan_void_generator"
+      },
+      "concrete": {
+        "ambient_light": 0,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 1500,
+        "has_skylight": true,
+        "height": 384,
+        "logical_height": 384,
+        "min_y": -64,
+        "natural": true,
+        "piglin_safe": false,
+        "return_route": "overworld below source Y -85; Bedrock route is explicit overworld fallback",
+        "source_biome": "thebrokenscript:concrete",
+        "source_dimension_type": "thebrokenscript:concrete",
+        "source_generator": "thebrokenscript:concrete"
+      },
+      "library": {
+        "ambient_light": 0.05,
+        "bed_works": true,
+        "bedrock_terrain": "Every generated chunk is persisted independently and places the source 16x17x16 library template at levels -3 through 11 (Y = level * 17), selecting library2 at levels 0, 4, and 8. Source air and structure void are omitted, and mono slab top/bottom states are retained.",
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 6000,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 64,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "thebrokenscript:library",
+        "source_dimension_type": "thebrokenscript:library",
+        "source_generator": "thebrokenscript:library"
+      },
+      "limbo": {
+        "ambient_light": 15,
+        "bed_works": true,
+        "bedrock_structure_adapter_limits": "Generation order is deterministic by three-chunk cell rather than Java chunk-decoration order. Bed/banner/flower-pot block-entity presentation, legacy color/aux variants on inventory beds and banners, and source properties on custom blocks that do not expose equivalent Bedrock states remain adapters requiring in-engine review.",
+        "bedrock_structures": "All nine Java Limbo templates are converted to native .mcstructure assets. The fixed house is placed at -5,1,-5; rare templates use the Java source order, one placement per template, one candidate per 3x3 chunks, and the 1024 squared-chunk separation ledger. Common Java block states are mapped to typed Bedrock states. Script API restores non-empty sign text, container contents, writable-book pages, item damage, and jukebox records after placement.",
+        "bedrock_terrain": "Exact scripted thebrokenscript:limbo layer at Y=0 in bounded three-chunk cells.",
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": null,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 64,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "thebrokenscript:limbo",
+        "source_dimension_type": "thebrokenscript:limbo",
+        "source_entry_search": "recursive safe-surface search with depth 10 and 25-block offsets",
+        "source_generator": "thebrokenscript:limbo"
+      },
+      "lucid": {
+        "ambient_light": 0.0945,
+        "bed_works": true,
+        "bedrock_height_adapter": "Bedrock descriptor uses min_y=-512 and height_range=1024 because the source -1024/2064 range exceeds the supported schema.",
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 6000,
+        "has_skylight": false,
+        "height": 2064,
+        "logical_height": 64,
+        "min_y": -1024,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "thebrokenscript:lucid",
+        "source_dimension_type": "thebrokenscript:lucid",
+        "source_generator": "thebrokenscript:lucid"
+      },
+      "nothing": {
+        "ambient_light": 0,
+        "bed_works": true,
+        "bedrock_terrain": "Exact scripted thebrokenscript:nothing layer at Y=0 in bounded three-chunk cells.",
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": null,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 64,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "thebrokenscript:nothing",
+        "source_dimension_type": "thebrokenscript:nothing",
+        "source_entry_search": "recursive safe-surface search with Y=64 fallback and 1200-tick exit state",
+        "source_generator": "thebrokenscript:nothing"
+      },
+      "nowhere": {
+        "ambient_light": 0.0465,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 6000,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 64,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "protected_void below source Y -100; explicit overworld return remains available",
+        "source_biome": "thebrokenscript:nowhere",
+        "source_dimension_type": "thebrokenscript:nowhere",
+        "source_generator": "thebrokenscript:nowhere"
+      },
+      "null_torture": {
+        "ambient_light": 0,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 18000,
+        "has_skylight": false,
+        "height": 384,
+        "logical_height": 384,
+        "min_y": -64,
+        "monster_spawn_light_level": {
+          "max_inclusive": 7,
+          "min_inclusive": 0
+        },
+        "natural": false,
+        "piglin_safe": true,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "minecraft:multi_noise",
+        "source_dimension_type": "thebrokenscript:null_torture",
+        "source_generator": "thebrokenscript:null_torture_generator"
+      },
+      "protected_void": {
+        "ambient_light": 0.0035,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "rotation_y": 180,
+          "x": 11,
+          "y": 71,
+          "z": 6
+        },
+        "fixed_time": 6000,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 64,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "thebrokenscript:protected_void",
+        "source_dimension_type": "thebrokenscript:protected_void",
+        "source_generator": "thebrokenscript:protected_void"
+      },
+      "stage2": {
+        "ambient_light": 0,
+        "bed_works": true,
+        "death_respawn": "arena lifecycle owns participant cleanup; Bedrock default respawn outside the arena",
+        "entry": {
+          "x": 85,
+          "y": 255,
+          "z": 85
+        },
+        "fixed_time": 6000,
+        "has_skylight": true,
+        "height": 384,
+        "logical_height": 384,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": true,
+        "return_route": "arena lifecycle returns participants to their saved dimension/position",
+        "source_biome": "thebrokenscript:stage2",
+        "source_dimension_type": "thebrokenscript:stage2",
+        "source_entry_variance": {
+          "x": 10,
+          "z": 10
+        },
+        "source_generator": "thebrokenscript:stage2"
+      },
+      "the_moon": {
+        "ambient_light": 0.045,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 15000,
+        "has_precipitation": false,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 0,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld below source Y -85; explicit overworld fallback",
+        "source_biome": "thebrokenscript:moon_biomes",
+        "source_dimension_type": "thebrokenscript:the_moon",
+        "source_generator": "minecraft:noise"
+      },
+      "void_shadow": {
+        "ambient_light": 0.025,
+        "bed_works": true,
+        "death_respawn": "Bedrock default respawn with transient state cleanup",
+        "entry": {
+          "x": 0,
+          "y": 201,
+          "z": 0
+        },
+        "fixed_time": 6000,
+        "has_skylight": false,
+        "height": 320,
+        "logical_height": 64,
+        "min_y": -64,
+        "natural": false,
+        "piglin_safe": false,
+        "return_route": "overworld on explicit player return",
+        "source_biome": "thebrokenscript:stage3",
+        "source_dimension_type": "thebrokenscript:void_shadow",
+        "source_generator": "thebrokenscript:stage3"
+      }
+    },
+    "policy_count": 13,
+    "policy_ids": [
+      "backrooms",
+      "clan_void",
+      "concrete",
+      "library",
+      "limbo",
+      "lucid",
+      "nothing",
+      "nowhere",
+      "null_torture",
+      "protected_void",
+      "stage2",
+      "the_moon",
+      "void_shadow"
+    ],
+    "registration_contract": {
+      "readiness_gated_teleport": true,
+      "register_custom_dimension": true,
+      "startup_only": true,
+      "void_generator_boundary": true
+    },
+    "source_dimension_count": 13,
+    "source_dimension_ids": [
+      "backrooms",
+      "clan_void",
+      "concrete",
+      "library",
+      "limbo",
+      "lucid",
+      "nothing",
+      "nowhere",
+      "null_torture",
+      "protected_void",
+      "stage2",
+      "the_moon",
+      "void_shadow"
+    ],
+    "source_dimension_type_count": 13
+  },
+  "errors": [],
+  "portals": {
+    "cooldown_property": true,
+    "cooldown_ticks": 1,
+    "entity_scope": "same-dimension linked player and living-entity tick sweep; items and projectiles excluded",
+    "fallback_destination": "clan_void",
+    "runtime_activation_requires_sneak": true,
+    "runtime_link_logic": true,
+    "runtime_living_sweep": true,
+    "runtime_persistent_anchor": true,
+    "runtime_persistent_links": true,
+    "safe_arrival": true,
+    "source_activation_requires_sneak": true,
+    "source_controller_tracks_incoming_entities": false,
+    "source_item_consumed": false
+  },
+  "schema_version": 2,
+  "structures": {
+    "explicit_status_count": 314,
+    "incomplete_inventory_entries": [],
+    "parse_error_count": 6,
+    "parsed_count": 308,
+    "runtime_sample_validation": "not_available in static CI; source inventory and graph validators are authoritative here",
+    "source_identical_staged_count": 6,
+    "source_template_count": 314,
+    "staged_jigsaw_files": [
+      "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/shaft/shaft_corner.nbt",
+      "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/shaft/shaft_hall.nbt",
+      "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/shaft/shaft_junction.nbt",
+      "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/shaft/shaft_room.nbt",
+      "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/shaft/shaft_room_hall.nbt",
+      "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/shaft/shaft_root.nbt"
+    ],
+    "worldgen_files": [
+      "TheBrokenScript_Bedrock_2_0/BP/worldgen/structures/shaft.json",
+      "TheBrokenScript_Bedrock_2_0/BP/worldgen/template_pools/hallway.json",
+      "TheBrokenScript_Bedrock_2_0/BP/worldgen/template_pools/shaft_room.json",
+      "TheBrokenScript_Bedrock_2_0/BP/worldgen/template_pools/shaft_root.json"
+    ]
+  },
+  "todo_items": [
+    "P1 \u2014 Quests, items, blocks, loot, and commands",
+    "P1 \u2014 Dimensions, worldgen, structures, and portals"
+  ],
+  "warnings": [
+    "Bedrock custom dimensions currently expose a void generator; exact Java noise_settings terrain generation is not claimed.",
+    "Five Stage 2 templates and nine central XCSF tiles are converted; a reusable outer floor supports tentacles, while remaining room variants and exact outer XCSF terrain still need conversion.",
+    "Java block-entity storage/rendering and entity/item tags use explicit script/dynamic-property/query adapters where Bedrock lacks a portable equivalent.",
+    "Linked portal controllers now move players and living entities within one dimension; item and projectile transfer remains outside the Java living-entity rule.",
+    "Static CI cannot replace an in-game multiplayer/world-sample comparison; runtime smoke and structure validators remain separate gates."
+  ]
+}

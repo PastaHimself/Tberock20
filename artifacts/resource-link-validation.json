@@ -1,0 +1,16 @@
+{
+  "counts": {
+    "animation_controller_definitions": 0,
+    "animation_definitions": 198,
+    "checked_animation_controller_references": 0,
+    "checked_animation_references": 0,
+    "checked_geometry_references": 95,
+    "checked_render_controller_references": 95,
+    "custom_client_entities": 95,
+    "geometry_definitions": 145,
+    "render_controller_definitions": 2
+  },
+  "errors": [],
+  "ok": true,
+  "warnings": []
+}

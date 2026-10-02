@@ -35,7 +35,7 @@ PARTICLE_TYPE_FIELDS = {
     "NULL_STRUCTURE_PARTICLE": "null_structure_particle",
     "PAPER_PARTICLE": "paper_particle",
 }
-ADAPTED_PARTICLE_CALLSITE_TYPES = {"null_particle", "eyes", "particle_of_curved"}
+ADAPTED_PARTICLE_CALLSITE_TYPES = set(PARTICLE_TYPE_FIELDS.values())
 
 RECORD_ITEM_BY_EVENT = {
     "jimbob.full": "attribute_mutilation.json",
@@ -521,6 +521,33 @@ def validate_audio(
     counts["record_items"] = len(RECORD_ITEM_BY_EVENT)
     counts["script_only_song_definitions"] = len(SCRIPT_ONLY_SONG_EVENTS)
 
+    # Script API playSound() resolves the identifier against the exact keys in
+    # RP/sound_definitions.json. The Java namespace is not part of those keys in
+    # this pack, so `thebrokenscript:foo` silently misses a deployed `foo` cue.
+    # Scan literal runtime callsites and fail when the bare definition exists
+    # but the namespaced identifier does not.
+    script_sound_references = 0
+    mismatched_script_sound_ids: list[str] = []
+    script_dir = addon / "BP/scripts"
+    sound_call_line = re.compile(r"(?:playSound|tryPlaySoundAt|tryPlayAt)\s*\(")
+    namespaced_literal = re.compile(r'["\'](thebrokenscript:[A-Za-z0-9_.-]+)["\']')
+    if script_dir.is_dir():
+        for script_path in sorted(script_dir.rglob("*.js")):
+            for line_number, line in enumerate(script_path.read_text(encoding="utf-8-sig").splitlines(), 1):
+                if not sound_call_line.search(line):
+                    continue
+                for match in namespaced_literal.finditer(line):
+                    identifier = match.group(1)
+                    bare = identifier.split(":", 1)[1]
+                    if bare not in sound_definitions or identifier in sound_definitions:
+                        continue
+                    script_sound_references += 1
+                    location = f"{relative(root, script_path)}:{line_number}"
+                    mismatched_script_sound_ids.append(f"{location}: {identifier} -> {bare}")
+    counts["mismatched_script_sound_ids"] = len(mismatched_script_sound_ids)
+    for mismatch in mismatched_script_sound_ids:
+        errors.append(f"Script sound identifier does not match RP/sound_definitions.json: {mismatch}")
+
     def report_sound_drift(event_key: str, message: str) -> None:
         if event_key in ADAPTED_SOUND_CUE_KEYS:
             warnings.append(f"Source/deployed sound cue adapter for {event_key}: {message}")
@@ -720,6 +747,7 @@ def validate_audio(
         "source_song_definitions": len(source_song_files),
         "record_items": len(RECORD_ITEM_BY_EVENT),
         "script_only_song_definitions": len(SCRIPT_ONLY_SONG_EVENTS),
+        "mismatched_script_sound_ids": mismatched_script_sound_ids,
         "custom_sound_event_mode": "stable LevelSoundEvent alias routed through RP/sounds.json",
     }
 

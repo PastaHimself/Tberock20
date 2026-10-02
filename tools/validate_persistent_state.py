@@ -239,9 +239,16 @@ def validate(root: Path) -> list[str]:
         }
         put_pattern = rf'put[A-Za-z]+\((?:"{save_key}"|{"|".join(map(re.escape, key_constants)) or r"(?!)"})'
         get_pattern = rf'get[A-Za-z]+\((?:"{save_key}"|{"|".join(map(re.escape, key_constants)) or r"(?!)"})'
-        if not re.search(put_pattern, java_source):
+        # PersistentDataDelegate-backed fields (for example
+        # NullEndgameEntity.despawnTimer) declare the NBT key through
+        # `persistentInt(KEY)` and delegate both read/write operations. Treat
+        # that source-backed declaration as equivalent evidence to explicit
+        # compound.put*/get* calls.
+        delegate_pattern = rf'persistent[A-Za-z]+\((?:"{save_key}"|{"|".join(map(re.escape, key_constants)) or r"(?!)"})\)'
+        has_delegate = re.search(delegate_pattern, java_source) is not None
+        if not re.search(put_pattern, java_source) and not has_delegate:
             errors.append(f"{key}: Java class does not save '{evidence['save_key']}'")
-        if not re.search(get_pattern, java_source):
+        if not re.search(get_pattern, java_source) and not has_delegate:
             errors.append(f"{key}: Java class does not load '{evidence['save_key']}'")
 
     raw_properties: dict[str, set[str]] = defaultdict(set)

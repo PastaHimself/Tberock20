@@ -17,8 +17,13 @@ function fixture() {
     getEntities: () => entities,
   };
   const links = linkPortals({}, a, b);
-  const sweep = new PortalSweep({ getDimension: () => dimension, getEntity: (id) => entities.find((e) => e.id === id) });
-  return { blocks, living, item, links, sweep };
+  const stale = [];
+  const sweep = new PortalSweep({
+    getDimension: () => dimension,
+    getEntity: (id) => entities.find((e) => e.id === id),
+    onStaleLink: (source) => stale.push(source),
+  });
+  return { blocks, living, item, links, sweep, stale };
 }
 
 test("living entities traverse linked controllers automatically without bouncing back", () => {
@@ -36,10 +41,28 @@ test("living entities traverse linked controllers automatically without bouncing
 });
 
 test("nonliving items and removed destination controllers never travel", () => {
-  const { blocks, living, links, sweep } = fixture();
+  const { blocks, living, links, sweep, stale } = fixture();
   blocks.delete("25:70:3");
   assert.equal(sweep.step(links), 0);
   assert.equal(living.travels, 0);
+  assert.deepEqual(stale, [a]);
   blocks.set("25:70:3", "thebrokenscript:portal_controller");
   assert.equal(sweep.step(links), 1);
+});
+
+test("unloaded portal blocks are skipped without pruning persistent links", () => {
+  const { living, links } = fixture();
+  const stale = [];
+  const dimension = {
+    id: "overworld",
+    getBlock: () => undefined,
+    getEntities: () => [living],
+  };
+  const sweep = new PortalSweep({
+    getDimension: () => dimension,
+    getEntity: () => living,
+    onStaleLink: (source) => stale.push(source),
+  });
+  assert.equal(sweep.step(links), 0);
+  assert.deepEqual(stale, []);
 });

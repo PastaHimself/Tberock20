@@ -151,12 +151,20 @@ test("painting placement maps only horizontal wall faces to stable offsets and y
 test("portal link storage is symmetric and dimension-safe", async () => {
   const modulePath = path.join(bpRoot, "scripts/systems/ported_feature_logic.js");
   assert.equal(await exists(modulePath), true, "ported feature logic must exist");
-  const { linkPortals, linkedPortal } = await import(pathToFileURL(modulePath));
+  const { linkPortals, linkedPortal, unlinkPortal } = await import(pathToFileURL(modulePath));
   const a = { dimensionId: "minecraft:overworld", x: 1, y: 64, z: 2 };
   const b = { dimensionId: "thebrokenscript:limbo", x: 8, y: 70, z: 9 };
   const links = linkPortals({}, a, b);
   assert.deepEqual(linkedPortal(links, a), b);
   assert.deepEqual(linkedPortal(links, b), a);
+  assert.deepEqual(unlinkPortal(links, a), {});
+});
+
+test("hand cannon retains the Java no-cooldown use contract", async () => {
+  const source = await readFile(path.join(bpRoot, "scripts/systems/ported_features.js"), "utf8");
+  assert.match(source, /export function fireHandCannon\(player\)/);
+  assert.doesNotMatch(source, /HAND_CANNON_COOLDOWN|cannonReadyAt/);
+  assert.match(source, /applyDamageWithSource\(target, 25, "thebrokenscript:hand_cannon_damage"/);
 });
 
 test("portal block interaction preserves linker use and readiness-gates the fallback", async () => {

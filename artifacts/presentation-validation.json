@@ -1,0 +1,121 @@
+{
+  "checks": {
+    "animations": {
+      "deployed_files": 35,
+      "direct_script_animation_ids": 1,
+      "java_model_references": 26,
+      "length_tolerance_seconds": 0.1,
+      "source_files": 35
+    },
+    "audio": {
+      "custom_sound_event_mode": "stable LevelSoundEvent alias routed through RP/sounds.json",
+      "mismatched_script_sound_ids": [],
+      "record_items": 10,
+      "script_only_song_definitions": 2,
+      "source_song_definitions": 12
+    },
+    "particles": {
+      "deployed_definitions": 11,
+      "event_counts": {
+        "eyes": 5,
+        "null_particle": 5,
+        "particle_of_curved": 55
+      },
+      "java_particle_callsite_types": [
+        "eyes",
+        "fardaway",
+        "null_particle",
+        "null_structure_particle",
+        "paper_particle",
+        "particle_of_curved",
+        "wretched_particle"
+      ],
+      "java_particle_provider_types": [
+        "eyes",
+        "fardaway",
+        "null_particle",
+        "null_structure_particle",
+        "paper_particle",
+        "particle_of_curved",
+        "wretched_particle"
+      ],
+      "rock_burst_count": 400,
+      "source_definitions": 9,
+      "unadapted_callsite_types": []
+    },
+    "ui_camera": {
+      "camera_api_methods": [
+        "clear",
+        "fade",
+        "setCamera"
+      ],
+      "font_mapping": "deferred_until_glyph_map_is_verified",
+      "java_menu_families": 10,
+      "shader_pipeline": "blocked_exact_parity",
+      "ui_files": 4
+    }
+  },
+  "counts": {
+    "animation_controller_definitions": 0,
+    "animation_length_comparisons": 191,
+    "animation_loop_comparisons": 197,
+    "camera_api_methods": 3,
+    "client_entities_with_animation_bindings": 0,
+    "deployed_animation_entries": 198,
+    "deployed_animation_files": 35,
+    "deployed_particle_files": 11,
+    "deployed_sound_definitions": 142,
+    "java_animation_model_references": 26,
+    "java_menu_families": 10,
+    "java_particle_callsite_count": 22,
+    "java_particle_callsite_types": 7,
+    "java_particle_provider_types": 7,
+    "mismatched_script_sound_ids": 0,
+    "particle_event_count_checks": 3,
+    "particle_resource_identifiers": 10,
+    "record_items": 10,
+    "render_controller_definitions": 2,
+    "script_animation_literals": 1,
+    "script_only_song_definitions": 2,
+    "sound_definitions_checked": 142,
+    "source_animation_entries": 197,
+    "source_animation_files": 35,
+    "source_particle_files": 9,
+    "source_screen_images": 59,
+    "source_song_definitions": 12,
+    "source_sound_definitions": 143,
+    "ui_files": 4,
+    "vhs_overlay_textures": 11
+  },
+  "errors": [],
+  "ok": true,
+  "warnings": [
+    "follows_particle and revuxor_particle remain resource-only until a Java runtime provider/callsite is found",
+    "Source sound definition remains intentionally out of pack: video/alpha3",
+    "Source/deployed sound cue adapter for baby: Sound cue count drift for baby: source=2, deployed=1",
+    "Source/deployed sound cue adapter for c_death: Sound cue count drift for c_death: source=2, deployed=1",
+    "Source/deployed sound cue adapter for circuit_jumpscare_sound: Sound cue count drift for circuit_jumpscare_sound: source=2, deployed=1",
+    "Source/deployed sound cue adapter for fardaway: Sound cue count drift for fardaway: source=2, deployed=1",
+    "Source/deployed sound cue adapter for jimmy.moonrise.p1: Sound property drift for jimmy.moonrise.p1[0].preload: source=True, deployed=None",
+    "Source/deployed sound cue adapter for jimmy.moonrise.p2: Sound property drift for jimmy.moonrise.p2[0].preload: source=True, deployed=None",
+    "Source/deployed sound cue adapter for jimmy.moonrise.p3: Sound property drift for jimmy.moonrise.p3[0].preload: source=True, deployed=None",
+    "Source/deployed sound cue adapter for kills_player: Sound cue count drift for kills_player: source=2, deployed=1",
+    "Source/deployed sound cue adapter for mazesfx: Sound cue count drift for mazesfx: source=4, deployed=2",
+    "Source/deployed sound cue adapter for mazesfx: Sound path drift for mazesfx[0]: source='sounds/mazesfx', deployed='sounds/sfx/mazesfx1'",
+    "Source/deployed sound cue adapter for mazesfx: Sound path drift for mazesfx[1]: source='sounds/sfx/mazesfx1', deployed='sounds/sfx/mazesfx2'",
+    "Source/deployed sound cue adapter for moon_crack: Sound cue count drift for moon_crack: source=2, deployed=1",
+    "Source/deployed sound cue adapter for moon_crack: Sound path drift for moon_crack[0]: source='sounds/moon_crack', deployed='sounds/the_moon'",
+    "Source/deployed sound cue adapter for null_chase: Sound cue count drift for null_chase: source=2, deployed=1",
+    "Source/deployed sound cue adapter for null_chase: Sound path drift for null_chase[0]: source='sounds/null_chase', deployed='sounds/null/instance'",
+    "Source/deployed sound cue adapter for null_jumpscare_notloudanymore: Sound cue count drift for null_jumpscare_notloudanymore: source=2, deployed=1",
+    "Source/deployed sound cue adapter for phantom: Sound cue count drift for phantom: source=2, deployed=1",
+    "Source/deployed sound cue adapter for transform: Sound cue count drift for transform: source=2, deployed=1",
+    "Source/deployed sound cue adapter for woodsfx: Sound cue count drift for woodsfx: source=4, deployed=2",
+    "Source/deployed sound cue adapter for woodsfx: Sound path drift for woodsfx[0]: source='sounds/woodsfx', deployed='sounds/sfx/woodsfx1'",
+    "Source/deployed sound cue adapter for woodsfx: Sound path drift for woodsfx[1]: source='sounds/sfx/woodsfx1', deployed='sounds/sfx/woodsfx2'",
+    "Java FancyAudio fade/attenuation and reload-time client mixing remain engine-specific; tracked Bedrock SoundInstance handles cover arena reset and player lifecycle cleanup",
+    "No Bedrock animation-controller definitions are deployed; state changes use guarded script playAnimation bridges",
+    "VHS overlay scope is statically HUD-only; multiplayer/client rendering still requires an in-game smoke check",
+    "Custom Java glyph mapping remains deferred and the Java GLSL pipeline remains BLOCKED; visible mood effects are audited as adapters"
+  ]
+}

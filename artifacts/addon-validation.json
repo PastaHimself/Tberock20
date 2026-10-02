@@ -1,0 +1,16 @@
+{
+  "counts": {
+    "checked_relative_imports": 406,
+    "checked_sound_references": 182,
+    "checked_structure_references": 0,
+    "checked_texture_references": 398,
+    "javascript_files": 121,
+    "json_files": 873,
+    "mcstructure_files": 26,
+    "png_files": 326,
+    "sound_files": 181
+  },
+  "errors": [],
+  "ok": true,
+  "warnings": []
+}

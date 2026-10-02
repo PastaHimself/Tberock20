@@ -1,0 +1,20 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "thebrokenscript:circuit_cave_painting",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/circuit_cave"
+      },
+      "geometry": {
+        "default": "geometry.thebrokenscript.circuit_cave_painting"
+      },
+      "render_controllers": [
+        "controller.render.thebrokenscript.circuit_cave_painting"
+      ]
+    }
+  }
+}

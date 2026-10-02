@@ -1,0 +1,30 @@
+{
+  "contract": {
+    "engine_floor": [
+      1,
+      26,
+      50
+    ],
+    "product_line": "1.26.50-preview",
+    "required_experiments": [
+      "Beta APIs"
+    ],
+    "resource_engine_floor": [
+      1,
+      26,
+      50
+    ],
+    "runtime_server": "2.11.0-beta",
+    "runtime_server_ui": "2.1.0",
+    "smoke_server": "2.11.0-beta",
+    "smoke_server_ui": "2.1.0",
+    "smoke_typings": [
+      "@minecraft/server@2.11.0-beta.1.26.50-preview.26",
+      "@minecraft/server-ui@2.3.0-beta.1.26.50-preview.26"
+    ],
+    "typing_server": "2.11.0-beta.1.26.50-preview.26",
+    "typing_server_ui": "2.3.0-beta.1.26.50-preview.26"
+  },
+  "errors": [],
+  "status": "ok"
+}

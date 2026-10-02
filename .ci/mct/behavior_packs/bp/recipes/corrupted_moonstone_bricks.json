@@ -1,0 +1,31 @@
+{
+  "format_version": "1.26.40",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "thebrokenscript:corrupted_moonstone_bricks"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "bbb",
+      "b4b",
+      "bbb"
+    ],
+    "key": {
+      "b": {
+        "item": "thebrokenscript:moon_stone_bricks"
+      },
+      "4": {
+        "item": "thebrokenscript:all_dead"
+      }
+    },
+    "result": {
+      "item": "thebrokenscript:corrupted_moon_stone_bricks",
+      "count": 8
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    }
+  }
+}

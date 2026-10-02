@@ -57,9 +57,11 @@ test("Bedrock entity values follow explicit Java registry attributes", () => {
     for (const [, name, value] of body.matchAll(attribute)) {
       if (!ids[name]) continue;
       const [id, property] = ids[name];
-      // The Bedrock schema caps native melee damage at 50 and knockback resistance at 1.
+      // Bedrock knockback resistance is bounded to 1. The current
+      // minecraft:attack schema accepts an unrestricted float range, so high
+      // source melee values such as NullUnbeatable's 313 remain representable.
       const expected = name === "KnockbackResistance" ? Math.min(Number(value), 1)
-        : name === "AttackDamage" ? Math.min(Number(value), 50) : Number(value);
+        : Number(value);
       assert.equal(component(slug, id)?.[property], expected, `${slug}: ${name}`);
       checked++;
     }
@@ -102,7 +104,24 @@ test("ordinary entity collision boxes match their Java registrations", () => {
 
 test("entity classes with their own attributes retain the Java values", () => {
   const cases = [
+    ["faraway", "FarawayEntity.java", "MOVEMENT_SPEED", "minecraft:movement", "value"],
+    ["faraway", "FarawayEntity.java", "MAX_HEALTH", "minecraft:health", "value"],
+    ["faraway", "FarawayEntity.java", "ATTACK_DAMAGE", "minecraft:attack", "damage"],
+    ["faraway", "FarawayEntity.java", "FOLLOW_RANGE", "minecraft:follow_range", "value"],
+    ["hetzer", "players/HetzerEntity.java", "MAX_HEALTH", "minecraft:health", "value"],
+    ["hetzer", "players/HetzerEntity.java", "ATTACK_DAMAGE", "minecraft:attack", "damage"],
+    ["hetzer", "players/HetzerEntity.java", "FOLLOW_RANGE", "minecraft:follow_range", "value"],
+    ["hetzer", "players/HetzerEntity.java", "KNOCKBACK_RESISTANCE", "minecraft:knockback_resistance", "value"],
+    ["sub_anomaly_1", "anomaly/sa1/SubAnomaly1Entity.java", "MOVEMENT_SPEED", "minecraft:movement", "value"],
+    ["sub_anomaly_1", "anomaly/sa1/SubAnomaly1Entity.java", "MAX_HEALTH", "minecraft:health", "value"],
+    ["sub_anomaly_1", "anomaly/sa1/SubAnomaly1Entity.java", "ATTACK_DAMAGE", "minecraft:attack", "damage"],
+    ["sub_anomaly_1", "anomaly/sa1/SubAnomaly1Entity.java", "FOLLOW_RANGE", "minecraft:follow_range", "value"],
+    ["sub_anomaly_2", "anomaly/sa2/SubAnomaly2Entity.java", "MOVEMENT_SPEED", "minecraft:movement", "value"],
+    ["sub_anomaly_2", "anomaly/sa2/SubAnomaly2Entity.java", "MAX_HEALTH", "minecraft:health", "value"],
+    ["sub_anomaly_2", "anomaly/sa2/SubAnomaly2Entity.java", "ATTACK_DAMAGE", "minecraft:attack", "damage"],
+    ["sub_anomaly_2", "anomaly/sa2/SubAnomaly2Entity.java", "FOLLOW_RANGE", "minecraft:follow_range", "value"],
     ["null_watching", "nullent/NullWatchingEntity.java", "ATTACK_DAMAGE", "minecraft:attack", "damage"],
+    ["null_watching", "nullent/NullWatchingEntity.java", "KNOCKBACK_RESISTANCE", "minecraft:knockback_resistance", "value"],
     ["null_invade_base", "nullent/NullInvadeBaseEntity.java", "FOLLOW_RANGE", "minecraft:follow_range", "value"],
     ["null_unbeatable_bossfight", "nullent/NullUnbeatableBossfightEntity.java", "ATTACK_DAMAGE", "minecraft:attack", "damage"],
     ["null_unbeatable_bossfight", "nullent/NullUnbeatableBossfightEntity.java", "FOLLOW_RANGE", "minecraft:follow_range", "value"],
@@ -111,10 +130,31 @@ test("entity classes with their own attributes retain the Java values", () => {
   ];
   for (const [slug, source, attribute, id, property] of cases) {
     const java = fs.readFileSync(path.join(root, "decompiled/net/thebrokenscript/entity", source), "utf8");
-    const match = java.match(new RegExp(`\\.add\\(Attributes\\.${attribute},\\s*(\\d+(?:\\.\\d+)?)\\)`));
+    const helperName = {
+      MOVEMENT_SPEED: "MovementSpeed",
+      MAX_HEALTH: "MaxHealth",
+      ATTACK_DAMAGE: "AttackDamage",
+      FOLLOW_RANGE: "FollowRange",
+      KNOCKBACK_RESISTANCE: "KnockbackResistance",
+    }[attribute];
+    const match = java.match(new RegExp(`\\.add\\(Attributes\\.${attribute},\\s*(\\d+(?:\\.\\d+)?)\\)`))
+      ?? java.match(new RegExp(`AttributeUtil\\.set${helperName}\\([^\\n]*?\\(Number\\)(\\d+(?:\\.\\d+)?)\\)`));
     assert.ok(match, `${slug}: missing Java ${attribute}`);
     const expected = attribute === "KNOCKBACK_RESISTANCE" ? Math.min(Number(match[1]), 1)
-      : attribute === "ATTACK_DAMAGE" ? Math.min(Number(match[1]), 50) : Number(match[1]);
+      : Number(match[1]);
     assert.equal(component(slug, id)?.[property], expected, `${slug}: ${attribute}`);
+  }
+});
+
+test("forced no-gravity entity overrides are represented in Bedrock physics", () => {
+  const cases = [
+    ["hetzer", "players/HetzerEntity.java"],
+    ["null_is_here", "nullent/NullIsHereEntity.java"],
+    ["null_unbeatable_bossfight", "nullent/NullUnbeatableBossfightEntity.java"],
+  ];
+  for (const [slug, source] of cases) {
+    const java = fs.readFileSync(path.join(root, "decompiled/net/thebrokenscript/entity", source), "utf8");
+    assert.match(java, /setNoGravity\(boolean ignored\)[\s\S]*?super\.setNoGravity\(true\)/, `${slug}: Java no-gravity override`);
+    assert.equal(component(slug, "minecraft:physics")?.has_gravity, false, `${slug}: Bedrock gravity`);
   }
 });

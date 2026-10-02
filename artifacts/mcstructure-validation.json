@@ -1,0 +1,529 @@
+{
+  "errors": [],
+  "ok": true,
+  "structure_count": 26,
+  "structures": [
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 930,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 1,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/library.mcstructure",
+      "size": [
+        16,
+        17,
+        16
+      ],
+      "volume": 4352,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1012,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 4,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/library2.mcstructure",
+      "size": [
+        16,
+        17,
+        16
+      ],
+      "volume": 4352,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1902,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 47,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_caveoutpost.mcstructure",
+      "size": [
+        48,
+        44,
+        47
+      ],
+      "volume": 99264,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1278,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 80,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_distastefulquandary.mcstructure",
+      "size": [
+        18,
+        14,
+        17
+      ],
+      "volume": 4284,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1974,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 37,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_happyfarm.mcstructure",
+      "size": [
+        19,
+        15,
+        23
+      ],
+      "volume": 6555,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 187,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 13,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_house.mcstructure",
+      "size": [
+        11,
+        7,
+        11
+      ],
+      "volume": 847,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1921,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 60,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_sanctuary.mcstructure",
+      "size": [
+        23,
+        40,
+        17
+      ],
+      "volume": 15640,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 2505,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 131,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_somethingoldsomethingnew.mcstructure",
+      "size": [
+        24,
+        23,
+        26
+      ],
+      "volume": 14352,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 978,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 72,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_thewrongdirection.mcstructure",
+      "size": [
+        21,
+        13,
+        10
+      ],
+      "volume": 2730,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 15136,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 59,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_towerbaseright.mcstructure",
+      "size": [
+        62,
+        61,
+        39
+      ],
+      "volume": 147498,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1934,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 39,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/limbo_treehouse.mcstructure",
+      "size": [
+        39,
+        34,
+        27
+      ],
+      "volume": 35802,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 7426,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 6,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_0_0.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 5410,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 8,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_0_1.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 8945,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 8,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_0_2.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 7216,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 8,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_1_0.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 4557,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 7,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_1_1.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 6314,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 8,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_1_2.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 8851,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 7,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_2_0.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 5891,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 8,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_2_1.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 6445,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 8,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_core_2_2.mcstructure",
+      "size": [
+        32,
+        64,
+        32
+      ],
+      "volume": 65536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1024,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 1,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/phase3_outer_platform.mcstructure",
+      "size": [
+        32,
+        1,
+        32
+      ],
+      "volume": 1024,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 750,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 1,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2_clandimensionroom1.mcstructure",
+      "size": [
+        16,
+        9,
+        16
+      ],
+      "volume": 2304,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 748,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 5,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2_clanvoidnew1.mcstructure",
+      "size": [
+        16,
+        6,
+        16
+      ],
+      "volume": 1536,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 768,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 3,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2_fieldbase.mcstructure",
+      "size": [
+        16,
+        9,
+        16
+      ],
+      "volume": 2304,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 256,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 1,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2_stone1.mcstructure",
+      "size": [
+        16,
+        1,
+        16
+      ],
+      "volume": 256,
+      "warnings": []
+    },
+    {
+      "block_position_data_entries": 0,
+      "format_version": 1,
+      "layers": 2,
+      "non_air_blocks": 1823,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "palette_size": 4,
+      "path": "TheBrokenScript_Bedrock_2_0/BP/structures/thebrokenscript/stage2_woodfloor1.mcstructure",
+      "size": [
+        16,
+        15,
+        16
+      ],
+      "volume": 3840,
+      "warnings": []
+    }
+  ],
+  "validated_structure_count": 26,
+  "warnings": []
+}

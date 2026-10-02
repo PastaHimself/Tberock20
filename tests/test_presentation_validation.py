@@ -19,16 +19,13 @@ class PresentationValidationTests(unittest.TestCase):
         self.assertEqual(result["counts"]["source_particle_files"], 9)
         self.assertEqual(result["counts"]["java_particle_provider_types"], 7)
         self.assertEqual(result["counts"]["java_particle_callsite_types"], 7)
-        self.assertEqual(result["checks"]["particles"]["unadapted_callsite_types"], [
-            "fardaway",
-            "null_structure_particle",
-            "paper_particle",
-            "wretched_particle",
-        ])
+        self.assertEqual(result["checks"]["particles"]["unadapted_callsite_types"], [])
         self.assertEqual(result["counts"]["source_song_definitions"], 12)
         self.assertEqual(result["counts"]["source_sound_definitions"], 143)
         self.assertEqual(result["counts"]["deployed_sound_definitions"], 142)
         self.assertEqual(result["counts"]["record_items"], 10)
+        self.assertEqual(result["counts"]["mismatched_script_sound_ids"], 0)
+        self.assertEqual(result["checks"]["audio"]["mismatched_script_sound_ids"], [])
         self.assertEqual(result["counts"]["ui_files"], 4)
         self.assertEqual(result["counts"]["source_screen_images"], 59)
 
@@ -63,6 +60,27 @@ class PresentationValidationTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertTrue(
             any("record_16.json" in error and "duration" in error for error in result["errors"])
+        )
+
+    def test_namespaced_script_sound_must_match_deployed_definition_key(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Path(directory) / REPOSITORY_ROOT.name
+            shutil.copytree(REPOSITORY_ROOT, fixture)
+            script_path = fixture / "TheBrokenScript_Bedrock_2_0/BP/scripts/systems/horror_chat.js"
+            script_path.write_text(
+                script_path.read_text(encoding="utf-8").replace(
+                    'sender.playSound("kills_player"',
+                    'sender.playSound("thebrokenscript:kills_player"',
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            result = validate_presentation(fixture)
+
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("thebrokenscript:kills_player -> kills_player" in error for error in result["errors"])
         )
 
 

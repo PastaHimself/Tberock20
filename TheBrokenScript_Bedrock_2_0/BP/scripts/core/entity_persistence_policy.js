@@ -27,6 +27,11 @@ export const DYNAMIC_PROPERTY_POLICY = Object.freeze({
     // NBT. Bedrock has no portable NBT attachment, so the runtime maps it to
     // one explicitly declared entity dynamic property.
     "tbs:despawn_timer": Object.freeze({ scope: "entity", persistence: "persistent", owner: "null-pursuit", javaField: "NullMazeEntity/NullFlyingEntity.timer" }),
+    "tbs:null_endgame_timer": Object.freeze({ scope: "entity", persistence: "persistent", owner: "null-endgame", javaField: "NullEndgameEntity.despawnTimer" }),
+    "tbs:null_invade_timer": Object.freeze({ scope: "entity", persistence: "persistent", owner: "null-invade", javaField: "NullInvadeBaseEntity.timer" }),
+    "tbs:null_invade_owner": Object.freeze({ scope: "entity", persistence: "persistent", owner: "null-invade", javaField: "NullInvadeBaseEntity.playerUuid" }),
+    "tbs:null_unbeatable_timer": Object.freeze({ scope: "entity", persistence: "persistent", owner: "null-unbeatable", javaField: "NullUnbeatableBossfightEntity.timer" }),
+    "tbs:tbe_main_state": Object.freeze({ scope: "entity", persistence: "persistent", owner: "tbe-main", javaField: "TheBrokenEndEntity saved encounter state" }),
     "tbe:alive": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.aliveTicks" }),
     "tbe:lifetime": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.lifetime" }),
     "tbe:variant": Object.freeze({ scope: "entity", persistence: "persistent", javaField: "TheBrokenEndAmbushEntity.variant" }),
@@ -44,6 +49,11 @@ export const ENTITY_DYNAMIC_PROPERTY_POLICY = Object.freeze({
     "tbs:jim_stage_touch": DYNAMIC_PROPERTY_POLICY["tbs:jim_stage_touch"],
     "tbs:faraway_appearance": DYNAMIC_PROPERTY_POLICY["tbs:faraway_appearance"],
     "tbs:despawn_timer": DYNAMIC_PROPERTY_POLICY["tbs:despawn_timer"],
+    "tbs:null_endgame_timer": DYNAMIC_PROPERTY_POLICY["tbs:null_endgame_timer"],
+    "tbs:null_invade_timer": DYNAMIC_PROPERTY_POLICY["tbs:null_invade_timer"],
+    "tbs:null_invade_owner": DYNAMIC_PROPERTY_POLICY["tbs:null_invade_owner"],
+    "tbs:null_unbeatable_timer": DYNAMIC_PROPERTY_POLICY["tbs:null_unbeatable_timer"],
+    "tbs:tbe_main_state": DYNAMIC_PROPERTY_POLICY["tbs:tbe_main_state"],
 });
 
 export const PERSISTENT_ENTITY_EVIDENCE = Object.freeze({
@@ -63,6 +73,26 @@ export const PERSISTENT_ENTITY_EVIDENCE = Object.freeze({
         javaClass: "NullFlyingEntity",
         saveKey: "despawn_timer",
     }),
+    "tbs:null_endgame_timer": Object.freeze({
+        javaClass: "NullEndgameEntity",
+        saveKey: "despawnTimer",
+    }),
+    "tbs:null_invade_timer": Object.freeze({
+        javaClass: "NullInvadeBaseEntity",
+        saveKey: "despawn_timer",
+    }),
+    "tbs:null_invade_owner": Object.freeze({
+        javaClass: "NullInvadeBaseEntity",
+        saveKey: "player_uuid",
+    }),
+    "tbs:null_unbeatable_timer": Object.freeze({
+        javaClass: "NullUnbeatableBossfightEntity",
+        saveKey: "despawn_timer",
+    }),
+    "tbs:tbe_main_state": Object.freeze({
+        javaClass: "TheBrokenEndEntity",
+        saveKey: "despawn_timer",
+    }),
 });
 
 export const TRANSIENT_RUNTIME_STATE = Object.freeze([
@@ -72,11 +102,11 @@ export const TRANSIENT_RUNTIME_STATE = Object.freeze([
     "misc_controller timers Map keyed by entity.id",
     "stalk_controller timers Map keyed by entity.id",
     "boss_controller timers Map keyed by entity.id",
-    "tbe_controller timers and extraState Maps keyed by entity.id",
-    "ported_features cannonReadyAt Map keyed by player.id",
+    "tbe_controller timers Map and persistent-main-state cache keyed by entity.id",
 ]);
 
 export const NON_PERSISTENT_ENTITY_TYPES = Object.freeze([
     "thebrokenscript:integrity_arm",
     "thebrokenscript:chord_projectile",
+    "thebrokenscript:maze_shadows",
 ]);

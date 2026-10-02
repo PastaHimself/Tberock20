@@ -201,6 +201,10 @@ export const PLAYER_EXTRA_SCHEMA = Object.freeze({
     isNullProfile: extra("boolean", false),
     // Bedrock-only delivery ledger for the one-shot story book adapter.
     nullBookDelivered: extra("boolean", false),
+    // TrueEndGame stores these directly in the Java player's persistent NBT,
+    // rather than in PlayerVariables. Keep them persistent on Bedrock as well.
+    shutdown: extra("number", 0),
+    spawnedShutdownWindow: extra("boolean", false),
 });
 
 export const PLAYER_COMPATIBILITY_DEFAULTS = Object.freeze({

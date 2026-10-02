@@ -55,7 +55,9 @@ function completeReport(matrix, evidenceFor = (id) => [`artifacts/${id}.png`, "c
 
 async function runPython(script, args) {
   try {
-    const result = await execFileAsync("python", [script, ...args], { cwd: ROOT });
+    const pythonExecutable = process.env.PYTHON
+      ?? (process.platform === "win32" ? "python" : "python3");
+    const result = await execFileAsync(pythonExecutable, [script, ...args], { cwd: ROOT });
     return { code: 0, output: `${result.stdout}${result.stderr}` };
   } catch (error) {
     return {

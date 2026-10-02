@@ -29,6 +29,14 @@ const LIGHTING_SETTINGS_PATH = '/resource_packs/rp/lighting/global.json';
 const CUSTOM_UI_OVERLAY_PATH = '/resource_packs/rp/ui/vhs_overlay.json';
 const ITEM_LINK_WARNING = 'Link to item type is not found in this pack';
 const TEXTURE_LINK_WARNING = 'Link to texture is not found in this pack';
+const SOURCE_BACKED_HIGH_ATTACK_VALUES = new Map([
+  ['/behavior_packs/bp/entities/fever_stalk.json', 200],
+  ['/behavior_packs/bp/entities/null_is_here.json', 313],
+  ['/behavior_packs/bp/entities/null_unbeatable_bossfight.json', 313],
+  ['/behavior_packs/bp/entities/null_watching.json', 63],
+  ['/behavior_packs/bp/entities/the_broken_end.json', 600],
+  ['/behavior_packs/bp/entities/the_broken_end_ambush.json', 600],
+]);
 
 
 function serializedFinding(item) {
@@ -155,6 +163,19 @@ function isOfficialExistingUiTextureWarning(item, evidence) {
 }
 
 
+function isSourceBackedHighAttackWarning(item, evidence) {
+  if (item.type !== 'warning'
+      || item.generatorId !== 'JSONF'
+      || typeof item.path !== 'string'
+      || !(evidence.highAttackValues instanceof Map)) {
+    return false;
+  }
+  const expected = evidence.highAttackValues.get(item.path);
+  if (expected === undefined) return false;
+  return item.message === `At minecraft:entity.components.minecraft:attack.damage, value ${expected} is above maximum value 50.`;
+}
+
+
 function readJsonIfPresent(filePath) {
   try {
     return JSON.parse(readFileSync(filePath, 'utf8'));
@@ -222,11 +243,20 @@ export function loadMctCompatibilityEvidence(repositoryRoot = process.cwd()) {
     && isKeyframeObject(lightingSettings?.ambient?.illuminance)
     && isKeyframeObject(lightingSettings?.sky?.intensity);
 
+  const highAttackValues = new Map();
+  for (const [mctPath, expected] of SOURCE_BACKED_HIGH_ATTACK_VALUES) {
+    const relative = mctPath.replace('/behavior_packs/bp/', 'BP/');
+    const payload = readJsonIfPresent(path.join(addonRoot, relative));
+    const actual = payload?.['minecraft:entity']?.components?.['minecraft:attack']?.damage;
+    if (actual === expected) highAttackValues.set(mctPath, expected);
+  }
+
   return {
     customBlockIdentifiers,
     uiTextureIdentifiers,
     subpacksValid,
     lightingKeyframesValid,
+    highAttackValues,
   };
 }
 
@@ -307,7 +337,8 @@ export function classifyMctFindings(report, options = {}) {
       || isOfficialLightingKeyframeWarning(item, evidence)
       || isOfficialAutoCreatedBlockItemWarning(item, evidence)
       || isOfficialVanillaRecipeItemWarning(item)
-      || isOfficialExistingUiTextureWarning(item, evidence);
+      || isOfficialExistingUiTextureWarning(item, evidence)
+      || isSourceBackedHighAttackWarning(item, evidence);
     (isCompatibility ? compatibility : warnings).push(item);
   }
 

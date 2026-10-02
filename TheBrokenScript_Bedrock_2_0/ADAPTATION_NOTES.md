@@ -254,11 +254,11 @@ The Java attribute mutation and renderer pipeline are not portable; persistence,
 
 1. **Source feature**: portal controller/extender activation, linking, destination selection, safe arrival, cooldown, and incoming-entity handling.
 2. **Source behavior**: activation requires sneaking, the linker is not consumed, anchors and links persist, destination readiness is checked, safe fallback is used, and repeat entry is guarded for one tick.
-3. **Source evidence**: the source portal controller/extender classes and `BP/scripts/systems/ported_features.js`.
-4. **Bedrock limitation**: the current Script API route does not provide the Java portal tick sweep for every same-dimension living entity, nor a one-to-one item/projectile transfer hook.
-5. **Replacement design**: the shipped route handles player interaction, namespaced persisted anchors/links, readiness-gated teleport, safe landing, and persisted cooldown state.
-6. **Player-visible difference**: mobs, items, and projectiles do not claim Java portal parity; unavailable destination initialization falls back to the documented safe route.
-7. **Parity class**: `VALIDATED_HIGH_PARITY` for player linking/arrival/cooldown; `ENGINE_UNSUPPORTED` for the unexposed entity/item/projectile sweep.
+3. **Source evidence**: the source portal controller/extender classes plus `BP/scripts/systems/{ported_features,portal_auto_travel}.js`.
+4. **Bedrock limitation**: Script API exposes loaded entities and blocks rather than Java's exact portal collision/tick internals. Exact chunk-loading behavior and volume-edge timing therefore remain engine-verification items. The Java living-entity rule excludes items/projectiles, so the adapter intentionally does not broaden transfer to them.
+5. **Replacement design**: linked controllers scan their two-block entry volume each tick for same-dimension players/living entities, preserve the entrant's controller-relative offset, readiness-check the destination, validate both controller blocks when loaded, suppress immediate bounce-back, and prune positively observed stale links without treating unloaded blocks as deleted. Linker interaction, persisted anchors/links, safe landing, and the one-tick player cooldown remain on the existing route.
+6. **Player-visible difference**: supported living entities now traverse automatically in the same dimension; exact Java collision-volume and chunk-load edge behavior still require the 1.26.50 Preview smoke matrix.
+7. **Parity class**: `VALIDATED_HIGH_PARITY` for linking, living-entity sweep, arrival offset/guard, stale-link handling, and cooldown; exact engine collision/chunk timing remains `VALIDATED_APPROXIMATION` pending runtime evidence.
 
 ## A-030 — P1 direct command surface
 

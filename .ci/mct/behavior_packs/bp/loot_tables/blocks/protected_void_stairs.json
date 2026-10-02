@@ -1,0 +1,19 @@
+{
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [
+        {
+          "condition": "survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "item",
+          "name": "thebrokenscript:protected_void_stairs",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}
